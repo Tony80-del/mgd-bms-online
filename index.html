@@ -9,7 +9,6 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -115,38 +114,9 @@
     .fi-t[contenteditable]{min-height:38px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box}
     .fi-ta[contenteditable]{min-height:80px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box;resize:vertical}
     @media(max-width:768px){.sb{position:fixed;left:-280px;top:0;bottom:0;width:280px;z-index:50;transition:left .3s}.sb.open{left:0}.mcnt{margin-left:0!important}.mmb{display:flex!important}}
-  
-/* ===== Login Overlay ===== */
-body.logged-out > *:not(#login-overlay){display:none !important;}
-#login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e293b);display:flex;align-items:center;justify-content:center;z-index:99999;}
-.login-box{background:#fff;border-radius:16px;padding:40px 32px;width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);}
-.login-box h2{margin:0 0 4px;font-size:24px;color:#0f172a;font-weight:700;}
-.login-sub{margin:0 0 24px;color:#64748b;font-size:13px;}
-.login-box input{display:block;width:100%;box-sizing:border-box;margin:0 0 14px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:15px;outline:none;}
-.login-box input:focus{border-color:#3b82f6;}
-.btn-primary{width:100%;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;}
-.btn-primary:hover{background:#2563eb;}
-.btn-secondary{width:100%;padding:12px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:14px;cursor:pointer;}
-.btn-secondary:hover{background:#e2e8f0;}
-#login-msg{color:#ef4444;font-size:13px;margin:10px 0;min-height:18px;}
-.login-hint{color:#94a3b8;font-size:11px;margin:14px 0 0;line-height:1.5;}
-</style>
+  </style>
 </head>
-<body class="bgp logged-out">
-<!-- ===== Login Overlay ===== -->
-<div id="login-overlay">
-  <div class="login-box">
-    <h2>MGD BMS</h2>
-    <p class="login-sub">业务管理系统 · 请登录 / Please Login</p>
-    <input type="email" id="login-email" placeholder="Email" autocomplete="username">
-    <input type="password" id="login-password" placeholder="Password" autocomplete="current-password">
-    <button id="login-btn" class="btn-primary">登录 Login</button>
-    <button id="register-btn" class="btn-secondary">注册账号 Register</button>
-    <div id="login-msg"></div>
-    <p class="login-hint">首次使用：点击"注册账号"创建账户，再把账号分享给团队</p>
-  </div>
-</div>
-
+<body class="bgp">
 <aside class="sb fixed left-0 top-0 bottom-0 w-64 z-40" id="sb">
   <div class="p-6 border-b border-[var(--border)]">
     <h1 class="fd text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-wide" id="ttl">业务管理系统</h1>
@@ -2902,7 +2872,6 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var fdb = firebase.firestore();
-var fauth = firebase.auth();
 
 // Cloud Sync Status
 var cloudStatus = 'offline';
@@ -2912,7 +2881,6 @@ var lastSyncFrom = null;
 var _origSave = window.saveData || function(){};
 window.saveData = function(){
   _origSave();
-  if(!fauth.currentUser) return; // Skip cloud if not logged in
   // Push to Firebase (async)
   fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(function(){
@@ -2928,7 +2896,6 @@ window.saveData = function(){
 
 // Load from Firebase (pull latest data)
 function syncFromCloud(){
-  if(!fauth.currentUser) return; // Skip if not logged in
   fdb.collection('bms_data').doc('master').get()
     .then(function(doc){
       if(doc.exists && doc.data().data){
@@ -2974,40 +2941,9 @@ function updateSyncStatus(icon){
 })();
 
 // Sync from cloud after page loads
-// ===== AUTH GATE =====
-fauth.onAuthStateChanged(function(user){
-  if(user){
-    // Logged in - show app & sync
-    document.body.classList.remove('logged-out');
-    cloudStatus = 'synced'; updateSyncStatus('☁️');
-    setTimeout(syncFromCloud, 1500);
-  } else {
-    // Not logged in - show login
-    document.body.classList.add('logged-out');
-  }
-});
-
-// Login button
-document.getElementById('login-btn').onclick = function(){
-  var e = document.getElementById('login-email').value;
-  var p = document.getElementById('login-password').value;
-  fauth.signInWithEmailAndPassword(e, p).catch(function(err){
-    document.getElementById('login-msg').textContent = err.message;
-  });
-};
-
-// Register button (first-time setup)
-document.getElementById('register-btn').onclick = function(){
-  var e = document.getElementById('login-email').value;
-  var p = document.getElementById('login-password').value;
-  if(p.length < 6){ document.getElementById('login-msg').textContent = '密码至少6位 / Password min 6 chars'; return; }
-  fauth.createUserWithEmailAndPassword(e, p).catch(function(err){
-    document.getElementById('login-msg').textContent = err.message;
-  });
-};
-
 window.addEventListener('load', function(){
-  // Auth state listener handles sync start
+  // Wait 1s for local data to initialize, then sync from Firebase
+  setTimeout(syncFromCloud, 1500);
 });
 </script>
 
