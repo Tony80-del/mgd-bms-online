@@ -1,0 +1,2852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>业务管理系统 | Business Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg1:#030912;--bg2:#071325;--card:#0b1e3d;--cardh:#10274a;--blue:#00B4D8;--cyan:#06d6c7;--purple:#8b5cf6;--text1:#E8F4FF;--text2:#7FB3D8;--muted:#3D5A80;--border:#0f2d50;--glow:rgba(0,180,216,0.15)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Noto Sans SC',sans-serif;background:var(--bg1);color:var(--text1);min-height:100vh}
+    .fd{font-family:'Space Grotesk',sans-serif}
+    ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--blue)}
+    .bgp{
+  background-color:var(--bg1);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,180,216,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 90%,rgba(139,92,246,0.06) 0%,transparent 50%),
+    linear-gradient(rgba(0,180,216,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,180,216,0.03) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,40px 40px,40px 40px;
+}
+    .sb{
+  background:linear-gradient(180deg,var(--bg2) 0%,#040D1C 100%);
+  border-right:1px solid var(--border);
+  box-shadow:2px 0 20px rgba(0,180,216,0.05);
+}
+    .ni{padding:12px 20px;margin:4px 12px;border-radius:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;color:var(--text2);position:relative}
+    .ni:hover{background:rgba(0,180,216,0.08);color:var(--blue);border-color:rgba(0,180,216,0.2)}
+    .ni.active{
+  background:rgba(0,180,216,0.1);
+  color:var(--blue);
+  border:1px solid rgba(0,180,216,0.25);
+  box-shadow:inset 0 0 20px rgba(0,180,216,0.05),0 0 10px rgba(0,180,216,0.08);
+}
+.ni.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--blue);border-radius:0 3px 3px 0;box-shadow:0 0 8px var(--blue)}
+    .bp{background:linear-gradient(135deg,#0096B4,var(--cyan));color:#fff;padding:10px 24px;border-radius:10px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(0,180,216,0.25)}
+    .bp:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,180,216,0.4)}
+    .bs{background:var(--card);color:var(--text1);padding:10px 24px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s}
+    .ls{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--text2);font-size:13px}
+    .ls:hover{background:rgba(0,180,216,0.08);color:var(--blue);border-color:rgba(0,180,216,0.3)}
+    .ls.active{background:rgba(0,180,216,0.15);border-color:var(--blue);color:var(--blue)}
+    .fi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text1);width:100%;font-size:14px}
+    .fi:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,180,216,0.12)}
+    .bdg{padding:2px 6px;border-radius:10px;font-size:10px;font-weight:500;display:inline-block;line-height:1.4;text-align:center}
+    .bdg1,.bdg2,.bdg3,.bdg4,.bdg5{white-space:normal;word-break:keep-all;max-width:none}
+    .bdg1{background:rgba(0,180,216,0.15);color:#60a5fa;border:1px solid rgba(0,180,216,0.3)}
+    .bdg2{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+    .bdg3{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3)}
+    .bdg4{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3)}
+    .bdg5{background:rgba(244,63,94,0.15);color:#fb7185;border:1px solid rgba(244,63,94,0.3)}
+    .bdgA{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3)}
+    .bdgB{background:rgba(249,115,22,0.15);color:#fb923c;border:1px solid rgba(249,115,22,0.3)}
+    .bdg1{background:rgba(0,180,216,0.15);color:#60a5fa;border:1px solid rgba(0,180,216,0.3)}
+    .bdg2{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3)}
+    .bdg3{background:rgba(236,72,153,0.15);color:#f472b6;border:1px solid rgba(236,72,153,0.3)}
+    .bdg4{background:rgba(20,184,166,0.15);color:#2dd4bf;border:1px solid rgba(20,184,166,0.3)}
+    .bdg5{background:rgba(113,113,122,0.15);color:#a1a1aa;border:1px solid rgba(113,113,122,0.3)}
+    .bdgB{background:rgba(0,180,216,0.15);color:#60a5fa;border:1px solid rgba(0,180,216,0.3)}
+    .bdgHigh{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)}
+    .bdgMed{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+    .bdgLow{background:rgba(113,113,122,0.15);color:#a1a1aa;border:1px solid rgba(113,113,122,0.3)}
+    .bdg-priority{cursor:pointer;user-select:none;transition:all .15s}
+    /* PRIORITY cards visible */
+    .bdg-priority:hover{filter:brightness(1.3);transform:scale(1.05)}
+    .row-cancelled td{opacity:0.45}
+    .row-cancelled td:first-child{opacity:1}
+    .cell-editable{cursor:pointer;border-radius:6px;padding:2px 6px;transition:background .15s}
+    .cell-editable:hover{background:rgba(0,180,216,0.1);box-shadow:0 0 0 1px rgba(0,180,216,0.3)}
+    .col-customer{min-width:120px;position:sticky;left:0;background:var(--bg2);z-index:10;text-align:left;border-right:2px solid var(--blue);box-shadow:2px 0 8px rgba(0,180,216,0.15)}
+    .col-resize{position:absolute;right:0;top:0;bottom:0;width:6px;cursor:col-resize;background:transparent;z-index:30}
+    .col-resize:hover,.col-resize:active{background:var(--blue)}
+    .col-checkbox{position:sticky;right:0;z-index:3;background:var(--bg2)}
+    #dt thead th.col-customer{position:sticky;left:0;z-index:20;background:var(--bg2);border-right:3px solid var(--blue)}
+    #dt tbody td.col-customer{position:sticky;left:0;z-index:10;background:var(--bg2);border-right:3px solid var(--blue)}
+    .tc{overflow-x:auto;border-radius:12px;border:1px solid var(--border);max-width:100%;-webkit-overflow-scrolling:touch;max-height:calc(100vh - 280px);overflow-y:auto}
+    table{width:max-content;min-width:100%;border-collapse:collapse;table-layout:auto}
+    .tc thead{position:sticky;top:0;z-index:5}
+    th{background:var(--bg2);padding:8px 10px;text-align:left;font-weight:500;color:var(--text2);font-size:11px;border-bottom:2px solid rgba(0,180,216,0.4);white-space:nowrap;letter-spacing:.5px}
+    td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;white-space:nowrap}
+    tr:hover td{background:rgba(59,130,246,0.03)}
+    tr.row-inactive td{opacity:0.4;background:rgba(0,0,0,0.1)}
+    tr.row-inactive td:first-child{opacity:1}
+    tr:hover td{background:rgba(0,180,216,0.04)}
+    .mo{position:fixed;inset:0;background:rgba(3,9,18,0.8);backdrop-filter:blur(8px);display:flex;align-items:flex-start;justify-content:center;z-index:100;opacity:0;visibility:hidden;transition:all .3s;padding:20px 0;overflow-y:auto}
+    .mo.active{opacity:1;visibility:visible}
+    #bf button.active{background:var(--blue);color:#fff}
+    .mc{background:var(--card);border:1px solid rgba(0,180,216,0.2);border-radius:20px;padding:24px;max-width:550px;width:90%;transform:scale(0.9);transition:transform .3s;margin:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5),0 0 40px rgba(0,180,216,0.05)}
+    .mo.active .mc{transform:scale(1)}
+    .mform{max-height:75vh;overflow-y:auto;padding-right:8px;margin-bottom:8px}
+    .mform::-webkit-scrollbar{width:4px}
+    .mform::-webkit-scrollbar-track{background:var(--bg2);border-radius:2px}
+    .mform::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    .sc{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+}
+.sc:hover{border-color:rgba(0,180,216,0.3);box-shadow:0 0 25px rgba(0,180,216,0.06)}
+    .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--purple));opacity:.8}
+    @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .ai{animation:fi .4s ease forwards}
+    /* 英文拼写检查 - 底部红点 */
+    .fi-t[contenteditable]{min-height:38px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box}
+    .fi-ta[contenteditable]{min-height:80px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box;resize:vertical}
+    @media(max-width:768px){.sb{position:fixed;left:-280px;top:0;bottom:0;width:280px;z-index:50;transition:left .3s}.sb.open{left:0}.mcnt{margin-left:0!important}.mmb{display:flex!important}}
+  </style>
+</head>
+<body class="bgp">
+<aside class="sb fixed left-0 top-0 bottom-0 w-64 z-40" id="sb">
+  <div class="p-6 border-b border-[var(--border)]">
+    <h1 class="fd text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent tracking-wide" id="ttl">业务管理系统</h1>
+    <p class="text-xs text-[var(--muted)] mt-1" id="sub">Business Management System</p>
+  </div>
+  <nav class="py-4">
+    <div class="ni" onclick="sm('summary')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span id="nd">综合统计</span></div>
+    <div class="ni" onclick="sm('bids')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span id="nb">投标项目追踪</span></div>
+    <div class="ni" onclick="sm('customers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span id="nc">客户管理</span></div>
+    <div class="ni" onclick="sm('projects')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span id="ni">客户互动</span></div>
+    <div class="ni" onclick="sm('chambers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span id="nch">商会信息</span></div>
+    <div class="ni" onclick="sm('q2result')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span id="nq2result"></span></div>
+    <div class="ni" onclick="sm('plan2026')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg><span id="nplan"></span></div>
+
+  </nav>
+</aside>
+
+<main class="mcnt ml-64 min-h-screen">
+  <header class="sticky top-0 z-30 bg-[var(--bg1)]/70 backdrop-blur-xl border-b border-[var(--border)] px-8 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <button class="mmb hidden p-2 rounded-lg bg-[var(--card)] border border-[var(--border)]" onclick="ts()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <div><h2 class="fd text-xl font-semibold" id="pt">投标项目追踪</h2><p class="text-sm text-[var(--muted)]" id="ps">管理和追踪所有投标项目进度</p><span id="projInteractBadge" class="hidden text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full mt-1 inline-block">互动: 0</span><span id="q3InteractBadge" class="hidden text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full mt-1 inline-block ml-2">Q3: 0</span></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex gap-1"><button class="ls active" id="lzh" onclick="sl('zh')">中</button><button class="ls" id="len" onclick="sl('en')">EN</button></div>
+        <div class="relative"><input type="text" id="si" class="fi pl-10 w-64" onkeyup="hs(event)"><svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
+        <button class="bp" onclick="openAddModal()"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span id="ba">新增</span></button>
+        <button class="bs" id="exportMainBtn" onclick="exportCurrentModule()" title="导出Excel"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg><span id="be">导出</span></button>
+        <button class="bs" id="exportCustTplBtn" onclick="exportCustomerTemplate()" title="导出空白模板" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>模板</span></button>
+        <button class="bs" id="expInteractBtn" onclick="exportInteractionsOnly()" title="导出客户互动" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>导出互动</span></button>
+        <button class="bs" onclick="exportCSV()" title="导出CSV"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span id="bcsv">CSV</span></button>
+        <button class="bs" onclick="document.getElementById('importFile').click()" title="导入数据"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg><span id="bi">导入</span></button>
+        <button class="bs" onclick="backupAll()" title="全部数据备份"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg><span id="bb">备份</span></button>
+        <button class="bs" onclick="document.getElementById('restoreFile').click()" title="恢复全部数据"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg><span id="br">恢复</span></button>
+        <input type="file" id="importFile" accept=".json,.xls,.xlsx,.xlsm,.csv,.xml" style="display:none" onchange="importData(event)">
+        <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreAll(event)">
+      </div>
+    </div>
+  </header>
+
+  <div class="p-8">
+    <div id="bs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+      <div class="sc ai" style="animation-delay:.1s"><div class="text-[var(--muted)] text-sm mb-1" id="s1">项目信息 / Project Info</div><div class="text-2xl font-bold text-blue-400" id="c1">0</div></div>
+      <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s2">投标中 / Bidding</div><div class="text-2xl font-bold text-amber-400" id="c2">0</div></div>
+      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s3">评审中 / Reviewing</div><div class="text-2xl font-bold text-purple-400" id="c3">0</div></div>
+      <div class="sc ai" style="animation-delay:.4s"><div class="text-[var(--muted)] text-sm mb-1" id="s4">跟踪 / Following</div><div class="text-2xl font-bold text-emerald-400" id="c4">0</div></div>
+      <div class="sc ai" style="animation-delay:.5s"><div class="text-[var(--muted)] text-sm mb-1" id="s5">分类统计 / Category</div><div class="flex gap-3 mt-1"><span class="text-lg font-bold text-emerald-400">A: <span id="ca">0</span></span><span class="text-lg font-bold text-amber-400">B: <span id="cba">0</span></span></div></div>
+      <div class="sc ai" style="animation-delay:.6s"><div class="text-[var(--muted)] text-sm mb-1" id="s6">预估总额 / Est. Total Value</div><div class="text-2xl font-bold text-cyan-400" id="totalValue">0</div></div>
+    </div>
+    <div id="cs" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" style="display:none">
+      <div class="sc ai"><div class="text-[var(--muted)] text-sm mb-1">2025客户 / 2025</div><div class="text-2xl font-bold text-purple-400" id="cust2025">0</div></div>
+      <div class="sc ai"><div class="text-[var(--muted)] text-sm mb-1">2026客户 / 2026</div><div class="text-2xl font-bold text-blue-400" id="cust2026">0</div></div>
+      <div class="sc ai"><div class="text-[var(--muted)] text-sm mb-1">本周新增 / This Week</div><div class="text-2xl font-bold text-emerald-400" id="custWeek">0</div></div>
+      <div class="sc ai"><div class="text-[var(--muted)] text-sm mb-1">本月新增 / This Month</div><div class="text-2xl font-bold text-amber-400" id="custMonth">0</div></div>
+    </div>
+    <div id="yf" class="flex gap-2 mb-4" style="display:none">
+      <button onclick="setYearFilter('all')" class="px-4 py-2 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm" id="yfAll">全部 / All</button>
+      <button onclick="setYearFilter('2025')" class="px-4 py-2 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm" id="yf2025">2025</button>
+      <button onclick="setYearFilter('2026')" class="px-4 py-2 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm" id="yf2026">2026</button>
+    </div>
+    <div id="cf" class="flex gap-2 mb-4" style="display:none;align-items:center">
+      <span class="text-sm text-[var(--muted)]">国家:</span>
+      <select id="countryFilter" onchange="setCountryFilter(this.value)" class="px-3 py-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-sm cursor-pointer">
+        <option value="all">全部 / All</option>
+      </select>
+    </div>
+    <div id="custSearchWrap" class="mb-4" style="display:none">
+      <input id="custSearchInput" type="text" placeholder="搜索公司名称 / Search company name..." oninput="setCustSearchFilter(this.value)" class="w-full px-4 py-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-sm text-[var(--text)] placeholder-[var(--muted)] outline-none focus:border-[var(--blue)]" />
+    </div>
+    <div id="custDateWrap" class="flex gap-2 mb-4 items-center" style="display:none">
+      <span class="text-sm text-[var(--muted)]">添加日期:</span>
+      <input id="custDateInput" type="date" onchange="setCustDateFilter(this.value)" class="px-3 py-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-sm text-[var(--text)] outline-none focus:border-[var(--blue)] cursor-pointer" />
+    </div>
+    <div id="chf" class="flex gap-2 mb-4 items-center" style="display:none">
+      <span class="text-sm text-[var(--muted)]">出席日期:</span>
+      <button onclick="setChamberDateFilter('all')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="chfAll">全部 / All</button>
+      <button onclick="setChamberDateFilter('upcoming')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="chfUpcoming">即将出席 / Upcoming</button>
+      <button onclick="setChamberDateFilter('attended')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="chfAttended">已出席 / Attended</button>
+      <span class="text-sm text-[var(--muted)] ml-2">月份:</span>
+      <select id="chMonthFilter" onchange="setChamberMonthFilter(this.value)" class="px-3 py-1.5 rounded-lg bg-[var(--card)] border border-[var(--border)] text-sm cursor-pointer">
+        <option value="all">全部 / All</option>
+        <option value="0">一月 / Jan</option>
+        <option value="1">二月 / Feb</option>
+        <option value="2">三月 / Mar</option>
+        <option value="3">四月 / Apr</option>
+        <option value="4">五月 / May</option>
+        <option value="5">六月 / Jun</option>
+        <option value="6">七月 / Jul</option>
+        <option value="7">八月 / Aug</option>
+        <option value="8">九月 / Sep</option>
+        <option value="9">十月 / Oct</option>
+        <option value="10">十一月 / Nov</option>
+        <option value="11">十二月 / Dec</option>
+      </select>
+    </div>
+    <div id="bf" class="flex gap-2 mb-4 items-center" style="display:none">
+      <span class="text-sm text-[var(--muted)]">筛选:</span>
+      <button onclick="setBidsFilter('all')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfAll">全部 / All</button>
+      <button onclick="setBidsFilter('bidding')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfBidding">投标中 / Bidding</button>
+      <button onclick="setBidsFilter('tracking')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfTracking">追踪 / Tracking</button>
+    </div>
+    <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
+      <!-- 项目信息(复合卡片) -->
+      <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)]">
+        <div class="text-sm text-[var(--muted)] mb-4 text-center" id="bidInfoStatsLabel">项目信息 / Project Info</div>
+        <div class="flex items-center justify-around gap-4 text-center">
+          <div>
+            <div class="text-4xl font-bold text-blue-400" id="sumBidsTotal">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumBidsTotalLbl">总计<br>Total</div>
+          </div>
+          <div class="w-px h-12 bg-[var(--border)]"></div>
+          <div>
+            <div class="text-4xl font-bold text-amber-400" id="sumBidsActive">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumBidsActiveLbl">投标中<br>Bidding</div>
+          </div>
+          <div class="w-px h-12 bg-[var(--border)]"></div>
+          <div>
+            <div class="text-4xl font-bold text-emerald-400" id="sumBidsWon">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumBidsWonLbl">追踪<br>Following</div>
+          </div>
+        </div>
+        <!-- 月度柱状图 -->
+        <div id="bidChart" class="mt-6 flex items-end justify-between gap-1" style="height:100px;">
+          <!-- JS 动态渲染 -->
+        </div>
+        <div class="flex justify-between mt-1 px-1">
+          <span class="text-xs text-[var(--muted)]">Jan</span>
+          <span class="text-xs text-[var(--muted)]">Feb</span>
+          <span class="text-xs text-[var(--muted)]">Mar</span>
+          <span class="text-xs text-[var(--muted)]">Apr</span>
+          <span class="text-xs text-[var(--muted)]">May</span>
+          <span class="text-xs text-[var(--muted)]">Jun</span>
+          <span class="text-xs text-[var(--muted)]">Jul</span>
+          <span class="text-xs text-[var(--muted)]">Aug</span>
+          <span class="text-xs text-[var(--muted)]">Sep</span>
+          <span class="text-xs text-[var(--muted)]">Oct</span>
+          <span class="text-xs text-[var(--muted)]">Nov</span>
+          <span class="text-xs text-[var(--muted)]">Dec</span>
+        </div>
+        <div class="flex items-center justify-center gap-3 mt-2">
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-blue-400"></div><span class="text-xs text-[var(--muted)]" id="bidLegTotal">总计</span></div>
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-amber-400"></div><span class="text-xs text-[var(--muted)]" id="bidLegActive">投标中</span></div>
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-emerald-400"></div><span class="text-xs text-[var(--muted)]" id="bidLegWon">追踪</span></div>
+        </div>
+      </div>
+      <!-- 2026客户统计(复合卡片) -->
+      <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)]">
+        <div class="text-sm text-[var(--muted)] mb-4 text-center" id="cust2026StatsLabel">2026客户统计 / 2026 Customer Stats</div>
+        <div class="flex items-center justify-around gap-4 text-center">
+          <div>
+            <div class="text-4xl font-bold text-emerald-400" id="sumCust2026Total">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumCust2026TotalLbl">2026总计<br>Total 2026</div>
+          </div>
+          <div class="w-px h-12 bg-[var(--border)]"></div>
+          <div>
+            <div class="text-4xl font-bold text-cyan-400" id="sumCustJun">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumCustJunLbl">July 新增<br>July New</div>
+          </div>
+          <div class="w-px h-12 bg-[var(--border)]"></div>
+          <div>
+            <div class="text-4xl font-bold text-blue-400" id="sumCustInteract">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumCustInteractLbl">客户互动<br>Interactions</div>
+          </div>
+        </div>
+        <!-- 月度柱状图 -->
+        <div id="customerChart" class="mt-6 flex items-end justify-between gap-1" style="height:100px;">
+          <!-- JS 动态渲染 -->
+        </div>
+        <div class="flex justify-between mt-1 px-1">
+          <span class="text-xs text-[var(--muted)]">Jan</span>
+          <span class="text-xs text-[var(--muted)]">Feb</span>
+          <span class="text-xs text-[var(--muted)]">Mar</span>
+          <span class="text-xs text-[var(--muted)]">Apr</span>
+          <span class="text-xs text-[var(--muted)]">May</span>
+          <span class="text-xs text-[var(--muted)]">Jun</span>
+          <span class="text-xs text-[var(--muted)]">Jul</span>
+          <span class="text-xs text-[var(--muted)]">Aug</span>
+          <span class="text-xs text-[var(--muted)]">Sep</span>
+          <span class="text-xs text-[var(--muted)]">Oct</span>
+          <span class="text-xs text-[var(--muted)]">Nov</span>
+          <span class="text-xs text-[var(--muted)]">Dec</span>
+        </div>
+        <div class="flex items-center justify-center gap-4 mt-2">
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-emerald-400"></div><span class="text-xs text-[var(--muted)]" id="custLegNew">新客户 / New</span></div>
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-blue-400"></div><span class="text-xs text-[var(--muted)]" id="custLegInteract">客户互动</span></div>
+        </div>
+      </div>
+      <!-- 商会统计(合并一张卡) -->
+      <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)]">
+        <div class="text-sm text-[var(--muted)] mb-4 text-center" id="chStatsLabel">商会统计 / Chamber Stats</div>
+        <div class="flex items-center justify-around gap-4 text-center">
+          <div>
+            <div class="text-4xl font-bold text-purple-400" id="sumChambTotal">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumChambTotalLbl">商会总计<br>Total Chambers</div>
+          </div>
+          <div class="w-px h-12 bg-[var(--border)]"></div>
+          <div>
+            <div class="text-4xl font-bold text-amber-400" id="sumChambJuneAtt">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumChambAprAttLbl">July 已出席<br>July Attended</div>
+          </div>
+          <div class="w-px h-12 bg-[var(--border)]"></div>
+          <div>
+            <div class="text-4xl font-bold text-sky-400" id="sumChambJuneUpc">0</div>
+            <div class="text-xs text-[var(--muted)] mt-1" id="sumChambAprUpcLbl">July 即将出席<br>July Upcoming</div>
+          </div>
+        </div>
+        <!-- 月度柱状图 -->
+        <div id="chamberChart" class="mt-6 flex items-end justify-between gap-1" style="height:100px;">
+          <!-- JS 动态渲染 -->
+        </div>
+        <div class="flex justify-between mt-1 px-1">
+          <span class="text-xs text-[var(--muted)]">Jan</span>
+          <span class="text-xs text-[var(--muted)]">Feb</span>
+          <span class="text-xs text-[var(--muted)]">Mar</span>
+          <span class="text-xs text-[var(--muted)]">Apr</span>
+          <span class="text-xs text-[var(--muted)]">May</span>
+          <span class="text-xs text-[var(--muted)]">Jun</span>
+          <span class="text-xs text-[var(--muted)]">Jul</span>
+          <span class="text-xs text-[var(--muted)]">Aug</span>
+          <span class="text-xs text-[var(--muted)]">Sep</span>
+          <span class="text-xs text-[var(--muted)]">Oct</span>
+          <span class="text-xs text-[var(--muted)]">Nov</span>
+          <span class="text-xs text-[var(--muted)]">Dec</span>
+        </div>
+        <div class="flex items-center justify-center gap-4 mt-2">
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-amber-400"></div><span class="text-xs text-[var(--muted)]" id="chLegAtt">已出席 / Attended</span></div>
+          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-sky-400"></div><span class="text-xs text-[var(--muted)]" id="chLegUpc">即将出席 / Upcoming</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- 窗口123 -->
+    <div id="win123Container" class="col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)] text-center">
+        <div class="text-sm text-[var(--muted)] mb-4 text-center" id="win1Title">Revenue Target / 营收目标</div>
+        <div id="win1Chart" class="space-y-2 text-left"></div>
+      </div>
+      <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)] text-center">
+        <div class="text-sm text-[var(--muted)] mb-4 text-center" id="win2Title">Customer Info Analysis</div>
+        <div id="win2Chart"></div>
+      </div>
+      <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)] text-center">
+        <div class="text-sm text-[var(--muted)] mb-4 text-center" id="win3Title">窗口3 / Window 3</div>
+        <div id="win3Content"></div>
+      </div>
+    </div>
+    <!-- PLAN 2026 System Tracking -->
+    <div id="plan2026Section" class="hidden mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="fd text-lg font-semibold" style="color:var(--blue)" id="plan2026Title">System Tracking List 2026</h3>
+        <button onclick="savePlanTracking()" id="planSaveBtn" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;gap:6px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">💾 <span>保存 / Save</span></button>
+      </div>
+      <div id="planTrackingContainer" style="max-height:none;overflow:visible"></div>
+    </div>
+
+    <!-- Q2 Result Page -->
+    <div id="q2resultContainer" class="hidden mb-6">
+      <div id="q2resultHeader" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px">
+        <span style="font-size:12px;color:var(--text2)"></span>
+        <button onclick="saveQ2Actual()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">💾 保存 / Save</button>
+      </div>
+      <div id="q2resultGrid" class="grid gap-4">
+        <!-- 5 cards rendered by renderQ2Result() -->
+      </div>
+    </div>
+    <div class="tc ai" style="animation-delay:.6s"><table id="dt"><thead></thead><tbody id="tb"></tbody></table></div>
+  </div>
+</main>
+
+<div class="mo" id="md">
+  <div class="mc">
+    <div class="flex items-center justify-between mb-4" style="position:sticky;top:0;background:var(--card);z-index:1;padding-bottom:8px">
+      <h3 class="fd text-xl font-semibold" id="mt">新增</h3>
+      <button onclick="cm()" class="p-2 rounded-lg hover:bg-[var(--bg2)]"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form id="mf" onsubmit="event.preventDefault(); doSave();"></form>
+  </div>
+</div>
+
+<script>
+const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nq1:'季度报告',nq2:'季度报告',nq2result:'Q2结果',nq3:'季度报告',nq4:'季度报告',qt1:'季度报告',qt2:'季度报告',qt3:'季度报告',qt4:'季度报告',nplan:'计划2026',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'季度1',q2Label:'季度2',q3Label:'季度3',q4Label:'季度4',qkMetric:'指标 / Metric',qkAnnual:'Q2目标\nAnnual',qkTarget:'季度目标\nQ Target',qkActual:'实际\nActual',qkNotes:'备注\nNotes',qkCompSales:'公司年营收\nCompany Sales',qkSmDept:'营销部营收\nS&M Dept',qkDirectProj:'直售项目\nDirect Projects',qkSupportProj:'支持项目\nSupporting Proj',qkNewContacts:'新联系人\nNew Contacts',qkConsultant:'顾问公司\nConsultant Firms',qkIndPark:'工业园\nIndustrial Parks',qkNewPartner:'新合作\nNew Partnerships',qkEvents:'活动参与\nEvent Participation',qkInteractions:'活跃互动\nActive Interactions',qkSystem:'系统采用\nSystem Adoption',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'July 已出席\nJuly Attended',sumChambAprUpcLbl:'July 即将出席\nJuly Upcoming',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollowing',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'July 新增\nJuly New',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List July',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nq1:'Quarter 1',nq2:'Quarter 2',nq2result:'Q2 Result',nq3:'Quarter 3',nq4:'Quarter 4',qt1:'Quarter 1',qt2:'Quarter 2',qt3:'Quarter 3',qt4:'Quarter 4',nplan:'PLAN 2026',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'Quarter 1',q2Label:'Quarter 2',q3Label:'Quarter 3',q4Label:'Quarter 4',qkMetric:'Metric / 指标',qkAnnual:'Annual\nTarget',qkTarget:'Q Target\n(25%)',qkActual:'Actual',qkNotes:'Notes',qkCompSales:'Company Sales\n公司年营收',qkSmDept:'S&M Dept\n营销部营收',qkDirectProj:'Direct Projects\n直售项目',qkSupportProj:'Supporting Proj\n支持项目',qkNewContacts:'New Contacts\n新联系人',qkConsultant:'Consultant Firms\n顾问公司',qkIndPark:'Industrial Parks\n工业园',qkNewPartner:'New Partnerships\n新合作',qkEvents:'Event Participation\n活动参与',qkInteractions:'Active Interactions\n活跃互动',qkSystem:'System Adoption\n系统采用',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'July Attended',sumChambAprUpcLbl:'July Upcoming',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Following',bidLegActive:'Bidding',bidLegWon:'Following',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'July New',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List July'
+,win1t1:'Revenue 2026',win1t1_en:'Revenue 2026',win1t2:'Sale Dept revenue',win1t2_en:'Sale Dept revenue',win1t3:'Project Est. Value',win1t4:'Actual Target',kpiGuide:'📊 KPI指标说明',kpiGuideEn:'KPI Metrics Guide',kpiAnnual:'Q2目标',kpiQTarget:'Q1目标',kpiRateGuide:'🎯 完成率标识',kpiRateOn:'🟢 ≥100% 达标',kpiRateNear:'🟡 80-99% 接近',kpiRateOff:'🔴 <80% 需改进'}};
+
+let lang='zh',data={bids:[],customers:[],projects:[],chambers:[]},mod='summary',eid=null,custYearFilter='all',custCountryFilter='all',chamberDateFilter='all',chamberMonthFilter='all',custSearchFilter='',custDateFilter='',bidsFilter='all';
+
+function t(k){return i18n[lang][k]||k;}
+
+function sl(l){
+  lang=l;localStorage.setItem('bms_lang',l);
+  document.getElementById('lzh').classList.toggle('active',l==='zh');
+  document.getElementById('len').classList.toggle('active',l==='en');
+  updateUI();renderTable();
+  if(document.getElementById('md').classList.contains('active')){eid?editItem(eid):openAddModal();}
+}
+
+// 切换营收图表语言
+function toggleWin1Lang(){
+  lang=lang==='en'?'zh':'en';
+  localStorage.setItem('bms_lang',lang);
+  document.getElementById('lzh').classList.toggle('active',lang==='zh');
+  document.getElementById('len').classList.toggle('active',lang==='en');
+  updateAllTexts();
+  renderWin1Chart();
+}
+
+function updateUI(){
+  // 安全防护: 确保 mod 是有效值
+  const validMods=['summary','bids','customers','projects','chambers','q2result','plan2026'];
+  const safeMod=validMods.includes(mod)?mod:'summary';
+  ['ttl','sub','nd','nb','nc','ni','nch','nq2result','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s3','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
+  document.getElementById('si').placeholder=t('sp');
+  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4']};
+  document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
+  document.getElementById('ps').textContent=t(titles[safeMod]?titles[safeMod][1]:'ps5');
+}
+
+function getActiveCustomers(){
+  return data.customers.filter(c => (c.priority||'').match(/^\s*(高|中|High|Medium)/));
+}
+
+function getActiveCustomerOptions(){
+  return getActiveCustomers().map(c => c.companyName);
+}
+
+function autoFillEmail(){
+  var cnField=document.querySelector('[data-k="customerName"]');
+  var ecField=document.querySelector('[data-k="emailContent"]');
+  if(!cnField||!ecField) return;
+  var cname=(cnField.value||'').trim();
+  if(!cname) return;
+  var customer=getActiveCustomers().find(function(c){
+    return cname===c.companyName || cname.startsWith(c.companyName+' - ');
+  });
+  if(customer && customer.email){
+    ecField.value=customer.email||'';
+  }
+}
+
+function getFields(m){
+  if(m==='bids')return[{k:'customerName',l:t('f1'),tp:'text',r:1},{k:'projectName',l:t('f2'),tp:'text',r:1,ed:true},{k:'location',l:t('f3'),tp:'text',r:1,ed:true},{k:'landArea',l:t('f4'),tp:'text',ph:t('ph4'),ed:true},{k:'trackDate',l:t('f5'),tp:'date',r:1,ed:true},{k:'stage',l:t('f6'),tp:'sel',opt:[t('s2'),t('s3'),t('s4'),t('s6'),t('s7'),t('s8')],r:1,ed:true},{k:'nextActionDate',l:t('f26'),tp:'date',ed:true},{k:'nextActionContent',l:t('f27'),tp:'text',ed:true},{k:'notes',l:t('f22'),tp:'ta',ed:true},{k:'personInCharge',l:t('f7'),tp:'text',ed:true},{k:'email',l:t('f8'),tp:'email',ed:true},{k:'category',l:t('f9'),tp:'sel',opt:[t('catA'),t('catB')]},{k:'estimatedValue',l:t('f10'),tp:'text',ph:t('ph10')},{k:'startDate',l:t('f24'),tp:'date',ed:true},{k:'stageContent',l:t('f25'),tp:'sel',opt:[t('s2'),t('s4'),t('s5')],ed:true}];
+  if(m==='customers'){
+    const opts = getOptionsHistory();
+    return[{k:'companyName',l:t('f11'),tp:'text',r:1},{k:'companyBusiness',l:t('f11b'),tp:'sel',opt:opts.companyBusiness},{k:'contactPerson',l:t('f12'),tp:'text',r:1},{k:'position',l:t('f12b'),tp:'sel',opt:opts.position},{k:'phone',l:t('f13'),tp:'text'},{k:'email',l:t('f14'),tp:'email'},{k:'country',l:t('f14b'),tp:'sel',opt:opts.country},{k:'priority',l:t('f14c'),tp:'sel',opt:[t('p1'),t('p2'),t('p3')]},{k:'createdDate',l:t('f23'),tp:'date',r:1}];
+  }
+  if(m==='projects'){
+    const activeCustomers = getActiveCustomerOptions();
+    return[{k:'customerName',l:t('f15'),tp:'datalist',opt:activeCustomers,r:1},{k:'interactionDate',l:t('f16'),tp:'date',r:1,ed:true},{k:'interactionType',l:t('f17'),tp:'sel',opt:[t('it1'),t('it2'),t('it3'),t('it4'),t('it5')],r:1,ed:true},{k:'content',l:t('f18'),tp:'ta',ed:true},{k:'emailContent',l:t('f18b'),tp:'ta'},{k:'personInCharge',l:t('f19'),tp:'text',ed:true},{k:'nextStep',l:t('f20'),tp:'text',ed:true},{k:'status',l:t('f21'),tp:'sel',opt:[t('is1'),t('is2'),t('is3')],r:1,ed:true},{k:'notes',l:t('f22'),tp:'ta',ed:true}];
+  }
+  if(m==='chambers'){
+    const opts = getOptionsHistory();
+    return[
+      {k:'chamberName',l:t('ch1'),tp:'text',r:1},
+      {k:'country',l:t('ch3'),tp:'datalist',opt:opts.country},
+      {k:'phone',l:t('ch6'),tp:'text'},
+      {k:'email',l:t('ch7'),tp:'email'},
+      {k:'contactPerson',l:t('ch9'),tp:'text'},
+      {k:'topic',l:t('ch13'),tp:'text'},
+      {k:'attendanceDate',l:t('ch14'),tp:'date',r:1},
+      {k:'attendanceLocation',l:t('ch15'),tp:'text'},
+      {k:'notes',l:t('ch12'),tp:'ta'}
+    ];
+  }
+  return[];
+}
+
+function loadData(){
+  const sl=localStorage.getItem('bms_lang');
+  if(sl)lang=sl;
+  document.getElementById('lzh').classList.toggle('active',lang==='zh');
+  document.getElementById('len').classList.toggle('active',lang==='en');
+  const sd=localStorage.getItem('bms_data');
+  if(sd){data=JSON.parse(sd);if(!data.chambers)data.chambers=[];if(!data.quarterly)data.quarterly={};if(!data.planTracking)data.planTracking=null;['Q1','Q2','Q3','Q4'].forEach(function(q){if(!data.quarterly[q])data.quarterly[q]={actual:{},qTarget:{},notes:{}};if(!data.quarterly[q].actual)data.quarterly[q].actual={};if(!data.quarterly[q].qTarget)data.quarterly[q].qTarget={};if(!data.quarterly[q].notes)data.quarterly[q].notes={};});
+  // 数据迁移:给 projects 添加 interactionCount 字段
+  if(data.projects && Array.isArray(data.projects)){
+    var migrated=0;
+    data.projects.forEach(function(p){
+      if(typeof p.interactionCount!=='number'){
+        // 如果有 interactionDate,初始化为 1,否则为 0
+        p.interactionCount = (p.interactionDate&&p.interactionDate.trim()!=='')?1:0;
+        migrated++;
+      }
+    });
+    if(migrated>0){
+      console.log('[MIGRATE] Added interactionCount to',migrated,'projects');
+      saveData();
+    }
+  }
+  }
+  else{data={bids:[{id:'B1',customerName:'示例客户A / Sample A',projectName:'示范项目一 / Demo 1',location:'胡志明市 Quận 1',landArea:'5000',trackDate:'2026-04-01',stage:'资格预审 / Pre-qualification',personInCharge:'Nguyễn Văn A',email:'nguyen@example.com',category:'A',estimatedValue:'50000000000'},{id:'B2',customerName:'示例客户B / Sample B',projectName:'示范项目二 / Demo 2',location:'河内 Ba Đình',landArea:'12000',trackDate:'2026-03-20',stage:'投标中 / Bidding',personInCharge:'Trần Văn B',email:'tran@example.com',category:'B',estimatedValue:'12000000000'},{id:'B3',customerName:'示例客户C / Sample C',projectName:'示范项目三 / Demo 3',location:'岘港 Hải Châu',landArea:'8000',trackDate:'2026-03-15',stage:'中标 / Won',personInCharge:'Lê Thị C',email:'le@example.com',category:'A',estimatedValue:'8000000000'}],customers:[{id:'C1',companyName:'示例公司A / Company A',companyBusiness:'建筑工程 / Construction',contactPerson:'Nguyễn Văn A',position:'项目经理 / Project Manager',phone:'090-1234-5678',email:'nguyen@example.com',country:'越南 / Vietnam',priority:'高 / High',createdDate:'2026-04-01'},{id:'C2',companyName:'示例公司B / Company B',companyBusiness:'房地产开发 / Real Estate',contactPerson:'Trần Thị B',position:'采购经理 / Procurement Manager',phone:'091-2345-6789',email:'tran@example.com',country:'越南 / Vietnam',priority:'中 / Medium',createdDate:'2026-03-15'}],projects:[{id:'I1',customerName:'示例公司A / Company A',interactionDate:'2026-04-03',interactionType:'拜访 / Visit',content:'与项目经理Nguyễn Văn A讨论投标项目细节',personInCharge:'Lê Thị C',nextStep:'准备技术方案',status:'进行中 / In Progress',notes:'需要进一步跟进客户需求'},{id:'I2',customerName:'示例公司B / Company B',interactionDate:'2026-04-02',interactionType:'电话 / Phone',content:'确认投标文件收到情况',personInCharge:'Trần Văn B',nextStep:'等待反馈',status:'已完成 / Completed',notes:'客户确认收到文件,等待回复'}],chambers:[{id:'CH1',chamberName:'越南中国商会 / VCCI',country:'越南 / Vietnam',phone:'+84-24-3577-1234',email:'info@vcci.com.vn',contactPerson:'Nguyễn Minh',topic:'中越建筑工程合作论坛',attendanceDate:'2026-04-10',attendanceLocation:'河内国家会议中心',notes:'需要准备公司简介和中越双语资料'},{id:'CH2',chamberName:'胡志明市华人商会 / HCMC Chinese Chamber',country:'越南 / Vietnam',phone:'+84-28-3822-5678',email:'info@hcmccc.vn',contactPerson:'Trần Văn Đức',topic:'2026年度商会会员大会',attendanceDate:'2026-04-20',attendanceLocation:'胡志明市索菲特酒店',notes:'有机会认识当地建筑行业企业家'}]};saveData();}
+  updateStats();updateSummary();updateUI();renderTable();
+}
+
+function saveData(){localStorage.setItem('bms_data',JSON.stringify(data));}
+
+
+// ============================================================
+// 英文拼写检查 - 底部红点
+// ============================================================
+
+function getOptionsHistory(){
+  const stored = localStorage.getItem('bms_options');
+  if(stored){
+    return JSON.parse(stored);
+  }
+  return {
+    position: ['项目经理 / Project Manager', '采购经理 / Procurement Manager', '总经理 / General Manager', '工程师 / Engineer'],
+    companyBusiness: ['建筑工程 / Construction', '房地产开发 / Real Estate', '工程顾问 / Engineering Consultant', '建筑设计 / Architecture'],
+    country: ['越南 / Vietnam', '中国 / China', '新加坡 / Singapore', '泰国 / Thailand']
+  };
+}
+
+function saveOptionsHistory(options){
+  localStorage.setItem('bms_options', JSON.stringify(options));
+}
+
+function updateOptionsFromData(){
+  const options = getOptionsHistory();
+
+  // 从客户数据中收集所有职位、公司业务、国家
+  const positions = new Set(options.position);
+  const businesses = new Set(options.companyBusiness);
+  const countries = new Set(options.country);
+
+  data.customers.forEach(c => {
+    if(c.position && c.position.trim()){
+      positions.add(c.position);
+    }
+    if(c.companyBusiness && c.companyBusiness.trim()){
+      businesses.add(c.companyBusiness);
+    }
+    if(c.country && c.country.trim()){
+      countries.add(c.country);
+    }
+  });
+
+  options.position = Array.from(positions);
+  options.companyBusiness = Array.from(businesses);
+  options.country = Array.from(countries);
+
+  saveOptionsHistory(options);
+}
+
+function updateCustomerStats(){
+  const now=new Date();
+  const thisYear=now.getFullYear();
+  const thisWeek=getWeekNumber(now);
+  const thisMonth=now.getMonth();
+
+  // 2026客户统计
+  const y2026=data.customers.filter(c=>{
+    if(!c.createdDate) return false;
+    return new Date(c.createdDate).getFullYear()===2026;
+  }).length;
+
+  // 2025客户统计
+  const y2025=data.customers.filter(c=>{
+    if(!c.createdDate) return false;
+    return new Date(c.createdDate).getFullYear()===2025;
+  }).length;
+
+  // 本周新客户:基于 custDateFilter 动态计算
+  const filterDate=custDateFilter?new Date(custDateFilter):null;
+  const filterYear=filterDate?filterDate.getFullYear():thisYear;
+  const filterWeek=filterDate?getWeekNumber(filterDate):thisWeek;
+  const filterMonth=filterDate?filterDate.getMonth():thisMonth;
+  const weekly=data.customers.filter(c=>{
+    if(!c.createdDate) return false;
+    const d=new Date(c.createdDate);
+    return d.getFullYear()===filterYear&&getWeekNumber(d)===filterWeek;
+  }).length;
+
+  // 本月新客户:基于 custDateFilter 动态计算
+  const monthly=data.customers.filter(c=>{
+    if(!c.createdDate) return false;
+    const d=new Date(c.createdDate);
+    return d.getFullYear()===filterYear&&d.getMonth()===filterMonth;
+  }).length;
+
+  const el2026=document.getElementById('cust2026');
+  const el2025=document.getElementById('cust2025');
+  const elWeek=document.getElementById('custWeek');
+  const elMonth=document.getElementById('custMonth');
+
+  if(el2026)el2026.textContent=y2026;
+  if(el2025)el2025.textContent=y2025;
+  if(elWeek)elWeek.textContent=weekly;
+  if(elMonth)elMonth.textContent=monthly;
+}
+
+function getWeekNumber(d){
+  const date=new Date(d);
+  date.setHours(0,0,0,0);
+  date.setDate(date.getDate()+4-(date.getDay()||7));
+  const yearStart=new Date(date.getFullYear(),0,1);
+  return Math.ceil((((date-yearStart)/86400000)+1)/7);
+}
+
+function setYearFilter(year){
+  custYearFilter=year;
+  document.querySelectorAll('#yf button').forEach(b=>b.classList.remove('active','bg-blue-500'));
+  document.getElementById('yf'+(year==='all'?'All':year)).classList.add('active','bg-blue-500');
+  renderTable();
+}
+function setCountryFilter(country){
+  custCountryFilter=country;
+  document.getElementById('countryFilter').value=country;
+  renderTable();
+}
+function setCustSearchFilter(val){
+  custSearchFilter=val.trim().toLowerCase();
+  renderTable();
+}
+function setCustDateFilter(val){
+  custDateFilter=val;
+  updateSummary();
+  renderTable();
+}
+function setChamberDateFilter(type){
+  chamberDateFilter=type;
+  document.querySelectorAll('#chf button').forEach(b=>b.classList.remove('active','bg-blue-500'));
+  document.getElementById('chf'+(type==='all'?'All':type==='upcoming'?'Upcoming':'Attended')).classList.add('active','bg-blue-500');
+  renderTable();
+}
+function setChamberMonthFilter(month){
+  chamberMonthFilter=month;
+  document.getElementById('chMonthFilter').value=month;
+  renderTable();
+}
+function setBidsFilter(filter){
+  bidsFilter=filter;
+  document.querySelectorAll('#bf button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bf'+filter.charAt(0).toUpperCase()+filter.slice(1)).classList.add('active');
+  renderTable();
+}
+function populateCountryFilter(){
+  const countries=[...new Set(data.customers.map(c=>c.country).filter(Boolean))].sort();
+  const sel=document.getElementById('countryFilter');
+  const current=sel.value;
+  sel.innerHTML='<option value="all">全部 / All</option>'+countries.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  sel.value=custCountryFilter;
+}
+
+function updateSummary(){
+  try{
+    var bTotal=0,bBidding=0,bTracking=0;
+  var bMonthCounts=[0,0,0,0,0,0,0,0,0,0,0,0];
+  var bBiddingMonthCounts=[0,0,0,0,0,0,0,0,0,0,0,0];
+  var bCategoryMonthCounts=[0,0,0,0,0,0,0,0,0,0,0,0];
+  // 阶段内容映射表
+  const contentStageMap={
+    '投标中':'bidding','投标中 / Bidding':'bidding','Bidding':'bidding','Bidding / 投标中':'bidding',
+    '跟踪':'tracking','跟踪 / Following':'tracking','Following':'tracking','Following / 跟踪':'tracking'
+  };
+  data.bids.forEach(function(b){
+    bTotal++;
+    if(b.trackDate){
+      var d=new Date(b.trackDate);
+      if(d.getFullYear()===2026){
+        bMonthCounts[d.getMonth()]++;
+        // 投标中统计
+        var sc=b.stageContent||'';
+        if(sc.indexOf('投标中')!==-1 || sc.indexOf('Bidding')!==-1){
+          bBiddingMonthCounts[d.getMonth()]++;
+        }
+        // 追踪统计 (跟踪/Following)
+        if(sc.indexOf('跟踪')!==-1 || sc.indexOf('Following')!==-1){
+          bCategoryMonthCounts[d.getMonth()]++;
+        }
+      }
+    }
+    // 排除已取消项目
+    if(b.inactive) return;
+    const stageKey=contentStageMap[b.stageContent]||'';
+    if(stageKey==='bidding') bBidding++;
+    else if(stageKey==='tracking') bTracking++;
+  });
+  document.getElementById('sumBidsTotal').textContent=bTotal;
+  document.getElementById('sumBidsActive').textContent=bBidding;
+  document.getElementById('sumBidsWon').textContent=bTracking;
+  document.getElementById('bidInfoStatsLabel').innerHTML=t('bidInfoStatsLabel');
+  document.getElementById('sumBidsTotalLbl').innerHTML=t('sumBidsTotalLbl');
+  document.getElementById('sumBidsActiveLbl').innerHTML=t('sumBidsActiveLbl');
+  document.getElementById('sumBidsWonLbl').innerHTML=t('sumBidsWonLbl');
+    document.getElementById('bidLegTotal').textContent=t('bidLegTotal');
+  document.getElementById('bidLegActive').textContent=t('bidLegActive');
+  document.getElementById('bidLegWon').textContent=t('bidLegWon');
+  // 2026客户统计
+  // Interactions 数量:按公司统计,每个项目的 interactionDates 数组长度之和
+  var c2026Total=0,cJuneTotal=0;
+  var cMonthCounts=[0,0,0,0,0,0,0,0,0,0,0,0];
+  var interactCountByCompany = {}; // 公司名 -> 互动次数(该客户所有项目的 interactionCount 之和)
+  var projInteractCount = 0;
+  (data.projects||[]).forEach(function(inter){
+    if(!inter.customerName) return;
+    var cn = inter.customerName.trim();
+    var cnt = typeof inter.interactionCount==='number' ? inter.interactionCount : 0;
+    interactCountByCompany[cn] = (interactCountByCompany[cn]||0) + cnt;
+    projInteractCount += cnt;
+  });
+  // 统计2026客户(按创建日期)
+  data.customers.forEach(function(c){
+    if(!c.createdDate)return;
+    var d=new Date(c.createdDate);
+    if(d.getFullYear()===2026){
+      c2026Total++;
+      cMonthCounts[d.getMonth()]++;
+      if(d.getMonth()===6)cJuneTotal++;
+    }
+  });
+  var cInteractTotal = 125 + projInteractCount;
+  document.getElementById('sumCust2026Total').textContent=c2026Total;
+  document.getElementById('sumCustJun').textContent=cJuneTotal;
+  var sumCustInteractEl=document.getElementById('sumCustInteract');
+  if(sumCustInteractEl) sumCustInteractEl.textContent=cInteractTotal;
+  // 更新页面上的互动徽章
+  var now=new Date();
+  var julRecords=(data.projects||[]).filter(function(p){return p.interactionDate&&p.customerName&&new Date(p.interactionDate).getMonth()===6;});
+  var q3Records=(data.projects||[]).filter(function(p){
+    if(!p.interactionDate||!p.customerName)return false;
+    var m2=new Date(p.interactionDate).getMonth();
+    return m2>=6&&m2<=8;
+  });
+  var pic=julRecords.reduce(function(s,p){return s+(typeof p.interactionCount==='number'?p.interactionCount:0);},0);
+  var qc=q3Records.reduce(function(s,p){return s+(typeof p.interactionCount==='number'?p.interactionCount:0);},0);
+  var badge=document.getElementById('projInteractBadge');
+  var q3badge=document.getElementById('q3InteractBadge');
+  if(badge) badge.textContent='互动: '+pic;
+  if(q3badge) q3badge.textContent='Q3: '+qc;
+  document.getElementById('cust2026StatsLabel').innerHTML=t('cust2026StatsLabel');
+  document.getElementById('sumCust2026TotalLbl').innerHTML=t('sumCust2026TotalLbl');
+  document.getElementById('sumCustJunLbl').innerHTML=t('sumCustJunLbl');
+  document.getElementById('sumCustInteractLbl').innerHTML=t('sumCustInteractLbl');
+  document.getElementById('custLegNew').textContent=t('custLegNew');
+  document.getElementById('custLegInteract').textContent=t('custLegInteract');
+  // 商会统计
+  document.getElementById('sumChambTotal').textContent=data.chambers.length;
+  var juneAtt=0,juneUpc=0;
+  data.chambers.forEach(function(c){
+    if(!c.attendanceDate)return;
+    var d=new Date(c.attendanceDate);
+    if(d.getFullYear()===2026&&d.getMonth()===6){
+      if(d<now)juneAtt++;else juneUpc++;
+    }
+  });
+  document.getElementById('sumChambJuneAtt').textContent=juneAtt;
+  document.getElementById('sumChambJuneUpc').textContent=juneUpc;
+  document.getElementById('sumChambTotalLbl').innerHTML=t('sumChambTotalLbl');
+  document.getElementById('sumChambAprAttLbl').innerHTML=t('sumChambAprAttLbl');
+  document.getElementById('sumChambAprUpcLbl').innerHTML=t('sumChambAprUpcLbl');
+  document.getElementById('chLegAtt').textContent=t('chLegAtt');
+  document.getElementById('chLegUpc').textContent=t('chLegUpc');
+  renderChamberChart();
+  renderCustomerChart(cMonthCounts);
+  renderBidChart(bMonthCounts, bBiddingMonthCounts, bCategoryMonthCounts);
+  renderJuneChambers();
+  renderWin1Chart();
+  renderWin2Chart();
+  } catch(e){console.error('[updateSummary ERROR]',e);}
+}
+
+
+
+function saveQ2Actual(){
+  var compSales=parseFloat(document.getElementById('q2_compSales')?document.getElementById('q2_compSales').value:0)||0;
+  var smDept=parseFloat(document.getElementById('q2_smDept')?document.getElementById('q2_smDept').value:0)||0;
+  var newContacts=parseFloat(document.getElementById('q2_newContacts')?document.getElementById('q2_newContacts').value:0)||0;
+  var interactions=parseFloat(document.getElementById('q2_interactions')?document.getElementById('q2_interactions').value:0)||0;
+  if(!data.quarterly)data.quarterly={};
+  if(!data.quarterly.Q2)data.quarterly.Q2={actual:{},qTarget:{},notes:{}};
+  data.quarterly.Q2.actual={compSales:compSales,smDept:smDept,newContacts:newContacts,interactions:interactions};
+  saveData();
+  var btn=document.querySelector('#q2resultContainer button');
+  if(btn){btn.textContent='✅ 已保存';btn.style.background='#10b981';setTimeout(function(){btn.innerHTML='💾 保存 / Save';btn.style.background='';},1500);}
+}
+
+function renderQ2Result(){
+  var container=document.getElementById('q2resultGrid');
+  var isZh=lang==='zh';
+  var q2=data.quarterly&&data.quarterly.Q2?data.quarterly.Q2:{actual:{},qTarget:{},notes:{}};
+
+  var compSales=parseFloat(q2.actual.compSales)||0;
+  var smDept=parseFloat(q2.actual.smDept)||0;
+  var newContacts=parseFloat(q2.actual.newContacts)||0;
+  var interactions=parseFloat(q2.actual.interactions)||0;
+
+  var chamAprJunAtt=(data.chambers||[]).filter(function(ch){
+    if(!ch.attendanceDate)return false;
+    var m=new Date(ch.attendanceDate).getMonth()+1;
+    return m>=4&&m<=6;
+  }).length;
+  var chamAprJunUpc=(data.chambers||[]).filter(function(ch){
+    if(!ch.attendanceDate)return false;
+    var d=new Date(ch.attendanceDate),now=new Date();
+    var m=d.getMonth()+1;
+    return m>=4&&m<=6&&d>now;
+  }).length;
+
+  var bidsWonQ2=(data.bids||[]).filter(function(b){
+    if(!b.trackDate)return false;
+    var m=new Date(b.trackDate).getMonth()+1;
+    return m>=4&&m<=6&&(b.stage==='中标'||b.stage==='Won');
+  }).length;
+  var totalBids=(data.bids||[]).length;
+  var bidsActiveQ2=(data.bids||[]).filter(function(b){
+    if(!b.trackDate)return false;
+    var m=new Date(b.trackDate).getMonth()+1;
+    return m>=4&&m<=6&&(b.stage==='投标中'||b.stage==='Bidding');
+  }).length;
+
+  var projQ2=(data.projects||[]).filter(function(p){
+    if(!p.interactionDate||!p.customerName)return false;
+    var m=new Date(p.interactionDate).getMonth()+1;
+    return m>=4&&m<=6;
+  }).length;
+  var projCount=(data.projects||[]).filter(function(p){return p.customerName;}).length;
+
+  function pctColor(p){if(p>=100)return'#10b981';if(p>=70)return'#f59e0b';return'#ef4444';}
+  function pctText(p){if(p>=100)return isZh?'达标':'On Track';if(p>=70)return isZh?'接近':'Close';return isZh?'落后':'Behind';}
+  function pctBadge(v,tgt){
+    var vp=parseFloat(v),tp=parseFloat((''+tgt).replace(/,/g,''));
+    if(isNaN(vp)||isNaN(tp)||tp<=0)return'<span style="font-size:9px;color:var(--text2);background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">—</span>';
+    var pct=Math.round(vp/tp*100);
+    return'<span style="font-size:9px;color:'+pctColor(pct)+';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">'+pctText(pct)+'</span>';
+  }
+  function mrow(label,v,tgt,unit){
+    unit=unit||'';
+    var vp=parseFloat(v),tp=parseFloat((''+tgt).replace(/,/g,''));
+    var pct=(!isNaN(vp)&&!isNaN(tp)&&tp>0)?Math.round(vp/tp*100):null;
+    var pctC=pct!==null?pctColor(pct):'var(--text2)';
+    var pctS=pct!==null?pct+'%':'';
+    var pctBar=pct!==null?'<div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:6px"><div style="height:4px;width:'+Math.min(100,pct)+'%;background:'+pctC+';border-radius:2px"></div></div><span style="font-size:9px;color:'+pctC+'">'+pctS+'</span>':'<span style="font-size:9px;color:var(--text2)">—</span>';
+    return'<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between">'+
+        '<span style="font-size:11px;color:var(--text2)">'+label+'</span>'+
+        '<span style="font-size:13px;font-weight:700;color:var(--text1)">'+v+unit+'<span style="font-size:10px;color:var(--text2);margin-left:4px"> / '+tgt+unit+'</span></span>'+
+      '</div>'+pctBar+'</div>';
+  }
+  function bign(v,unit,label,fid){
+    fid=fid||'';
+    var inp="<input type=\"number\" id=\""+fid+"\" value=\""+v+"\" min=\"0\" step=\"0.1\" style=\"width:80px;font-size:22px;font-weight:800;color:var(--text1);background:transparent;border:none;border-bottom:2px solid var(--blue);text-align:center;outline:none;padding:0;line-height:1\" onfocus=\"this.style.borderBottomColor='#60a5fa'\" onblur=\"this.style.borderBottomColor='var(--blue)'\">";
+    return'<div style="text-align:center;padding:8px 4px">'+
+      '<div style="font-size:24px;font-weight:800;color:var(--text1);line-height:1">'+inp+'<span style="font-size:11px;font-weight:400;color:var(--text2);margin-left:2px">'+unit+'</span></div>'+
+      '<div style="font-size:10px;color:var(--text2);margin-top:4px">'+label+'</div></div>';
+  }
+
+  var cBase='background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px';
+  var card=function(cls,delay,body){
+    return'<div class="'+cls+'" style="'+cBase+';animation:fadeInUp .4s ease both;animation-delay:'+delay+'s">'+body+'</div>';
+  };
+  var ctitle=function(icon,bg,col,text,badge){
+    return'<div style="font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px">'+
+      '<div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:'+bg+';color:'+col+'">'+icon+'</div>'+
+      '<span style="color:var(--text1)">'+text+'</span>'+
+      (badge?'<span style="margin-left:auto">'+badge+'</span>':'')+'</div>';
+  };
+
+  container.innerHTML=
+    '<style>'+
+    '.q2r-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}'+
+    '@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}'+
+    '</style>'+
+    '<div class="q2r-g">'+
+
+      // Card 1: Revenue
+      card('s1',0.05,
+        ctitle('💰','rgba(16,185,129,.15)','#10b981',isZh?'营收目标':'Revenue Target',pctBadge(compSales,1400))+
+        mrow(isZh?'公司年营收':'Company Sales',compSales,'1,400','B VND')+
+        mrow(isZh?'营销部营收':'S&M Dept',smDept,'250','B VND')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'+bign(compSales,'B',isZh?'公司营收':'Comp.','q2_compSales')+bign(smDept,'B',isZh?'营销部':'S&M','q2_smDept')+'</div>'
+      )+
+
+      // Card 2: Contacts & Interactions
+      card('s2',0.1,
+        ctitle('📋','rgba(59,130,246,.15)','#60a5fa',isZh?'联系 & 互动':'Contacts & Interactions',pctBadge(newContacts,160))+
+        mrow(isZh?'新联系人':'New Contacts',newContacts,'160','')+
+        mrow(isZh?'活跃互动':'Active Interactions',interactions,'600','')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'+bign(newContacts,'',isZh?'新联系人':'Contacts','q2_newContacts')+bign(interactions,'',isZh?'互动':'Interact.','q2_interactions')+'</div>'
+      )+
+
+      // Card 3: Chamber
+      card('s3',0.15,
+        ctitle('🏢','rgba(239,68,68,.15)','#ef4444',isZh?'商会活动':'Chamber Activity','<span style="font-size:9px;color:var(--text2);margin-left:auto">'+chamAprJunAtt+'/4</span>')+
+        mrow(isZh?'4-6月已出席':'Apr-Jun Att.',chamAprJunAtt,'4','')+
+        mrow(isZh?'4-6月即将出席':'Apr-Jun Upcom.',chamAprJunUpc,'-','')+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'+bign(chamAprJunAtt,'',isZh?'已出席':'Attended')+bign(chamAprJunUpc,'',isZh?'即将':'Upcoming')+'</div>'
+      )+
+
+      // Card 4: Bid Tracking
+      card('s4',0.2,
+        ctitle('📊','rgba(251,191,36,.15)','#fbbf24',isZh?'投标追踪':'Bid Tracking','')+
+        mrow(isZh?'Q2中标':'Q2 Won',bidsWonQ2,'-','')+
+        mrow(isZh?'Q2投标中':'Q2 Bidding',bidsActiveQ2,'-','')+
+        mrow(isZh?'总计':'Total',totalBids,'-','')
+      )+
+
+
+      // Card 5: Customer Interactions
+      card('s5',0.25,
+        ctitle('💬','rgba(168,85,247,.15)','#c084fc',isZh?'客户互动':'Customer Interactions','<span style="font-size:9px;color:#c084fc;margin-left:auto">Q2</span>')+
+        mrow(isZh?'Q2互动次数':'Q2 Interactions',projQ2,'-','')+
+        mrow(isZh?'总客户数':'Total Customers',projCount,'-','')
+      )+
+
+    '</div>'; // end q2r-g
+
+}
+
+function saveQ2Notes(){
+  var el=document.getElementById('q2notesInput');
+  if(el&&data.quarterly&&data.quarterly.Q2){
+    data.quarterly.Q2.notes=data.quarterly.Q2.notes||{};
+    data.quarterly.Q2.notes.summary=el.value;
+    saveData();
+    el.style.borderColor='#10b981';
+    setTimeout(function(){el.style.borderColor='';},1000);
+  }
+}
+
+function saveQuarterlyData(qKey){
+  saveData();
+  var statusEl=document.getElementById('saveStatus_'+qKey);
+  if(statusEl){
+    statusEl.style.opacity='1';
+    setTimeout(function(){ statusEl.style.opacity='0'; },1500);
+  }
+}
+
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+function inputField(qKey,metricId,kind,value,metric){
+  var placeholder='';
+  var ph=kind==='qTarget'?metric.qDisplay:(kind==='actual'?metric.display:'');
+  return '<input type="text" value="'+escHtml(value)+'" placeholder="'+ph+'" style="width:'+(kind==='actual'?'52':'64')+'px;padding:2px 4px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none;transition:border-color .2s,box-shadow .2s" onfocus="this.style.borderColor=\'var(--blue)\';this.style.boxShadow=\'0 0 0 2px rgba(0,180,216,0.12)\'" onblur="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'" class="qk-input" data-q="'+qKey+'" data-mid="'+metricId+'" data-kind="'+kind+'" />';
+}
+
+function calcRate(actual,annual,qTarget,mid){
+  if(actual===''||isNaN(parseFloat(actual))) return null;
+  var tgt=(qTarget!==''&&!isNaN(parseFloat(qTarget)))?parseFloat(qTarget):annual;
+  var a=parseFloat(actual);
+  if(mid==='system') return Math.min(100,Math.round(a*100/tgt));
+  return Math.min(100,Math.round(a/tgt*100));
+}
+
+function rateBadge(rate,mid,qKey){
+  if(rate===null) return '<span id="rate_'+qKey+'_'+mid+'" class="text-gray-300">-</span>';
+  var cls='px-1.5 py-0.5 rounded text-white text-xs font-bold';
+  if(rate>=80) cls+=' bg-green-500';
+  else if(rate>=50) cls+=' bg-amber-500';
+  else cls+=' bg-red-400';
+  return '<span id="rate_'+qKey+'_'+mid+'" class="'+cls+'">'+rate+'%</span>';
+}
+
+function escHtml(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderWin2Chart(){
+  var container=document.getElementById('win2Chart');
+  if(!container)return;
+  // 2026客户统计数据源
+  var c2026Total=0,cJuneTotal=0;
+  (data.customers||[]).forEach(function(c){
+    if(!c.createdDate)return;
+    var d=new Date(c.createdDate);
+    if(d.getFullYear()===2026){
+      c2026Total++;
+      if(d.getMonth()===6)cJuneTotal++;
+    }
+  });
+  // Interactions 数量:按公司统计,每个项目的 interactionCount 之和
+  var interactCountByCompany = {};
+  var cInteract = 0;
+  (data.projects||[]).forEach(function(inter){
+    if(!inter.customerName) return;
+    var cn = inter.customerName.trim();
+    var cnt = typeof inter.interactionCount==='number' ? inter.interactionCount : 0;
+    interactCountByCompany[cn] = (interactCountByCompany[cn]||0) + cnt;
+    cInteract += cnt;
+  });
+  var slices=[
+    {label:window.lang==='zh'?'2026总计':'Total 2026',value:c2026Total,color:'#3b82f6'},
+    {label:window.lang==='zh'?'July新增':'July New',value:cJuneTotal,color:'#34d399'},
+    {label:window.lang==='zh'?'客户互动':'Interactions',value:cInteract,color:'#a78bfa'}
+  ];
+  var total=slices.reduce(function(s,sl){return s+sl.value;},0);
+  if(total===0){container.innerHTML='<div style="color:var(--muted);font-size:12px;padding:16px 0;">No data</div>';return;}
+  var cx=100,cy=85,r=65,depth=16,n=slices.length;
+  var side='',top='',labels='',i=0;
+  slices.forEach(function(sl){
+    var sa=(i/n)*360*(Math.PI/180),ea=((i+1)/n)*360*(Math.PI/180);
+    var x1=(cx+r*Math.cos(sa)).toFixed(1),y1=(cy+r*Math.sin(sa)).toFixed(1);
+    var x2=(cx+r*Math.cos(ea)).toFixed(1),y2=(cy+r*Math.sin(ea)).toFixed(1);
+    side+='<path d="M'+x1+','+(cy+depth)+' L'+x1+','+y1+' A'+r+','+r+' 0 0,1 '+x2+','+y2+' L'+x2+','+(cy+depth)+' A'+r+','+r+' 0 0,0 '+x1+','+(cy+depth)+'Z" fill="'+darken(sl.color)+'" opacity="0.8"/>';
+    top+='<path d="M'+cx+','+cy+' L'+x1+','+y1+' A'+r+','+r+' 0 0,1 '+x2+','+y2+' Z" fill="'+sl.color+'" opacity="0.9"/>';
+    var mid=((i+0.5)/n)*360*(Math.PI/180);
+    var lx=(cx+(r+18)*Math.cos(mid)).toFixed(1),ly=(cy+(r+18)*Math.sin(mid)).toFixed(1);
+    var pct=Math.round(sl.value/total*100);
+    labels+='<text x="'+lx+'" y="'+ly+'" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="var(--card)" font-family="Noto Sans SC,sans-serif" font-weight="600">'+pct+'%</text>';
+    i++;
+  });
+  var svgH=cy*2+depth+12;
+  var svg='<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;justify-content:center;">'+
+    '<svg width="200" height="'+svgH+'" style="overflow:visible;">'+side+top+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="35" fill="var(--card)"/>'+
+    '<text x="'+cx+'" y="'+(cy-5)+'" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="var(--text1)" font-family="Space Grotesk,sans-serif">'+c2026Total+'</text>'+
+    '<text x="'+cx+'" y="'+(cy+10)+'" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="var(--muted)" font-family="Noto Sans SC,sans-serif">'+(window.lang==='zh'?'总计':'Total')+'</text>'+
+    labels+'</svg>';
+  var leg='<div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;font-size:11px;min-width:140px;">';
+  slices.forEach(function(sl){
+    var pct=Math.round(sl.value/total*100);
+    leg+='<div style="display:flex;align-items:center;gap:5px;">'+
+      '<div style="width:10px;height:10px;border-radius:2px;background:'+sl.color+';flex-shrink:0;"></div>'+
+      '<span style="color:var(--text2);font-family:Noto Sans SC,sans-serif;flex:1;">'+sl.label+'</span>'+
+      '<span style="color:var(--muted);font-size:10px;">'+pct+'%</span></div>'+
+    '<div style="font-size:14px;font-weight:700;color:'+sl.color+';padding-left:15px;line-height:1.2;font-family:Space Grotesk,sans-serif;">'+sl.value+'</div>';
+  });
+  leg+='</div></div>';
+  container.innerHTML=svg+leg;
+}
+function darken(hex){
+  var r=Math.max(0,parseInt(hex.slice(1,3),16)-40);
+  var g=Math.max(0,parseInt(hex.slice(3,5),16)-40);
+  var b=Math.max(0,parseInt(hex.slice(5,7),16)-40);
+  return '#'+r.toString(16).padStart(2,'0')+g.toString(16).padStart(2,'0')+b.toString(16).padStart(2,'0');
+}
+
+
+function renderChamberChart(){
+  var counts=[0,0,0,0,0,0,0,0,0,0,0,0]; // 已出席
+  var counts2=[0,0,0,0,0,0,0,0,0,0,0,0]; // 即将出席
+  var now=new Date();
+  data.chambers.forEach(function(c){
+    if(!c.attendanceDate)return;
+    var d=new Date(c.attendanceDate);
+    if(d.getFullYear()!==2026)return;
+    var m=d.getMonth();
+    if(d<now)counts[m]++;else counts2[m]++;
+  });
+  var max=Math.max.apply(null,counts.concat(counts2).concat([1]));
+  var h=90; // 最大柱高 px
+  var container=document.getElementById('chamberChart');
+  if(!container)return;
+  var html='';
+  for(var i=0;i<12;i++){
+    var ha=Math.round(counts[i]/max*h)||(counts[i]>0?2:0);
+    var hb=Math.round(counts2[i]/max*h)||(counts2[i]>0?2:0);
+    html+='<div class="flex flex-col items-center justify-end gap-px" style="flex:1;min-width:0;">';
+    html+='<div class="w-full flex items-end justify-center gap-px">';
+    html+='<div class="w-4 rounded-t bg-amber-400 transition-all duration-300 flex items-end justify-center" style="height:'+ha+'px;min-height:'+(counts[i]>0?'18':'0')+'px;" title="Attended:'+counts[i]+'">'+(counts[i]>0?'<span class="text-[10px] font-bold text-black leading-none pb-px">'+counts[i]+'</span>':'')+'</div>';
+    html+='<div class="w-4 rounded-t bg-sky-400 transition-all duration-300 flex items-end justify-center" style="height:'+hb+'px;min-height:'+(counts2[i]>0?'18':'0')+'px;" title="Upcoming:'+counts2[i]+'">'+(counts2[i]>0?'<span class="text-[10px] font-bold text-black leading-none pb-px">'+counts2[i]+'</span>':'')+'</div>';
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+}
+
+function renderCustomerChart(counts){
+  var max=Math.max.apply(null,counts.concat([1]));
+  var h=90;
+  var container=document.getElementById('customerChart');
+  if(!container)return;
+  var html='';
+  for(var i=0;i<12;i++){
+    var ha=Math.round(counts[i]/max*h)||(counts[i]>0?2:0);
+    html+='<div class="flex flex-col items-center justify-end gap-px" style="flex:1;min-width:0;">';
+    html+='<div class="w-full flex items-end justify-center">';
+    html+='<div class="w-4 rounded-t bg-emerald-400 transition-all duration-300 flex items-end justify-center" style="height:'+ha+'px;min-height:'+(counts[i]>0?'18':'0')+'px;" title="New:'+counts[i]+'">'+(counts[i]>0?'<span class="text-[10px] font-bold text-black leading-none pb-px">'+counts[i]+'</span>':'')+'</div>';
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+}
+
+function renderBidChart(totalCounts, biddingCounts, categoryCounts){
+  // 计算最大值确定比例
+  var maxTotal=Math.max.apply(null,totalCounts.concat([1]));
+  var maxBidding=Math.max.apply(null,biddingCounts.concat([1]));
+  var maxCategory=Math.max.apply(null,categoryCounts.concat([1]));
+  var max=Math.max(maxTotal,maxBidding,maxCategory);
+  var h=90;
+  var container=document.getElementById('bidChart');
+  if(!container)return;
+  var labelTotal=lang==='en'?'Total':'总计';
+  var labelBidding=lang==='en'?'Bidding':'投标中';
+  var labelCategory=lang==='en'?'Following':'追踪';
+  var html='';
+  for(var i=0;i<12;i++){
+    var ha=Math.round(totalCounts[i]/max*h)||(totalCounts[i]>0?2:0);
+    var hb=Math.round(biddingCounts[i]/max*h)||(biddingCounts[i]>0?2:0);
+    var hc=Math.round(categoryCounts[i]/max*h)||(categoryCounts[i]>0?2:0);
+    html+='<div class="flex flex-col items-center justify-end gap-px" style="flex:1;min-width:0;">';
+    html+='<div class="w-full flex items-end justify-center gap-1">';
+    // 蓝色 - 总计
+    html+='<div class="w-2.5 rounded-t bg-blue-400 transition-all duration-300 flex items-end justify-center" style="height:'+ha+'px;min-height:'+(totalCounts[i]>0?'16':'0')+'px;" title="'+labelTotal+':'+totalCounts[i]+'">'+(totalCounts[i]>0?'<span class="text-[8px] font-bold text-black leading-none pb-px">'+totalCounts[i]+'</span>':'')+'</div>';
+    // 黄色 - 投标中
+    html+='<div class="w-2.5 rounded-t bg-amber-400 transition-all duration-300 flex items-end justify-center" style="height:'+hb+'px;min-height:'+(biddingCounts[i]>0?'16':'0')+'px;" title="'+labelBidding+':'+biddingCounts[i]+'">'+(biddingCounts[i]>0?'<span class="text-[8px] font-bold text-black leading-none pb-px">'+biddingCounts[i]+'</span>':'')+'</div>';
+    // 绿色 - 分类
+    html+='<div class="w-2.5 rounded-t bg-emerald-400 transition-all duration-300 flex items-end justify-center" style="height:'+hc+'px;min-height:'+(categoryCounts[i]>0?'16':'0')+'px;" title="'+labelCategory+':'+categoryCounts[i]+'">'+(categoryCounts[i]>0?'<span class="text-[8px] font-bold text-black leading-none pb-px">'+categoryCounts[i]+'</span>':'')+'</div>';
+    html+='</div></div>';
+  }
+  container.innerHTML=html;
+}
+
+function renderWin1Chart(){
+  var TARGET=1400;   // 营收目标2026
+  var BUSINESS=250;  // 业务营收目标
+
+  // 实际目标:根据已激活内容 + 中标的项目预估金额汇总
+  var ACTUAL=0;
+  data.bids.forEach(function(b){
+    if(b.inactive) return; // 已取消项目不计入
+    if(!b.stageContent) return; // 无激活内容不计入
+    // 检查是否包含"中标"或"Won"
+    var sc=b.stageContent||'';
+    if(sc.indexOf('中标')===-1 && sc.indexOf('Won')===-1) return;
+    var num=parseFloat(String(b.estimatedValue).replace(/,/g,''));
+    if(!isNaN(num)) ACTUAL+=num;
+  });
+  ACTUAL=ACTUAL/1e9; // VND → B
+
+  // 汇总所有投标项目的预估金额(排除已取消),与 updateStats 逻辑一致
+  var projectTotal=0;
+  data.bids.forEach(function(b){
+    if(b.inactive) return; // 已取消项目不计入
+    var num=parseFloat(String(b.estimatedValue).replace(/,/g,''));
+    if(!isNaN(num)) projectTotal+=num;
+  });
+  projectTotal=projectTotal/1e9; // VND → B
+
+  var maxVal=Math.max(TARGET,BUSINESS,projectTotal,ACTUAL);
+  var container=document.getElementById('win1Chart');
+  if(!container)return;
+
+  // 双语标签函数
+  function getWin1Label(key, zhVal, enVal){
+    var currentVal=lang==='en'?enVal:zhVal;
+    return '<span onclick="toggleWin1Lang()" style="cursor:pointer;text-decoration:underline dotted;" title="点击切换语言">'+currentVal+'</span>';
+  }
+
+  function barRow(label,val,color,bg){
+    var pct=maxVal>0?(val/maxVal*100):0;
+    return '<div class="flex items-center gap-2" style="font-size:11px;">'+
+      '<div style="width:96px;min-width:96px;text-align:right;color:var(--muted);white-space:nowrap;">'+label+'</div>'+
+      '<div style="flex:1;background:var(--bg2);border-radius:4px;height:14px;overflow:hidden;">'+
+      '<div style="width:'+pct.toFixed(1)+'%;height:100%;background:'+bg+';border-radius:4px;transition:width .5s;min-width:3px;"></div>'+
+      '</div>'+
+      '<div style="width:52px;text-align:right;font-weight:600;color:'+color+';white-space:nowrap;font-size:10px;">'+val.toFixed(0)+'B VND</div>'+
+      '</div>';
+  }
+
+  var html=
+    barRow(getWin1Label('win1t1','营收目标 2026','Revenue 2026'),TARGET,'#60a5fa','#1e40af')+
+    '<div style="height:4px;"></div>'+
+    barRow(getWin1Label('win1t2','业务营收目标','Sale Dept revenue'),BUSINESS,'#34d399','#065f46')+
+    '<div style="height:4px;"></div>'+
+    barRow(getWin1Label('win1t3','项目预估金额','Project Est. Value'),projectTotal,'#fbbf24','#92400e');
+
+  // 仅在有中标项目时显示实际目标
+  if(ACTUAL>0){
+    html+='<div style="height:4px;"></div>'+
+           barRow(getWin1Label('win1t4','实际目标','Actual Target'),ACTUAL,'#f87171','#991b1b');
+  }
+
+  container.innerHTML=html;
+}
+
+function renderJuneChambers(){
+  var now=new Date();
+  var att=[],upc=[];
+  data.chambers.forEach(function(c){
+    if(!c.attendanceDate)return;
+    var d=new Date(c.attendanceDate);
+    if(d.getFullYear()!==2026||d.getMonth()!==6)return;
+    var item={name:c.chamberName||c.chName||'',topic:c.topic||c.ch13||'',date:c.attendanceDate};
+    if(d<now)att.push(item);else upc.push(item);
+  });
+  att.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  upc.sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+
+  var html='';
+  var empty='<span style="font-size:11px;color:var(--muted)">-</span>';
+
+  if(att.length>0){
+    html+='<div style="font-size:10px;color:#f59e0b;font-weight:600;margin-top:8px;text-align:left;">'+t('chLegAtt')+'</div>';
+    html+='<div style="overflow-x:auto;margin-top:4px;">';
+    html+='<table style="width:100%;font-size:11px;border-collapse:collapse;table-layout:fixed;">';
+    html+='<thead><tr style="color:var(--muted);">';
+    html+='<th style="text-align:left;padding:2px 4px;font-weight:500;">'+t('ch1').split('/')[0]+'</th>';
+    html+='<th style="text-align:left;padding:2px 4px;font-weight:500;">'+t('ch13').split('/')[0]+'</th>';
+    html+='<th style="text-align:left;padding:2px 4px;font-weight:500;">'+t('ch14').split('/')[0]+'</th>';
+    html+='</tr></thead><tbody>';
+    att.forEach(function(r){
+      var dt=new Date(r.date);
+      var ds=(dt.getMonth()+1)+'/'+dt.getDate();
+      html+='<tr style="border-top:1px solid var(--border);">';
+      html+='<td style="padding:4px 4px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.name||empty)+'</td>';
+      html+='<td style="padding:4px 4px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.topic||empty)+'</td>';
+      html+='<td style="padding:4px 4px;color:var(--text);white-space:nowrap;">'+ds+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+  }
+
+  if(upc.length>0){
+    html+='<div style="font-size:10px;color:#38bdf8;font-weight:600;margin-top:10px;text-align:left;">'+t('chLegUpc')+'</div>';
+    html+='<div style="overflow-x:auto;margin-top:4px;">';
+    html+='<table style="width:100%;font-size:11px;border-collapse:collapse;table-layout:fixed;">';
+    html+='<thead><tr style="color:var(--muted);">';
+    html+='<th style="text-align:left;padding:2px 4px;font-weight:500;">'+t('ch1').split('/')[0]+'</th>';
+    html+='<th style="text-align:left;padding:2px 4px;font-weight:500;">'+t('ch13').split('/')[0]+'</th>';
+    html+='<th style="text-align:left;padding:2px 4px;font-weight:500;">'+t('ch14').split('/')[0]+'</th>';
+    html+='</tr></thead><tbody>';
+    upc.forEach(function(r){
+      var dt=new Date(r.date);
+      var ds=(dt.getMonth()+1)+'/'+dt.getDate();
+      html+='<tr style="border-top:1px solid var(--border);">';
+      html+='<td style="padding:4px 4px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.name||empty)+'</td>';
+      html+='<td style="padding:4px 4px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.topic||empty)+'</td>';
+      html+='<td style="padding:4px 4px;color:var(--text);white-space:nowrap;">'+ds+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+  }
+
+  var el=document.getElementById('win3Content');
+  if(el)el.innerHTML=html;
+}
+
+function updateStats(){
+  const sm={
+    '评审中':'c3','评审中 / Reviewing':'c3','Reviewing':'c3','Reviewing / 评审中':'c3',
+    '中标':'c5','中标 / Won':'c5','Won':'c5','Won / 中标':'c5',
+    '未中标':'c5','未中标 / Lost':'c5','Lost':'c5','Lost / 未中标':'c5'
+  };
+  // 阶段内容映射(基于 stageContent,非投标阶段 stage)
+  const scm={
+    '投标中':'c2','投标中 / Bidding':'c2','Bidding':'c2','Bidding / 投标中':'c2',
+    '跟踪':'c4','跟踪 / Following':'c4','Following':'c4','Following / 跟踪':'c4'
+  };
+  const c={c1:0,c2:0,c3:0,c4:0,c5:0,ca:0,cba:0};
+  // 项目统计:跟随 Summary 页面 sumBidsTotal
+  c.c1 = data.bids.length;
+  // 阶段统计:排除已取消,基于 stageContent
+  data.bids.forEach(b=>{
+    if(b.inactive) return;
+    // 优先用阶段内容判断投标中/跟踪
+    const scKey=scm[b.stageContent];
+    if(scKey){c[scKey]++;return;}
+    // 其他阶段走原逻辑
+    const k=sm[b.stage];
+    if(k) c[k]++;
+  });
+  // 统计分类(含已取消)
+  c.ca = data.bids.filter(b=>b.category==='A'||b.category==='A工程').length;
+  c.cba = data.bids.filter(b=>b.category==='B'||b.category==='B工程').length;
+  Object.keys(c).forEach(k=>{
+    const el=document.getElementById(k);
+    if(el) el.textContent=c[k];
+  });
+  // 计算预估工程金额总额(排除已取消项目)
+  let totalVal = 0;
+  data.bids.forEach(b=>{
+    if(b.inactive) return; // 已取消项目不计入
+    const num = parseFloat(String(b.estimatedValue).replace(/,/g,''));
+    if(!isNaN(num)) totalVal += num;
+  });
+  const tvEl = document.getElementById('totalValue');
+  if(tvEl){
+    if(totalVal >= 1000000000) tvEl.textContent = (totalVal/1000000000).toFixed(1).replace(/\.0$/,'') + 'B';
+    else if(totalVal >= 1000000) tvEl.textContent = (totalVal/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+    else if(totalVal >= 1000) tvEl.textContent = (totalVal/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+    else tvEl.textContent = totalVal.toLocaleString();
+  }
+}
+
+function renderTable(){
+  // 综合统计页面不需要渲染表格
+  if(mod==='summary') return;
+  let d=data[mod];
+  const now=new Date();
+  // 客户管理年份筛选
+  if(mod==='customers' && custYearFilter!=='all'){
+    d=d.filter(c=>{
+      if(!c.createdDate) return false;
+      const year=new Date(c.createdDate).getFullYear().toString();
+      return year===custYearFilter;
+    });
+  }
+  // 客户管理国家筛选
+  if(mod==='customers' && custCountryFilter!=='all'){
+    d=d.filter(c=>c.country===custCountryFilter);
+  }
+  // 客户管理公司名称搜索
+  if(mod==='customers' && custSearchFilter){
+    d=d.filter(c=>{
+      const cn=(c.companyName||'').toLowerCase();
+      return cn.includes(custSearchFilter);
+    });
+  }
+  // 客户管理日期搜索
+  if(mod==='customers' && custDateFilter){
+    d=d.filter(c=>c.createdDate===custDateFilter);
+  }
+  // 商会信息日期筛选
+  if(mod==='chambers'){
+    if(chamberDateFilter!=='all'){
+      d=d.filter(c=>{
+        if(!c.attendanceDate) return false;
+        const d2=new Date(c.attendanceDate);
+        return chamberDateFilter==='upcoming'?d2>=now:d2<now;
+      });
+    }
+    if(chamberMonthFilter!=='all'){
+      d=d.filter(c=>{
+        if(!c.attendanceDate) return false;
+        return new Date(c.attendanceDate).getMonth().toString()===chamberMonthFilter;
+      });
+    }
+  }
+  // 投标项目:筛选和排序
+  if(mod==='bids'){
+    if(bidsFilter==='bidding'){
+      d=d.filter(b=>!b.inactive&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中'));
+    }else if(bidsFilter==='tracking'){
+      d=d.filter(b=>!b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'));
+    }
+    d=[...d].sort((a,b)=>(a.inactive?1:0)-(b.inactive?1:0));
+  }
+  // 商会信息:出席状态自动勾选(已过日期=已出席,未到=即将出席)
+  if(mod==='chambers'){
+    d=[...d].sort((a,b)=>{
+      if(!a.attendanceDate) return 1;
+      if(!b.attendanceDate) return -1;
+      return new Date(b.attendanceDate)-new Date(a.attendanceDate);
+    });
+  }
+  // 客户互动:按互动日期倒序排列(最新在前)
+  if(mod==='projects'){
+    d=[...d].sort((a,b)=>{
+      if(!a.interactionDate) return 1;
+      if(!b.interactionDate) return -1;
+      return new Date(b.interactionDate)-new Date(a.interactionDate);
+    });
+  }
+  const f=getFields(mod),ff=f.filter(x=>x.l);
+  // 投标项目添加暂停/取消勾选列;商会信息添加出席状态列
+  const isBids=mod==='bids';
+  const isChambers=mod==='chambers';
+  const actionCol=isBids?'<th class="text-center" title="暂停/取消">☑</th>':isChambers?'<th class="text-center" title="已出席">☑</th>':'';
+  const cols=ff.map(x=>x.l).concat(mod==='projects'?['互动次数 / Interactions']:isChambers?[]:t('c20')).concat(isChambers?['attendanceStatus']:[]);
+  document.querySelector('#dt thead').innerHTML='<tr>'+cols.map((c,i)=>{
+    const firstMod=mod==='bids'?'customerName':mod==='customers'?'companyName':mod==='projects'?'customerName':'chamberName';
+    const isFirst=ff[i]&&ff[i].k===firstMod;
+    const cls=isFirst?' class="col-customer"':'';
+    const resize=isFirst?'<div class="col-resize" onmousedown="startColResize(event)"></div>':'';
+    return'<th'+cls+'>'+c+resize+'</th>';
+  }).join('')+actionCol+'</tr>';
+  const tb=document.getElementById('tb');
+  if(d.length===0){tb.innerHTML='<tr><td colspan="'+cols.length+'" class="text-center py-12 text-[var(--muted)]"><svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg><p>'+t('nd')+'</p><p class="text-sm mt-1">'+t('ndh')+'</p></td></tr>';return;}
+  const actionColCount=mod==='bids'?1:0;
+  tb.innerHTML=d.map((item,i)=>'<tr class="ai'+(item.inactive?' row-inactive':'')+'" style="animation-delay:'+(0.7+i*0.05)+'s">'+renderRow(item,i)+'</tr>').join('');
+}
+
+function renderRow(item,rowIdx){
+  const now=new Date();
+  const f=getFields(mod);
+  let cells=f.filter(x=>x.l).map(x=>{
+    let v=item[x.k]||'-';
+    // 冻结列:各模块第一列(水平固定)
+    const firstMod=mod==='bids'?'customerName':mod==='customers'?'companyName':mod==='projects'?'customerName':'chamberName';
+    const firstCls=x.k===firstMod?' col-customer':'';
+    const firstStyle=x.k===firstMod?' position:sticky;left:0;z-index:10;background:var(--bg2);':'';
+    if(x.k==='stage'){
+      const cls={
+        '资格预审':'bdg1','资格预审 / Pre-qualification':'bdg1','Pre-qualification':'bdg1','Pre-qualification / 资格预审':'bdg1',
+        '投标中':'bdg2','投标中 / Bidding':'bdg2','Bidding':'bdg2','Bidding / 投标中':'bdg2',
+        '评审中':'bdg3','评审中 / Reviewing':'bdg3','Reviewing':'bdg3','Reviewing / 评审中':'bdg3',
+        '中标':'bdg4','中标 / Won':'bdg4','Won':'bdg4','Won / 中标':'bdg4',
+        '未中标':'bdg5','未中标 / Lost':'bdg5','Lost':'bdg5','Lost / 未中标':'bdg5'
+      }[item.stage]||'';
+      v='<span class="bdg '+cls+'">'+v+'</span>';
+    }
+    if(x.k==='status'){
+      const cl={
+        '已完成':'text-emerald-400','已完成 / Completed':'text-emerald-400','Completed':'text-emerald-400','Completed / 已完成':'text-emerald-400',
+        '进行中':'text-blue-400','进行中 / In Progress':'text-blue-400','In Progress':'text-blue-400','In Progress / 进行中':'text-blue-400',
+        '待跟进':'text-amber-400','待跟进 / Pending':'text-amber-400','Pending':'text-amber-400','Pending / 待跟进':'text-amber-400'
+      }[item.status]||'';
+      v='<span class="'+cl+'">'+v+'</span>';
+    }
+    if(x.k==='interactionType'){
+      const typeColors={
+        '电话':'bdg1','电话 / Phone':'bdg1','Phone':'bdg1','Phone / 电话':'bdg1',
+        '邮件':'bdg2','邮件 / Email':'bdg2','Email':'bdg2','Email / 邮件':'bdg2',
+        '会议':'bdg3','会议 / Meeting':'bdg3','Meeting':'bdg3','Meeting / 会议':'bdg3',
+        '拜访':'bdg4','拜访 / Visit':'bdg4','Visit':'bdg4','Visit / 拜访':'bdg4',
+        '其他':'bdg5','其他 / Other':'bdg5','Other':'bdg5','Other / 其他':'bdg5'
+      };
+      const cls=typeColors[item.interactionType]||'';
+      v='<span class="bdg '+cls+'">'+v+'</span>';
+    }
+    if(x.k==='companyBusiness'){
+      v='<span class="text-[var(--text2)]">'+v+'</span>';
+    }
+    if(x.k==='position'){
+      v='<span class="text-[var(--text2)]">'+v+'</span>';
+    }
+    if(x.k==='country'){
+      v='<span class="text-[var(--text2)]">'+v+'</span>';
+    }
+    if(x.k==='customerName' && mod==='projects'){
+      var m=data.customers.find(function(c){
+        return c.companyName===item.customerName || (item.customerName||'').startsWith(c.companyName+' - ');
+      });
+      if(m && m.contactPerson){
+        v='<span class="inline-block">'+v+'<span class="text-xs" style="color:var(--text2)"> ('+m.contactPerson+')</span></span>';
+      }
+    }
+    if(x.k==='priority'){
+      const pCls={
+        '高':'bdgHigh','高 / High':'bdgHigh','High':'bdgHigh',
+        '中':'bdgMed','中 / Medium':'bdgMed','Medium':'bdgMed',
+        '低':'bdgLow','低 / Low':'bdgLow','Low':'bdgLow'
+      };
+      const pLabel={high:'高 / High',med:'中 / Medium',low:'低 / Low'};
+      const cur=item.priority||'';
+      let short=cur;
+      if(cur.includes('高')||cur==='High') short='高';
+      else if(cur.includes('中')||cur==='Medium') short='中';
+      else if(cur.includes('低')||cur==='Low') short='低';
+      const cls=pCls[cur]||'bdgLow';
+      v='<span class="bdg '+cls+' bdg-priority" onclick="cyclePriority(\''+item.id+'\')" title="点击切换 / Click to change">'+short+'</span>';
+    }
+    if(x.k==='category'){const cls={'A工程':'bdgA','B工程':'bdgB','A':'bdgA','B':'bdgB'}[item.category]||'';v='<span class="bdg '+cls+'">'+v+'</span>';}
+    if(x.k==='estimatedValue'&&item.estimatedValue){
+      const num=parseFloat(String(item.estimatedValue).replace(/,/g,''));
+      if(!isNaN(num)){
+        if(num>=1000000000){v=(num/1000000000).toFixed(1).replace(/\.0$/,'')+'B VND';}
+        else if(num>=1000000){v=(num/1000000).toFixed(1).replace(/\.0$/,'')+'M VND';}
+        else if(num>=1000){v=(num/1000).toFixed(1).replace(/\.0$/,'')+'K VND';}
+        else{v=num+' VND';}
+      }
+    }
+    // 可编辑单元格(投标模块和客户互动模块的字段)
+    if((mod==='bids'||mod==='projects')&&x.ed){
+      const val=String(item[x.k]||'').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+      v='<span class="cell-editable" onclick="openInlineEdit(\''+item.id+'\',\''+x.k+'\',\''+val+'\',\''+x.tp+'\',\''+(x.opt?x.opt.join('|').replace(/'/g,'&apos;'):'')+'\')">'+v+'</span>';
+    }
+    // 备注字段:限制最大宽度,显示省略号
+    if(x.k==='notes'&&v&&v!=='-'){
+      v='<span class="text-[var(--text2)]" style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="'+v.replace(/"/g,'&quot;')+'">'+v+'</span>';
+    }
+    // 商会表格出席日期直接点击可改
+    if(mod==='chambers'&&x.k==='attendanceDate'){
+      v='<input type="date" value="'+(item.attendanceDate||'')+'" onchange="quickEditDate(\''+item.id+'\',this.value)" class="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm cursor-pointer" style="color:var(--text);">';
+    }
+    return'<td class="'+firstCls.trim()+'" style="'+firstStyle+'">'+v+'</td>';
+  }).join('');
+  // 投标项目:添加暂停/取消勾选格
+  if(mod==='bids'){
+    const checked=item.inactive?' checked':'';
+    cells+='<td class="text-center"><input type="checkbox" '+checked+' onchange="toggleCancelled(\''+item.id+'\',this.checked)" class="w-5 h-5 accent-blue-500 cursor-pointer" title="标记为暂停/取消"></td>';
+  }
+  // 商会信息:根据日期自动勾选(已过=已出席,未到=即将出席)
+  if(mod==='chambers'){
+    const isPast=item.attendanceDate&&new Date(item.attendanceDate)<now;
+    const checked=isPast?' checked':'';
+    const label=isPast?(lang==='zh'?'已出席':'Attended'):(lang==='zh'?'即将出席':'Upcoming');
+    cells+='<td class="text-center"><input type="checkbox" '+checked+' class="w-5 h-5 accent-blue-500 cursor-default" title="'+label+'" readonly></td>';
+  }
+  // 客户互动:显示该公司互动次数(累加 interactionCount 字段)
+  if(mod==='projects'){
+    var ic=data.projects?data.projects.filter(function(p){return p.interactionDate&&p.customerName&&p.customerName.trim()===(item.customerName||'').trim();}).reduce(function(s,p){return s+(typeof p.interactionCount==='number'?p.interactionCount:0);},0):0;
+    cells+='<td class="text-center text-blue-300 font-bold" title="'+ic+' interactions">'+ic+'</td>';
+  }
+
+  // 操作按钮
+  cells+='<td><div class="flex gap-2"><button onclick="editItem(\''+item.id+'\')" class="p-2 rounded-lg hover:bg-[var(--bg2)]" title="'+t('me')+'"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button><button onclick="deleteItem(\''+item.id+'\')" class="p-2 rounded-lg hover:bg-rose-500/10 hover:text-rose-400" title="删除"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div></td>';
+  return cells;
+}
+
+function sm(m){
+  if(!m||typeof m!=='string'){console.error('[sm] invalid m:',m);return;}
+  mod=m;
+  // 更新菜单激活状态
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  try{if(event&&event.currentTarget)event.currentTarget.classList.add('active');}catch(e){}
+
+  // 隐藏所有容器
+  document.getElementById('bs').style.display='none';
+  document.getElementById('cs').style.display='none';
+  document.getElementById('yf').style.display='none';
+  document.getElementById('cf').style.display='none';
+  document.getElementById('custSearchWrap').style.display='none';
+  document.getElementById('custDateWrap').style.display='none';
+  document.getElementById('chf').style.display='none';
+  document.getElementById('bf').style.display='none';
+  document.getElementById('sum').style.display='none';
+  document.getElementById('win123Container').style.display='none';
+  document.getElementById('plan2026Section').style.display='none';
+  document.getElementById('q2resultContainer').style.display='none';
+
+  // 隐藏表格容器
+  document.querySelector('.tc').style.display='none';
+
+  // 根据模块显示对应容器
+  if(m==='summary'){
+    document.getElementById('sum').style.display='grid';
+    document.getElementById('win123Container').style.display='grid';
+    updateSummary();
+  }else if(m==='bids'){
+    document.getElementById('bs').style.display='grid';
+    document.getElementById('bf').style.display='flex';
+    document.querySelector('.tc').style.display='block';
+    setBidsFilter(bidsFilter);
+    updateStats();
+  }else if(m==='customers'){
+    document.getElementById('cs').style.display='grid';
+    document.getElementById('yf').style.display='flex';
+    document.getElementById('cf').style.display='flex';
+    document.getElementById('custSearchWrap').style.display='block';
+    document.getElementById('custDateWrap').style.display='flex';
+    var di=document.getElementById('custDateInput');
+    if(di) di.value=custDateFilter;
+    document.querySelector('.tc').style.display='block';
+  }else if(m==='chambers'){
+    document.getElementById('chf').style.display='flex';
+    document.querySelector('.tc').style.display='block';
+  }else if(m==='plan2026'){
+    document.getElementById('plan2026Section').style.display='block';
+    document.querySelector('.tc').style.display='none';
+    renderPlanTracking();
+  }else if(m==='q2result'){
+    document.getElementById('sum').style.display='none';
+    document.getElementById('win123Container').style.display='none';
+    document.getElementById('q2resultContainer').style.display='block';
+    document.querySelector('.tc').style.display='none';
+    renderQ2Result();
+  }else{
+    document.querySelector('.tc').style.display='block';
+  }
+
+  // 更新标题
+  const titles={
+    summary:{title:'综合统计',sub:'汇总三大模块的关键数据'},
+    bids:{title:'投标项目追踪',sub:'管理和追踪所有投标项目进度'},
+    customers:{title:'客户管理',sub:'管理客户信息和跟进记录'},
+    projects:{title:'客户互动',sub:'记录客户沟通和互动历史'},
+    chambers:{title:'商会信息',sub:'管理商会和组织联系信息'},
+    q2result:{title:'Q2结果',sub:'Apr - Jun / 4月-6月'},
+    plan2026:{title:'计划2026',sub:'System Tracking List'}
+  };
+  document.getElementById('pt').textContent=titles[m]?titles[m].title:'';
+  document.getElementById('ps').textContent=titles[m]?titles[m].sub:'';
+  // 显示/隐藏互动计数徽章
+  var badge=document.getElementById('projInteractBadge');
+  var q3badge=document.getElementById('q3InteractBadge');
+  if(badge){badge.classList.toggle('hidden',m!=='projects');}
+  if(q3badge){q3badge.classList.toggle('hidden',m!=='projects');}
+  if(m==='projects'){
+    var now=new Date();
+    var julRecords=(data.projects||[]).filter(function(p){return p.interactionDate&&p.customerName&&new Date(p.interactionDate).getMonth()===6;});
+    var q3Records=(data.projects||[]).filter(function(p){
+      if(!p.interactionDate||!p.customerName)return false;
+      var m2=new Date(p.interactionDate).getMonth();
+      return m2>=6&&m2<=8;
+    });
+    var pic=julRecords.reduce(function(s,p){return s+(typeof p.interactionCount==='number'?p.interactionCount:0);},0);
+    var qc=q3Records.reduce(function(s,p){return s+(typeof p.interactionCount==='number'?p.interactionCount:0);},0);
+    if(badge) badge.textContent='互动: '+pic;
+    if(q3badge) q3badge.textContent='Q3: '+qc;
+  }
+  // 显示/隐藏「导出互动」按钮
+  var expBtn=document.getElementById('expInteractBtn');
+  if(expBtn){expBtn.style.display=m==='projects'?'inline-flex':'none';}
+  var tplBtn=document.getElementById('exportCustTplBtn');
+  if(tplBtn){tplBtn.style.display=m==='customers'?'inline-flex':'none';}
+
+  updateUI();
+  updateCustomerStats();
+  renderTable();
+}
+
+function openAddModal(){
+  eid=null;const f=getFields(mod),keys={bids:'nb1',customers:'nb2',projects:'nb3',chambers:'nb4'};
+  document.getElementById('mt').textContent=t(keys[mod]);
+  const fm=document.getElementById('mf');
+  const formFields=f.filter(x=>x.l).map(x=>{
+    let inputHtml='';
+    if(x.tp==='ta'){
+      inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' data-tp="ta"></div>';
+    }else if(x.tp==='sel'){
+      if(x.k==='position' || x.k==='companyBusiness' || x.k==='country'){
+        const listId='list_'+x.k+'_'+Date.now();
+        inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" '+(x.r?'required':'')+'><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
+      }else{
+        inputHtml='<select name="'+x.k+'" class="fi fi-sel" '+(x.r?'required':'')+' onchange="this.dataset.v=this.value"><option value="">'+t('sp2')+'</option>'+x.opt.map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select>';
+      }
+    }else if(x.tp==='datalist'){
+      const listId='list_'+x.k+'_'+Date.now();
+      inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" '+(x.r?'required':'')+' autocomplete="off"><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
+    }else if(x.tp==='date'){
+      inputHtml='<input type="date" name="'+x.k+'" value="" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' style="color:var(--text1);background:var(--bg2);">';
+    }else{
+      inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+'></div>';
+    }
+    return'<div class="mb-4"><label class="block text-sm text-[var(--text2)] mb-2">'+x.l+(x.r?' *':'')+'</label>'+inputHtml+'</div>';
+  }).join('');
+  fm.innerHTML='<div class="mform">'+formFields+'</div><div class="flex gap-3 mt-4" style="position:sticky;bottom:0;background:var(--card);padding-top:8px"><button type="button" onclick="cm()" class="bs flex-1">'+t('bc')+'</button><button type="button" onclick="doSave()" class="bp flex-1">'+t('bs')+'</button></div>';
+  document.getElementById('md').classList.add('active');
+  // 客户互动:选择高/中优先级客户时自动填入邮箱
+  if(mod==='projects'){
+    setTimeout(function(){
+      var cnField=document.querySelector('[data-k="customerName"]');
+      if(cnField){cnField.addEventListener('input',autoFillEmail);cnField.addEventListener('blur',autoFillEmail);}
+    },50);
+  }
+}
+
+function cyclePriority(id){
+  const order=['中 / Medium','高 / High','低 / Low'];
+  const item=data.customers.find(c=>c.id===id);
+  if(!item) return;
+  const cur=item.priority||'';
+  let idx=order.indexOf(cur);
+  if(idx===-1) idx=0; else idx=(idx+1)%order.length;
+  item.priority=order[idx];
+  saveData();
+  renderTable();
+}
+
+function toggleCancelled(id,val){
+  const item=data.bids.find(b=>b.id===id);
+  if(item){item.inactive=val?1:'';saveData();renderTable();updateStats();}
+}
+
+function toggleAllCancelled(val){
+  data.bids.forEach(b=>b.inactive=val?1:'');
+  saveData();
+  renderTable();
+  updateStats();
+}
+
+function openInlineEdit(id,k,v,tp,optStr){
+  const item=data[mod].find(x=>x.id===id);
+  if(!item) return;
+  let inputHtml='';
+  if(tp==='sel'){
+    const opts=optStr.split('|');
+    inputHtml='<select id="ied_'+k+'" class="fi text-sm"><option value="">请选择 / Please select</option>'+opts.map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select>';
+  }else if(tp==='date'){
+    inputHtml='<input type="date" id="ied_'+k+'" class="fi text-sm" value="'+v+'">';
+  }else if(tp==='ta'){
+    inputHtml='<textarea id="ied_'+k+'" class="fi text-sm" rows="3" style="resize:vertical;">'+v.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</textarea>';
+  }else{
+    inputHtml='<input type="'+tp+'" id="ied_'+k+'" class="fi text-sm" value="'+v.replace(/"/g,'&quot;')+'">';
+  }
+  const td=event.target.closest('td');
+  td.innerHTML='<div class="flex gap-1">'+inputHtml+'<button onclick="saveInlineEdit(\''+id+'\',\''+k+'\')" class="px-2 py-1 rounded bg-blue-500 text-white text-xs font-bold">✓</button><button onclick="renderTable()" class="px-2 py-1 rounded bg-gray-600 text-white text-xs">✕</button></div>';
+  const sel=document.getElementById('ied_'+k);
+  if(sel){
+    sel.focus();
+    sel.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();saveInlineEdit(id,k);}
+      if(e.key==='Escape'){e.preventDefault();renderTable();}
+    });
+  }
+}
+
+function quickEditDate(id,value){
+  const item=data.chambers.find(c=>c.id===id);
+  if(!item)return;
+  item.attendanceDate=value;
+  saveData();
+  renderTable();
+}
+
+function saveInlineEdit(id,k){
+  try{
+    const item=data[mod].find(x=>x.id===id);
+    if(!item) return;
+    var oldValue=item[k];
+    var newValue=document.getElementById('ied_'+k).value;
+    item[k]=newValue;
+    // 如果是 projects 模块且修改的是 interactionDate,则 interactionCount +1
+    if(mod==='projects' && k==='interactionDate'){
+      if(typeof item.interactionCount!=='number') item.interactionCount=0;
+      if(newValue && newValue.trim()!=='' && oldValue!==newValue){
+        item.interactionCount++;
+      }
+    }
+    saveData();
+    renderTable();
+    if(mod==='bids') updateStats();
+    if(mod==='projects') updateSummary();
+  }catch(e){console.error('[saveInlineEdit ERROR]',e);alert('保存失败: '+e.message);}
+}
+function editItem(id){
+  eid = id;
+  const item = data[mod].find(i => i.id === id);
+  if(!item){
+    alert('错误:未找到该记录');
+    return;
+  }
+
+  const f = getFields(mod);
+  const keys = {bids:'eb1',customers:'eb2',projects:'eb3',chambers:'eb4'};
+  document.getElementById('mt').textContent = t(keys[mod]);
+  const fm = document.getElementById('mf');
+  const visibleFields = f.filter(x=>x.l);
+  const formFields=visibleFields.map(x=>{
+    const v=item[x.k]||'';
+    let inputHtml='';
+    if(x.tp==='ta'){
+      inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' data-tp="ta">'+v+'</div>';
+    }else if(x.tp==='sel'){
+      if(x.k==='position' || x.k==='companyBusiness' || x.k==='country'){
+        const listId='list_'+x.k+'_'+Date.now();
+        inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" value="'+v+'" '+(x.r?'required':'')+'><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
+      }else{
+        inputHtml='<select name="'+x.k+'" class="fi fi-sel" '+(x.r?'required':'')+'><option value="">'+t('sp2')+'</option>'+x.opt.map(o=>'<option value="'+o+'" '+(o===v?'selected':'')+'>'+o+'</option>').join('')+'</select>';
+      }
+    }else if(x.tp==='datalist'){
+      const listId='list_'+x.k+'_'+Date.now();
+      inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" value="'+v+'" '+(x.r?'required':'')+' autocomplete="off"><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
+    }else if(x.tp==='date'){
+      inputHtml='<input type="date" name="'+x.k+'" value="'+v+'" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' style="color:var(--text1);background:var(--bg2);">';
+    }else{
+      inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+'>'+v+'</div>';
+    }
+    return'<div class="mb-4"><label class="block text-sm text-[var(--text2)] mb-2">'+x.l+(x.r?' *':'')+'</label>'+inputHtml+'</div>';
+  }).join('');
+  fm.innerHTML='<div class="mform">'+formFields+'</div><div class="flex gap-3 mt-4" style="position:sticky;bottom:0;background:var(--card);padding-top:8px"><button type="button" onclick="cm()" class="bs flex-1">'+t('bc')+'</button><button type="button" onclick="doSave()" class="bp flex-1">'+t('bs')+'</button></div>';
+  document.getElementById('md').classList.add('active');
+  if(mod==='projects'){
+    setTimeout(function(){
+      var cnField=document.querySelector('[data-k="customerName"]');
+      if(cnField){cnField.addEventListener('input',autoFillEmail);cnField.addEventListener('blur',autoFillEmail);}
+    },50);
+  }
+}
+
+function cm(){
+  document.getElementById('md').classList.remove('active');
+  eid = null;
+}
+
+function deleteItem(id){if(confirm(t('cd'))){data[mod]=data[mod].filter(i=>i.id!==id);saveData();updateStats();updateSummary();renderTable();}}
+
+function exportCurrentModule(){
+  if(mod==='bids'){ exportBids(); return; }
+  if(mod==='customers'){ exportData(); return; }
+  if(mod==='projects'){ exportInteractionsOnly(); return; }
+  if(mod==='chambers'){ exportChambers(); return; }
+  alert('导出失败');
+}
+
+function exportCustomerTemplate(){
+  const isEn = typeof lang !== 'undefined' && lang === 'en';
+  const headers = isEn
+    ? ['Company Name','Business','Contact Person','Position','Phone','Email','Country','Priority (High/Med/Low)','Date Added']
+    : ['公司名称','公司业务','联系人','职位','电话','邮箱','国家','优先级(高/中/低)','添加日期'];
+  // 只导出表头和空白行，不导标题行（避免导入时误把标题当数据）
+  const sheetName = isEn ? 'Customers' : '客户管理';
+  const fileName = isEn ? 'CustomerManagement_Template.xlsx' : '客户管理_空白模板.xlsx';
+  // 10行空白模板
+  const blankRows = Array.from({length:10}, ()=>Array(headers.length).fill(''));
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...blankRows]);
+  ws['!cols'] = headers.map(() => ({wch:25}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  const buf = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportBids(){
+  const dateStr = new Date().toISOString().slice(0,10);
+  const fields = getFields('bids').filter(x=>x.l);
+  const headers = fields.map(x=>x.l);
+  const rows = data.bids.map(b => fields.map(f => b[f.k]||''));
+  const ws = XLSX.utils.aoa_to_sheet([['投标项目追踪 / Bid Project Tracking']].concat([headers], rows));
+  ws['!cols'] = headers.map(() => ({wch:22}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '投标项目');
+  const buf = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `投标项目追踪_${dateStr}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  alert('导出成功！\n共 ' + data.bids.length + ' 条投标记录');
+}
+
+function exportChambers(){
+  const dateStr = new Date().toISOString().slice(0,10);
+  const fields = getFields('chambers').filter(x=>x.l);
+  const headers = fields.map(x=>x.l);
+  const rows = data.chambers.map(c => fields.map(f => c[f.k]||''));
+  const ws = XLSX.utils.aoa_to_sheet([['商会信息 / Chamber of Commerce']].concat([headers], rows));
+  ws['!cols'] = headers.map(() => ({wch:22}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '商会信息');
+  const buf = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `商会信息_${dateStr}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  alert('导出成功！\n共 ' + data.chambers.length + ' 条商会记录');
+}
+
+function exportInteractionsOnly(){
+  const dateStr = new Date().toISOString().slice(0,10);
+  const headers = ['客户名称','互动日期','互动类型','互动内容','邮箱','负责人','下一步计划','状态','备注'];
+  const rows = (data.projects||[]).map(p=>[
+    p.customerName||'',p.interactionDate||'',p.interactionType||'',
+    p.content||'',p.emailContent||'',p.personInCharge||'',
+    p.nextStep||'',p.status||'',p.notes||''
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([['客户互动 / Customer Interactions']].concat([headers], rows));
+  ws['!cols'] = headers.map(() => ({wch:25}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '客户互动');
+  const buf = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `客户互动_${dateStr}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  alert('客户互动导出成功！\n共 ' + rows.length + ' 条记录');
+}
+
+function exportData(){
+  const dateStr = new Date().toISOString().slice(0,10);
+  const custHeaders = ['公司名称','公司业务','联系人','职位','电话','邮箱','国家','优先级','添加日期'];
+  const custRows = data.customers.map(c => [c.companyName||'',c.companyBusiness||'',c.contactPerson||'',c.position||'',c.phone||'',c.email||'',c.country||'',c.priority||'',c.createdDate||'']);
+  const ws = XLSX.utils.aoa_to_sheet([['客户管理']].concat([custHeaders], custRows));
+  ws['!cols'] = custHeaders.map(() => ({wch:25}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '客户管理');
+  const buf = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([buf], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `客户管理_${dateStr}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  alert('导出成功！\n共 ' + data.customers.length + ' 条客户记录');
+}
+
+
+// ============================================================
+// 完整系统备份 / 恢复
+// ============================================================
+function backupAll(){
+  var backup = {};
+  // 保存所有 localStorage 中的数据
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    try { backup[key] = JSON.parse(localStorage.getItem(key)); }
+    catch(e) { backup[key] = localStorage.getItem(key); }
+  }
+  var jsonStr = JSON.stringify(backup, null, 2);
+  var blob = new Blob([jsonStr], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  var date = new Date().toISOString().slice(0,10);
+  a.download = 'BMS_Full_Backup_' + date + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  alert(t('es'));
+}
+
+function restoreAll(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var backup = JSON.parse(e.target.result);
+      var count = 0;
+      for (var key in backup) {
+        localStorage.setItem(key, JSON.stringify(backup[key]));
+        count++;
+      }
+      if(confirm('已恢复 ' + count + ' 条数据。页面将刷新以生效。\nRestored ' + count + ' entries. Reload to apply.')){
+        location.reload();
+      }
+    } catch(err) {
+      alert('恢复失败: ' + err.message + '\nRestore failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function exportCSV(){
+  const dateStr = new Date().toISOString().slice(0,10);
+
+  // 投标项目追踪 CSV
+  let csv1 = '\uFEFF'; // BOM for Chinese
+  csv1 += '客户名称,项目名称,地点,土地面积(平方米),跟踪日期,投标阶段,下一步日期,下一步内容,备注,负责人,电子邮箱,分类(A/B),预估金额(VND),任务启动日期,已激活内容\n';
+  data.bids.forEach(b => {
+    csv1 += `"${b.customerName||''}","${b.projectName||''}","${b.location||''}","${b.landArea||''}","${b.trackDate||''}","${b.stage||''}","${b.nextActionDate||''}","${(b.nextActionContent||'').replace(/"/g,'""')}","${(b.notes||'').replace(/"/g,'""')}","${b.personInCharge||''}","${b.email||''}","${b.category||''}","${b.estimatedValue||''}","${b.startDate||''}","${b.stageContent||''}"\n`;
+  });
+
+  // 客户管理 CSV
+  let csv2 = '\uFEFF';
+  csv2 += '公司名称,公司业务,联系人,职位,电话,邮箱,国家,优先级(高/中/低),添加日期\n';
+  data.customers.forEach(c => {
+    csv2 += `"${c.companyName||''}","${c.companyBusiness||''}","${c.contactPerson||''}","${c.position||''}","${c.phone||''}","${c.email||''}","${c.country||''}","${c.priority||''}","${c.createdDate||''}"\n`;
+  });
+
+  // 客户互动 CSV
+  let csv3 = '\uFEFF';
+  csv3 += '客户名称,互动日期,互动类型,互动内容,负责人,下一步计划,状态,备注\n';
+  data.projects.forEach(p => {
+    csv3 += `"${p.customerName||''}","${p.interactionDate||''}","${p.interactionType||''}","${(p.content||'').replace(/"/g,'""')}","${p.personInCharge||''}","${p.nextStep||''}","${p.status||''}","${(p.notes||'').replace(/"/g,'""')}"\n`;
+  });
+
+  // 商会信息 CSV
+  let csv4 = '\uFEFF';
+  csv4 += '商会名称,国家,电话,邮箱,联系人,主题,出席日期,出席地点,备注\n';
+  data.chambers.forEach(c => {
+    csv4 += `"${c.chamberName||''}","${c.country||''}","${c.phone||''}","${c.email||''}","${c.contactPerson||''}","${c.topic||''}","${c.attendanceDate||''}","${c.attendanceLocation||''}","${(c.notes||'').replace(/"/g,'""')}"\n`;
+  });
+
+  // 下载4个文件
+  const files = [
+    {name: `投标项目追踪_${dateStr}.csv`, content: csv1},
+    {name: `客户管理_${dateStr}.csv`, content: csv2},
+    {name: `客户互动_${dateStr}.csv`, content: csv3},
+    {name: `商会信息_${dateStr}.csv`, content: csv4}
+  ];
+
+  files.forEach(f => {
+    const blob = new Blob([f.content], {type: 'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = f.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  alert('已导出4个CSV文件!\n\n请用Excel分别打开编辑,然后点击「导入」导入回来。');
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const fileName = file.name.toLowerCase();
+
+  // Excel 文件导入(使用 SheetJS)
+  if(fileName.endsWith('.xls') || fileName.endsWith('.xlsx') || fileName.endsWith('.xlsm') || fileName.endsWith('.xml')){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const data2 = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data2, {type: 'array'});
+
+        // 遍历所有工作表
+        workbook.SheetNames.forEach(sheetName => {
+          console.log('发现工作表:', sheetName);
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+          console.log('工作表', sheetName, '数据行数:', jsonData.length);
+          if(jsonData.length > 0) {
+            console.log('第一行(标题):', jsonData[0]);
+            console.log('第二行(数据):', jsonData[1]);
+          }
+
+          if(jsonData.length < 2) return; // 跳过空表
+
+          // 跳过标题行,获取数据行
+          const dataRows = jsonData.slice(1).filter(row => row.some(cell => cell && String(cell).trim() !== ''));
+
+          console.log('工作表', sheetName, '有效数据行数:', dataRows.length);
+
+          // 根据工作表名称导入数据(严格匹配,避免误判)
+          const sheetNameLower = sheetName.toLowerCase();
+          if(sheetNameLower.includes('投标') || sheetNameLower.includes('bid')){
+            const existingKeys = new Set(data.bids.map(b => b.customerName + '|' + b.projectName));
+            let added = 0;
+            dataRows.forEach((row) => {
+              const key = String(row[0] || '') + '|' + String(row[1] || '');
+              if(existingKeys.has(key)) return;
+              existingKeys.add(key);
+              data.bids.push({
+                id: 'B-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+                customerName: String(row[0] || ''),
+                projectName: String(row[1] || ''),
+                location: String(row[2] || ''),
+                landArea: String(row[3] || ''),
+                trackDate: String(row[4] || ''),
+                stage: String(row[5] || ''),
+                nextActionDate: String(row[6] || ''),
+                nextActionContent: String(row[7] || ''),
+                notes: String(row[8] || ''),
+                personInCharge: String(row[9] || ''),
+                email: String(row[10] || ''),
+                category: String(row[11] || ''),
+                estimatedValue: String(row[12] || ''),
+                startDate: String(row[13] || ''),
+                stageContent: String(row[14] || '')
+              });
+              added++;
+            });
+            console.log('导入投标数据: 新增', added, '条 (已跳过重复)');
+          }
+          else if(sheetName.includes('客户管理') || sheetName === '客户管理'){
+            const existingNames = new Set(data.customers.map(c => c.companyName));
+            const headerKeywords = ['公司名称', 'Company Name']; // 跳过表头行
+            let added = 0;
+            dataRows.forEach((row) => {
+              const name = String(row[0] || '').trim();
+              if(!name || existingNames.has(name) || headerKeywords.includes(name)) return; // 跳过空行、已存在、表头行
+              existingNames.add(name);
+              data.customers.push({
+                id: 'C-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+                companyName: name,
+                companyBusiness: row[1] || '',
+                contactPerson: row[2] || '',
+                position: row[3] || '',
+                phone: row[4] || '',
+                email: row[5] || '',
+                country: row[6] || '',
+                priority: row[7] || '',
+                createdDate: row[8] || ''
+              });
+              added++;
+            });
+            console.log('导入客户数据: 新增', added, '条 (已跳过重复)');
+          }
+          else if(sheetName.includes('互动') || sheetName === '客户互动'){
+            const existingKeys = new Set(data.projects.map(p => p.customerName + '|' + p.interactionDate + '|' + p.content));
+            let added = 0;
+            dataRows.forEach((row) => {
+              const key = String(row[0] || '') + '|' + String(row[1] || '') + '|' + String(row[3] || '');
+              if(existingKeys.has(key)) return;
+              existingKeys.add(key);
+              data.projects.push({
+                id: 'I-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+                customerName: row[0] || '',
+                interactionDate: row[1] || '',
+                interactionType: row[2] || '',
+                content: row[3] || '',
+                personInCharge: row[4] || '',
+                nextStep: row[5] || '',
+                status: row[6] || '',
+                notes: row[7] || ''
+              });
+              added++;
+            });
+            console.log('导入互动数据: 新增', added, '条 (已跳过重复)');
+          }
+          else if(sheetName.includes('商会') || sheetName === '商会信息'){
+            const existingNames = new Set(data.chambers.map(c => c.chamberName));
+            let added = 0;
+            dataRows.forEach((row) => {
+              const name = String(row[0] || '').trim();
+              if(!name || existingNames.has(name)) return;
+              existingNames.add(name);
+              data.chambers.push({
+                id: 'CH-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+                chamberName: name,
+                country: row[1] || '',
+                phone: row[2] || '',
+                email: row[3] || '',
+                contactPerson: row[4] || '',
+                topic: row[5] || '',
+                attendanceDate: row[6] || '',
+                attendanceLocation: row[7] || '',
+                notes: row[8] || ''
+              });
+              added++;
+            });
+            console.log('导入商会数据: 新增', added, '条 (已跳过重复)');
+          }
+        });
+
+        if(confirm('导入Excel数据将覆盖当前数据,确定继续吗?')){
+          saveData();
+          updateOptionsFromData();
+          updateStats();
+          updateCustomerStats();
+
+          // 如果有投标数据,切换到投标项目追踪模块
+          if(data.bids.length > 0){
+            mod = 'bids';
+            // 更新菜单激活状态
+            document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+            document.querySelectorAll('.ni')[0].classList.add('active');
+            // 更新标题
+            document.getElementById('pt').textContent = '投标项目追踪';
+            document.getElementById('ps').textContent = '管理和追踪所有投标项目进度';
+            // 显示投标统计,隐藏其他
+            document.getElementById('bs').style.display='grid';
+            document.getElementById('cs').style.display='none';
+            document.getElementById('yf').style.display='none';
+          }
+
+          renderTable();
+          alert('Excel导入成功!\n\n已导入:\n- 投标项目:' + data.bids.length + ' 条\n- 客户管理:' + data.customers.length + ' 条\n- 客户互动:' + data.projects.length + ' 条\n- 商会信息:' + data.chambers.length + ' 条');
+        }
+      }catch(err){
+        console.error('导入错误:', err);
+        alert('Excel导入失败: ' + err.message + '\n\n请确保文件是有效的Excel格式');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+  // CSV 文件导入
+  else if(fileName.endsWith('.csv')){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const text = e.target.result;
+        const lines = text.split('\n').filter(l => l.trim());
+
+        if(lines.length < 2){
+          alert('CSV文件为空或格式不正确');
+          return;
+        }
+
+        // 解析CSV行
+        const parseCSVLine = (line) => {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          for(let i = 0; i < line.length; i++){
+            const char = line[i];
+            if(char === '"'){
+              if(inQuotes && line[i+1] === '"'){
+                current += '"';
+                i++;
+              }else{
+                inQuotes = !inQuotes;
+              }
+            }else if(char === ',' && !inQuotes){
+              result.push(current);
+              current = '';
+            }else{
+              current += char;
+            }
+          }
+          result.push(current);
+          return result;
+        };
+
+        const dataRows = [];
+        for(let i = 1; i < lines.length; i++){
+          const row = parseCSVLine(lines[i]);
+          if(row.some(v => v && v.trim() !== '')){
+            dataRows.push(row);
+          }
+        }
+
+        // 根据文件名判断导入哪个模块
+        if(fileName.includes('投标')){
+          data.bids = dataRows.map((row, idx) => ({
+            id: 'B-' + Date.now() + '-' + idx,
+            customerName: row[0] || '',
+            projectName: row[1] || '',
+            location: row[2] || '',
+            landArea: row[3] || '',
+            trackDate: row[4] || '',
+            stage: row[5] || '',
+            personInCharge: row[6] || '',
+            email: row[7] || '',
+            category: row[8] || '',
+            estimatedValue: row[9] || ''
+          }));
+          saveData();
+          updateStats();
+          renderTable();
+          alert(`投标项目导入成功!共${data.bids.length}条记录`);
+        }
+        else if(fileName.includes('客户管理') || fileName.includes('客户')){
+          data.customers = dataRows.map((row, idx) => ({
+            id: 'C-' + Date.now() + '-' + idx,
+            companyName: row[0] || '',
+            companyBusiness: row[1] || '',
+            contactPerson: row[2] || '',
+            position: row[3] || '',
+            phone: row[4] || '',
+            email: row[5] || '',
+            country: row[6] || '',
+            priority: row[7] || '',
+            createdDate: row[8] || ''
+          }));
+          saveData();
+          updateCustomerStats();
+          renderTable();
+          alert(`客户管理导入成功!共${data.customers.length}条记录`);
+        }
+        else if(fileName.includes('互动')){
+          data.projects = dataRows.map((row, idx) => ({
+            id: 'I-' + Date.now() + '-' + idx,
+            customerName: row[0] || '',
+            interactionDate: row[1] || '',
+            interactionType: row[2] || '',
+            content: row[3] || '',
+            personInCharge: row[4] || '',
+            nextStep: row[5] || '',
+            status: row[6] || '',
+            notes: row[7] || ''
+          }));
+          saveData();
+          renderTable();
+          alert(`客户互动导入成功!共${data.projects.length}条记录`);
+        }
+        else if(fileName.includes('商会')){
+          data.chambers = dataRows.map((row, idx) => ({
+            id: 'CH-' + Date.now() + '-' + idx,
+            chamberName: row[0] || '',
+            country: row[1] || '',
+            phone: row[2] || '',
+            email: row[3] || '',
+            contactPerson: row[4] || '',
+            topic: row[5] || '',
+            attendanceDate: row[6] || '',
+            attendanceLocation: row[7] || '',
+            notes: row[8] || ''
+          }));
+          saveData();
+          renderTable();
+          alert(`商会信息导入成功!共${data.chambers.length}条记录`);
+        }
+        else{
+          alert('无法识别CSV文件类型,请确保文件名包含:投标、客户管理、互动、商会');
+        }
+      }catch(err){
+        alert('CSV导入失败: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+  // JSON 文件导入
+  else if(fileName.endsWith('.json')){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        const imported = JSON.parse(e.target.result);
+        if(imported.data){
+          if(confirm(t('ic'))){
+            data = imported.data;
+            saveData();
+            updateOptionsFromData();
+            updateStats();
+            updateCustomerStats();
+            renderTable();
+            alert(t('is'));
+          }
+        }else{
+          alert(t('ie'));
+        }
+      }catch(err){
+        alert(t('ie') + ': ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+  else{
+    alert('不支持的文件格式,请使用 .xls 或 .json 文件');
+  }
+  event.target.value = '';
+}
+
+function hs(e){
+  const q=e.target.value.toLowerCase(),d=data[mod],f=getFields(mod),fil=d.filter(item=>f.some(x=>(item[x.k]||'').toLowerCase().includes(q)));
+  const tb=document.getElementById('tb');
+  if(fil.length===0){tb.innerHTML='<tr><td colspan="'+(f.filter(x=>x.l).length+1+(mod==='bids'?1:0))+'" class="text-center py-12 text-[var(--muted)]">'+t('nm')+'</td></tr>';}
+  else{tb.innerHTML=fil.map((item,i)=>'<tr class="ai" style="animation-delay:'+(0.7+i*0.05)+'s">'+renderRow(item)+'</tr>').join('');}
+}
+
+function doSave(){
+  try {
+    if (!data[mod]) {
+      alert('错误:模块数据未初始化');
+      return;
+    }
+
+    const fm = document.getElementById('mf');
+    if (!fm) {
+      alert('错误:找不到表单元素');
+      return;
+    }
+
+    const item = {id: eid || mod.toUpperCase().slice(0,3)+'-'+Date.now()};
+
+    // 取 select 的值
+    fm.querySelectorAll('select').forEach(sel => {
+      if (sel.name) item[sel.name] = sel.value;
+    });
+
+    // 取原生日期输入框的值
+    fm.querySelectorAll('input[type="date"]').forEach(inp => {
+      if (inp.dataset.k) item[inp.dataset.k] = inp.value;
+    });
+
+    // 取 input[list] datalist 的值
+    fm.querySelectorAll('input[list]').forEach(function(el) {
+      var k = el.dataset.k;
+      if (k) item[k] = el.value || '';
+    });
+    // 取 contenteditable div 的值(纯文本,用于保存)
+    fm.querySelectorAll('.fi-t,.fi-ta').forEach(function(el) {
+      if(el.tagName==='INPUT') return;
+      var k = el.dataset.k;
+      if (k) {
+        item[k] = el.textContent || '';
+      }
+    });
+
+    if(eid){
+      const idx = data[mod].findIndex(i => i.id === eid);
+      if(idx !== -1){
+        var oldItem = data[mod][idx];
+        if(mod==='projects'){
+          var oldDate = oldItem.interactionDate||'';
+          var newDate = item.interactionDate||'';
+          // 改了日期 -> 又互动了一次 -> +1
+          if(oldDate !== newDate){
+            var baseCount = (typeof oldItem.interactionCount==='number') ? oldItem.interactionCount : 0;
+            item.interactionCount = baseCount + 1;
+          } else {
+            item.interactionCount = (typeof oldItem.interactionCount==='number') ? oldItem.interactionCount : 0;
+          }
+        }
+        data[mod][idx] = item;
+      } else {
+        data[mod].push(item);
+      }
+    }else{
+      data[mod].push(item);
+    }
+
+    saveData();
+    updateOptionsFromData();
+    updateStats();
+    updateSummary();
+    renderTable();
+
+    eid = null;
+    cm();
+
+    alert('保存成功!');
+  } catch(err) {
+    alert('保存出错: ' + err.message);
+  }
+}
+
+function ts(){document.getElementById('sb').classList.toggle('open');}
+
+// 手动调整第一列宽度
+let colResize={active:false,startX:0,startWidth:0};
+function startColResize(e){
+  e.preventDefault();
+  colResize.active=true;
+  colResize.startX=e.clientX;
+  const th=e.target.parentElement;
+  colResize.startWidth=th.offsetWidth;
+  document.addEventListener('mousemove',doColResize);
+  document.addEventListener('mouseup',stopColResize);
+}
+function doColResize(e){
+  if(!colResize.active)return;
+  const dx=e.clientX-colResize.startX;
+  const newWidth=Math.max(80,colResize.startWidth+dx);
+  document.querySelectorAll('#dt .col-customer').forEach(el=>el.style.minWidth=newWidth+'px');
+  document.querySelectorAll('#dt .col-customer').forEach(el=>el.style.width=newWidth+'px');
+}
+function stopColResize(){
+  colResize.active=false;
+  document.removeEventListener('mousemove',doColResize);
+  document.removeEventListener('mouseup',stopColResize);
+}
+
+// ============================================================
+// PLAN 2026 - System Tracking List
+// ============================================================
+var defaultPlanTracking = [
+  {no:'A', content:'SYSTEM TENDER', pct:'', annualPlan:'', cumulative:'', pic:'', resources:'', note:'', isParent:true},
+
+  {no:'B', content:'BUILD DATABASE', pct:'', annualPlan:'', cumulative:'', pic:'', resources:'', note:'', isParent:true},
+
+  {no:'C', content:'TRAINING MATERIALS', pct:'', annualPlan:'', cumulative:'', pic:'', resources:'', note:'', isParent:true},
+
+  {no:'D', content:'BUSINESS MANAGEMENT SYSTEM', pct:'', annualPlan:'', cumulative:'', pic:'', resources:'', note:'', isParent:true}
+];
+
+var picOptions = ['Tony','Huong','Quoc','All Members','Tony / Quoc','Huong / Tony','Quoc / Huong'];
+
+function getPlanTracking(){
+  var stored = data.planTracking;
+  // Return stored data as-is (no auto-merge of defaults — deleted items stay deleted)
+  if(stored && Array.isArray(stored) && stored.length > 0){
+    return stored;
+  }
+  // First load: seed from defaults
+  data.planTracking = JSON.parse(JSON.stringify(defaultPlanTracking));
+  return data.planTracking;
+}
+
+function renderPlanTracking(){
+  var items = getPlanTracking();
+  var container = document.getElementById('planTrackingContainer');
+  if(!container) return;
+
+  var isZh = lang==='zh';
+  var headers = [
+    isZh?'编号':'No.',
+    isZh?'内容':'Content',
+    isZh?'年度计划':'Annual Plan',
+    isZh?'累计':'Cumulative',
+    isZh?'负责人':'Person in Charge',
+    isZh?'开始':'Date Start',
+    isZh?'截止':'Date End',
+    isZh?'资源':'Resources',
+    isZh?'备注':'Note',
+    '' // Action column
+  ];
+
+  var widths = ['60px','250px','80px','80px','150px','120px','120px','120px','150px','50px'];
+  var html = '<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
+  html += '<colgroup>';
+  widths.forEach(function(w,i){
+    html += '<col style="width:'+w+'">';
+  });
+  html += '</colgroup>';
+  html += '<thead><tr>';
+  headers.forEach(function(h,i){
+    html += '<th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--blue);font-size:12px;border-bottom:2px solid rgba(0,180,216,0.4);width:'+widths[i]+'">'+h+'</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  // Pre-compute parent row pct averages from sub/leaf children
+  var parentPctMap = {};
+  items.forEach(function(p){
+    if(!p.no.includes('.')){
+      var subs = items.filter(function(it){ return it.no.startsWith(p.no + '.') && (it.no.match(/\./g) || []).length === 1; });
+      if(subs.length > 0){
+        var pt = 0, pc = 0;
+        subs.forEach(function(sub){
+          var leafs = items.filter(function(it){ return it.no.startsWith(sub.no + '.') && (it.no.match(/\./g) || []).length === 2; });
+          if(leafs.length > 0){
+            var lt = 0, lc = 0;
+            leafs.forEach(function(lf){ var lv = parseFloat(lf.cumulative); if(!isNaN(lv) && lv >= 0){ lt += lv; lc++; } });
+            if(lc > 0){ pt += Math.round(lt / lc); pc++; }
+          }
+        });
+        if(pc > 0) parentPctMap[p.no] = Math.round(pt / pc);
+      }
+    }
+  });
+
+  // Track sequential numbering per category for display
+  var currentCategory = '';
+  var categoryRowCount = 0;
+
+  items.forEach(function(item, idx){
+    var isParent = !item.no.includes('.');
+    var isSub = item.no.split('.').length === 2;
+    var isLeaf = item.no.split('.').length >= 3;
+
+    // Update category tracking and calculate display number
+    if(isParent){
+      currentCategory = item.no;
+      categoryRowCount = 0;
+    } else {
+      categoryRowCount++;
+    }
+    var displayNo = item.no;
+
+    var rowBg = isParent ? 'rgba(0,180,216,0.08)' : (isSub ? 'rgba(0,180,216,0.03)' : 'transparent');
+    var fontWeight = isParent ? '700' : (isSub ? '600' : '400');
+    var paddingLeft = isParent ? '8px' : (isSub ? '24px' : '48px');
+
+    // Auto-calculate %
+    var pctNum = 0;
+    var pctDisplay = '';
+    if(!isParent){
+      if(isLeaf){
+        var cu = parseFloat(item.cumulative);
+        if(!isNaN(cu) && cu >= 0){ pctNum = Math.min(Math.round(cu), 100); pctDisplay = pctNum + '%'; }
+      } else {
+        // Sub row: auto-calc from leaf children's cumulative %
+        var leafChildren = items.filter(function(it){
+          return it.no.startsWith(item.no + '.') && (it.no.match(/\./g) || []).length === 2;
+        });
+        if(leafChildren.length > 0){
+          var st = 0, sc = 0;
+          leafChildren.forEach(function(lf){
+            var v = parseFloat(lf.cumulative);
+            if(!isNaN(v) && v >= 0){ st += v; sc++; }
+          });
+          if(sc > 0){ pctNum = Math.min(Math.round(st / sc), 100); pctDisplay = pctNum + '%'; }
+        }
+      }
+    }
+
+    // Colors: 0% red, 1-99% yellow, 100% green
+    var pctColor = pctNum >= 100 ? '#10b981' : (pctNum > 0 ? '#f59e0b' : '#ef4444');
+    var parentPctVal = parentPctMap[item.no];
+    var parentPctColor = parentPctVal !== undefined ? (parentPctVal >= 100 ? '#10b981' : (parentPctVal > 0 ? '#f59e0b' : '#ef4444')) : 'var(--text1)';
+
+    html += '<tr style="background:'+rowBg+';border-bottom:1px solid var(--border);transition:background .15s">';
+    html += '<td style="padding:8px 12px;font-weight:'+fontWeight+';color:var(--blue);font-size:12px">'+displayNo+'</td>';
+    // Content: editable for sub/leaf, static for parent
+    if(isParent){
+      html += '<td style="padding:8px 12px;padding-left:'+paddingLeft+'"><input type="text" value="'+escHtml(item.content)+'" data-idx="'+idx+'" data-k="content" class="plan-input" style="width:100%;padding:4px 6px;background:rgba(0,180,216,0.08);border:1px solid transparent;border-radius:6px;font-size:12px;font-weight:700;color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\';this.style.background=\'var(--bg2)\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'rgba(0,180,216,0.08)\'"/></td>';
+    } else {
+      html += '<td style="padding:8px 12px;padding-left:'+paddingLeft+'"><input type="text" value="'+escHtml(item.content)+'" data-idx="'+idx+'" data-k="content" class="plan-input" style="width:100%;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:'+fontWeight+';color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'"/></td>';
+    }
+
+    if(isParent){
+      // Parent rows: empty cells except action (column 3 shows pct)
+      var parentDisplay = parentPctMap[item.no] !== undefined ? parentPctMap[item.no]+'%' : (item.pct?item.pct:'-');
+      html += '<td style="padding:8px 6px;text-align:center;font-size:12px;font-weight:600;color:'+parentPctColor+'">'+parentDisplay+'</td><td></td><td></td><td></td><td></td><td></td><td></td><td style="padding:8px 6px;text-align:center"><button onclick="addChildRow(\''+item.no+'\',\''+item.no.split('.')[0]+'\')" style="background:rgba(0,180,216,0.1);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(0,180,216,0.2)\'" onmouseout="this.style.background=\'rgba(0,180,216,0.1)\'" title="'+(isZh?'添加子项':'Add child')+'">+</button></td>';
+    } else if(isSub){
+      // Sub rows: show Column 3 (auto-calc'd pct), rest empty except action
+      html += '<td style="padding:8px 6px;text-align:center;font-size:11px;color:'+pctColor+';font-weight:'+fontWeight+'">'+(pctDisplay || '-')+'</td><td></td><td></td><td></td><td></td><td></td><td style="padding:8px 6px;text-align:center"><button onclick="addChildRow(\''+item.no+'\',\''+item.no.split('.')[0]+'\')" style="background:rgba(0,180,216,0.1);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(0,180,216,0.2)\'" onmouseout="this.style.background=\'rgba(0,180,216,0.1)\'" title="'+(isZh?'添加子项':'Add child')+'">+</button> <button onclick="deletePlanRow('+idx+',this)" title="'+(isZh?'删除':'Delete')+'" style="background:rgba(239,68,68,0.1);border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:11px;color:#ef4444;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:2px" onmouseover="this.style.background=\'rgba(239,68,68,0.2)\'" onmouseout="this.style.background=\'rgba(239,68,68,0.1)\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a1,1 0 0,1,1-1h4a1,1 0 0,1,1,1v2"></path></svg><span style="font-size:11px">Del</span></button></td>';
+    } else {
+      // Leaf rows: all inputs + delete
+    html += '<td style="padding:8px 6px;text-align:center;font-size:11px;color:var(--text1);font-weight:'+fontWeight+'">'+(item.annualPlan||'')+'</td>';
+    html += '<td style="padding:8px 6px;text-align:center"><input type="text" value="'+escHtml((item.cumulative||'').replace(/%/g,''))+(item.cumulative?'%':'')+'" placeholder="%" data-idx="'+idx+'" data-k="cumulative" class="plan-input plan-num" style="width:80px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:'+pctColor+';outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');this.value=v+(v?\'%\':\'\');updatePctRowDisplay()"/></td>';
+
+    // Person in Charge dropdown
+    html += '<td style="padding:8px 6px;text-align:center"><select data-idx="'+idx+'" data-k="pic" class="plan-input" style="width:130px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none;cursor:pointer" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'">';
+    html += '<option value="">'+(isZh?'请选择':'Select')+'</option>';
+    picOptions.forEach(function(opt){
+      html += '<option value="'+opt+'"'+(item.pic===opt?' selected':'')+'>'+opt+'</option>';
+    });
+    html += '</select></td>';
+    html += '<td style="padding:8px 6px;text-align:center"><input type="date" value="'+escHtml(item.dateStart)+'" data-idx="'+idx+'" data-k="dateStart" class="plan-input" style="width:100px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'"/></td>';
+    html += '<td style="padding:8px 6px;text-align:center"><input type="date" value="'+escHtml(item.dateEnd)+'" data-idx="'+idx+'" data-k="dateEnd" class="plan-input" style="width:100px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'"/></td>';
+    html += '<td style="padding:8px 6px;text-align:center"><input type="text" value="'+escHtml(item.resources)+'" placeholder="-" data-idx="'+idx+'" data-k="resources" class="plan-input" style="width:100px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'"/></td>';
+    html += '<td style="padding:8px 6px;text-align:center"><input type="text" value="'+escHtml(item.note)+'" placeholder="-" data-idx="'+idx+'" data-k="note" class="plan-input" style="width:130px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'"/></td>';
+    html += '<td style="padding:8px 6px;text-align:center"><button onclick="deletePlanRow('+idx+',this)" title="'+(isZh?'删除':'Delete')+'" style="background:rgba(239,68,68,0.1);border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:11px;color:#ef4444;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:2px" onmouseover="this.style.background=\'rgba(239,68,68,0.2)\'" onmouseout="this.style.background=\'rgba(239,68,68,0.1)\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a1,1 0 0,1,1-1h4a1,1 0 0,1,1,1v2"></path></svg><span style="font-size:11px">Del</span></button></td>';
+    }
+    html += '</tr>';
+  });
+
+  // Add row button below table
+  html += '</tbody></table>';
+  html += '<div style="margin-top:12px;display:flex;gap:8px">';
+  html += '<button onclick="addNewCategory()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer">'+(isZh?'+ 新增大类':'+ Add Category')+'</button>';
+  html += '</div>';
+  container.innerHTML = html;
+
+  // Update title
+  var titleEl = document.getElementById('plan2026Title');
+  if(titleEl) titleEl.textContent = isZh ? '系统追踪清单 2026' : 'System Tracking List 2026';
+  var saveBtn = document.getElementById('planSaveBtn');
+  if(saveBtn) saveBtn.innerHTML = '💾 <span>保存 / Save</span>';
+}
+
+// Live-update sub/parent row pct display when leaf cumulative changes
+function updatePctRowDisplay(){
+  var tbody = document.querySelector('#planTrackingContainer table tbody');
+  if(!tbody) return;
+  var trs = tbody.querySelectorAll('tr');
+  // leaf -> sub mapping
+  var subData = {}; // subNo -> [values]
+  trs.forEach(function(tr){
+    var cells = tr.cells;
+    if(!cells || cells.length < 3) return;
+    var no = (cells[0].textContent||'').trim();
+    var dots = (no.match(/\./g)||[]).length;
+    if(dots === 2){ // leaf row
+      var subNo = no.split('.').slice(0,2).join('.');
+      var cumInput = tr.querySelector('input[data-k="cumulative"]');
+      if(cumInput){
+        var v = parseFloat(cumInput.value);
+        if(!isNaN(v) && v >= 0){
+          if(!subData[subNo]) subData[subNo] = [];
+          subData[subNo].push(Math.min(Math.round(v), 100));
+        }
+      }
+    }
+  });
+  // Update sub and parent rows
+  trs.forEach(function(tr){
+    var cells = tr.cells;
+    if(!cells || cells.length < 3) return;
+    var no = (cells[0].textContent||'').trim();
+    var dots = (no.match(/\./g)||[]).length;
+    var td2 = cells[2]; // Column 3 (pct)
+    if(!td2) return;
+    if(dots === 1){ // sub row
+      var vals = subData[no];
+      if(vals && vals.length > 0){
+        var avg = Math.round(vals.reduce(function(a,b){return a+b;}) / vals.length);
+        td2.textContent = avg + '%';
+        td2.style.color = avg >= 100 ? '#10b981' : (avg > 0 ? '#f59e0b' : '#ef4444');
+      }
+    } else if(dots === 0){ // parent row
+      var parentSubs = [];
+      for(var sn in subData){
+        if(sn.split('.')[0] === no){
+          var svals = subData[sn];
+          if(svals && svals.length > 0){
+            parentSubs.push(Math.round(svals.reduce(function(a,b){return a+b;}) / svals.length));
+          }
+        }
+      }
+      if(parentSubs.length > 0){
+        var pavg = Math.round(parentSubs.reduce(function(a,b){return a+b;}) / parentSubs.length);
+        td2.textContent = pavg + '%';
+        td2.style.color = pavg >= 100 ? '#10b981' : (pavg > 0 ? '#f59e0b' : '#ef4444');
+      }
+    }
+  });
+}
+
+
+function savePlanTracking(){
+  var items = getPlanTracking();
+  document.querySelectorAll('.plan-input').forEach(function(el){
+    var idx = parseInt(el.dataset.idx);
+    var k = el.dataset.k;
+    if(!isNaN(idx) && k && items[idx]){
+      items[idx][k] = el.value;
+    }
+  });
+  // Clean cumulative values: strip any stored % suffix
+  items.forEach(function(it){
+    if(it.cumulative && typeof it.cumulative === 'string'){
+      it.cumulative = it.cumulative.replace(/%/g,'');
+    }
+  });
+  data.planTracking = items;
+  saveData();
+  // flash save indicator (match Q2 Result style)
+  var btn = document.getElementById('planSaveBtn');
+  if(btn){
+    btn.innerHTML = '✅ 已保存';
+    btn.style.background = '#10b981';
+    setTimeout(function(){
+      btn.innerHTML = '💾 <span>保存 / Save</span>';
+      btn.style.background = '';
+    }, 1500);
+  }
+}
+
+// Add child row under a parent/sub node
+function addChildRow(parentNo, rootNo){
+  var items = getPlanTracking();
+  var parentDepth = parentNo.split('.').length;
+  // Find direct children only (exactly one more depth level) and track insert position
+  var children = [];
+  var insertIdx = -1;
+  var parentIdx = -1;
+  for(var i = 0; i < items.length; i++){
+    var n = items[i].no;
+    if(n === parentNo) { parentIdx = i; }
+    if(n.startsWith(parentNo + '.')){
+      var d = n.split('.').length;
+      if(d === parentDepth + 1){ children.push({no: n, idx: i}); }
+      insertIdx = i + 1;
+    } else if(insertIdx > 0) { break; }
+  }
+  if(insertIdx < 0) {
+    // No children found — insert right after parent, not at end of list
+    insertIdx = parentIdx >= 0 ? parentIdx + 1 : items.length;
+  }
+  // Find next sequential number (e.g. 1,2,4 → use 5, not 3)
+  var childNums = children.map(function(c){ return parseInt(c.no.split('.').pop()); });
+  var newNum = childNums.length > 0 ? Math.max.apply(null, childNums) + 1 : 1;
+  var newNo = parentNo + '.' + newNum;
+  items.splice(insertIdx, 0, {
+    no: newNo,
+    content: '',
+    pct: '',
+    annualPlan: '',
+    cumulative: '',
+    pic: '',
+    dateStart: '',
+    dateEnd: '',
+    resources: '',
+    note: ''
+  });
+  // Clean cumulative values: strip any stored % suffix
+  items.forEach(function(it){
+    if(it.cumulative && typeof it.cumulative === 'string'){
+      it.cumulative = it.cumulative.replace(/%/g,'');
+    }
+  });
+  data.planTracking = items;
+  saveData();
+  renderPlanTracking();
+  // Auto-focus the new row's content field so user can type immediately
+  setTimeout(function(){
+    var newInput = document.querySelector('.plan-input[data-idx="' + insertIdx + '"][data-k="content"]');
+    if(newInput){ newInput.focus(); newInput.select(); }
+  }, 50);
+}
+
+// Delete a plan row
+function deletePlanRow(idx, btn){
+  var items = getPlanTracking();
+  var item = items[idx];
+  if(!item) return;
+  var isZh = lang==='zh';
+  if(!confirm((isZh?'确定删除「':'Delete "') + item.content + (isZh?'」?\n\n注意：所有子项也会被删除。':'"?\n\nAll child items will also be removed.') + '\n\n编号: ' + item.no)) return;
+  var no = item.no;
+  // Remove this item and all its children
+  items = items.filter(function(it){ return !it.no.startsWith(no + '.') && it.no !== no; });
+  // Re-number siblings only when deleting a leaf (depth >= 2 = "X.Y.Z"),
+  // not when deleting a sub-parent (depth = 1 = "X.Y") — to avoid cross-category corruption.
+  var dotCount = (no.match(/\./g) || []).length;
+  if(dotCount >= 1){
+    var parentNo = no.substring(0, no.lastIndexOf('.'));
+    var siblings = items.filter(function(it){ return it.no.startsWith(parentNo + '.') && (it.no.match(/\./g) || []).length === dotCount; });
+    siblings.sort(function(a,b){ return a.no.localeCompare(b.no); });
+    var counter = 1;
+    siblings.forEach(function(sib){
+      var oldNo = sib.no;
+      var newNo = parentNo + '.' + counter;
+      items.forEach(function(it){
+        if(it.no === oldNo) it.no = newNo;
+        else if(it.no.startsWith(oldNo + '.')) it.no = newNo + it.no.substring(oldNo.length);
+      });
+      counter++;
+    });
+  }
+  // Clean cumulative values: strip any stored % suffix
+  items.forEach(function(it){
+    if(it.cumulative && typeof it.cumulative === 'string'){
+      it.cumulative = it.cumulative.replace(/%/g,'');
+    }
+  });
+  data.planTracking = items;
+  saveData();
+  renderPlanTracking();
+}
+
+// Add new top-level category
+function addNewCategory(){
+  var items = getPlanTracking();
+  // Find next available letter
+  var usedLetters = items.filter(function(it){ return !it.no.includes('.'); }).map(function(it){ return it.no; });
+  var nextLetter = '';
+  for(var c = 65; c <= 90; c++){ // A-Z
+    var letter = String.fromCharCode(c);
+    if(usedLetters.indexOf(letter) < 0){ nextLetter = letter; break; }
+  }
+  if(!nextLetter){
+    alert(lang==='zh'?'已达最大类别数':'Maximum categories reached');
+    return;
+  }
+  items.push({
+    no: nextLetter,
+    content: '',
+    pct: '',
+    annualPlan: '',
+    cumulative: '',
+    pic: '',
+    resources: '',
+    note: '',
+    isParent: true
+  });
+  // Clean cumulative values: strip any stored % suffix
+  items.forEach(function(it){
+    if(it.cumulative && typeof it.cumulative === 'string'){
+      it.cumulative = it.cumulative.replace(/%/g,'');
+    }
+  });
+  data.planTracking = items;
+  saveData();
+  renderPlanTracking();
+  // Auto-focus the new category content field
+  setTimeout(function(){
+    var catIdx = items.length - 1;
+    var newInput = document.querySelector('.plan-input[data-idx="' + catIdx + '"][data-k="content"]');
+    if(newInput){ newInput.focus(); newInput.select(); }
+  }, 50);
+}
+
+// 季度数据由用户手动输入和保存
+
+// No automatic reset — planTracking data persists as entered
+// Previously there was a reset block here that wiped planTracking on first load (bms_plan_reset_done)
+// That code was removed because it caused periodic data loss on page refresh
+document.addEventListener('DOMContentLoaded',function(){
+  loadData();
+});
+</script>
+<script>
+// 更新启动日期(投标项目追踪)
+function updateStartDate(id,value){
+  const item=data.bids.find(b=>b.id===id);
+  if(!item)return;
+  item.startDate=value;
+  saveData();
+}
+
+// 快捷设置投标阶段(投标项目追踪)
+function quickSetStage(id,stageType){
+  var dateInput=document.document.querySelector('input[onchange*=\"updateStartDate\(\''+id+'\'\)\"]');
+  var selectedDate=dateInput?dateInput.value:'';
+  if(!selectedDate){
+    alert(lang==='zh'?'请先选择启动日期':'Please select start date first');
+    return;
+  }
+  var item=data.bids.find(b=>b.id===id);
+  if(!item)return;
+  if(stageType==='bidding'){
+    item.stage='投标中';
+  }else if(stageType==='tracking'){
+    item.stage='跟踪';
+  }
+  item.trackDate=selectedDate;
+  saveData();
+  renderTable();
+  updateSummary();
+}
+</script>
+
+</body>
+</html>
