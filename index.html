@@ -2912,7 +2912,10 @@ var lastSyncFrom = null;
 
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
+var _saveTimer = null;
 window.saveData = function(){
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(function(){ _doSave(); }, 2000); // Debounce 2s
   _origSave();
   if(!fauth.currentUser) return; // Skip cloud if not logged in
   // Push to Firebase (async)
@@ -2931,6 +2934,7 @@ window.saveData = function(){
 // Load from Firebase (pull latest data)
 function syncFromCloud(){
   if(!fauth.currentUser) return; // Skip if not logged in
+  cloudStatus = 'loading'; updateSyncStatus('⏳');
   fdb.collection('bms_data').doc('master').get()
     .then(function(doc){
       if(doc.exists && doc.data().data){
@@ -2985,7 +2989,7 @@ fauth.onAuthStateChanged(function(user){
   if(user){
     document.body.classList.remove('logged-out');
     cloudStatus = 'synced'; updateSyncStatus('☁️');
-    setTimeout(syncFromCloud, 1500);
+    // syncFromCloud already called by window.load listener below
   } else {
     document.body.classList.add('logged-out');
   }
@@ -3009,7 +3013,10 @@ document.getElementById('register-btn').onclick = function(){
 };
 
 window.addEventListener('load', function(){
-  // Auth state listener handles sync start
+  // Only sync from cloud if no local data (avoids double load on refresh)
+  if(!localStorage.getItem('bms_clients') && fauth.currentUser){
+    syncFromCloud();
+  }
 });
 </script>
 
@@ -3034,25 +3041,21 @@ window.addEventListener('load', function(){
 </script>
 
 <script>
-// ===== Login Fix Fallback =====
-var _loginFixDone = false;
-function _checkLoginAndFix(){
-  if(_loginFixDone) return;
-  try{
-    if(firebase && firebase.auth() && firebase.auth().currentUser){
-      _loginFixDone = true;
-      var ov = document.getElementById('login-overlay');
-      if(ov){ ov.remove(); document.body.classList.remove('logged-out'); }
-      if(window.updateStats) window.updateStats();
-      if(window.updateSummary) window.updateSummary();
-      if(window.updateUI) window.updateUI();
-      if(window.renderTable) window.renderTable();
-    }
-  }catch(e){}
-}
-setTimeout(_checkLoginAndFix, 1000);
-setTimeout(_checkLoginAndFix, 2500);
-setTimeout(_checkLoginAndFix, 4000);
+// ===== Fast Login Fix (no redundant timers) =====
+(function(){
+  var _loginAttempts = 0;
+  function _checkLogin(){
+    _loginAttempts++;
+    if(_loginAttempts > 10) return; // Stop after ~3 seconds
+    try{
+      if(firebase && firebase.auth() && firebase.auth().currentUser){
+        var ov = document.getElementById('login-overlay');
+        if(ov){ ov.remove(); document.body.classList.remove('logged-out'); }
+      }
+    }catch(e){}
+  }
+  setInterval(_checkLogin, 300); // Check every 300ms for 3 seconds
+})();
 <\/script>
 </body>
 </html>
