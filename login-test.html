@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login Test</title>
+<style>
+body{font-family:Arial,sans-serif;padding:40px;background:#f0f0f0}
+.test-box{background:white;padding:30px;border-radius:12px;max-width:400px;margin:auto;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+input{width:100%;box-sizing:border-box;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px;font-size:16px}
+button{width:100%;padding:14px;background:#3b82f6;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin:6px 0}
+button:hover{background:#2563eb}
+#msg{min-height:24px;margin-top:12px;font-size:14px}
+.ok{color:green}
+.err{color:red}
+.info{color:#666;font-size:13px;margin-top:16px;padding:12px;background:#f8f8f8;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="test-box">
+<h2 style="text-align:center">🔥 Firebase Login Test</h2>
+<input type="email" id="email" placeholder="Email" value="tong@mgd.com">
+<input type="password" id="pass" placeholder="Password" value="MGD@2026BMS">
+<button onclick="doLogin()">登录 Login</button>
+<button onclick="doLogout()" style="background:#64748b">退出 Logout</button>
+<button onclick="checkStatus()" style="background:#16a34a">检查状态 Check Status</button>
+<div id="msg"></div>
+<div class="info" id="info">状态：检查中...</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyAVmd-Fn6n0ZUQzT6PgI52VKNLqO1qdeJE",
+  authDomain: "mgd-bms.firebaseapp.com",
+  projectId: "mgd-bms"
+});
+
+var fauth = firebase.auth();
+var msg = document.getElementById('msg');
+var info = document.getElementById('info');
+
+function log(t, type){
+  msg.innerHTML = t;
+  msg.className = type === 'ok' ? 'ok' : type === 'err' ? 'err' : '';
+}
+
+function checkStatus(){
+  var user = fauth.currentUser;
+  if(user){
+    info.innerHTML = '✅ 已登录 | Logged in<br>Email: ' + user.email + 
+      '<br>UID: ' + user.uid + 
+      '<br>Created: ' + new Date(user.metadata.creationTime).toLocaleString();
+    log('已登录！', 'ok');
+  } else {
+    info.innerHTML = '❌ 未登录 | Not logged in<br><br>点击上方"登录 Login"按钮';
+    log('未登录', 'err');
+  }
+}
+
+function doLogin(){
+  var email = document.getElementById('email').value;
+  var pass = document.getElementById('pass').value;
+  log('登录中...', '');
+  fauth.signInWithEmailAndPassword(email, pass)
+    .then(function(){
+      log('✅ 登录成功！', 'ok');
+      checkStatus();
+    })
+    .catch(function(e){
+      log('❌ 错误: ' + e.code + '<br>' + e.message, 'err');
+      checkStatus();
+    });
+}
+
+function doLogout(){
+  fauth.signOut().then(function(){
+    log('已退出', '');
+    checkStatus();
+  });
+}
+
+// Listen for auth changes
+fauth.onAuthStateChanged(function(user){
+  info.innerHTML += '<br>--- Auth changed: ' + (user ? user.email : 'none') + ' ---';
+  checkStatus();
+});
+
+// Check status immediately
+checkStatus();
+</script>
+</body>
+</html>
