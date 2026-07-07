@@ -3033,25 +3033,26 @@ window.addEventListener('load', function(){
 })();
 </script>
 
-
+<script>
 // ===== Login Fix Fallback =====
 var _loginFixDone = false;
 function _checkLoginAndFix(){
   if(_loginFixDone) return;
   try{
-    if(firebase.auth().currentUser){
+    if(firebase && firebase.auth() && firebase.auth().currentUser){
       _loginFixDone = true;
       var ov = document.getElementById('login-overlay');
       if(ov){ ov.remove(); document.body.classList.remove('logged-out'); }
-      updateStats && updateStats();
-      updateSummary && updateSummary();
-      updateUI && updateUI();
-      renderTable && renderTable();
+      if(window.updateStats) window.updateStats();
+      if(window.updateSummary) window.updateSummary();
+      if(window.updateUI) window.updateUI();
+      if(window.renderTable) window.renderTable();
     }
   }catch(e){}
 }
 setTimeout(_checkLoginAndFix, 1000);
 setTimeout(_checkLoginAndFix, 2500);
 setTimeout(_checkLoginAndFix, 4000);
+<\/script>
 </body>
 </html>
