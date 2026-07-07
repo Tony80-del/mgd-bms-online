@@ -2985,6 +2985,7 @@ function updateSyncStatus(icon){
 
 // Sync from cloud after page loads
 // ===== AUTH GATE =====
+fauth.setPersistence && fauth.setPersistence(fauth.auth.Auth.Persistence.LOCAL).catch(function(){});
 fauth.onAuthStateChanged(function(user){
   if(user){
     document.body.classList.remove('logged-out');
@@ -2998,9 +2999,32 @@ fauth.onAuthStateChanged(function(user){
 document.getElementById('login-btn').onclick = function(){
   var e = document.getElementById('login-email').value;
   var p = document.getElementById('login-password').value;
-  fauth.signInWithEmailAndPassword(e, p).catch(function(err){
-    document.getElementById('login-msg').textContent = err.message;
-  });
+  document.getElementById('login-msg').textContent = 'Logging in...';
+  // Use XHR to avoid Firebase SDK promise issues
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyAVmd-Fn6n0ZUQzT6PgI52VKNLqO1qdeJE', true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.onreadystatechange = function() {
+    if(this.readyState === 4) {
+      if(xhr.status === 200) {
+        var r = JSON.parse(xhr.responseText);
+        if(r.idToken) {
+          firebase.auth().signInWithCredential(
+            firebase.auth.AuthCredential.fromJSON({token: r.idToken, signInMethod: 'password'})
+          ).then(function(u) {
+            document.getElementById('login-msg').textContent = 'Success! Loading...';
+            setTimeout(function(){ location.reload(); }, 500);
+          }).catch(function(err) {
+            document.getElementById('login-msg').textContent = 'Session error: ' + err.message;
+          });
+        }
+      } else {
+        var r = JSON.parse(xhr.responseText);
+        document.getElementById('login-msg').textContent = 'Login failed: ' + (r.error && r.error.message || 'Check email/password');
+      }
+    }
+  };
+  xhr.send(JSON.stringify({email: e, password: p, returnSecureToken: true}));
 };
 
 document.getElementById('register-btn').onclick = function(){
