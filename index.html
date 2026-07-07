@@ -2943,6 +2943,10 @@ function syncFromCloud(){
         lastSyncFrom = doc.data().updatedAt ? 'cloud' : 'local';
         updateSyncStatus('☁️');
         console.log('[Firebase] Synced from cloud');
+        // Remove login overlay if present
+        var overlay = document.getElementById('login-overlay');
+        if(overlay){ overlay.remove(); document.body.classList.remove('logged-out'); }
+        document.getElementById('cloudStatus').textContent = '☁️';
       } else {
         // No cloud data yet, push local data
         window.saveData();
@@ -3029,5 +3033,25 @@ window.addEventListener('load', function(){
 })();
 </script>
 
+
+// ===== Login Fix Fallback =====
+var _loginFixDone = false;
+function _checkLoginAndFix(){
+  if(_loginFixDone) return;
+  try{
+    if(firebase.auth().currentUser){
+      _loginFixDone = true;
+      var ov = document.getElementById('login-overlay');
+      if(ov){ ov.remove(); document.body.classList.remove('logged-out'); }
+      updateStats && updateStats();
+      updateSummary && updateSummary();
+      updateUI && updateUI();
+      renderTable && renderTable();
+    }
+  }catch(e){}
+}
+setTimeout(_checkLoginAndFix, 1000);
+setTimeout(_checkLoginAndFix, 2500);
+setTimeout(_checkLoginAndFix, 4000);
 </body>
 </html>
