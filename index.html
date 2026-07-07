@@ -146,28 +146,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
     <p class="login-hint">密码：MGD2026</p>
   </div>
 </div>
-<script>
-(function(){
-  if(localStorage.getItem("bms_logged_in") === "1"){
-    var ov = document.getElementById("login-overlay");
-    if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
-  }
-})();
-document.getElementById("login-btn").onclick = function(){
-  var p = document.getElementById("login-password").value;
-  if(p === "MGD2026"){
-    localStorage.setItem("bms_logged_in", "1");
-    var ov = document.getElementById("login-overlay");
-    if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
-    if(window.updateSummary) window.updateSummary();
-    if(window.updateStats) window.updateStats();
-    if(window.renderTable) window.renderTable();
-  } else {
-    document.getElementById("login-msg").textContent = "Incorrect password! / 密码错误";
-  }
-};
-document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn").click(); });
-<\/script>
+
 
 <aside class="sb fixed left-0 top-0 bottom-0 w-64 z-40" id="sb">
   <div class="p-6 border-b border-[var(--border)]">
@@ -3061,5 +3040,32 @@ window.addEventListener('load', function(){
   setInterval(_checkLogin, 300); // Check every 300ms for 3 seconds
 })();
 <\/script>
+
+// ===== Simple Password Login =====
+(function(){
+  if(localStorage.getItem("bms_logged_in") === "1"){
+    var ov = document.getElementById("login-overlay");
+    if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
+  }
+})();
+if(document.getElementById("login-btn")){
+  document.getElementById("login-btn").onclick = function(){
+    var p = document.getElementById("login-password").value;
+    if(p === "MGD2026"){
+      localStorage.setItem("bms_logged_in", "1");
+      var ov = document.getElementById("login-overlay");
+      if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
+      if(window.updateSummary) window.updateSummary();
+      if(window.updateStats) window.updateStats();
+      if(window.renderTable) window.renderTable();
+    } else {
+      document.getElementById("login-msg").textContent = "Incorrect password! / 密码错误";
+    }
+  };
+}
+if(document.getElementById("login-password")){
+  document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn") && document.getElementById("login-btn").click(); });
+}
+
 </body>
 </html>
