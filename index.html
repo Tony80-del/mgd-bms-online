@@ -3038,8 +3038,7 @@ window.addEventListener('load', function(){
     }catch(e){}
   }
   setInterval(_checkLogin, 300); // Check every 300ms for 3 seconds
-})();
-<\/script>
+});
 
 // ===== Simple Password Login =====
 (function(){
@@ -3066,6 +3065,7 @@ if(document.getElementById("login-btn")){
 if(document.getElementById("login-password")){
   document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn") && document.getElementById("login-btn").click(); });
 }
+</script>
 
 </body>
 </html>
