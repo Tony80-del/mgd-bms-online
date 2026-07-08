@@ -3040,8 +3040,12 @@ function syncFromCloud(){
 function updateSyncStatus(icon){
   var el = document.getElementById('cloudStatus');
   if(!el) return;
-  el.textContent = icon + ' ' + (cloudStatus === 'synced' ? 'Cloud' : 'Offline');
-  el.className = cloudStatus === 'synced' ? 'text-green-400 text-xs' : 'text-yellow-400 text-xs';
+  // Show just the icon (small, no text)
+  el.textContent = icon;
+  // Color: green=synced, yellow=offline, blue=loading
+  if(cloudStatus === 'synced') el.className = 'text-green-500 text-sm';
+  else if(cloudStatus === 'loading') el.className = 'text-blue-400 text-sm';
+  else el.className = 'text-yellow-400 text-sm';
 }
 
 // Add cloud status badge to header (or just call updateSyncStatus to set initial state)
@@ -3051,7 +3055,7 @@ function updateSyncStatus(icon){
   if(header && !document.getElementById('cloudStatus')){
     var badge = document.createElement('span');
     badge.id = 'cloudStatus';
-    badge.className = 'text-yellow-400 text-xs ml-2';
+    badge.className = 'text-yellow-400 text-sm ml-2 cursor-pointer';
     header.appendChild(badge);
   }
   // Set initial state - show Cloud if logged in via simple password
@@ -3142,7 +3146,7 @@ if(document.getElementById("login-btn")){
           if(window.updateStats) window.updateStats();
           if(window.renderTable) window.renderTable();
           var cs = document.getElementById("cloudStatus");
-          if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+          if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
           document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功" : "Login success");
         })
         .catch(function(error){
@@ -3157,7 +3161,7 @@ if(document.getElementById("login-btn")){
             if(window.updateStats) window.updateStats();
             if(window.renderTable) window.renderTable();
             var cs = document.getElementById("cloudStatus");
-            if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+            if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
             document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功 (简单密码)" : "Login success (simple)");
           } else {
             document.getElementById("login-msg").textContent = (lang==="zh" ? "密码错误" : "Incorrect password") + " (" + error.code + ")";
@@ -3174,7 +3178,7 @@ if(document.getElementById("login-btn")){
         if(window.updateStats) window.updateStats();
         if(window.renderTable) window.renderTable();
         var cs = document.getElementById("cloudStatus");
-        if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+        if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
       } else {
         document.getElementById("login-msg").textContent = lang==="zh" ? "密码错误" : "Incorrect password";
       }
@@ -3196,7 +3200,7 @@ if(fauth && fauth.onAuthStateChanged){
       var ov = document.getElementById("login-overlay");
       if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
       var cs = document.getElementById("cloudStatus");
-      if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+      if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
     }
   });
 }
