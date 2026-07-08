@@ -1784,12 +1784,14 @@ function saveInlineEdit(id,k){
   }catch(e){console.error('[saveInlineEdit ERROR]',e);alert('保存失败: '+e.message);}
 }
 function editItem(id){
+  console.log('[EDIT] editItem called. id =', id, '| mod =', mod);
   eid = id;
   const item = data[mod].find(i => i.id === id);
   if(!item){
     alert('错误:未找到该记录');
     return;
   }
+  console.log('[EDIT] Found item:', JSON.stringify(item));
 
   const f = getFields(mod);
   const keys = {bids:'eb1',customers:'eb2',projects:'eb3',chambers:'eb4'};
@@ -2430,6 +2432,7 @@ function doSave(){
 
     if(eid){
       const idx = data[mod].findIndex(i => i.id === eid);
+      console.log('[EDIT] Updating. eid =', eid, '| idx found =', idx);
       if(idx !== -1){
         var oldItem = data[mod][idx];
         if(mod==='projects'){
@@ -2443,8 +2446,11 @@ function doSave(){
             item.interactionCount = (typeof oldItem.interactionCount==='number') ? oldItem.interactionCount : 0;
           }
         }
+        console.log('[EDIT] Before update:', JSON.stringify(data[mod][idx]));
         data[mod][idx] = item;
+        console.log('[EDIT] After update:', JSON.stringify(data[mod][idx]));
       } else {
+        console.log('[EDIT] WARN: idx not found, pushing as NEW item');
         data[mod].push(item);
       }
     }else{
