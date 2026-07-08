@@ -2979,10 +2979,7 @@ var lastSyncFrom = null;
 
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
-var _saveTimer = null;
 window.saveData = function(){
-  clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(function(){ _doSave(); }, 2000); // Debounce 2s
   _origSave();
   if(!fauth.currentUser) return; // Skip cloud if not logged in
   // Push to Firebase (async)
