@@ -3042,15 +3042,20 @@ window.addEventListener('load', function(){
 
 // ===== Simple Password Login =====
 (function(){
+  console.log("[LOGIN] Checking bms_logged_in:", localStorage.getItem("bms_logged_in"));
   if(localStorage.getItem("bms_logged_in") === "1"){
     var ov = document.getElementById("login-overlay");
     if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
   }
 })();
 if(document.getElementById("login-btn")){
+  console.log("[LOGIN] Button found, attaching handler");
   document.getElementById("login-btn").onclick = function(){
+    console.log("[LOGIN] Button clicked!");
     var p = document.getElementById("login-password").value;
+    console.log("[LOGIN] Password entered:", p, "| Expected: MGD2026", "| Match:", p === "MGD2026");
     if(p === "MGD2026"){
+      console.log("[LOGIN] SUCCESS - removing overlay");
       localStorage.setItem("bms_logged_in", "1");
       var ov = document.getElementById("login-overlay");
       if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
@@ -3058,9 +3063,12 @@ if(document.getElementById("login-btn")){
       if(window.updateStats) window.updateStats();
       if(window.renderTable) window.renderTable();
     } else {
+      console.log("[LOGIN] FAILED - wrong password");
       document.getElementById("login-msg").textContent = "Incorrect password! / 密码错误";
     }
   };
+} else {
+  console.log("[LOGIN] ERROR: login-btn NOT FOUND");
 }
 if(document.getElementById("login-password")){
   document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn") && document.getElementById("login-btn").click(); });
