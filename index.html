@@ -2987,7 +2987,9 @@ var lastSyncFrom = null;
 var _origSave = window.saveData || function(){};
 window.saveData = function(){
   _origSave();
-  if(!fauth.currentUser) return; // Skip cloud if not logged in
+  // Check if logged in via Firebase Auth or simple password
+  var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
+  if(!isLoggedIn) return; // Skip cloud if not logged in
   // Push to Firebase (async)
   fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(function(){
@@ -3003,7 +3005,8 @@ window.saveData = function(){
 
 // Load from Firebase (pull latest data)
 function syncFromCloud(){
-  if(!fauth.currentUser) return; // Skip if not logged in
+  var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
+  if(!isLoggedIn) return; // Skip if not logged in
   cloudStatus = 'loading'; updateSyncStatus('⏳');
   fdb.collection('bms_data').doc('master').get()
     .then(function(doc){
@@ -3060,9 +3063,13 @@ function updateSyncStatus(icon){
 // ===== AUTH GATE =====
 if(fauth && fauth.onAuthStateChanged) {
   fauth.onAuthStateChanged(function(user){
-    if(user){ cloudStatus = 'synced'; updateSyncStatus && updateSyncStatus('☁️'); }
-    // Also update badge when Firebase Auth changes
-    if(window.updateSyncStatus) updateSyncStatus(user ? '☁️' : '⚠️');
+    if(user){
+      console.log('[Firebase Auth] User logged in:', user.email);
+      cloudStatus = 'synced';
+      if(window.updateSyncStatus) updateSyncStatus('☁️');
+      // Sync from cloud after login
+      if(typeof syncFromCloud === 'function') syncFromCloud();
+    }
   });
 }
 // Note: Login handled by simple password (checkPassword()), not Firebase Auth
@@ -3100,50 +3107,90 @@ window.addEventListener('load', function(){
 </script>
 
 <script>
-// ===== Fast Login Fix (no redundant timers) =====
+// ===== Firebase Auth Login =====
 (function(){
-  var _loginAttempts = 0;
-  function _checkLogin(){
-    _loginAttempts++;
-    if(_loginAttempts > 10) return; // Stop after ~3 seconds
-    try{
-      if(firebase && firebase.auth() && firebase.auth().currentUser){
-        var ov = document.getElementById('login-overlay');
-        if(ov){ ov.remove(); document.body.classList.remove('logged-out'); }
-      }
-    }catch(e){}
-  }
-  setInterval(_checkLogin, 300); // Check every 300ms for 3 seconds
-});
-
-// ===== Simple Password Login =====
-(function(){
+  // Remove overlay if already logged in via Firebase Auth
   if(localStorage.getItem("bms_logged_in") === "1"){
     var ov = document.getElementById("login-overlay");
     if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
   }
 })();
+
 if(document.getElementById("login-btn")){
   document.getElementById("login-btn").onclick = function(){
     var p = document.getElementById("login-password").value;
-    if(p === "MGD2026"){
+    if(!p){ document.getElementById("login-msg").textContent = lang==="zh" ? "请输入密码" : "Please enter password"; return; }
+    
+    // Try Firebase Auth first
+    if(fauth && typeof fauth.signInWithEmailAndPassword === 'function'){
+      fauth.signInWithEmailAndPassword("tong@mgd.com", p)
+        .then(function(userCredential){
+          console.log("[Firebase] Logged in as:", userCredential.user.email);
+          localStorage.setItem("bms_logged_in", "1");
+          cloudStatus = 'synced';
+          var ov = document.getElementById("login-overlay");
+          if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
+          if(window.updateSummary) window.updateSummary();
+          if(window.updateStats) window.updateStats();
+          if(window.renderTable) window.renderTable();
+          var cs = document.getElementById("cloudStatus");
+          if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+          document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功" : "Login success");
+        })
+        .catch(function(error){
+          console.warn("[Firebase] Auth error:", error.code, error.message);
+          // Fallback to simple password
+          if(p === "MGD2026"){
+            localStorage.setItem("bms_logged_in", "1");
+            cloudStatus = 'synced';
+            var ov = document.getElementById("login-overlay");
+            if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
+            if(window.updateSummary) window.updateSummary();
+            if(window.updateStats) window.updateStats();
+            if(window.renderTable) window.renderTable();
+            var cs = document.getElementById("cloudStatus");
+            if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+            document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功 (简单密码)" : "Login success (simple)");
+          } else {
+            document.getElementById("login-msg").textContent = (lang==="zh" ? "密码错误" : "Incorrect password") + " (" + error.code + ")";
+          }
+        });
+    } else {
+      // Firebase Auth not available, use simple password
+      if(p === "MGD2026"){
+        localStorage.setItem("bms_logged_in", "1");
+        cloudStatus = 'synced';
+        var ov = document.getElementById("login-overlay");
+        if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
+        if(window.updateSummary) window.updateSummary();
+        if(window.updateStats) window.updateStats();
+        if(window.renderTable) window.renderTable();
+        var cs = document.getElementById("cloudStatus");
+        if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
+      } else {
+        document.getElementById("login-msg").textContent = lang==="zh" ? "密码错误" : "Incorrect password";
+      }
+    }
+  };
+}
+
+if(document.getElementById("login-password")){
+  document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn") && document.getElementById("login-btn").click(); });
+}
+
+// Firebase Auth state listener - keep overlay removed if logged in
+if(fauth && fauth.onAuthStateChanged){
+  fauth.onAuthStateChanged(function(user){
+    if(user){
+      console.log("[Firebase] Auth state: logged in as", user.email);
       localStorage.setItem("bms_logged_in", "1");
       cloudStatus = 'synced';
       var ov = document.getElementById("login-overlay");
       if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
-      if(window.updateSummary) window.updateSummary();
-      if(window.updateStats) window.updateStats();
-      if(window.renderTable) window.renderTable();
-      // Update cloud status badge to show ☁️
       var cs = document.getElementById("cloudStatus");
       if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
-    } else {
-      document.getElementById("login-msg").textContent = "Incorrect password! / 密码错误";
     }
-  };
-}
-if(document.getElementById("login-password")){
-  document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn") && document.getElementById("login-btn").click(); });
+  });
 }
 </script>
 
