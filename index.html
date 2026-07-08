@@ -2448,6 +2448,14 @@ function doSave(){
         data[mod].push(item);
       }
     }else{
+      // Set createdDate for new customers so 2026 count works
+      if(mod==='customers'){
+        const today=new Date();
+        const y=today.getFullYear();
+        const m=String(today.getMonth()+1).padStart(2,'0');
+        const d=String(today.getDate()).padStart(2,'0');
+        item.createdDate=y+'-'+m+'-'+d;
+      }
       data[mod].push(item);
     }
 
