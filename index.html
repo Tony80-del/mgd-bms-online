@@ -3055,9 +3055,17 @@ function updateSyncStatus(icon){
     header.appendChild(badge);
   }
   // Set initial state - show Cloud if logged in via simple password
+  // Set initial state - show Cloud if logged in (Firebase syncing in background)
   var isLoggedIn = localStorage.getItem("bms_logged_in") === "1";
-  updateSyncStatus(isLoggedIn ? '☁️' : '⚠️');
-})();
+  if(isLoggedIn) { cloudStatus = 'synced'; updateSyncStatus('☁️'); }
+  else { cloudStatus = 'offline'; updateSyncStatus('⚠️'); }
+});
+
+// Retry cloud sync when browser comes back online
+window.addEventListener('online', function(){
+  cloudStatus = 'loading'; updateSyncStatus('⏳');
+  if(typeof syncFromCloud === 'function') syncFromCloud();
+});
 
 // Sync from cloud after page loads
 // ===== AUTH GATE =====
