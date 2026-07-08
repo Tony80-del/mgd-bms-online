@@ -1340,6 +1340,7 @@ function renderTable(){
   // 综合统计页面不需要渲染表格
   if(mod==='summary') return;
   let d=data[mod];
+  console.log('[RENDER] mod =', mod, '| total records =', d.length, '| filters: year='+custYearFilter+', country='+custCountryFilter+', search="'+custSearchFilter+'", date="'+custDateFilter+'"');
   const now=new Date();
   // 客户管理年份筛选
   if(mod==='customers' && custYearFilter!=='all'){
@@ -1405,6 +1406,7 @@ function renderTable(){
       return new Date(b.interactionDate)-new Date(a.interactionDate);
     });
   }
+  console.log('[RENDER] After filters, records to show =', d.length);
   const f=getFields(mod),ff=f.filter(x=>x.l);
   // 投标项目添加暂停/取消勾选列;商会信息添加出席状态列
   const isBids=mod==='bids';
@@ -2392,6 +2394,7 @@ function hs(e){
 }
 
 function doSave(){
+  console.log('[SAVE] doSave called. mod =', mod, '| eid =', eid);
   try {
     if (!data[mod]) {
       alert('错误:模块数据未初始化');
@@ -2404,6 +2407,7 @@ function doSave(){
       return;
     }
 
+    console.log('[SAVE] Form found, fields:', fm.querySelectorAll('input, select, .fi-t, .fi-ta').length);
     const item = {id: eid || mod.toUpperCase().slice(0,3)+'-'+Date.now()};
 
     // 取 select 的值
@@ -2465,17 +2469,21 @@ function doSave(){
         item.createdDate=y+'-'+m+'-'+d;
       }
       data[mod].push(item);
+      console.log('[SAVE] Pushed new item. Total', mod, 'now:', data[mod].length);
     }
 
     saveData();
+    console.log('[SAVE] Data saved to localStorage');
     updateOptionsFromData();
     updateStats();
     updateSummary();
     renderTable();
+    console.log('[SAVE] Table rendered');
 
     eid = null;
     cm();
 
+    console.log('[SAVE] Modal closed, alert shown');
     alert('保存成功!');
   } catch(err) {
     alert('保存出错: ' + err.message);
