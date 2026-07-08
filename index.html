@@ -133,6 +133,8 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 .login-ok{color:#22c55e!important;}
 .login-info{color:#64748b;font-size:13px;margin:10px 0;min-height:18px;}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="bgp logged-out">
 <!-- ===== Login Overlay ===== -->
@@ -1657,6 +1659,17 @@ function openAddModal(){
   }).join('');
   fm.innerHTML='<div class="mform">'+formFields+'</div><div class="flex gap-3 mt-4" style="position:sticky;bottom:0;background:var(--card);padding-top:8px"><button type="button" onclick="cm()" class="bs flex-1">'+t('bc')+'</button><button type="button" onclick="doSave()" class="bp flex-1">'+t('bs')+'</button></div>';
   document.getElementById('md').classList.add('active');
+  // Initialize Flatpickr for date inputs
+  setTimeout(function(){
+    fm.querySelectorAll('input[type="date"]').forEach(function(inp){
+      flatpickr(inp, {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        clickOpens: true,
+        theme: 'dark'
+      });
+    });
+  }, 10);
   // 客户互动:选择高/中优先级客户时自动填入邮箱
   if(mod==='projects'){
     setTimeout(function(){
@@ -1706,6 +1719,20 @@ function openInlineEdit(id,k,v,tp,optStr){
   }
   const td=event.target.closest('td');
   td.innerHTML='<div class="flex gap-1">'+inputHtml+'<button onclick="saveInlineEdit(\''+id+'\',\''+k+'\')" class="px-2 py-1 rounded bg-blue-500 text-white text-xs font-bold">✓</button><button onclick="renderTable()" class="px-2 py-1 rounded bg-gray-600 text-white text-xs">✕</button></div>';
+  // Initialize Flatpickr for inline date edit
+  if(tp==='date'){
+    setTimeout(function(){
+      var dateInp = document.getElementById('ied_'+k);
+      if(dateInp){
+        flatpickr(dateInp, {
+          dateFormat: 'Y-m-d',
+          allowInput: true,
+          clickOpens: true,
+          theme: 'dark'
+        });
+      }
+    }, 10);
+  }
   const sel=document.getElementById('ied_'+k);
   if(sel){
     sel.focus();
@@ -1781,6 +1808,17 @@ function editItem(id){
   }).join('');
   fm.innerHTML='<div class="mform">'+formFields+'</div><div class="flex gap-3 mt-4" style="position:sticky;bottom:0;background:var(--card);padding-top:8px"><button type="button" onclick="cm()" class="bs flex-1">'+t('bc')+'</button><button type="button" onclick="doSave()" class="bp flex-1">'+t('bs')+'</button></div>';
   document.getElementById('md').classList.add('active');
+  // Initialize Flatpickr for date inputs
+  setTimeout(function(){
+    fm.querySelectorAll('input[type="date"]').forEach(function(inp){
+      flatpickr(inp, {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        clickOpens: true,
+        theme: 'dark'
+      });
+    });
+  }, 10);
   if(mod==='projects'){
     setTimeout(function(){
       var cnField=document.querySelector('[data-k="customerName"]');
