@@ -2390,7 +2390,6 @@ function hs(e){
 }
 
 function doSave(){
-  console.log('[SAVE] doSave called. mod =', mod, '| eid =', eid);
   try {
     if (!data[mod]) {
       alert('错误:模块数据未初始化');
@@ -2403,7 +2402,6 @@ function doSave(){
       return;
     }
 
-    console.log('[SAVE] Form found, fields:', fm.querySelectorAll('input, select, .fi-t, .fi-ta').length);
     const item = {id: eid || mod.toUpperCase().slice(0,3)+'-'+Date.now()};
 
     // 取 select 的值
@@ -2430,7 +2428,6 @@ function doSave(){
       }
     });
 
-    console.log('[SAVE] Collected item:', JSON.stringify(item));
     if(eid){
       const idx = data[mod].findIndex(i => i.id === eid);
       if(idx !== -1){
@@ -2447,10 +2444,8 @@ function doSave(){
           }
         }
         data[mod][idx] = item;
-        console.log('[SAVE] Updated existing item at idx', idx);
       } else {
         data[mod].push(item);
-        console.log('[SAVE] Pushed new item (eid existed but not found)');
       }
     }else{
       // Set createdDate for new customers so 2026 count works
@@ -2462,24 +2457,19 @@ function doSave(){
         item.createdDate=y+'-'+m+'-'+d;
       }
       data[mod].push(item);
-      console.log('[SAVE] Pushed new item. Total', mod, 'now:', data[mod].length);
     }
 
     saveData();
-    console.log('[SAVE] Data saved to localStorage');
     updateOptionsFromData();
     updateStats();
     updateSummary();
     renderTable();
-    console.log('[SAVE] Table rendered');
 
     eid = null;
     cm();
 
-    console.log('[SAVE] Modal closed, alert shown');
     alert('保存成功!');
   } catch(err) {
-    console.error('[SAVE ERROR]', err);
     alert('保存出错: ' + err.message);
   }
 }
@@ -3107,20 +3097,15 @@ window.addEventListener('load', function(){
 
 // ===== Simple Password Login =====
 (function(){
-  console.log("[LOGIN] Checking bms_logged_in:", localStorage.getItem("bms_logged_in"));
   if(localStorage.getItem("bms_logged_in") === "1"){
     var ov = document.getElementById("login-overlay");
     if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
   }
 })();
 if(document.getElementById("login-btn")){
-  console.log("[LOGIN] Button found, attaching handler");
   document.getElementById("login-btn").onclick = function(){
-    console.log("[LOGIN] Button clicked!");
     var p = document.getElementById("login-password").value;
-    console.log("[LOGIN] Password entered:", p, "| Expected: MGD2026", "| Match:", p === "MGD2026");
     if(p === "MGD2026"){
-      console.log("[LOGIN] SUCCESS - removing overlay");
       localStorage.setItem("bms_logged_in", "1");
       var ov = document.getElementById("login-overlay");
       if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
@@ -3128,12 +3113,9 @@ if(document.getElementById("login-btn")){
       if(window.updateStats) window.updateStats();
       if(window.renderTable) window.renderTable();
     } else {
-      console.log("[LOGIN] FAILED - wrong password");
       document.getElementById("login-msg").textContent = "Incorrect password! / 密码错误";
     }
   };
-} else {
-  console.log("[LOGIN] ERROR: login-btn NOT FOUND");
 }
 if(document.getElementById("login-password")){
   document.getElementById("login-password").addEventListener("keyup", function(e){ if(e.key==="Enter") document.getElementById("login-btn") && document.getElementById("login-btn").click(); });
