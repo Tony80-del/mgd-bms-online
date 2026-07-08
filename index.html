@@ -134,6 +134,18 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 .login-info{color:#64748b;font-size:13px;margin:10px 0;min-height:18px;}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<style>
+/* Change date input icon color to white */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+input[type="date"]::-moz-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="bgp logged-out">
