@@ -189,7 +189,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <div class="flex items-center gap-3">
         <div class="flex gap-1"><button class="ls active" id="lzh" onclick="sl('zh')">中</button><button class="ls" id="len" onclick="sl('en')">EN</button></div>
         <div class="relative"><input type="text" id="si" class="fi pl-10 w-64" onkeyup="hs(event)"><svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
-        <button id="cloudBadge" onclick="showCloudInfo()" title="Cloud Status" class="text-yellow-400 text-sm px-1 cursor-pointer">☁️</button>
+        <span id="cloudBadge" onclick="showCloudInfo()" title="Cloud Status" class="text-xs px-2 py-1 rounded-full bg-[var(--card)] border border-[var(--border)] cursor-pointer select-none flex items-center gap-1">☁️ <span id="cloudBadgeTxt" class="text-[10px] text-[var(--muted)]">Cloud</span></span>
         <button class="bp" onclick="openAddModal()"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span id="ba">新增</span></button>
         <button class="bs" id="exportMainBtn" onclick="exportCurrentModule()" title="导出Excel"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg><span id="be">导出</span></button>
         <button class="bs" id="exportCustTplBtn" onclick="exportCustomerTemplate()" title="导出空白模板" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>模板</span></button>
@@ -3050,9 +3050,17 @@ function updateSyncStatus(icon){
   var hb = document.getElementById('cloudBadge');
   if(hb) {
     hb.textContent = icon;
-    if(cloudStatus === 'synced') hb.className = 'text-green-400 text-sm px-1 cursor-pointer';
-    else if(cloudStatus === 'loading') hb.className = 'text-blue-400 text-sm px-1 cursor-pointer';
-    else hb.className = 'text-yellow-400 text-sm px-1 cursor-pointer';
+    var txt = document.getElementById('cloudBadgeTxt');
+    if(cloudStatus === 'synced') {
+      hb.className = 'text-xs px-2 py-1 rounded-full bg-[var(--card)] border border-green-500/50 cursor-pointer select-none flex items-center gap-1';
+      if(txt) { txt.textContent = 'Cloud'; txt.className = 'text-[10px] text-green-400'; }
+    } else if(cloudStatus === 'loading') {
+      hb.className = 'text-xs px-2 py-1 rounded-full bg-[var(--card)] border border-blue-500/50 cursor-pointer select-none flex items-center gap-1';
+      if(txt) { txt.textContent = 'Loading'; txt.className = 'text-[10px] text-blue-400'; }
+    } else {
+      hb.className = 'text-xs px-2 py-1 rounded-full bg-[var(--card)] border border-yellow-500/50 cursor-pointer select-none flex items-center gap-1';
+      if(txt) { txt.textContent = 'Offline'; txt.className = 'text-[10px] text-yellow-400'; }
+    }
   }
 }
 
@@ -3182,7 +3190,7 @@ if(document.getElementById("login-btn")){
           if(window.updateStats) window.updateStats();
           if(window.renderTable) window.renderTable();
           var cs = document.getElementById("cloudStatus");
-          if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
+          if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
           document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功" : "Login success");
         })
         .catch(function(error){
@@ -3197,7 +3205,7 @@ if(document.getElementById("login-btn")){
             if(window.updateStats) window.updateStats();
             if(window.renderTable) window.renderTable();
             var cs = document.getElementById("cloudStatus");
-            if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
+            if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
             document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功 (简单密码)" : "Login success (simple)");
           } else {
             document.getElementById("login-msg").textContent = (lang==="zh" ? "密码错误" : "Incorrect password") + " (" + error.code + ")";
@@ -3214,7 +3222,7 @@ if(document.getElementById("login-btn")){
         if(window.updateStats) window.updateStats();
         if(window.renderTable) window.renderTable();
         var cs = document.getElementById("cloudStatus");
-        if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
+        if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
       } else {
         document.getElementById("login-msg").textContent = lang==="zh" ? "密码错误" : "Incorrect password";
       }
@@ -3236,7 +3244,7 @@ if(fauth && fauth.onAuthStateChanged){
       var ov = document.getElementById("login-overlay");
       if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
       var cs = document.getElementById("cloudStatus");
-      if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-xs ml-2'; }
+      if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
     }
   });
 }
