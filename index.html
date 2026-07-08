@@ -2390,6 +2390,7 @@ function hs(e){
 }
 
 function doSave(){
+  console.log('[SAVE] doSave called. mod =', mod, '| eid =', eid);
   try {
     if (!data[mod]) {
       alert('错误:模块数据未初始化');
@@ -2402,6 +2403,7 @@ function doSave(){
       return;
     }
 
+    console.log('[SAVE] Form found, fields:', fm.querySelectorAll('input, select, .fi-t, .fi-ta').length);
     const item = {id: eid || mod.toUpperCase().slice(0,3)+'-'+Date.now()};
 
     // 取 select 的值
@@ -2428,6 +2430,7 @@ function doSave(){
       }
     });
 
+    console.log('[SAVE] Collected item:', JSON.stringify(item));
     if(eid){
       const idx = data[mod].findIndex(i => i.id === eid);
       if(idx !== -1){
@@ -2444,8 +2447,10 @@ function doSave(){
           }
         }
         data[mod][idx] = item;
+        console.log('[SAVE] Updated existing item at idx', idx);
       } else {
         data[mod].push(item);
+        console.log('[SAVE] Pushed new item (eid existed but not found)');
       }
     }else{
       // Set createdDate for new customers so 2026 count works
@@ -2457,19 +2462,24 @@ function doSave(){
         item.createdDate=y+'-'+m+'-'+d;
       }
       data[mod].push(item);
+      console.log('[SAVE] Pushed new item. Total', mod, 'now:', data[mod].length);
     }
 
     saveData();
+    console.log('[SAVE] Data saved to localStorage');
     updateOptionsFromData();
     updateStats();
     updateSummary();
     renderTable();
+    console.log('[SAVE] Table rendered');
 
     eid = null;
     cm();
 
+    console.log('[SAVE] Modal closed, alert shown');
     alert('保存成功!');
   } catch(err) {
+    console.error('[SAVE ERROR]', err);
     alert('保存出错: ' + err.message);
   }
 }
