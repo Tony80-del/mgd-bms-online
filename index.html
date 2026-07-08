@@ -3051,8 +3051,9 @@ function updateSyncStatus(icon){
     badge.className = 'text-yellow-400 text-xs ml-2';
     header.appendChild(badge);
   }
-  // Set initial state immediately
-  updateSyncStatus(fauth && fauth.currentUser ? '☁️' : '⚠️');
+  // Set initial state - show Cloud if logged in via simple password
+  var isLoggedIn = localStorage.getItem("bms_logged_in") === "1";
+  updateSyncStatus(isLoggedIn ? '☁️' : '⚠️');
 })();
 
 // Sync from cloud after page loads
@@ -3060,6 +3061,8 @@ function updateSyncStatus(icon){
 if(fauth && fauth.onAuthStateChanged) {
   fauth.onAuthStateChanged(function(user){
     if(user){ cloudStatus = 'synced'; updateSyncStatus && updateSyncStatus('☁️'); }
+    // Also update badge when Firebase Auth changes
+    if(window.updateSyncStatus) updateSyncStatus(user ? '☁️' : '⚠️');
   });
 }
 // Note: Login handled by simple password (checkPassword()), not Firebase Auth
@@ -3125,11 +3128,15 @@ if(document.getElementById("login-btn")){
     var p = document.getElementById("login-password").value;
     if(p === "MGD2026"){
       localStorage.setItem("bms_logged_in", "1");
+      cloudStatus = 'synced';
       var ov = document.getElementById("login-overlay");
       if(ov){ ov.remove(); document.body.classList.remove("logged-out"); }
       if(window.updateSummary) window.updateSummary();
       if(window.updateStats) window.updateStats();
       if(window.renderTable) window.renderTable();
+      // Update cloud status badge to show ☁️
+      var cs = document.getElementById("cloudStatus");
+      if(cs){ cs.textContent = '☁️ Cloud'; cs.className = 'text-green-400 text-xs ml-2'; }
     } else {
       document.getElementById("login-msg").textContent = "Incorrect password! / 密码错误";
     }
