@@ -2421,11 +2421,13 @@ function doSave(){
       var k = el.dataset.k;
       if (k) item[k] = el.value || '';
     });
-    // 取 contenteditable div 的值(纯文本,用于保存)
+    // 取 contenteditable div 和 input 的值(纯文本/value,用于保存)
     fm.querySelectorAll('.fi-t,.fi-ta').forEach(function(el) {
-      if(el.tagName==='INPUT') return;
       var k = el.dataset.k;
-      if (k) {
+      if (!k) return;
+      if (el.tagName === 'INPUT') {
+        item[k] = el.value || '';
+      } else {
         item[k] = el.textContent || '';
       }
     });
