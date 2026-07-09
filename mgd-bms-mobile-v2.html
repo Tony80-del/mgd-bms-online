@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MGD BMS — Mobile v2</title>
+<style>
+  :root{
+    --bg:#0E1116; --panel:#161B22; --card:#1A212B; --card2:#212A36;
+    --line:#2A3340; --txt:#E6EDF3; --mut:#8B949E; --acc:#00C7B7; --acc2:#0aa;
+    --red:#F85149; --org:#FF8C42; --yel:#E3B341; --grn:#3FB950; --blu:#58A6FF; --gry:#6E7681; --pur:#BC8CFF;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--txt); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:14px}
+  #app{max-width:430px; margin:0 auto; min-height:100vh; background:var(--bg); position:relative; display:flex; flex-direction:column}
+  /* Top bar */
+  .topbar{position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:10px; padding:12px 14px; background:linear-gradient(180deg,#11161D,#0E1116); border-bottom:1px solid var(--line)}
+  .topbar .logo{font-weight:700; font-size:17px; letter-spacing:.3px}
+  .topbar .logo .dot{color:var(--acc)}
+  .topbar .spacer{flex:1}
+  .iconbtn{background:var(--card); border:1px solid var(--line); color:var(--txt); width:36px; height:36px; border-radius:10px; font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer}
+  .iconbtn:active{transform:scale(.94)}
+  .conn{font-size:11px; color:var(--mut); display:flex; align-items:center; gap:5px}
+  .conn .led{width:8px; height:8px; border-radius:50%; background:var(--gry)}
+  .conn .led.on{background:var(--grn); box-shadow:0 0 6px var(--grn)}
+  .conn .led.err{background:var(--red)}
+  /* Tab nav */
+  .tabnav{position:sticky; bottom:0; z-index:30; display:flex; background:#0B0E13; border-top:1px solid var(--line); padding:6px 4px}
+  .tab{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; color:var(--mut); font-size:10px; cursor:pointer; position:relative}
+  .tab .ti{font-size:18px; line-height:1}
+  .tab.active{color:var(--acc)}
+  .tab .badge{position:absolute; top:2px; right:50%; margin-right:-18px; background:var(--acc); color:#04201d; font-size:9px; font-weight:700; border-radius:9px; padding:0 5px; min-width:15px; text-align:center}
+  .tab .badge.warn{background:var(--org); color:#3a1d00}
+  /* Screens */
+  .screen{flex:1; overflow-y:auto; padding:14px 14px 90px; display:none}
+  .screen.active{display:block}
+  .sec-title{font-size:13px; color:var(--mut); text-transform:uppercase; letter-spacing:.6px; margin:18px 2px 8px}
+  .sec-title:first-child{margin-top:2px}
+  /* Dashboard */
+  .statgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px}
+  .stat .h{display:flex; align-items:center; gap:6px; color:var(--mut); font-size:12px; font-weight:600}
+  .stat .big{font-size:26px; font-weight:700; margin:4px 0 2px}
+  .stat .sub{display:flex; gap:10px; font-size:11px; color:var(--mut)}
+  .stat .sub b{color:var(--txt); font-weight:600}
+  .stat.inter{background:linear-gradient(135deg,#13202a,#161B22)}
+  .stat.inter .sub{justify-content:space-between; width:100%}
+  .activity{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:6px 12px}
+  .act{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+  .act:last-child{border-bottom:none}
+  .act .ic{width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; background:var(--card2)}
+  .act .tx{flex:1; font-size:13px}
+  .act .tx small{color:var(--mut); display:block; font-size:11px}
+  .act .dt{font-size:11px; color:var(--mut)}
+  .banner{background:linear-gradient(135deg,#3a1d00,#2a1500); border:1px solid var(--org); color:#ffd9b0; border-radius:12px; padding:10px 12px; margin-top:6px; font-size:12px; display:flex; align-items:center; gap:8px}
+  .banner .x{margin-left:auto; cursor:pointer; color:#ffb877}
+  /* List cards */
+  .list{display:flex; flex-direction:column; gap:10px}
+  .item{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px; cursor:pointer; position:relative}
+  .item:active{background:var(--card2)}
+  .item .row1{display:flex; align-items:center; gap:8px; margin-bottom:4px}
+  .item .name{font-weight:600; font-size:14px; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .item .meta{font-size:12px; color:var(--mut); display:flex; flex-wrap:wrap; gap:4px 12px}
+  .item .meta span b{color:var(--txt); font-weight:600}
+  .item .edit{position:absolute; top:10px; right:10px; color:var(--mut); font-size:12px; background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:3px 8px; cursor:pointer}
+  .pill{font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; white-space:nowrap}
+  .p-Bidding,.p-Upcoming,.p-Meeting,.p-Blue{background:rgba(88,166,255,.16); color:var(--blu)}
+  .p-Won,.p-Attended,.p-Completed,.p-Green{background:rgba(63,185,80,.16); color:var(--grn)}
+  .p-Lost,.p-Overdue,.p-Red{background:rgba(248,81,73,.16); color:var(--red)}
+  .p-Following,.p-Medium,.p-Pending,.p-Yellow{background:rgba(227,179,65,.16); color:var(--yel)}
+  .p-Reviewing,.p-Purple{background:rgba(188,140,255,.16); color:var(--pur)}
+  .p-High{background:rgba(248,81,73,.16); color:var(--red)}
+  .p-Low,.p-Grey{background:rgba(110,118,129,.20); color:var(--gry)}
+  .p-Orange,.p-due2{background:rgba(255,140,66,.16); color:var(--org)}
+  /* FAB */
+  .fab{position:fixed; bottom:70px; right:max(14px,calc(50% - 215px + 14px)); z-index:40; width:56px; height:56px; border-radius:50%; background:var(--acc); color:#04201d; font-size:26px; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,199,183,.4); cursor:pointer}
+  .fab:active{transform:scale(.93)}
+  /* Search */
+  .search{display:flex; gap:8px; margin-bottom:10px}
+  .search input{flex:1; background:var(--card); border:1px solid var(--line); color:var(--txt); border-radius:10px; padding:9px 12px; font-size:13px}
+  .search select{background:var(--card); border:1px solid var(--line); color:var(--txt); border-radius:10px; padding:9px 8px; font-size:13px; max-width:120px}
+  /* Modal form */
+  .modal{position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.6); display:none; align-items:flex-end}
+  .modal.show{display:flex}
+  .sheet{background:var(--panel); width:100%; max-width:430px; margin:0 auto; border-radius:18px 18px 0 0; max-height:90vh; overflow-y:auto; padding:16px 16px 28px; border-top:1px solid var(--line)}
+  .sheet h3{margin:2px 0 14px; font-size:16px; display:flex; align-items:center; gap:8px}
+  .sheet h3 .x{margin-left:auto; color:var(--mut); cursor:pointer; font-size:20px; font-weight:400}
+  .fld{margin-bottom:12px}
+  .fld label{display:block; font-size:12px; color:var(--mut); margin-bottom:5px}
+  .fld label .req{color:var(--red)}
+  .fld input,.fld select,.fld textarea{width:100%; background:var(--card); border:1px solid var(--line); color:var(--txt); border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit}
+  .fld textarea{resize:vertical; min-height:64px}
+  .fld.row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .btnrow{display:flex; gap:10px; margin-top:8px}
+  .btn{flex:1; padding:12px; border-radius:11px; font-size:14px; font-weight:600; border:1px solid var(--line); cursor:pointer}
+  .btn.primary{background:var(--acc); color:#04201d; border-color:var(--acc)}
+  .btn.ghost{background:transparent; color:var(--txt)}
+  .btn.danger{background:rgba(248,81,73,.12); color:var(--red); border-color:rgba(248,81,73,.4); flex:0 0 auto; padding:12px 16px}
+  .btn:active{transform:scale(.97)}
+  /* Toast */
+  .toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); z-index:60; background:var(--card2); border:1px solid var(--line); color:var(--txt); padding:10px 18px; border-radius:24px; font-size:13px; opacity:0; transition:.25s; pointer-events:none; max-width:90%}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast.err{border-color:var(--red); color:#ffb3ae}
+  .empty{text-align:center; color:var(--mut); padding:40px 0; font-size:13px}
+  .spin{display:inline-block; width:16px; height:16px; border:2px solid var(--mut); border-top-color:var(--acc); border-radius:50%; animation:sp .7s linear infinite; vertical-align:-3px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .menu{position:fixed; inset:0; z-index:55; background:rgba(0,0,0,.5); display:none}
+  .menu.show{display:block}
+  .menu .box{position:absolute; top:56px; right:12px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:6px; min-width:180px}
+  .menu .mi{padding:11px 12px; border-radius:8px; font-size:13px; cursor:pointer; display:flex; gap:8px; align-items:center}
+  .menu .mi:active{background:var(--card2)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="logo">🔄 MGD<span class="dot">·</span>BMS</div>
+    <div class="spacer"></div>
+    <div class="conn"><span class="led" id="led"></span><span id="connTxt">connecting…</span></div>
+    <div class="iconbtn" id="btnRefresh" title="Refresh">🔄</div>
+    <div class="iconbtn" id="btnMenu" title="Menu">≡</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen active" id="scr-dash">
+    <div class="sec-title">Overview · <span id="dashMonth"></span></div>
+    <div class="statgrid" id="dashStats"></div>
+    <div class="sec-title">⚠️ Tasks Due Soon</div>
+    <div id="dashDue"></div>
+    <div class="sec-title">Recent Activity</div>
+    <div class="activity" id="dashActivity"></div>
+  </div>
+
+  <!-- BIDS -->
+  <div class="screen" id="scr-bids">
+    <div class="search">
+      <input id="bidSearch" placeholder="🔍 Search project / contact">
+      <select id="bidFilter"><option value="">All Status</option><option>Bidding</option><option>Won</option><option>Lost</option><option>Following</option><option>Reviewing</option></select>
+    </div>
+    <div class="list" id="listBids"></div>
+  </div>
+
+  <!-- CONTACTS -->
+  <div class="screen" id="scr-contacts">
+    <div class="search">
+      <input id="conSearch" placeholder="🔍 Search company / person / phone">
+      <select id="conFilter"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+    <div class="list" id="listContacts"></div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="screen" id="scr-events">
+    <div class="search">
+      <input id="evtSearch" placeholder="🔍 Search chamber / topic">
+      <select id="evtFilter"><option value="">All</option><option value="Upcoming">Upcoming</option><option value="Attended">Attended</option></select>
+    </div>
+    <div class="list" id="listEvents"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="screen" id="scr-tasks">
+    <div class="search">
+      <input id="taskSearch" placeholder="🔍 Search task / PIC">
+      <select id="taskFilter"><option value="">All</option><option value="urgent">Urgent / Overdue</option><option>Pending</option><option>In Progress</option><option>Completed</option></select>
+    </div>
+    <div class="list" id="listTasks"></div>
+  </div>
+
+  <!-- INTERACTIONS -->
+  <div class="screen" id="scr-inter">
+    <div class="search">
+      <input id="intSearch" placeholder="🔍 Search customer">
+      <select id="intFilter"><option value="">All Type</option><option>Meeting</option><option>Phone</option><option>Email</option><option>Visit</option><option>Other</option></select>
+    </div>
+    <div class="list" id="listInter"></div>
+  </div>
+
+  <div class="tabnav" id="tabnav">
+    <div class="tab active" data-tab="dash"><div class="ti">📊</div>Home<span class="badge" id="b-dash" style="display:none"></span></div>
+    <div class="tab" data-tab="bids"><div class="ti">📋</div>Bids<span class="badge" id="b-bids">0</span></div>
+    <div class="tab" data-tab="contacts"><div class="ti">👥</div>Contacts<span class="badge" id="b-contacts">0</span></div>
+    <div class="tab" data-tab="events"><div class="ti">🎯</div>Events<span class="badge" id="b-events">0</span></div>
+    <div class="tab" data-tab="tasks"><div class="ti">✅</div>Tasks<span class="badge" id="b-tasks">0</span></div>
+    <div class="tab" data-tab="inter"><div class="ti">💬</div>Chat<span class="badge" id="b-inter">0</span></div>
+  </div>
+
+  <div class="fab" id="fab">+</div>
+
+  <!-- Form modal -->
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <h3 id="formTitle">Add</h3>
+      <div id="formBody"></div>
+      <div class="btnrow">
+        <button class="btn danger" id="btnDelete" style="display:none">Delete</button>
+        <button class="btn ghost" id="btnCancel">Cancel</button>
+        <button class="btn primary" id="btnSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu" id="menu"><div class="box">
+    <div class="mi" id="miRefresh">🔄 Refresh data</div>
+    <div class="mi" id="miSync">📡 Re-sync now</div>
+    <div class="mi" id="miInfo">ℹ️ <span id="miInfoTxt">v2.0</span></div>
+  </div></div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  "use strict";
+  const firebaseConfig = {
+    apiKey: "AIzaSyCxBAFV5rhtnxPeTEIUBhxQq5kjBPMqscs",
+    authDomain: "mgd-bms.firebaseapp.com",
+    projectId: "mgd-bms",
+    storageBucket: "mgd-bms.firebasestorage.app",
+    appId: "1:543698464482:web:2f31825f40ecba5fe49a3b"
+  };
+  const AUTH_EMAIL="contact@mgd.com.vn", AUTH_PASS="MGD2026";
+  const TODAY = (function(){const d=new Date(); d.setHours(0,0,0,0); return d;})();
+  const NOW = new Date();
+
+  const APP = { db:null, data:null, busy:false };
+  // module meta
+  const MOD = {
+    bids:      {array:"bids",      title:"Bid",      tab:"bids"},
+    contacts:  {array:"customers", title:"Contact",  tab:"contacts"},
+    events:    {array:"chambers",  title:"Event",    tab:"events"},
+    tasks:     {array:"tasks",     title:"Task",     tab:"tasks"},
+    inter:     {array:"projects",  title:"Interaction", tab:"inter"}
+  };
+  // form field specs (data-field, label, type, required, options)
+  const FORMS = {
+    bids:[
+      {f:"companyName",t:"Project Name",type:"text",req:true},
+      {f:"contactPerson",t:"Contact Person",type:"text"},
+      {f:"phone",t:"Phone",type:"text"},
+      {f:"estimatedValue",t:"Est. Value ($)",type:"number"},
+      {f:"status",t:"Status",type:"select",opts:["Bidding","Won","Lost","Following","Reviewing"]},
+      {f:"nextActionDate",t:"Next Action Date",type:"date"},
+      {f:"nextActionContent",t:"Next Action",type:"text"},
+      {f:"category",t:"Category",type:"text"},
+      {f:"createdDate",t:"Created Date",type:"date"},
+      {f:"notes",t:"Notes",type:"textarea"}
+    ],
+    contacts:[
+      {f:"companyName",t:"Company Name",type:"text",req:true},
+      {f:"companyBusiness",t:"Business Type",type:"text"},
+      {f:"contactPerson",t:"Contact Person",type:"text",req:true},
+      {f:"position",t:"Position",type:"text"},
+      {f:"phone",t:"Phone",type:"text"},
+      {f:"email",t:"Email",type:"email"},
+      {f:"country",t:"Country",type:"text"},
+      {f:"priority",t:"Priority",type:"select",opts:["High","Medium","Low"]},
+      {f:"createdDate",t:"Created Date",type:"date"}
+    ],
+    events:[
+      {f:"chamberName",t:"Chamber Name",type:"text",req:true},
+      {f:"country",t:"Country",type:"text"},
+      {f:"phone",t:"Phone",type:"text"},
+      {f:"email",t:"Email",type:"email"},
+      {f:"contactPerson",t:"Contact Person",type:"text"},
+      {f:"topic",t:"Topic",type:"text"},
+      {f:"attendanceDate",t:"Attendance Date",type:"date",req:true},
+      {f:"attendanceLocation",t:"Location",type:"text"},
+      {f:"notes",t:"Notes",type:"textarea"}
+    ],
+    inter:[
+      {f:"customerName",t:"Customer Name",type:"text",req:true},
+      {f:"interactionDate",t:"Interaction Date",type:"date",req:true},
+      {f:"interactionType",t:"Type",type:"select",opts:["Meeting","Phone","Email","Visit","Other"]},
+      {f:"content",t:"Content",type:"textarea"},
+      {f:"emailContent",t:"Email Content",type:"textarea"},
+      {f:"personInCharge",t:"Person In Charge",type:"text"},
+      {f:"nextStep",t:"Next Step",type:"text"},
+      {f:"status",t:"Status",type:"select",opts:["Pending","Following","Completed"]},
+      {f:"notes",t:"Notes",type:"textarea"}
+    ],
+    tasks:[
+      {f:"taskName",t:"Task Name",type:"text",req:true},
+      {f:"description",t:"Description",type:"textarea"},
+      {f:"relatedTo",t:"Related To (e.g. Bid: ABC)",type:"text"},
+      {f:"dueDate",t:"Due Date",type:"date",req:true},
+      {f:"priority",t:"Priority",type:"select",opts:["High","Medium","Low"]},
+      {f:"pic",t:"PIC",type:"text"},
+      {f:"status",t:"Status",type:"select",opts:["Pending","In Progress","Completed"]},
+      {f:"reminderDays",t:"Reminder (days before)",type:"number"}
+    ]
+  };
+
+  // ---------- helpers ----------
+  const $ = s=>document.querySelector(s);
+  const $$ = s=>Array.from(document.querySelectorAll(s));
+  function uid(){ return (crypto.randomUUID?crypto.randomUUID():'id'+Date.now()+Math.random().toString(16).slice(2)); }
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function daysLeft(dateStr){
+    if(!dateStr) return 9999;
+    const d=new Date(dateStr+"T00:00:00");
+    if(isNaN(d)) return 9999;
+    return Math.round((d - TODAY)/86400000);
+  }
+  function sameMonth(dateStr){
+    if(!dateStr) return false;
+    const d=new Date(dateStr);
+    if(isNaN(d)) return false;
+    return d.getMonth()===NOW.getMonth() && d.getFullYear()===NOW.getFullYear();
+  }
+  function fmtDate(s){ if(!s) return "—"; const d=new Date(s+"T00:00:00"); if(isNaN(d)) return s; return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+  function pill(cls,txt){ return '<span class="pill p-'+esc(cls)+'">'+esc(txt)+'</span>'; }
+  function toast(msg,err){
+    const t=$("#toast"); t.textContent=msg; t.className="toast show"+(err?" err":"");
+    clearTimeout(t._t); t._t=setTimeout(()=>t.className="toast"+(err?" err":""),2200);
+  }
+  function statusColor(s){ return s; }
+
+  // ---------- firebase ----------
+  async function initFirebase(){
+    firebase.initializeApp(firebaseConfig);
+    APP.db = firebase.firestore();
+    setConn("connecting");
+    try{
+      await firebase.auth().signInWithEmailAndPassword(AUTH_EMAIL, AUTH_PASS);
+    }catch(e){
+      try{ await firebase.auth().createUserWithEmailAndPassword(AUTH_EMAIL, AUTH_PASS); }
+      catch(e2){ /* may already exist */ }
+    }
+    APP.db.collection('bms_data').doc('master').onSnapshot(snap=>{
+      if(snap.exists){
+        APP.data = (snap.data().data)||{};
+        ensureArrays();
+        setConn("online");
+        renderAll();
+      }
+    }, err=>{ setConn("err"); toast("Sync error: "+err.message,true); });
+    // initial pull (in case snapshot delayed)
+    await loadOnce();
+  }
+  function ensureArrays(){
+    ["bids","customers","chambers","projects","tasks"].forEach(k=>{
+      if(!APP.data[k]) APP.data[k]=[];
+      APP.data[k].forEach(it=>{ if(!it.id) it.id=uid(); });
+    });
+  }
+  async function loadOnce(){
+    try{
+      const snap = await APP.db.collection('bms_data').doc('master').get();
+      if(snap.exists){ APP.data = (snap.data().data)||{}; ensureArrays(); setConn("online"); renderAll(); }
+      else { APP.data={}; ensureArrays(); setConn("online"); renderAll(); }
+    }catch(e){ setConn("err"); toast("Load failed: "+e.message,true); }
+  }
+  async function saveData(){
+    if(!APP.db) return;
+    APP.busy=true;
+    try{
+      await APP.db.collection('bms_data').doc('master').set({
+        data: APP.data,
+        updatedBy:"mobile",
+        updatedAt: new Date().toISOString()
+      });
+    }catch(e){ toast("Save failed: "+e.message,true); }
+    APP.busy=false;
+  }
+  function setConn(s){
+    const led=$("#led"), txt=$("#connTxt");
+    led.className="led"+(s==="online"?" on":s==="err"?" err":"");
+    txt.textContent = s==="online"?"synced":s==="err"?"offline":s==="connecting"?"connecting…":"—";
+  }
+
+  // ---------- render ----------
+  function getArr(mod){ return APP.data[MOD[mod].array]||[]; }
+  function setBadge(mod, n, warn){
+    const el=$("#b-"+MOD[mod].tab);
+    if(!el) return;
+    el.textContent=n; el.style.display= n>0?"block":"none";
+    el.className="badge"+(warn?" warn":"");
+  }
+  function renderAll(){
+    renderDashboard();
+    renderBids(); renderContacts(); renderEvents(); renderTasks(); renderInter();
+    setBadge("bids", getArr("bids").length);
+    setBadge("contacts", getArr("contacts").length);
+    setBadge("events", getArr("events").length);
+    const urgent = getArr("tasks").filter(t=>t.status!=="Completed" && daysLeft(t.dueDate)<=2).length;
+    setBadge("tasks", getArr("tasks").length, urgent>0);
+    setBadge("inter", getArr("inter").length);
+  }
+
+  function renderDashboard(){
+    const bids=getArr("bids"), cons=getArr("contacts"), evts=getArr("events"), ints=getArr("inter"), tasks=getArr("tasks");
+    $("#dashMonth").textContent = NOW.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    const bidsNewJul = bids.filter(b=>sameMonth(b.createdDate)).length;
+    const bidsWon = bids.filter(b=>b.status==="Won").length;
+    const bidsActive = bids.filter(b=>["Bidding","Following","Reviewing"].includes(b.status)).length;
+    const conNewJul = cons.filter(c=>sameMonth(c.createdDate)).length;
+    const conHigh = cons.filter(c=>c.priority==="High").length;
+    const evtJulAtt = evts.filter(e=>sameMonth(e.attendanceDate) && daysLeft(e.attendanceDate)<=0).length;
+    const evtUp = evts.filter(e=>daysLeft(e.attendanceDate)>0).length;
+    const intJul = ints.filter(p=>sameMonth(p.interactionDate)).length;
+    const taskDueJul = tasks.filter(t=>sameMonth(t.dueDate)).length;
+    const taskPend = tasks.filter(t=>t.status!=="Completed").length;
+    const taskDone = tasks.filter(t=>t.status==="Completed").length;
+    const stats=[
+      {t:"📋 Bids", big:bids.length, sub:[["New Jul",bidsNewJul],["Won",bidsWon],["Active",bidsActive]]},
+      {t:"✅ Tasks", big:tasks.length, sub:[["Due Jul",taskDueJul],["Pending",taskPend],["Done",taskDone]]},
+      {t:"👥 Contacts", big:cons.length, sub:[["New Jul",conNewJul],["High",conHigh],["Total",cons.length]]},
+      {t:"🎯 Events", big:evts.length, sub:[["Jul Att",evtJulAtt],["Upcoming",evtUp],["Total",evts.length]]},
+      {t:"💬 Interactions", big:ints.length, sub:[["July",intJul],["Total",ints.length]], wide:true}
+    ];
+    $("#dashStats").innerHTML = stats.map(s=>{
+      const sub = s.sub.map(x=>'<span>'+esc(x[0])+' <b>'+(x[1]!=null?x[1]:0)+'</b></span>').join("");
+      return '<div class="stat'+(s.wide?' inter':'')+(s.wide?'':'')+'" style="'+(s.wide?'grid-column:1/3':'')+'">'+
+        '<div class="h">'+s.t+'</div><div class="big">'+s.big+'</div>'+
+        '<div class="sub">'+sub+'</div></div>';
+    }).join("");
+
+    // tasks due soon
+    const due = tasks.filter(t=>t.status!=="Completed")
+      .map(t=>({t,dl:daysLeft(t.dueDate)}))
+      .filter(x=>x.dl<=2)
+      .sort((a,b)=>a.dl-b.dl).slice(0,4);
+    if(due.length){
+      $("#dashDue").innerHTML = due.map(x=>{
+        const c = x.dl<0?'Overdue':x.dl<=2?'due2':'Yellow';
+        const lbl = x.dl<0?('Overdue '+Math.abs(x.dl)+'d'):(x.dl===0?'Due today':(x.dl+'d left'));
+        return '<div class="banner" style="margin-top:8px">🔔 <b>'+esc(x.t.taskName)+'</b> &nbsp;'+pill(c,lbl)+'</div>';
+      }).join("");
+    } else {
+      $("#dashDue").innerHTML = '<div class="empty" style="padding:18px 0">No tasks due within 2 days 🎉</div>';
+    }
+
+    // recent activity
+    const acts=[];
+    bids.slice().forEach(b=>acts.push({ic:"📋",col:b.status, txt:(b.companyName||"Untitled bid")+(b.status?(" — "+b.status):""), dt:b.createdDate}));
+    cons.slice().forEach(c=>acts.push({ic:"👥",col:"Blue", txt:"New contact: "+(c.companyName||"?"), dt:c.createdDate}));
+    evts.slice().forEach(e=>acts.push({ic:"🎯",col:daysLeft(e.attendanceDate)>0?"Upcoming":"Attended", txt:(e.chamberName||"?")+(e.topic?(" — "+e.topic):""), dt:e.attendanceDate}));
+    ints.slice().forEach(p=>acts.push({ic:"💬",col:"Blue", txt:(p.customerName||"?")+(p.interactionType?(" — "+p.interactionType):""), dt:p.interactionDate}));
+    tasks.slice().forEach(t=>acts.push({ic:"✅",col:t.status==="Completed"?"Green":(daysLeft(t.dueDate)<0?"Overdue":"Yellow"), txt:(t.taskName||"?")+(t.status?(" — "+t.status):""), dt:t.dueDate}));
+    acts.sort((a,b)=> (b.dt||"").localeCompare(a.dt||""));
+    $("#dashActivity").innerHTML = acts.slice(0,6).map(a=>
+      '<div class="act"><div class="ic">'+a.ic+'</div><div class="tx">'+pill(a.col,a.col)+' '+esc(a.txt)+'<small></small></div><div class="dt">'+fmtDate(a.dt)+'</div></div>'
+    ).join("");
+  }
+
+  function renderBids(){
+    const arr=getArr("bids");
+    const q=$("#bidSearch").value.toLowerCase(), f=$("#bidFilter").value;
+    let list=arr.filter(b=>{
+      const okQ = !q || (b.companyName||"").toLowerCase().includes(q) || (b.contactPerson||"").toLowerCase().includes(q);
+      const okF = !f || b.status===f;
+      return okQ && okF;
+    });
+    if(!list.length){ $("#listBids").innerHTML='<div class="empty">No bids. Tap + to add.</div>'; return; }
+    $("#listBids").innerHTML = list.map(b=>{
+      const val = b.estimatedValue?("$"+Number(b.estimatedValue).toLocaleString()):"—";
+      return '<div class="item" data-mod="bids" data-id="'+esc(b.id)+'">'+
+        '<div class="edit" data-edit="1">Edit</div>'+
+        '<div class="row1"><div class="name">'+esc(b.companyName||"Untitled")+'</div>'+pill(b.status||"Bidding",b.status||"Bidding")+'</div>'+
+        '<div class="meta"><span><b>'+esc(b.contactPerson||"—")+'</b></span><span>'+esc(b.phone||"")+'</span><span>'+val+'</span><span>📅 '+fmtDate(b.nextActionDate)+'</span></div>'+
+        '</div>';
+    }).join("");
+  }
+  function renderContacts(){
+    const arr=getArr("contacts");
+    const q=$("#conSearch").value.toLowerCase(), f=$("#conFilter").value;
+    let list=arr.filter(c=>{
+      const okQ = !q || (c.companyName||"").toLowerCase().includes(q) || (c.contactPerson||"").toLowerCase().includes(q) || (c.phone||"").toLowerCase().includes(q);
+      const okF = !f || c.priority===f;
+      return okQ && okF;
+    });
+    if(!list.length){ $("#listContacts").innerHTML='<div class="empty">No contacts. Tap + to add.</div>'; return; }
+    $("#listContacts").innerHTML = list.map(c=>{
+      const pr=c.priority||"Low";
+      return '<div class="item" data-mod="contacts" data-id="'+esc(c.id)+'">'+
+        '<div class="edit" data-edit="1">Edit</div>'+
+        '<div class="row1"><div class="name">'+esc(c.companyName||"?")+'</div>'+pill(pr,pr)+'</div>'+
+        '<div class="meta"><span><b>'+esc(c.contactPerson||"")+'</b></span><span>'+esc(c.position||"")+'</span><span>'+esc(c.phone||"")+'</span></div>'+
+        '<div class="meta"><span>'+esc(c.email||"")+'</span><span>'+esc(c.country||"")+'</span></div>'+
+        '</div>';
+    }).join("");
+  }
+  function renderEvents(){
+    const arr=getArr("events");
+    const q=$("#evtSearch").value.toLowerCase(), f=$("#evtFilter").value;
+    let list=arr.filter(e=>{
+      const st = daysLeft(e.attendanceDate)>0?"Upcoming":"Attended";
+      const okQ = !q || (e.chamberName||"").toLowerCase().includes(q) || (e.topic||"").toLowerCase().includes(q);
+      const okF = !f || st===f;
+      return okQ && okF;
+    }).sort((a,b)=> (b.attendanceDate||"").localeCompare(a.attendanceDate||""));
+    if(!list.length){ $("#listEvents").innerHTML='<div class="empty">No events. Tap + to add.</div>'; return; }
+    $("#listEvents").innerHTML = list.map(e=>{
+      const st = daysLeft(e.attendanceDate)>0?"Upcoming":"Attended";
+      return '<div class="item" data-mod="events" data-id="'+esc(e.id)+'">'+
+        '<div class="edit" data-edit="1">Edit</div>'+
+        '<div class="row1"><div class="name">'+esc(e.chamberName||"?")+'</div>'+pill(st,st)+'</div>'+
+        '<div class="meta"><span>📅 '+fmtDate(e.attendanceDate)+'</span><span>📍 '+esc(e.attendanceLocation||"")+'</span></div>'+
+        (e.topic?'<div class="meta"><span>'+esc(e.topic)+'</span></div>':'')+
+        '</div>';
+    }).join("");
+  }
+  function renderTasks(){
+    const arr=getArr("tasks");
+    const q=$("#taskSearch").value.toLowerCase(), f=$("#taskFilter").value;
+    let list=arr.filter(t=>{
+      const okQ = !q || (t.taskName||"").toLowerCase().includes(q) || (t.pic||"").toLowerCase().includes(q);
+      let okF=true;
+      if(f==="urgent") okF = t.status!=="Completed" && daysLeft(t.dueDate)<=2;
+      else if(f) okF = t.status===f;
+      return okQ && okF;
+    });
+    list.sort((a,b)=>{
+      if(a.status==="Completed" && b.status!=="Completed") return 1;
+      if(b.status==="Completed" && a.status!=="Completed") return -1;
+      return (a.dueDate||"").localeCompare(b.dueDate||"");
+    });
+    if(!list.length){ $("#listTasks").innerHTML='<div class="empty">No tasks. Tap + to add.</div>'; return; }
+    $("#listTasks").innerHTML = list.map(t=>{
+      const dl=daysLeft(t.dueDate);
+      let cls, lbl;
+      if(t.status==="Completed"){ cls="Completed"; lbl="Done"; }
+      else if(dl<0){ cls="Overdue"; lbl="Overdue "+(t.dueDate?Math.abs(dl)+"d":""); }
+      else if(dl<=2){ cls="due2"; lbl="Due "+dl+"d"; }
+      else if(dl<=7){ cls="Yellow"; lbl="≤7d"; }
+      else { cls="Grey"; lbl="Pending"; }
+      return '<div class="item" data-mod="tasks" data-id="'+esc(t.id)+'">'+
+        '<div class="edit" data-edit="1">Edit</div>'+
+        '<div class="row1"><div class="name">'+esc(t.taskName||"?")+'</div>'+pill(cls,lbl)+'</div>'+
+        '<div class="meta"><span>📅 '+fmtDate(t.dueDate)+'</span><span>👤 '+esc(t.pic||"")+'</span><span>'+pill(t.priority||"Low",t.priority||"Low")+'</span></div>'+
+        '</div>';
+    }).join("");
+  }
+  function renderInter(){
+    const arr=getArr("inter");
+    const q=$("#intSearch").value.toLowerCase(), f=$("#intFilter").value;
+    let list=arr.filter(p=>{
+      const okQ = !q || (p.customerName||"").toLowerCase().includes(q);
+      const okF = !f || p.interactionType===f;
+      return okQ && okF;
+    }).sort((a,b)=>(b.interactionDate||"").localeCompare(a.interactionDate||""));
+    if(!list.length){ $("#listInter").innerHTML='<div class="empty">No interactions. Tap + to add.</div>'; return; }
+    $("#listInter").innerHTML = list.map(p=>{
+      return '<div class="item" data-mod="inter" data-id="'+esc(p.id)+'">'+
+        '<div class="edit" data-edit="1">Edit</div>'+
+        '<div class="row1"><div class="name">'+esc(p.customerName||"?")+'</div>'+pill(p.interactionType||"Other",p.interactionType||"Other")+'</div>'+
+        '<div class="meta"><span>📅 '+fmtDate(p.interactionDate)+'</span><span>👤 '+esc(p.personInCharge||"")+'</span><span>'+pill(p.status||"Pending",p.status||"Pending")+'</span></div>'+
+        (p.nextStep?'<div class="meta"><span>Next: '+esc(p.nextStep)+'</span></div>':'')+
+        '</div>';
+    }).join("");
+  }
+
+  // ---------- form ----------
+  let curMod=null, curId=null;
+  function openForm(mod, id){
+    curMod=mod; curId=id||null;
+    const spec=FORMS[mod];
+    const item = id ? getArr(mod).find(x=>x.id===id) : null;
+    $("#formTitle").textContent = (id?"Edit ":"Add ")+MOD[mod].title;
+    $("#btnDelete").style.display = id?"block":"none";
+    const todayStr = TODAY.toISOString().slice(0,10);
+    let html="";
+    spec.forEach(fld=>{
+      let val = item? (item[fld.f]??"") : "";
+      if(fld.type==="date" && !val && (fld.f==="createdDate"||fld.f==="interactionDate"||fld.f==="attendanceDate")) val=todayStr;
+      if(fld.f==="reminderDays" && !val) val=2;
+      if(fld.type==="select"){
+        html+='<div class="fld"><label>'+esc(fld.t)+(fld.req?' <span class="req">*</span>':'')+'</label><select data-field="'+fld.f+'">';
+        if(!item) html+='<option value="" '+(val?'':'selected')+'>— select —</option>';
+        fld.opts.forEach(o=> html+='<option value="'+esc(o)+'"'+(String(val)===String(o)?' selected':'')+'>'+esc(o)+'</option>');
+        html+='</select></div>';
+      } else if(fld.type==="textarea"){
+        html+='<div class="fld"><label>'+esc(fld.t)+(fld.req?' <span class="req">*</span>':'')+'</label><textarea data-field="'+fld.f+'" placeholder="'+esc(fld.t)+'">'+esc(val)+'</textarea></div>';
+      } else {
+        const tp = fld.type==="number"?"number":(fld.type==="email"?"email":"text");
+        html+='<div class="fld"><label>'+esc(fld.t)+(fld.req?' <span class="req">*</span>':'')+'</label><input data-field="'+fld.f+'" type="'+tp+'" value="'+esc(val)+'" placeholder="'+esc(fld.t)+'"></div>';
+      }
+    });
+    $("#formBody").innerHTML=html;
+    $("#modal").classList.add("show");
+  }
+  function closeForm(){ $("#modal").classList.remove("show"); curMod=null; curId=null; }
+  function saveForm(){
+    const mod=curMod; if(!mod) return;
+    const spec=FORMS[mod];
+    const obj={};
+    let missing=[];
+    spec.forEach(fld=>{
+      let el=$('#formBody [data-field="'+fld.f+'"]');
+      let v = el? el.value.trim() : "";
+      if(fld.req && !v){ missing.push(fld.t); }
+      if(fld.type==="number"){ obj[fld.f] = v===""?0:Number(v); }
+      else { obj[fld.f] = v; }
+    });
+    if(missing.length){ toast("Required: "+missing.join(", "),true); return; }
+    const arr=getArr(mod);
+    if(curId){
+      const idx=arr.findIndex(x=>x.id===curId);
+      if(idx>=0){ obj.id=curId; arr[idx]=Object.assign({},arr[idx],obj); }
+    } else {
+      obj.id=uid();
+      if(!APP.data[MOD[mod].array]) APP.data[MOD[mod].array]=[];
+      APP.data[MOD[mod].array].push(obj);
+    }
+    saveData().then(()=>{ closeForm(); renderAll(); toast(MOD[mod].title+" saved ✓"); });
+  }
+  function deleteItem(){
+    if(!curMod||!curId) return;
+    const arr=getArr(curMod);
+    const idx=arr.findIndex(x=>x.id===curId);
+    if(idx>=0) arr.splice(idx,1);
+    saveData().then(()=>{ closeForm(); renderAll(); toast(MOD[curMod].title+" deleted"); });
+  }
+
+  // ---------- nav ----------
+  function switchTab(tab){
+    $$(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===tab));
+    $$(".screen").forEach(s=>s.classList.remove("active"));
+    const map={dash:"scr-dash",bids:"scr-bids",contacts:"scr-contacts",events:"scr-events",tasks:"scr-tasks",inter:"scr-inter"};
+    $("#"+map[tab]).classList.add("active");
+  }
+
+  // ---------- events ----------
+  $("#tabnav").addEventListener("click",e=>{ const t=e.target.closest(".tab"); if(t) switchTab(t.dataset.tab); });
+  $("#fab").addEventListener("click",()=>{ const active=document.querySelector(".tab.active").dataset.tab; if(active==="dash"){ openForm("bids"); } else { openForm(active); } });
+  $("#btnSave").addEventListener("click",saveForm);
+  $("#btnCancel").addEventListener("click",closeForm);
+  $("#btnDelete").addEventListener("click",deleteItem);
+  $("#modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeForm(); });
+  // delegate edit / open on list items
+  ["scr-bids","scr-contacts","scr-events","scr-tasks","scr-inter"].forEach(sid=>{
+    $("#"+sid).addEventListener("click",e=>{
+      const item=e.target.closest(".item"); if(!item) return;
+      if(e.target.closest("[data-edit]")){ openForm(item.dataset.mod, item.dataset.id); }
+      else { openForm(item.dataset.mod, item.dataset.id); }
+    });
+  });
+  $("#btnRefresh").addEventListener("click",()=>{ toast("Refreshing…"); loadOnce(); });
+  $("#btnMenu").addEventListener("click",()=>$("#menu").classList.toggle("show"));
+  $("#menu").addEventListener("click",e=>{ if(e.target.id==="menu") $("#menu").classList.remove("show"); });
+  $("#miRefresh").addEventListener("click",()=>{ $("#menu").classList.remove("show"); loadOnce(); toast("Refreshed"); });
+  $("#miSync").addEventListener("click",()=>{ $("#menu").classList.remove("show"); loadOnce(); });
+  // search/filter inputs
+  ["bidSearch","bidFilter"].forEach(id=>$("#"+id).addEventListener("input",renderBids));
+  ["conSearch","conFilter"].forEach(id=>$("#"+id).addEventListener("input",renderContacts));
+  ["evtSearch","evtFilter"].forEach(id=>$("#"+id).addEventListener("input",renderEvents));
+  ["taskSearch","taskFilter"].forEach(id=>$("#"+id).addEventListener("input",renderTasks));
+  ["intSearch","intFilter"].forEach(id=>$("#"+id).addEventListener("input",renderInter));
+
+  // ---------- boot ----------
+  if(typeof firebase==="undefined"){
+    setConn("err"); toast("Firebase SDK failed to load (need internet)",true);
+  } else {
+    initFirebase().catch(e=>{ setConn("err"); toast("Init error: "+e.message,true); });
+  }
+})();
+</script>
+</body>
+</html>
