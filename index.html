@@ -3021,10 +3021,19 @@ function listenToCloud(){
   if(!isLoggedIn) return;
   
   console.log('[Firebase] Starting real-time listener...');
+  
+  // Check Firebase is available
+  if(typeof fdb === 'undefined'){
+    console.error('[Firebase] Firestore not initialized!');
+    cloudStatus = 'offline'; updateSyncStatus('⚠️');
+    return;
+  }
+  
   cloudStatus = 'synced'; updateSyncStatus('☁️');
   
   _cloudUnsubscribe = fdb.collection('bms_data').doc('master')
     .onSnapshot(function(doc){
+      console.log('[Firebase] onSnapshot fired, exists:', doc.exists);
       if(!doc.exists || !doc.data().data) return;
       
       // Skip if this change was triggered by our own save
@@ -3110,6 +3119,40 @@ function updateSyncStatus(icon){
     }
   }
 }
+
+// Test Firebase connection
+function testFirebase(){
+  console.log('[Firebase Test] Testing connection...');
+  console.log('fdb:', typeof fdb !== 'undefined' ? 'OK' : 'MISSING');
+  console.log('fauth:', typeof fauth !== 'undefined' ? 'OK' : 'MISSING');
+  console.log('logged_in:', localStorage.getItem('bms_logged_in'));
+  
+  if(typeof fdb !== 'undefined'){
+    fdb.collection('bms_data').doc('master').get()
+      .then(function(doc){
+        console.log('[Firebase Test] Read success, exists:', doc.exists);
+        if(doc.exists){
+          console.log('[Firebase Test] Cloud data:', JSON.stringify(doc.data()).substring(0, 200));
+        }
+      })
+      .catch(function(e){
+        console.error('[Firebase Test] Read error:', e.message);
+      });
+  }
+}
+
+// Auto-start real-time listener on page load if already logged in
+(function(){
+  setTimeout(function(){
+    var isLoggedIn = localStorage.getItem('bms_logged_in') === '1';
+    if(isLoggedIn && typeof listenToCloud === 'function'){
+      console.log('[Firebase] Auto-starting listener on page load...');
+      listenToCloud();
+      // Also do a test
+      if(typeof testFirebase === 'function') testFirebase();
+    }
+  }, 2000); // Wait 2s for Firebase SDK to fully load
+})();
 
 // Toast notification
 function showToast(msg){
