@@ -457,7 +457,9 @@
     const q=$("#bidSearch").value.toLowerCase(), f=$("#bidFilter").value;
     let list=arr.filter(b=>{
       const okQ = !q || (b.projectName||b.companyName||"").toLowerCase().includes(q) || (b.customerName||b.contactPerson||"").toLowerCase().includes(q) || (b.personInCharge||"").toLowerCase().includes(q);
-      const okF = !f || (f==="Bidding" ? /bidding/i.test(b.stage||b.status||"") : /跟踪|following|tracking/i.test(b.stage||b.status||""));
+      const sc = (b.stageContent||b.stage||b.status||"");
+      const stageClass = ({'投标中':'bidding','投标中 / Bidding':'bidding','Bidding':'bidding','Bidding / 投标中':'bidding','跟踪':'tracking','跟踪 / Following':'tracking','Following':'tracking','Following / 跟踪':'tracking'})[sc]||"";
+      const okF = !f ? true : (f==="Bidding" ? (stageClass==='bidding' && !b.inactive) : (stageClass==='tracking' && !b.inactive));
       return okQ && okF;
     });
     if(!list.length){ $("#listBids").innerHTML='<div class="empty">No bids. Tap + to add.</div>'; return; }
@@ -603,6 +605,7 @@
       if(fld.type==="number"){ obj[fld.f] = v===""?0:Number(v); }
       else { obj[fld.f] = v; }
     });
+    if(mod==="bids"){ obj.stageContent = obj.stage || obj.stageContent; }
     if(missing.length){ toast("Required: "+missing.join(", "),true); return; }
     const arr=getArr(mod);
     if(curId){
