@@ -3016,7 +3016,8 @@ function listenToCloud(){
     _cloudUnsubscribe();
     _cloudUnsubscribe = null;
   }
-  var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
+  // Allow both Firebase Auth login and simple password login
+  var isLoggedIn = localStorage.getItem('bms_logged_in') === '1';
   if(!isLoggedIn) return;
   
   console.log('[Firebase] Starting real-time listener...');
@@ -3052,7 +3053,7 @@ function listenToCloud(){
 
 // Load from Firebase (pull latest data)
 function syncFromCloud(){
-  var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
+  var isLoggedIn = localStorage.getItem('bms_logged_in') === '1';
   if(!isLoggedIn) return; // Skip if not logged in
   cloudStatus = 'loading'; updateSyncStatus('⏳');
   fdb.collection('bms_data').doc('master').get()
@@ -3289,6 +3290,8 @@ if(document.getElementById("login-btn")){
         if(window.renderTable) window.renderTable();
         var cs = document.getElementById("cloudStatus");
         if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
+        // Start real-time cloud listener for simple password too
+        if(typeof listenToCloud === 'function') listenToCloud();
       } else {
         document.getElementById("login-msg").textContent = lang==="zh" ? "密码错误" : "Incorrect password";
       }
