@@ -135,7 +135,7 @@
   <div class="screen" id="scr-bids">
     <div class="search">
       <input id="bidSearch" placeholder="🔍 Search project / contact">
-      <select id="bidFilter"><option value="">All Status</option><option>Bidding</option><option>Won</option><option>Lost</option><option>Following</option><option>Reviewing</option></select>
+      <select id="bidFilter"><option value="">All</option><option value="Bidding">Bidding</option><option value="Tracking">Tracking</option></select>
     </div>
     <div class="list" id="listBids"></div>
   </div>
@@ -238,15 +238,20 @@
   // form field specs (data-field, label, type, required, options)
   const FORMS = {
     bids:[
-      {f:"companyName",t:"Project Name",type:"text",req:true},
-      {f:"contactPerson",t:"Contact Person",type:"text"},
-      {f:"phone",t:"Phone",type:"text"},
-      {f:"estimatedValue",t:"Est. Value ($)",type:"number"},
-      {f:"status",t:"Status",type:"select",opts:["Bidding","Won","Lost","Following","Reviewing"]},
+      {f:"customerName",t:"Customer / Client",type:"text",req:true},
+      {f:"projectName",t:"Project Name",type:"text",req:true},
+      {f:"location",t:"Location",type:"text"},
+      {f:"landArea",t:"Land Area",type:"text"},
+      {f:"trackDate",t:"Track Date",type:"date",req:true},
+      {f:"stage",t:"Stage",type:"select",opts:["Bidding / 投标中","Reviewing / 评审中","Following / 跟踪","PQ / 资格审核","Data Collection / 资料收集","Won / 中标"]},
       {f:"nextActionDate",t:"Next Action Date",type:"date"},
       {f:"nextActionContent",t:"Next Action",type:"text"},
-      {f:"category",t:"Category",type:"text"},
-      {f:"createdDate",t:"Created Date",type:"date"},
+      {f:"personInCharge",t:"Person In Charge",type:"text"},
+      {f:"email",t:"Email",type:"email"},
+      {f:"category",t:"Category",type:"select",opts:["Cat A","Cat B"]},
+      {f:"estimatedValue",t:"Est. Value",type:"number"},
+      {f:"startDate",t:"Start Date",type:"date"},
+      {f:"stageContent",t:"Stage Content",type:"select",opts:["Bidding / 投标中","Following / 跟踪","Won / 中标"]},
       {f:"notes",t:"Notes",type:"textarea"}
     ],
     contacts:[
@@ -394,9 +399,9 @@
   function renderDashboard(){
     const bids=getArr("bids"), cons=getArr("contacts"), evts=getArr("events"), ints=getArr("inter"), tasks=getArr("tasks");
     $("#dashMonth").textContent = NOW.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-    const bidsNewJul = bids.filter(b=>sameMonth(b.createdDate)).length;
-    const bidsWon = bids.filter(b=>b.status==="Won").length;
-    const bidsActive = bids.filter(b=>["Bidding","Following","Reviewing"].includes(b.status)).length;
+    const bidsNewJul = bids.filter(b=>sameMonth(b.trackDate||b.createdDate)).length;
+    const bidsWon = bids.filter(b=>/won|中标/i.test(b.stage||b.status||"")).length;
+    const bidsActive = bids.filter(b=>/bidding|reviewing|following|pq|data collection/i.test(b.stage||b.status||"")).length;
     const conNewJul = cons.filter(c=>sameMonth(c.createdDate)).length;
     const conHigh = cons.filter(c=>c.priority==="High").length;
     const evtJulAtt = evts.filter(e=>sameMonth(e.attendanceDate) && daysLeft(e.attendanceDate)<=0).length;
@@ -451,17 +456,19 @@
     const arr=getArr("bids");
     const q=$("#bidSearch").value.toLowerCase(), f=$("#bidFilter").value;
     let list=arr.filter(b=>{
-      const okQ = !q || (b.companyName||"").toLowerCase().includes(q) || (b.contactPerson||"").toLowerCase().includes(q);
-      const okF = !f || b.status===f;
+      const okQ = !q || (b.projectName||b.companyName||"").toLowerCase().includes(q) || (b.customerName||b.contactPerson||"").toLowerCase().includes(q) || (b.personInCharge||"").toLowerCase().includes(q);
+      const okF = !f || (f==="Bidding" ? /bidding/i.test(b.stage||b.status||"") : /跟踪|following|tracking/i.test(b.stage||b.status||""));
       return okQ && okF;
     });
     if(!list.length){ $("#listBids").innerHTML='<div class="empty">No bids. Tap + to add.</div>'; return; }
     $("#listBids").innerHTML = list.map(b=>{
       const val = b.estimatedValue?("$"+Number(b.estimatedValue).toLocaleString()):"—";
+      const st = b.stage||b.status||"Bidding";
       return '<div class="item" data-mod="bids" data-id="'+esc(b.id)+'">'+
         '<div class="edit" data-edit="1">Edit</div>'+
-        '<div class="row1"><div class="name">'+esc(b.companyName||"Untitled")+'</div>'+pill(b.status||"Bidding",b.status||"Bidding")+'</div>'+
-        '<div class="meta"><span><b>'+esc(b.contactPerson||"—")+'</b></span><span>'+esc(b.phone||"")+'</span><span>'+val+'</span><span>📅 '+fmtDate(b.nextActionDate)+'</span></div>'+
+        '<div class="row1"><div class="name">'+esc(b.projectName||b.companyName||"Untitled")+'</div>'+pill(st,st)+'</div>'+
+        '<div class="meta"><span><b>'+esc(b.customerName||b.contactPerson||"—")+'</b></span><span>'+esc(b.personInCharge||"")+'</span><span>'+val+'</span></div>'+
+        '<div class="meta"><span>📍 '+esc(b.location||"")+'</span><span>📅 '+fmtDate(b.trackDate||b.createdDate)+'</span><span>🎯 '+fmtDate(b.nextActionDate)+'</span></div>'+
         '</div>';
     }).join("");
   }
@@ -469,7 +476,7 @@
     const arr=getArr("contacts");
     const q=$("#conSearch").value.toLowerCase(), f=$("#conFilter").value;
     let list=arr.filter(c=>{
-      const okQ = !q || (c.companyName||"").toLowerCase().includes(q) || (c.contactPerson||"").toLowerCase().includes(q) || (c.phone||"").toLowerCase().includes(q);
+      const okQ = !q || (c.companyName||"").toLowerCase().includes(q) || (c.contactPerson||"").toLowerCase().includes(q) || (c.phone||"").toLowerCase().includes(q) || (c.email||"").toLowerCase().includes(q) || (c.companyBusiness||"").toLowerCase().includes(q) || (c.country||"").toLowerCase().includes(q) || (c.position||"").toLowerCase().includes(q);
       const okF = !f || c.priority===f;
       return okQ && okF;
     });
@@ -566,7 +573,7 @@
     let html="";
     spec.forEach(fld=>{
       let val = item? (item[fld.f]??"") : "";
-      if(fld.type==="date" && !val && (fld.f==="createdDate"||fld.f==="interactionDate"||fld.f==="attendanceDate")) val=todayStr;
+      if(fld.type==="date" && !val && (fld.f==="createdDate"||fld.f==="interactionDate"||fld.f==="attendanceDate"||fld.f==="trackDate"||fld.f==="nextActionDate"||fld.f==="startDate")) val=todayStr;
       if(fld.f==="reminderDays" && !val) val=2;
       if(fld.type==="select"){
         html+='<div class="fld"><label>'+esc(fld.t)+(fld.req?' <span class="req">*</span>':'')+'</label><select data-field="'+fld.f+'">';
