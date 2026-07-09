@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MGD BMS — Design Preview</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg1:#030912;--bg2:#071325;--card:#0b1e3d;--cardh:#10274a;
+  --blue:#00B4D8;--cyan:#06d6c7;--purple:#8b5cf6;
+  --text1:#E8F4FF;--text2:#7FB3D8;--muted:#3D5A80;
+  --border:#0f2d50;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+}
+body{
+  font-family:-apple-system,'Segoe UI',sans-serif;
+  background:#1a1a2e;display:flex;justify-content:center;
+  padding:20px;gap:20px;flex-wrap:wrap;
+}
+.phone{
+  width:360px;height:740px;background:var(--bg1);border-radius:32px;
+  border:8px solid #000;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;
+}
+.topbar{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  background:linear-gradient(135deg,#071325,#030912);
+  border-bottom:1px solid var(--border);
+}
+.topbar-title{
+  font-size:17px;font-weight:700;flex:1;
+  background:linear-gradient(90deg,var(--cyan),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.topbar .ic{font-size:18px;opacity:.7}
+.tabnav{
+  display:flex;background:var(--bg2);border-bottom:1px solid var(--border);
+  overflow-x:auto;
+}
+.tab{
+  flex:1;min-width:56px;padding:9px 4px;text-align:center;
+  font-size:9px;color:var(--muted);
+  border-bottom:2px solid transparent;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab .emo{font-size:17px}
+.tab .badge{font-size:8px;background:var(--card);padding:0 4px;border-radius:6px;min-width:14px}
+.content{flex:1;overflow-y:auto;padding:14px 12px}
+/* Dashboard */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px}
+.stat-card .lbl{font-size:9px;color:var(--muted);margin-bottom:3px}
+.stat-card .big{font-size:20px;font-weight:700}
+.stat-card .sub{font-size:9px;color:var(--text2);margin-top:2px}
+.c-blue{color:#60a5fa}.c-amber{color:#fbbf24}.c-green{color:#34d399}.c-purple{color:#c084fc}.c-red{color:#ef4444}.c-orange{color:#fb923c}
+.wide{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between}
+.wide .lbl{font-size:10px;color:var(--muted)}
+.wide .vals{font-size:13px;font-weight:600;text-align:right}
+.section-h{font-size:11px;color:var(--muted);margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.section-h::after{content:'';flex:1;border-top:1px solid var(--border)}
+.item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px}
+.item h4{font-size:13px;margin-bottom:3px}
+.item .meta{font-size:10px;color:var(--text2);display:flex;flex-wrap:wrap;gap:3px 10px}
+.badge-st{font-size:9px;padding:1px 7px;border-radius:8px;display:inline-block}
+.st-bid{background:rgba(0,180,216,.2);color:var(--blue)}
+.st-won{background:rgba(34,197,94,.2);color:var(--green)}
+.st-up{background:rgba(0,180,216,.2);color:var(--blue)}
+.st-att{background:rgba(34,197,94,.2);color:var(--green)}
+.st-red{background:rgba(239,68,68,.2);color:var(--red)}
+.st-orange{background:rgba(251,146,60,.2);color:var(--orange)}
+.alert{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:10px;margin-bottom:8px}
+.alert .h{font-size:10px;color:var(--red);margin-bottom:6px;font-weight:700}
+.alert .t{font-size:11px;color:var(--text1);display:flex;justify-content:space-between;padding:3px 0}
+.fab{position:absolute;bottom:16px;right:16px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,180,216,.4)}
+.label{font-size:10px;color:var(--muted);margin:10px 0 4px;font-weight:600}
+.field{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text1);margin-bottom:6px}
+.field .k{color:var(--muted);font-size:9px;display:block;margin-bottom:2px}
+.preview-note{position:fixed;top:10px;right:10px;background:#00B4D8;color:#030912;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;z-index:100}
+</style>
+</head>
+<body>
+
+<div class="preview-note">DESIGN PREVIEW — Static</div>
+
+<!-- ================= PHONE 1: DASHBOARD ================= -->
+<div class="phone">
+  <div class="topbar">
+    <span class="topbar-title">MGD BMS</span>
+    <span class="ic">🔄</span><span class="ic">≡</span>
+  </div>
+  <div class="tabnav">
+    <div class="tab active"><span class="emo">📊</span>Home<span class="badge">5</span></div>
+    <div class="tab"><span class="emo">📋</span>Bids<span class="badge">12</span></div>
+    <div class="tab"><span class="emo">👥</span>Contacts<span class="badge">25</span></div>
+    <div class="tab"><span class="emo">🎯</span>Events<span class="badge">6</span></div>
+    <div class="tab"><span class="emo">✅</span>Tasks<span class="badge">8</span></div>
+    <div class="tab"><span class="emo">💬</span>Chat<span class="badge">48</span></div>
+  </div>
+  <div class="content">
+    <div class="stat-row">
+      <div class="stat-card"><div class="lbl">BIDS Total</div><div class="big c-blue">12</div><div class="sub">+2 New Jul</div></div>
+      <div class="stat-card"><div class="lbl">TASKS Total</div><div class="big c-purple">8</div><div class="sub">3 Due Jul</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="lbl">CONTACTS Total</div><div class="big c-amber">25</div><div class="sub">+4 New Jul</div></div>
+      <div class="stat-card"><div class="lbl">EVENTS Total</div><div class="big c-green">6</div><div class="sub">2 Att Jul</div></div>
+    </div>
+    <div class="wide"><span class="lbl">INTERACTIONS</span><span class="vals">Total: 48<br><span style="color:var(--cyan)">Jul: 12</span> | Jun: 36</span></div>
+
+    <div class="section-h">Recent Activity</div>
+    <div class="item"><h4>🔵 ABC Construction Corp</h4><div class="meta"><span class="badge-st st-bid">Bidding</span><span>Jul 7</span></div></div>
+    <div class="item"><h4>🟢 Meeting: Client XYZ</h4><div class="meta"><span>Jul 8</span><span>Mr. Tan</span></div></div>
+    <div class="item"><h4>🟡 VCCI Business Forum</h4><div class="meta"><span class="badge-st st-up">Upcoming</span><span>Jul 15</span></div></div>
+
+    <div class="section-h">⚠️ Tasks Due ≤ 2 Days</div>
+    <div class="alert">
+      <div class="h">⚠️ 3 TASKS DUE SOON</div>
+      <div class="t"><span>🔴 Submit Q2 Report</span><span>Due: Jul 11</span></div>
+      <div class="t"><span>🟠 Call Mr. Tan</span><span>Due: Jul 10</span></div>
+      <div class="t"><span>🟠 Bid Deadline: ABC</span><span>Due: Jul 12</span></div>
+    </div>
+  </div>
+  <div class="fab">+</div>
+</div>
+
+<!-- ================= PHONE 2: BIDS ================= -->
+<div class="phone">
+  <div class="topbar">
+    <span class="topbar-title">Bids</span>
+    <span class="ic">🔍</span>
+  </div>
+  <div class="tabnav">
+    <div class="tab"><span class="emo">📊</span>Home</div>
+    <div class="tab active"><span class="emo">📋</span>Bids<span class="badge">12</span></div>
+    <div class="tab"><span class="emo">👥</span>Contacts</div>
+    <div class="tab"><span class="emo">🎯</span>Events</div>
+    <div class="tab"><span class="emo">✅</span>Tasks</div>
+    <div class="tab"><span class="emo">💬</span>Chat</div>
+  </div>
+  <div class="content">
+    <div class="label">FILTER: All | Bidding | Won | Lost | Following</div>
+    <div class="item"><h4>ABC Construction Corp</h4><div class="meta"><span>Li Wei</span><span>$1.2M</span><span class="badge-st st-bid">Bidding</span><span>Next: Jul 15</span></div></div>
+    <div class="item"><h4>XYZ Factory Ltd</h4><div class="meta"><span>Chen Mei</span><span>$850K</span><span class="badge-st st-won">Won</span><span>Jun 28</span></div></div>
+    <div class="item"><h4>DEF Industrial Park</h4><div class="meta"><span>Wang Gang</span><span>$2.1M</span><span class="badge-st st-bid">Bidding</span><span>Next: Jul 20</span></div></div>
+    <div class="item"><h4>GHI Tech Building</h4><div class="meta"><span>Liu Yang</span><span>$640K</span><span class="badge-st st-bid">Following</span><span>Next: Jul 18</span></div></div>
+  </div>
+  <div class="fab">+</div>
+</div>
+
+<!-- ================= PHONE 3: ADD BID FORM ================= -->
+<div class="phone">
+  <div class="topbar">
+    <span class="topbar-title">New Bid</span>
+    <span class="ic">✕</span>
+  </div>
+  <div class="content" style="padding-bottom:80px">
+    <div class="label">BID FORM — 10 fields</div>
+    <div class="field"><span class="k">① Project Name → companyName *</span>ABC Construction Corp</div>
+    <div class="field"><span class="k">② Contact Person → contactPerson</span>Li Wei</div>
+    <div class="field"><span class="k">③ Phone → phone</span>+84 28 1234 5678</div>
+    <div class="field"><span class="k">④ Est. Value ($) → estimatedValue</span>1200000</div>
+    <div class="field"><span class="k">⑤ Status → status</span>Bidding (投入标中) ▼</div>
+    <div class="field"><span class="k">⑥ Next Action Date → nextActionDate</span>2026-07-15 📅</div>
+    <div class="field"><span class="k">⑦ Content → content</span>Prepare technical proposal and submit to client</div>
+    <div class="field"><span class="k">⑧ Created Date → createdDate</span>2026-07-09 📅</div>
+    <div class="field"><span class="k">⑨ Category → category</span>Cat A ▼</div>
+    <div class="field"><span class="k">⑩ Notes → notes</span>Priority client, referred by chamber</div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <div style="flex:1;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;text-align:center;padding:12px;border-radius:10px;font-size:14px;font-weight:600">Save</div>
+      <div style="flex:1;background:var(--card);color:var(--text2);text-align:center;padding:12px;border-radius:10px;font-size:14px;border:1px solid var(--border)">Cancel</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PHONE 4: TASKS ================= -->
+<div class="phone">
+  <div class="topbar">
+    <span class="topbar-title">Tasks</span>
+    <span class="ic">🔍</span>
+  </div>
+  <div class="tabnav">
+    <div class="tab"><span class="emo">📊</span>Home</div>
+    <div class="tab"><span class="emo">📋</span>Bids</div>
+    <div class="tab"><span class="emo">👥</span>Contacts</div>
+    <div class="tab"><span class="emo">🎯</span>Events</div>
+    <div class="tab active"><span class="emo">✅</span>Tasks<span class="badge">8</span></div>
+    <div class="tab"><span class="emo">💬</span>Chat</div>
+  </div>
+  <div class="content">
+    <div class="label">FILTER: All | Pending | In Progress | Completed</div>
+    <div class="item"><h4>🔴 Submit Q2 Report</h4><div class="meta"><span>Due: Jul 11</span><span>High</span><span class="badge-st st-red">Overdue</span></div></div>
+    <div class="item"><h4>🟠 Call Mr. Tan</h4><div class="meta"><span>Due: Jul 10</span><span>Medium</span><span class="badge-st st-orange">Due ≤2d</span></div></div>
+    <div class="item"><h4>🟡 Prepare Proposal</h4><div class="meta"><span>Due: Jul 15</span><span>High</span><span class="badge-st st-up">This week</span></div></div>
+    <div class="item"><h4>⚪ Quarterly Review</h4><div class="meta"><span>Due: Aug 1</span><span>Low</span><span class="badge-st st-bid">Pending</span></div></div>
+    <div class="item"><h4>🟢 Send Invoice</h4><div class="meta"><span>Done</span><span class="badge-st st-att">Completed</span></div></div>
+  </div>
+  <div class="fab">+</div>
+</div>
+
+<!-- ================= PHONE 5: ADD TASK FORM ================= -->
+<div class="phone">
+  <div class="topbar">
+    <span class="topbar-title">New Task</span>
+    <span class="ic">✕</span>
+  </div>
+  <div class="content" style="padding-bottom:80px">
+    <div class="label">TASK FORM — 7 fields (Separate Module)</div>
+    <div class="field"><span class="k">① Task Name → taskName *</span>Submit Q2 Report</div>
+    <div class="field"><span class="k">② Description → description</span>Compile all bid status and send to management</div>
+    <div class="field"><span class="k">③ Due Date → dueDate *</span>2026-07-11 📅</div>
+    <div class="field"><span class="k">④ Priority → priority</span>High ▼</div>
+    <div class="field"><span class="k">⑤ PIC → pic</span>Tony</div>
+    <div class="field"><span class="k">⑥ Status → status</span>Pending ▼</div>
+    <div class="field"><span class="k">⑦ Reminder → reminderDays</span>2 days before ▼</div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <div style="flex:1;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;text-align:center;padding:12px;border-radius:10px;font-size:14px;font-weight:600">Save</div>
+      <div style="flex:1;background:var(--card);color:var(--text2);text-align:center;padding:12px;border-radius:10px;font-size:14px;border:1px solid var(--border)">Cancel</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
