@@ -2991,6 +2991,8 @@ window.saveData = function(){
   // Check if logged in via Firebase Auth or simple password
   var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
   if(!isLoggedIn) return; // Skip cloud if not logged in
+  // Set flag to skip our own listener update
+  _isSyncingFromOwnSave = true;
   // Push to Firebase (async)
   fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(function(){
@@ -3003,6 +3005,50 @@ window.saveData = function(){
       console.log('[Firebase] Sync error (offline?):', e.message);
     });
 };
+
+// ===== REAL-TIME CLOUD LISTENER =====
+var _cloudUnsubscribe = null;
+var _isSyncingFromOwnSave = false;
+
+function listenToCloud(){
+  // Unsubscribe previous listener if any
+  if(_cloudUnsubscribe){
+    _cloudUnsubscribe();
+    _cloudUnsubscribe = null;
+  }
+  var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
+  if(!isLoggedIn) return;
+  
+  console.log('[Firebase] Starting real-time listener...');
+  cloudStatus = 'synced'; updateSyncStatus('☁️');
+  
+  _cloudUnsubscribe = fdb.collection('bms_data').doc('master')
+    .onSnapshot(function(doc){
+      if(!doc.exists || !doc.data().data) return;
+      
+      // Skip if this change was triggered by our own save
+      if(_isSyncingFromOwnSave){
+        _isSyncingFromOwnSave = false;
+        return;
+      }
+      
+      console.log('[Firebase] Cloud data changed - updating UI!');
+      var fbData = doc.data().data;
+      
+      // Only update if data is different from local
+      if(JSON.stringify(data) !== JSON.stringify(fbData)){
+        data = fbData;
+        _origSave(); // Save to localStorage
+        updateStats(); updateSummary(); updateUI(); renderTable();
+        
+        // Show brief notification
+        showToast('☁️ Cloud data updated!');
+      }
+    }, function(error){
+      console.warn('[Firebase] Listener error:', error);
+      cloudStatus = 'offline'; updateSyncStatus('⚠️');
+    });
+}
 
 // Load from Firebase (pull latest data)
 function syncFromCloud(){
@@ -3064,6 +3110,22 @@ function updateSyncStatus(icon){
   }
 }
 
+// Toast notification
+function showToast(msg){
+  var existing = document.getElementById('cloudToast');
+  if(existing) existing.remove();
+  var div = document.createElement('div');
+  div.id = 'cloudToast';
+  div.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--green,#22c55e);color:var(--text);padding:8px 16px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transition:opacity 0.3s;';
+  div.textContent = msg;
+  document.body.appendChild(div);
+  setTimeout(function(){ div.style.opacity = '1'; }, 50);
+  setTimeout(function(){
+    div.style.opacity = '0';
+    setTimeout(function(){ div.remove(); }, 300);
+  }, 2500);
+}
+
 // Cloud info popup
 function showCloudInfo(){
   var existing = document.getElementById('cloudTooltip');
@@ -3123,8 +3185,8 @@ if(fauth && fauth.onAuthStateChanged) {
       console.log('[Firebase Auth] User logged in:', user.email);
       cloudStatus = 'synced';
       if(window.updateSyncStatus) updateSyncStatus('☁️');
-      // Sync from cloud after login
-      if(typeof syncFromCloud === 'function') syncFromCloud();
+      // Start real-time listener
+      if(typeof listenToCloud === 'function') listenToCloud();
     }
   });
 }
@@ -3192,6 +3254,8 @@ if(document.getElementById("login-btn")){
           var cs = document.getElementById("cloudStatus");
           if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
           document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功" : "Login success");
+          // Start real-time cloud listener
+          listenToCloud();
         })
         .catch(function(error){
           console.warn("[Firebase] Auth error:", error.code, error.message);
@@ -3204,6 +3268,8 @@ if(document.getElementById("login-btn")){
             if(window.updateSummary) window.updateSummary();
             if(window.updateStats) window.updateStats();
             if(window.renderTable) window.renderTable();
+            // Start real-time cloud listener
+            if(typeof listenToCloud === 'function') listenToCloud();
             var cs = document.getElementById("cloudStatus");
             if(cs){ cs.textContent = '☁️'; cs.className = 'text-green-400 text-sm'; }
             document.getElementById("login-msg").textContent = "✓ " + (lang==="zh" ? "登录成功 (简单密码)" : "Login success (simple)");
