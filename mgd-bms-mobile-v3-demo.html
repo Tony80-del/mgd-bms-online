@@ -1062,45 +1062,8 @@ function renderReport(){
     var tableHtml = tblHeader + taskRows +
       '<button onclick="wrAddTask()" style="width:100%;padding:10px;background:#1e2433;border:1px dashed #2a3040;color:#00C7B7;font-size:12px;cursor:pointer;border-radius:0 0 8px 8px;margin-bottom:14px;">+ 添加任务 / Add Task</button>';
 
-    // ── Bids / Interactions from BMS ──
-    var detailHtml = '';
-    if(wBids.length>0){
-      detailHtml += '<h3 style="color:#00C7B7;font-size:12px;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #2a3040;">📋 本周投标 ('+wBids.length+')</h3>';
-      wBids.forEach(function(b){
-        var stageStr = b.stageContent||b.stage||'—';
-        var stageClr = stageStr.match(/中标|Won/i)?'#10B981':stageStr.match(/投标|Bidding/i)?'#3B82F6':stageStr.match(/跟踪|Following/i)?'#8B5CF6':'#555';
-        detailHtml += '<div style="background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;padding:10px 12px;margin-bottom:7px;">'+
-          '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-          '<div style="font-weight:600;color:#e0e0e0;font-size:13px;max-width:70%;">'+esc(b.projectName||b.customerName||'—')+'</div>'+
-          '<span style="background:'+stageClr+';color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;">'+esc(stageStr)+'</span></div>'+
-          '<div style="color:#666;font-size:11px;margin-top:5px;">👤 '+esc(b.customerName||'—')+' &nbsp;|&nbsp; 📍 '+esc(b.location||'—')+' &nbsp;|&nbsp; 📅 '+fmt(b.trackDate)+'</div>'+
-          (b.estimatedValue?'<div style="color:#F59E0B;font-size:11px;margin-top:3px;">💰 '+fmtVND(b.estimatedValue)+'</div>':'')+
-          '</div>';
-      });
-    }
-    if(wInter.length>0){
-      detailHtml += '<h3 style="color:#00C7B7;font-size:12px;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #2a3040;">💬 本周互动 ('+wInter.length+')</h3>';
-      wInter.forEach(function(p){
-        var statusClr = (p.status||'').match(/进行|Progress/i)?'#3B82F6':(p.status||'').match(/待跟进|Pending/i)?'#F59E0B':'#10B981';
-        detailHtml += '<div style="background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;padding:10px 12px;margin-bottom:7px;">'+
-          '<div style="font-weight:600;color:#e0e0e0;font-size:13px;">'+esc(p.customerName||'—')+'</div>'+
-          '<div style="color:#666;font-size:11px;margin-top:4px;">'+esc(p.interactionType||'—')+' &nbsp;|&nbsp; 📅 '+fmt(p.interactionDate)+' &nbsp;|&nbsp; <span style="color:'+statusClr+';">'+esc(p.status||'—')+'</span></div>'+
-          '<div style="color:#555;font-size:11px;margin-top:3px;">📝 '+esc(p.content||'—').substring(0,80)+'</div>'+
-          '</div>';
-      });
-    }
-    if(wCham.length>0){
-      detailHtml += '<h3 style="color:#00C7B7;font-size:12px;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #2a3040;">🏛️ 商会活动 ('+wCham.length+')</h3>';
-      wCham.forEach(function(c){
-        detailHtml += '<div style="background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;padding:10px 12px;margin-bottom:7px;">'+
-          '<div style="font-weight:600;color:#e0e0e0;font-size:13px;">'+esc(c.chamberName||'—')+'</div>'+
-          '<div style="color:#666;font-size:11px;margin-top:4px;">🏷 '+esc(c.topic||'—')+' &nbsp;|&nbsp; 📅 '+fmt(c.attendanceDate)+'</div>'+
-          '</div>';
-      });
-    }
-
     document.getElementById('reportKPIs').innerHTML = tableHtml;
-    document.getElementById('reportDetails').innerHTML = detailHtml;
+    document.getElementById('reportDetails').innerHTML = '';
     return;
   }
 
