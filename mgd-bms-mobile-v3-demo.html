@@ -992,15 +992,6 @@ function renderReport(){
     var personColor = pInfo.color||'#00C7B7';
     var personName = pInfo.zh||selectedPerson;
 
-    // Personal compact KPI strip
-    var pKpiHtml =
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:12px;">'+
-      mkKPI_card('📋','本周投标','',wBids.length,null, wBids.length>0?personColor:'#555')+
-      mkKPI_card('💰','预估金额','',null,fmtVND(totalVal), totalVal>0?'#F59E0B':'#555')+
-      mkKPI_card('💬','本周互动','',wInter.length,null, wInter.length>0?'#F59E0B':'#555')+
-      mkKPI_card('🏛️','商会活动','',wCham.length,null, wCham.length>0?'#06B6D4':'#555')+
-      '</div>';
-
     // ── Weekly Plan Table ──
     var wrKey = wr.year+'-W'+wr.week;
     if(!APP.data.weeklyReports) APP.data.weeklyReports={users:{}};
@@ -1108,7 +1099,7 @@ function renderReport(){
       });
     }
 
-    document.getElementById('reportKPIs').innerHTML = pKpiHtml + tableHtml;
+    document.getElementById('reportKPIs').innerHTML = tableHtml;
     document.getElementById('reportDetails').innerHTML = detailHtml;
     return;
   }
