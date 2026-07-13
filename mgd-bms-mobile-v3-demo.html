@@ -300,6 +300,27 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
     <div class="list" id="listChambers"></div>
   </div>
 
+
+  <!-- ══ Weekly Report Screen ══ -->
+  <div class="screen" id="scr-report">
+    <div class="screen-head">
+      <h2 id="ttl-report">Weekly Report · 周报</h2>
+    </div>
+    <!-- Week Navigator -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;background:#1a1f2e;border-bottom:1px solid #2a3040;">
+      <button class="btn-icon" onclick="changeReportWeek(-1)" style="background:#1e2433;color:#00C7B7;font-size:16px;padding:6px 12px;border-radius:6px;border:1px solid #2a3040;">‹</button>
+      <span id="reportWeekLabel" style="color:#e0e0e0;font-size:13px;font-weight:600;min-width:160px;text-align:center;">W28 · 2026年7月7日-13日</span>
+      <button class="btn-icon" onclick="changeReportWeek(1)" style="background:#1e2433;color:#00C7B7;font-size:16px;padding:6px 12px;border-radius:6px;border:1px solid #2a3040;">›</button>
+    </div>
+    <div id="reportContent" style="padding:12px 14px 80px;overflow-y:auto;">
+      <!-- 8 KPI Cards -->
+      <div id="reportKPIs" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      </div>
+      <!-- Detail Sections -->
+      <div id="reportDetails"></div>
+    </div>
+  </div>
+
   <!-- ══ Bottom Nav ══ -->
   <div class="tabnav">
     <div class="tab active" data-tab="home">
@@ -313,6 +334,9 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
     </div>
     <div class="tab" data-tab="inter">
       <div class="ti">💬</div><span id="lbl-inter">互动</span><span class="badge" id="b-inter">0</span>
+    </div>
+    <div class="tab" data-tab="report">
+      <div class="ti">📑</div><span id="lbl-report">周报</span>
     </div>
     <div class="tab" data-tab="chambers">
       <div class="ti">🏛️</div><span id="lbl-chambers">商会</span><span class="badge" id="b-chambers">0</span>
@@ -549,13 +573,14 @@ function switchTab(tab){
   if(t)t.classList.add('active');
   // FAB visible only on list screens
   $('#fab').style.display=(tab==='home'||tab==='bids'||tab==='customers'||tab==='inter'||tab==='chambers')?'flex':'none';
+  if(tab==='report')renderReport();
   if(tab!=='home')renderScreen(tab);
   window.scrollTo(0,0);
 }
 
 function fabAction(){
-  const map={home:'bids',bids:'bids',customers:'customers',inter:'inter',chambers:'chambers'};
-  openForm(map[curTab]||'bids');
+  const map={home:'bids',bids:'bids',customers:'customers',inter:'inter',chambers:'chambers',report:null};
+  if(map[curTab])openForm(map[curTab]);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -589,6 +614,7 @@ function renderScreen(tab){
   else if(tab==='customers')renderCustomers();
   else if(tab==='inter')renderInter();
   else if(tab==='chambers')renderChambers();
+  else if(tab==='report')renderReport();
   renderBadges();
 }
 
@@ -834,6 +860,164 @@ function renderChambers(){
   }).join('');
 }
 
+
+// ─── Weekly Report Logic ────────────────────────────────
+let reportWeekOffset = 0; // 0=current week, -1=prev, +1=next
+
+function getWeekRange(offset){
+  var now = new Date();
+  var dow = now.getDay(); // 0=Sun, 1=Mon, ...
+  var monday = new Date(now);
+  if(dow === 0) monday.setDate(now.getDate() - 6);
+  else if(dow > 1) monday.setDate(now.getDate() - (dow - 1));
+  monday.setHours(0,0,0,0);
+  // Add offset
+  monday.setDate(monday.getDate() + offset * 7);
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  // Week number: count Mondays from Jan 1
+  var jan1 = new Date(now.getFullYear(), 0, 1);
+  var jan1Dow = jan1.getDay();
+  var daysSinceJan1Mon = Math.floor((monday - jan1) / 86400000);
+  var week = Math.floor(daysSinceJan1Mon / 7) + 1 + offset;
+  return { monday: monday, sunday: sunday, week: week, year: monday.getFullYear() };
+}
+
+function inWeek(dateStr, weekRange){
+  if(!dateStr) return false;
+  var d = new Date(dateStr);
+  if(isNaN(d)) return false;
+  return d >= weekRange.monday && d <= weekRange.sunday;
+}
+
+function weekLabel(weekRange){
+  var mDay = weekRange.monday.getDate();
+  var mMon = weekRange.monday.getMonth()+1;
+  var sDay = weekRange.sunday.getDate();
+  var sMon = weekRange.sunday.getMonth()+1;
+  if(lang==='zh') return 'W'+weekRange.week+' · '+weekRange.year+'年'+mMon+'月'+mDay+'日-'+sMon+'月'+sDay+'日';
+  return 'W'+weekRange.week+' · '+mMon+'/'+mDay+' - '+sMon+'/'+sDay+', '+weekRange.year;
+}
+
+function renderReport(){
+  var wr = getWeekRange(reportWeekOffset);
+  document.getElementById('reportWeekLabel').textContent = weekLabel(wr);
+  document.getElementById('reportWeekLabel').style.color = (reportWeekOffset===0)?'#00C7B7':'#e0e0e0';
+
+  var bids = APP.data.bids||[];
+  var inters = APP.data.projects||[];
+  var chambers = APP.data.chambers||[];
+  var customers = APP.data.customers||[];
+
+  // ── KPI 1: 本周新增投标 ──
+  var newBids = bids.filter(function(b){ return inWeek(b.trackDate,wr); });
+  var newBidTotal = newBids.length;
+  var newBidValue = newBids.reduce(function(s,b){ return s+(parseFloat(b.estimatedValue)||0); },0);
+
+  // ── KPI 2: 本周投标中 ──
+  var biddingBids = bids.filter(function(b){
+    return (b.stageContent||b.stage||'').match(/投标|Bidding/i);
+  });
+
+  // ── KPI 3: 本周跟踪中 ──
+  var followingBids = bids.filter(function(b){
+    return (b.stageContent||b.stage||'').match(/跟踪|Following/i);
+  });
+
+  // ── KPI 4: 本周中标/失标 ──
+  var wonBids = bids.filter(function(b){
+    return inWeek(b.trackDate,wr) && (b.stageContent||b.stage||'').match(/中标|Won/i);
+  });
+  var lostBids = bids.filter(function(b){
+    return inWeek(b.trackDate,wr) && (b.stageContent||b.stage||'').match(/未|Lost/i);
+  });
+
+  // ── KPI 5: 本周互动 ──
+  var weekInter = inters.filter(function(p){ return inWeek(p.interactionDate,wr); });
+
+  // ── KPI 6: 本周商会活动 ──
+  var weekChambers = chambers.filter(function(c){ return inWeek(c.attendanceDate,wr); });
+
+  // ── KPI 7: 本周预估金额 ──
+  var weekValue = newBids.reduce(function(s,b){ return s+(parseFloat(b.estimatedValue)||0); },0);
+
+  // ── KPI 8: 高优先级客户 ──
+  var highPriCust = customers.filter(function(c){
+    return (c.priority||'').match(/高|High/i);
+  });
+
+  var kpiHtml = [
+    mkKPI('📋','本周新增投标','New Bids',newBidTotal, newBidTotal>0?('¥'+Math.round(newBids[0].estimatedValue/1e9*10)/10+'B'):'¥—', newBidTotal>0?'#00C7B7':'#555'),
+    mkKPI('🎯','本周投标中','Bidding',biddingBids.length, lang==='zh'?'投标中':'In Progress', biddingBids.length>0?'#3B82F6':'#555'),
+    mkKPI('🔭','本周跟踪中','Following',followingBids.length, lang==='zh'?'跟踪中':'Following', followingBids.length>0?'#8B5CF6':'#555'),
+    mkKPI('✅','本周中标','Won',wonBids.length, lang==='zh'?'已中标':'Won', wonBids.length>0?'#10B981':'#555'),
+    mkKPI('❌','本周失标','Lost',lostBids.length, lang==='zh'?'未中标':'Lost', lostBids.length>0?'#EF4444':'#555'),
+    mkKPI('💬','本周互动','Interactions',weekInter.length, lang==='zh'?'次互动':'interactions', weekInter.length>0?'#F59E0B':'#555'),
+    mkKPI('🏛️','本周商会活动','Chambers',weekChambers.length, lang==='zh'?'商会活动':'events', weekChambers.length>0?'#06B6D4':'#555'),
+    mkKPI('💰','本周预估金额','Est. Value',null, weekValue>0?('¥'+Math.round(weekValue/1e9*10)/10+'B'):'¥—', weekValue>0?'#F59E0B':'#555'),
+  ].join('');
+
+  document.getElementById('reportKPIs').innerHTML = kpiHtml;
+
+  // ── Detail Sections ──
+  var detailHtml = '';
+
+  if(newBids.length>0){
+    detailHtml += '<h3 style="color:#00C7B7;font-size:13px;margin:16px 0 8px;">📋 '+esc(lang==='zh'?'本周新增投标':'New Bids This Week')+'</h3>';
+    detailHtml += newBids.map(function(b){
+      return '<div class="item" style="padding:10px 12px;margin-bottom:8px;">'+
+        '<div style="font-weight:600;color:#e0e0e0;">'+esc(b.projectName||b.customerName||'—')+'</div>'+
+        '<div style="color:#888;font-size:12px;margin-top:4px;">'+
+        '👤 '+esc(b.customerName||'')+' &nbsp;|&nbsp; 📍 '+esc(b.location||'')+' &nbsp;|&nbsp; 📅 '+fmt(b.trackDate)+'</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  if(weekInter.length>0){
+    detailHtml += '<h3 style="color:#00C7B7;font-size:13px;margin:16px 0 8px;">💬 '+esc(lang==='zh'?'本周客户互动':'Interactions This Week')+'</h3>';
+    detailHtml += weekInter.map(function(p){
+      return '<div class="item" style="padding:10px 12px;margin-bottom:8px;">'+
+        '<div style="font-weight:600;color:#e0e0e0;">'+esc(p.customerName||'—')+'</div>'+
+        '<div style="color:#888;font-size:12px;margin-top:4px;">'+
+        esc(p.interactionType||'')+' &nbsp;|&nbsp; '+esc(p.content||'').substring(0,60)+'...</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  if(weekChambers.length>0){
+    detailHtml += '<h3 style="color:#00C7B7;font-size:13px;margin:16px 0 8px;">🏛️ '+esc(lang==='zh'?'本周商会活动':'Chamber Events This Week')+'</h3>';
+    detailHtml += weekChambers.map(function(c){
+      return '<div class="item" style="padding:10px 12px;margin-bottom:8px;">'+
+        '<div style="font-weight:600;color:#e0e0e0;">'+esc(c.chamberName||'—')+'</div>'+
+        '<div style="color:#888;font-size:12px;margin-top:4px;">🏷 '+esc(c.topic||'')+' &nbsp;|&nbsp; 📅 '+fmt(c.attendanceDate)+'</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  if(!newBids.length && !weekInter.length && !weekChambers.length){
+    detailHtml += '<div style="text-align:center;color:#555;padding:40px 0;font-size:13px;">'+
+      esc(lang==='zh'?'本周暂无数据':'No data for this week')+'</div>';
+  }
+
+  document.getElementById('reportDetails').innerHTML = detailHtml;
+}
+
+function mkKPI(icon,titleZh,titleEn,count,sub,color){
+  var c = count!=null?('<span style="font-size:28px;font-weight:700;color:'+color+';">'+count+'</span>'):'';
+  var v = count==null?('<span style="font-size:18px;font-weight:700;color:'+color+';">'+sub+'</span>'):'';
+  var subTxt = count!=null?('<div style="font-size:11px;color:#888;margin-top:4px;">'+esc(sub)+'</div>'):'';
+  return '<div style="background:#1a1f2e;border:1px solid #2a3040;border-radius:10px;padding:12px 10px;text-align:center;">'+
+    '<div style="font-size:18px;margin-bottom:6px;">'+icon+'</div>'+
+    '<div style="font-size:11px;color:#888;margin-bottom:6px;">'+(lang==='zh'?esc(titleZh):esc(titleEn))+'</div>'+c+v+subTxt+
+    '</div>';
+}
+
+function changeReportWeek(dir){
+  reportWeekOffset += dir;
+  renderReport();
+}
+
 // ═══════════════════════════════════════════════════════
 //  FORM — FORMS 定义（与网页端 getFields 完全对齐）
 // ═══════════════════════════════════════════════════════
@@ -1048,7 +1232,6 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <script>
-// ══ DEMO INIT ══
 (function(){
   try{
     var sl=localStorage.getItem('bms_lang');
@@ -1057,12 +1240,12 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('len').classList.toggle('active',lang==='en');
     APP.data={
       bids:[
-        {id:'b1',customerName:'Treasure Lighting Vietnam',projectName:'Factory Expansion Phase 2',location:'Binh Duong',trackDate:'2026-07-20',stage:'投标中 / Bidding',stageContent:'投标中 / Bidding',nextActionDate:'2026-07-18',nextActionContent:'Submit revised quotation',personInCharge:'Mr. Nguyen',email:'nguyen@treasure.vn',category:'A',estimatedValue:8500000000},
-        {id:'b2',customerName:'ABC Industrial',projectName:'New Workshop Construction',location:'Hanoi',trackDate:'2026-08-01',stage:'跟踪 / Following',stageContent:'跟踪 / Following',nextActionDate:'2026-07-25',personInCharge:'Ms. Lin',category:'A',estimatedValue:12000000000},
-        {id:'b3',customerName:'XYZ Corp Ltd',projectName:'Office Building Renovation',location:'Da Nang',trackDate:'2026-06-15',stage:'评审中 / Reviewing',stageContent:'Reviewing / 评审中',nextActionDate:'2026-07-20',personInCharge:'Mr. Tran',estimatedValue:6500000000},
-        {id:'b4',customerName:'Global Tech Solutions',projectName:'R&D Center Construction',location:'HCMC',trackDate:'2026-09-01',stage:'Bidding / 投标中',stageContent:'Bidding / 投标中',nextActionDate:'2026-08-15',personInCharge:'Ms. Pham',category:'B',estimatedValue:9500000000},
-        {id:'b5',customerName:'Sunrise Factory Co.',projectName:'Warehouse Project',location:'Long An',trackDate:'2026-05-10',stage:'Won / 中标',stageContent:'Won / 中标',personInCharge:'Mr. Le',estimatedValue:5200000000},
-        {id:'b6',customerName:'Pacific Group',projectName:'Hotel Renovation',location:'Nha Trang',trackDate:'2026-07-30',stage:'Following / 跟踪',stageContent:'Following / 跟踪',nextActionDate:'2026-07-16',personInCharge:'Ms. Dao',category:'A',estimatedValue:7800000000}
+        {id:'b1',customerName:'Treasure Lighting Vietnam',projectName:'Factory Expansion Phase 2',location:'Binh Duong',trackDate:'2026-07-13',stage:'投标中 / Bidding',stageContent:'投标中 / Bidding',nextActionDate:'2026-07-18',nextActionContent:'Submit revised quotation',personInCharge:'Mr. Nguyen',email:'nguyen@treasure.vn',category:'A',estimatedValue:8500000000},
+        {id:'b2',customerName:'ABC Industrial',projectName:'New Workshop Construction',location:'Hanoi',trackDate:'2026-07-14',stage:'跟踪 / Following',stageContent:'跟踪 / Following',nextActionDate:'2026-07-25',personInCharge:'Ms. Lin',category:'A',estimatedValue:12000000000},
+        {id:'b3',customerName:'XYZ Corp Ltd',projectName:'Office Building Renovation',location:'Da Nang',trackDate:'2026-07-15',stage:'评审中 / Reviewing',stageContent:'Reviewing / 评审中',nextActionDate:'2026-07-20',personInCharge:'Mr. Tran',estimatedValue:6500000000},
+        {id:'b4',customerName:'Global Tech Solutions',projectName:'R&D Center Construction',location:'HCMC',trackDate:'2026-07-16',stage:'Bidding / 投标中',stageContent:'Bidding / 投标中',nextActionDate:'2026-08-15',personInCharge:'Ms. Pham',category:'B',estimatedValue:9500000000},
+        {id:'b5',customerName:'Sunrise Factory Co.',projectName:'Warehouse Project',location:'Long An',trackDate:'2026-07-07',stage:'Won / 中标',stageContent:'Won / 中标',personInCharge:'Mr. Le',estimatedValue:5200000000},
+        {id:'b6',customerName:'Pacific Group',projectName:'Hotel Renovation',location:'Nha Trang',trackDate:'2026-07-17',stage:'Following / 跟踪',stageContent:'Following / 跟踪',nextActionDate:'2026-07-16',personInCharge:'Ms. Dao',category:'A',estimatedValue:7800000000}
       ],
       customers:[
         {id:'c1',companyName:'Treasure Lighting Vietnam',companyBusiness:'照明制造',contactPerson:'Mr. Nguyen Van A',position:'项目经理',phone:'+84-28-1234-5678',email:'nguyen@treasure.vn',country:'越南 / Vietnam',priority:'高 / High',createdDate:'2026-01-15'},
@@ -1073,16 +1256,16 @@ document.addEventListener('DOMContentLoaded', function(){
         {id:'c6',companyName:'Pacific Group',companyBusiness:'酒店管理',contactPerson:'Ms. Dao Thi F',position:'项目经理',phone:'+84-28-6789-0123',email:'dao@pacific.vn',country:'越南 / Vietnam',priority:'高 / High',createdDate:'2026-06-15'}
       ],
       projects:[
-        {id:'p1',customerName:'Treasure Lighting Vietnam',interactionDate:'2026-07-08',interactionType:'会议 / Meeting',content:'Discuss Phase 2 factory expansion requirements',personInCharge:'Mr. Nguyen',nextStep:'Send revised proposal by Friday',status:'进行中 / In Progress',nextActionDate:'2026-07-18'},
-        {id:'p2',customerName:'ABC Industrial',interactionDate:'2026-07-05',interactionType:'电话 / Phone',content:'Follow up on workshop construction timeline',personInCharge:'Ms. Lin',nextStep:'Schedule site visit next week',status:'待跟进 / Pending',nextActionDate:'2026-07-20'},
-        {id:'p3',customerName:'Global Tech Solutions',interactionDate:'2026-07-01',interactionType:'邮件 / Email',content:'R&D Center project initial inquiry',personInCharge:'Ms. Pham',nextStep:'Prepare technical proposal',status:'进行中 / In Progress',nextActionDate:'2026-08-01'},
-        {id:'p4',customerName:'Pacific Group',interactionDate:'2026-06-28',interactionType:'拜访 / Visit',content:'Hotel renovation project kickoff meeting',personInCharge:'Ms. Dao',nextStep:'Submit renovation plan',status:'已完成 / Completed',nextActionDate:'2026-06-30'},
-        {id:'p5',customerName:'XYZ Corp Ltd',interactionDate:'2026-06-20',interactionType:'电话 / Phone',content:'Office building tender clarification',personInCharge:'Mr. Tran',nextStep:'Review tender documents',status:'待跟进 / Pending',nextActionDate:'2026-07-20'}
+        {id:'p1',customerName:'Treasure Lighting Vietnam',interactionDate:'2026-07-13',interactionType:'会议 / Meeting',content:'Discuss Phase 2 factory expansion requirements',personInCharge:'Mr. Nguyen',nextStep:'Send revised proposal by Friday',status:'进行中 / In Progress',nextActionDate:'2026-07-18'},
+        {id:'p2',customerName:'ABC Industrial',interactionDate:'2026-07-14',interactionType:'电话 / Phone',content:'Follow up on workshop construction timeline',personInCharge:'Ms. Lin',nextStep:'Schedule site visit next week',status:'待跟进 / Pending',nextActionDate:'2026-07-20'},
+        {id:'p3',customerName:'Global Tech Solutions',interactionDate:'2026-07-15',interactionType:'邮件 / Email',content:'R&D Center project initial inquiry',personInCharge:'Ms. Pham',nextStep:'Prepare technical proposal',status:'进行中 / In Progress',nextActionDate:'2026-08-01'},
+        {id:'p4',customerName:'Pacific Group',interactionDate:'2026-07-16',interactionType:'拜访 / Visit',content:'Hotel renovation project kickoff meeting',personInCharge:'Ms. Dao',nextStep:'Submit renovation plan',status:'进行中 / In Progress',nextActionDate:'2026-07-16'},
+        {id:'p5',customerName:'XYZ Corp Ltd',interactionDate:'2026-07-17',interactionType:'电话 / Phone',content:'Office building tender clarification',personInCharge:'Mr. Tran',nextStep:'Review tender documents',status:'已完成 / Completed',nextActionDate:'2026-07-20'}
       ],
       chambers:[
-        {id:'ch1',chamberName:'Vietnam - China Business Council',country:'越南 / Vietnam',topic:'Cross-border Investment Forum 2026',attendanceDate:'2026-07-25',attendanceLocation:'HCMC Convention Center'},
-        {id:'ch2',chamberName:'HCMC Foreign Enterprises Association',country:'越南 / Vietnam',topic:'Monthly Business Mixer July',attendanceDate:'2026-07-15',attendanceLocation:'Renaissance Hotel'},
-        {id:'ch3',chamberName:'Binh Duong Industrial Association',country:'越南 / Vietnam',topic:'Factory Safety Standards Workshop',attendanceDate:'2026-08-10',attendanceLocation:'Binh Duong Office'},
+        {id:'ch1',chamberName:'Vietnam - China Business Council',country:'越南 / Vietnam',topic:'Cross-border Investment Forum 2026',attendanceDate:'2026-07-15',attendanceLocation:'HCMC Convention Center'},
+        {id:'ch2',chamberName:'HCMC Foreign Enterprises Association',country:'越南 / Vietnam',topic:'Monthly Business Mixer July',attendanceDate:'2026-07-16',attendanceLocation:'Renaissance Hotel'},
+        {id:'ch3',chamberName:'Binh Duong Industrial Association',country:'越南 / Vietnam',topic:'Factory Safety Standards Workshop',attendanceDate:'2026-07-17',attendanceLocation:'Binh Duong Office'},
         {id:'ch4',chamberName:'AmCham Vietnam',country:'越南 / Vietnam',topic:'US-Vietnam Trade Relations Briefing',attendanceDate:'2026-06-20',attendanceLocation:'Caravelle Hotel'}
       ]
     };
