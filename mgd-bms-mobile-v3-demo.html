@@ -897,11 +897,7 @@ var PERSONS = [
   { key: 'Mr Quoc',      zh: 'Mr Quoc',     color: '#8B5CF6' },
 ];
 
-// Keep all 3 persons as tabs in the report screen
-var ALL_PERSONS_KEY = '__ALL__';
-PERSONS.push({ key: ALL_PERSONS_KEY, zh: 'All · 全部', color: '#ffffff' });
-// Move ALL to front
-PERSONS.sort(function(a,b){ return a.key===ALL_PERSONS_KEY?-1:(b.key===ALL_PERSONS_KEY?1:0); });
+// Only show 3 persons (no ALL option)
 
 function getWeekRange(offset){
   var now = new Date();
@@ -942,7 +938,7 @@ function renderReport(){
   // ── Person selector buttons ──
   var selBtns = '';
   PERSONS.forEach(function(p){
-    var isActive = (selectedPerson === p.key) || (p.key===ALL_PERSONS_KEY && !selectedPerson);
+    var isActive = (selectedPerson === p.key);
     var style = isActive
       ? 'background:'+p.color+';color:#0E1116;font-weight:700;'
       : 'background:#1e2433;color:#888;border:1px solid #2a3040;';
@@ -962,7 +958,7 @@ function renderReport(){
   }
 
   function byPerson(arr, dateField){
-    if(!selectedPerson || selectedPerson===ALL_PERSONS_KEY) return arr.filter(function(x){ return inWeek(x[dateField]||x.createdDate||'',wr); });
+    if(!selectedPerson) return arr.filter(function(x){ return inWeek(x[dateField]||x.createdDate||'',wr); });
     return arr.filter(function(x){
       var pic = x.personInCharge||x.contactPerson||'';
       return pic===selectedPerson && inWeek(x[dateField]||x.createdDate||'',wr);
@@ -978,7 +974,7 @@ function renderReport(){
   var wonCnt = wBids.filter(function(b){ return (b.stageContent||b.stage||'').match(/中标|Won/i); }).length;
 
   // ── Person weekly report table view ──
-  if(selectedPerson && selectedPerson!==ALL_PERSONS_KEY){
+  if(selectedPerson){
     var pInfo = PERSONS.find(function(p){ return p.key===selectedPerson; })||{};
     var personColor = pInfo.color||'#00C7B7';
     var personName = pInfo.zh||selectedPerson;
@@ -1110,7 +1106,7 @@ function mkKPI_card(icon,titleZh,titleEn,count,sub,color){
 }
 
 function selectReportPerson(key){
-  selectedPerson = (key===ALL_PERSONS_KEY)?null:key;
+  selectedPerson = key;
   renderReport();
 }
 
