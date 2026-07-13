@@ -306,12 +306,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
     <div class="screen-head">
       <h2 id="ttl-report">Weekly Report · 周报</h2>
     </div>
-    <!-- Week Navigator -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;background:#1a1f2e;border-bottom:1px solid #2a3040;">
-      <button class="btn-icon" onclick="changeReportWeek(-1)" style="background:#1e2433;color:#00C7B7;font-size:16px;padding:6px 12px;border-radius:6px;border:1px solid #2a3040;">‹</button>
-      <span id="reportWeekLabel" style="color:#00C7B7;font-size:13px;font-weight:600;min-width:160px;text-align:center;">W28 · 2026年7月13日-19日</span>
-      <button class="btn-icon" onclick="changeReportWeek(1)" style="background:#1e2433;color:#00C7B7;font-size:16px;padding:6px 12px;border-radius:6px;border:1px solid #2a3040;">›</button>
-    </div>
     <!-- Person Selector -->
     <div id="reportPersonBtns" style="display:flex;gap:4px;padding:10px 14px;background:#0E1116;border-bottom:1px solid #2a3040;"></div>
     <div id="reportContent" style="padding:12px 14px 80px;overflow-y:auto;">
@@ -944,9 +938,6 @@ function fmtVND(v){
 
 function renderReport(){
   var wr = getWeekRange(reportWeekOffset);
-  document.getElementById('reportWeekLabel').textContent =
-    'W'+wr.week+' · '+wr.year+'年'+(wr.monday.getMonth()+1)+'月'+wr.monday.getDate()+'日-'+(wr.sunday.getMonth()+1)+'月'+wr.sunday.getDate()+'日';
-  document.getElementById('reportWeekLabel').style.color = (reportWeekOffset===0)?'#00C7B7':'#e0e0e0';
 
   // ── Person selector buttons ──
   var selBtns = '';
