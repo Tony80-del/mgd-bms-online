@@ -175,6 +175,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div class="ni" onclick="sm('chambers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span id="nch">商会信息</span></div>
     <div class="ni" onclick="sm('q2result')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span id="nq2result"></span></div>
     <div class="ni" onclick="sm('plan2026')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg><span id="nplan"></span></div>
+    <div class="ni" onclick="sm('weeklyreport')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Weekly Report</span></div>
 
   </nav>
 </aside>
@@ -428,6 +429,49 @@ input[type="date"]::-moz-calendar-picker-indicator {
         <!-- 5 cards rendered by renderQ2Result() -->
       </div>
     </div>
+
+    <!-- Weekly Report Section -->
+    <div id="weeklyReportContainer" class="hidden mb-6" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button onclick="wrChangeWeek(-1)" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);cursor:pointer;font-size:14px;">◀</button>
+          <span id="wrWeekDisplay" style="font-size:16px;font-weight:700;min-width:100px;text-align:center;">Week 28</span>
+          <button onclick="wrChangeWeek(1)" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);cursor:pointer;font-size:14px;">▶</button>
+        </div>
+        <span id="wrWeekDates" style="font-size:13px;color:var(--text2);">July 6 - July 12, 2026</span>
+        <div style="display:flex;gap:8px;">
+          <button onclick="wrToggleRecords()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📁 Week Records <span id="wrRecordsCount" style="background:var(--green);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">0</span></button>
+          <button onclick="exportWeeklyReportPDF()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📄 Export PDF</button>
+          <button onclick="saveWeeklyReport()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;">💾 保存</button>
+        </div>
+      </div>
+      <!-- Week Records Panel -->
+      <div id="wrRecordsPanel" style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;display:none;">
+        <div style="padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+          <h3>📁 <span id="wrRecordsTitle">Week Records</span></h3>
+          <button onclick="wrToggleRecords()" style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;">✕</button>
+        </div>
+        <div id="wrRecordsList" style="max-height:250px;overflow-y:auto;"></div>
+      </div>
+      <!-- User Tabs -->
+      <div id="wrUserTabs" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+        <div class="wr-user-tab wr-active" data-user="tony" onclick="wrSwitchUser('tony')" style="padding:16px 20px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--blue);transition:all .2s;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">TC</div>
+          <div><div style="font-size:16px;font-weight:700;">Tony Cheong</div><div style="font-size:12px;color:var(--text2);">Business Dept</div></div>
+        </div>
+        <div class="wr-user-tab" data-user="quoc" onclick="wrSwitchUser('quoc')" style="padding:16px 20px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);transition:all .2s;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">Q</div>
+          <div><div style="font-size:16px;font-weight:700;">Mr. Quoc</div><div style="font-size:12px;color:var(--text2);">Business Dept</div></div>
+        </div>
+        <div class="wr-user-tab" data-user="huong" onclick="wrSwitchUser('huong')" style="padding:16px 20px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);transition:all .2s;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">H</div>
+          <div><div style="font-size:16px;font-weight:700;">Ms. Huong</div><div style="font-size:12px;color:var(--text2);">Business Dept</div></div>
+        </div>
+      </div>
+      <!-- Weekly Report Table -->
+      <div id="wrTableContainer" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+    </div>
+
     <div class="tc ai" style="animation-delay:.6s"><table id="dt"><thead></thead><tbody id="tb"></tbody></table></div>
   </div>
 </main>
@@ -979,6 +1023,355 @@ function saveQ2Notes(){
     el.style.borderColor='#10b981';
     setTimeout(function(){el.style.borderColor='';},1000);
   }
+}
+
+// ===================== WEEKLY REPORT SYSTEM =====================
+var wrCurrentWeek=parseInt(getWeekNumber(new Date()))||28;
+var wrCurrentUser='tony';
+var wrRecordsVisible=false;
+var wrTaskCounter={tony:0,quoc:0,huong:0};
+var wrUserNames={tony:'Tony Cheong',quoc:'Mr. Quoc',huong:'Ms. Huong'};
+var wrUserColors={tony:'#3b82f6',quoc:'#22c55e',huong:'#f59e0b'};
+
+function initWeeklyReport(){
+  if(!data.weeklyReports)data.weeklyReports={};
+  if(!data.weeklyReports.users)data.weeklyReports.users={};
+  ['tony','quoc','huong'].forEach(function(u){if(!data.weeklyReports.users[u])data.weeklyReports.users[u]={};});
+}
+
+function getWeekNumber(d){
+  d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
+  var yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+
+function getWeekDates(weekNum,year){
+  year=year||2026;
+  var jan1=new Date(year,0,1);
+  var daysToMonday=jan1.getDay()<=1?1-jan1.getDay():8-jan1.getDay();
+  var week1Monday=new Date(jan1);
+  week1Monday.setDate(jan1.getDate()+daysToMonday);
+  var targetMonday=new Date(week1Monday);
+  targetMonday.setDate(week1Monday.getDate()+(weekNum-1)*7);
+  var targetSunday=new Date(targetMonday);
+  targetSunday.setDate(targetMonday.getDate()+6);
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return{start:months[targetMonday.getMonth()]+' '+targetMonday.getDate()+', '+targetMonday.getFullYear(),end:months[targetSunday.getMonth()]+' '+targetSunday.getDate()+', '+targetSunday.getFullYear()};
+}
+
+function wrUpdateDisplay(){
+  var wDisp=document.getElementById('wrWeekDisplay');
+  if(wDisp)wDisp.textContent='Week '+wrCurrentWeek;
+  var wDates=document.getElementById('wrWeekDates');
+  if(wDates){
+    var dates=getWeekDates(wrCurrentWeek);
+    wDates.textContent=dates.start+' - '+dates.end;
+  }
+  wrUpdateRecordsCount();
+}
+
+function wrUpdateRecordsCount(){
+  var el=document.getElementById('wrRecordsCount');
+  if(el){
+    var userWeeks=data.weeklyReports&&data.weeklyReports.users&&data.weeklyReports.users[wrCurrentUser]||{};
+    var count=Object.keys(userWeeks).filter(function(w){return userWeeks[w]&&userWeeks[w].tasks&&userWeeks[w].tasks.length>0;}).length;
+    el.textContent=count;
+  }
+}
+
+function wrToggleRecords(){
+  wrRecordsVisible=!wrRecordsVisible;
+  var panel=document.getElementById('wrRecordsPanel');
+  if(panel)panel.style.display=wrRecordsVisible?'block':'none';
+  if(wrRecordsVisible)wrRenderRecordsList();
+}
+
+function wrRenderRecordsList(){
+  var list=document.getElementById('wrRecordsList');
+  if(!list)return;
+  var userWeeks=data.weeklyReports&&data.weeklyReports.users&&data.weeklyReports.users[wrCurrentUser]||{};
+  var titleEl=document.getElementById('wrRecordsTitle');
+  if(titleEl)titleEl.textContent='Week Records - '+wrUserNames[wrCurrentUser];
+  var html='';
+  for(var w=Math.max(22,wrCurrentWeek-7);w<=wrCurrentWeek+2;w++){
+    var weekData=userWeeks[w];
+    var isActive=w===wrCurrentWeek;
+    var hasData=weekData&&weekData.tasks&&weekData.tasks.length>0;
+    var dates=getWeekDates(w);
+    var taskCount=hasData?weekData.tasks.length:0;
+    var leftColor=isActive?'var(--blue)':(hasData?'#22c55e':'var(--border)');
+    var bgColor=isActive?'rgba(0,180,216,0.1)':'';
+    html+='<div onclick="wrLoadWeek('+w+')" style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s;background:'+bgColor+';border-left:3px solid '+leftColor+'">'+
+      '<div><div style="font-weight:600;font-size:14px;">Week '+w+'</div><div style="font-size:12px;color:var(--text2);">'+dates.start+' - '+dates.end+'</div></div>'+
+      '<span style="font-size:11px;padding:3px 10px;border-radius:12px;'+(hasData?'background:rgba(34,197,94,0.2);color:#4ade80;':'background:rgba(113,113,122,0.2);color:#94a3b8;')+'">'+(hasData?taskCount+' tasks':'Empty')+'</span></div>';
+  }
+  list.innerHTML=html;
+}
+
+function wrChangeWeek(direction){
+  wrCurrentWeek=Math.max(1,Math.min(52,wrCurrentWeek+direction));
+  wrUpdateDisplay();
+  wrRenderWeeklyReportTable();
+  if(wrRecordsVisible)wrRenderRecordsList();
+}
+
+function wrLoadWeek(weekNum){
+  wrCurrentWeek=weekNum;
+  wrUpdateDisplay();
+  wrRenderWeeklyReportTable();
+  if(wrRecordsVisible){wrRenderRecordsList();wrToggleRecords();}
+  wrShowToast('Week '+weekNum+' loaded!','success');
+}
+
+function wrSwitchUser(userId){
+  document.querySelectorAll('.wr-user-tab').forEach(function(tab){
+    tab.classList.remove('wr-active');
+    tab.style.borderColor='var(--border)';
+    tab.style.background='var(--card)';
+  });
+  var activeTab=document.querySelector('.wr-user-tab[data-user="'+userId+'"]');
+  if(activeTab){
+    activeTab.classList.add('wr-active');
+    var color=wrUserColors[userId];
+    activeTab.style.borderColor=color;
+    var rgb=color==='#3b82f6'?'59,130,246':(color==='#22c55e'?'34,197,94':'245,158,11');
+    activeTab.style.background='rgba('+rgb+',0.1)';
+  }
+  wrCurrentUser=userId;
+  wrUpdateRecordsCount();
+  wrRenderWeeklyReportTable();
+  if(wrRecordsVisible)wrRenderRecordsList();
+}
+
+function wrAutoCalculate(user,taskId){
+  var planStart=document.getElementById(user+'-'+taskId+'-start');
+  var planEnd=document.getElementById(user+'-'+taskId+'-end');
+  var planDays=document.getElementById(user+'-'+taskId+'-days');
+  if(planStart&&planEnd&&planDays){
+    var start=planStart.value?new Date(planStart.value):null;
+    var end=planEnd.value?new Date(planEnd.value):null;
+    if(start&&end&&!isNaN(start)&&!isNaN(end)){
+      var days=Math.ceil((end-start)/(1000*60*60*24));
+      planDays.textContent=days>=0?days:'-';
+      planDays.style.background='rgba(34,197,94,0.2)';
+      planDays.style.color='#4ade80';
+    }else{
+      planDays.textContent='-';
+      planDays.style.background='var(--bg2)';
+      planDays.style.color='var(--text)';
+    }
+  }
+  var actualStart=document.getElementById(user+'-'+taskId+'-actual-start');
+  var actualEnd=document.getElementById(user+'-'+taskId+'-actual-end');
+  var actualDays=document.getElementById(user+'-'+taskId+'-actual-days');
+  var actualStatus=document.getElementById(user+'-'+taskId+'-actual-status');
+  if(actualStart&&actualEnd&&actualDays&&actualStatus){
+    var aStart=actualStart.value?new Date(actualStart.value):null;
+    var aEnd=actualEnd.value?new Date(actualEnd.value):null;
+    if(aStart&&aEnd&&!isNaN(aStart)&&!isNaN(aEnd)){
+      var days=Math.ceil((aEnd-aStart)/(1000*60*60*24));
+      actualDays.textContent=days>=0?days:'-';
+      actualDays.style.background='rgba(34,197,94,0.2)';
+      actualDays.style.color='#4ade80';
+      var pEnd=planEnd&&planEnd.value?new Date(planEnd.value):null;
+      if(pEnd&&!isNaN(pEnd)){
+        var diff=Math.ceil((aEnd-pEnd)/(1000*60*60*24));
+        if(diff<0){
+          actualStatus.className='wr-status wr-early';
+          actualStatus.textContent='Early '+Math.abs(diff)+'d';
+          actualDays.style.background='rgba(59,130,246,0.2)';
+          actualDays.style.color='#60a5fa';
+        }else if(diff===0){
+          actualStatus.className='wr-status wr-ontime';
+          actualStatus.textContent='On Time';
+        }else{
+          actualStatus.className='wr-status wr-delayed';
+          actualStatus.textContent='Delayed +'+diff+'d';
+          actualDays.style.background='rgba(244,63,94,0.2)';
+          actualDays.style.color='#fb7185';
+        }
+      }else{
+        actualStatus.className='wr-status wr-progress';
+        actualStatus.textContent='In Progress';
+      }
+    }else{
+      actualDays.textContent='-';
+      actualDays.style.background='var(--bg2)';
+      actualDays.style.color='var(--text)';
+      actualStatus.className='wr-status wr-pending';
+      actualStatus.textContent='Pending';
+    }
+  }
+}
+
+function wrDeleteTask(user,taskId){
+  if(!confirm('Delete this task?'))return;
+  var taskEl=document.getElementById('wr-task-'+user+'-'+taskId);
+  if(taskEl)taskEl.remove();
+  wrShowToast('Task deleted!','success');
+}
+
+function wrAddNewTask(){
+  wrTaskCounter[wrCurrentUser]=(wrTaskCounter[wrCurrentUser]||0)+1;
+  var newId=wrTaskCounter[wrCurrentUser];
+  wrRenderTaskGroup(wrCurrentUser,newId,{},true);
+  wrShowToast('Task '+newId+' added!','success');
+}
+
+function wrRenderTaskGroup(user,taskId,taskData,isNew){
+  taskData=taskData||{};
+  var container=document.getElementById('wrTableContainer');
+  if(!container)return;
+  var planDays=0;
+  if(taskData.planStart&&taskData.planEnd){
+    var ps=new Date(taskData.planStart);
+    var pe=new Date(taskData.planEnd);
+    planDays=Math.ceil((pe-ps)/(1000*60*60*24));
+  }
+  var group=document.createElement('div');
+  group.className='wr-task-group';
+  group.id='wr-task-'+user+'-'+taskId;
+  group.style.cssText='border-bottom:1px solid var(--border);';
+  var uInitials=user==='tony'?'TC':(user==='quoc'?'Q':'H');
+  group.innerHTML=
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 110px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
+    '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+taskId+'</div>'+
+    '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Start</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">End</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Days</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+
+    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 110px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
+    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
+    '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+user+'-'+taskId+'-name" value="'+(taskData.name||'')+'" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-start" value="'+(taskData.planStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-end" value="'+(taskData.planEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">'+(planDays>0?planDays:'-')+'</div></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><span style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(245,158,11,0.2);color:#fbbf24;">In Progress</span></div>'+
+    '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+user+'\','+taskId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>'+
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 110px 40px;background:rgba(34,197,94,0.02);">'+
+    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
+    '<div style="padding:10px 12px;border-right:1px solid var(--border);display:flex;align-items:center;"><span style="color:var(--text2);font-size:12px;font-style:italic;">Actual Result</span></div>'+
+    '<div style="padding:10px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(34,197,94,0.2);color:#4ade80;">ACTUAL</span></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-actual-start" value="'+(taskData.actualStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-actual-end" value="'+(taskData.actualEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-actual-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">-</div></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><span id="'+user+'-'+taskId+'-actual-status" class="wr-status wr-pending" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;">Pending</span></div>'+
+    '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"></div></div>';
+  var addBtn=container.querySelector('.wr-add-btn');
+  if(addBtn){container.insertBefore(group,addBtn);}
+  else{container.appendChild(group);}
+  if(taskData.planStart&&taskData.planEnd)setTimeout(function(){wrAutoCalculate(user,taskId);},50);
+}
+
+function wrRenderWeeklyReportTable(){
+  initWeeklyReport();
+  var container=document.getElementById('wrTableContainer');
+  if(!container)return;
+  container.innerHTML='';
+  var weekData=data.weeklyReports.users[wrCurrentUser][wrCurrentWeek];
+  var tasks=weekData&&weekData.tasks||[];
+  wrTaskCounter[wrCurrentUser]=tasks.length>0?tasks.length:0;
+  if(tasks.length>0){
+    tasks.forEach(function(task,idx){wrRenderTaskGroup(wrCurrentUser,idx+1,task,false);});
+  }else{
+    var demoTasks=wrCurrentUser==='tony'?[
+      {name:'Treasure Lighting Vietnam - Meeting',planStart:'2026-07-06',planEnd:'2026-07-12'},
+      {name:'VSIP3 Projects Follow Up',planStart:'2026-07-07',planEnd:'2026-07-09'},
+      {name:'HADAY Cost Estimate Review',planStart:'2026-07-08',planEnd:'2026-07-10'}
+    ]:wrCurrentUser==='quoc'?[
+      {name:'VISP 3 Site Visit',planStart:'2026-07-06',planEnd:'2026-07-06'},
+      {name:'New Client Meeting - Binh Duong',planStart:'2026-07-08',planEnd:'2026-07-08'}
+    ]:[
+      {name:'Technical Drawing Review',planStart:'2026-07-06',planEnd:'2026-07-08'},
+      {name:'Cost Estimation - HADAY',planStart:'2026-07-09',planEnd:'2026-07-11'}
+    ];
+    demoTasks.forEach(function(task,idx){wrRenderTaskGroup(wrCurrentUser,idx+1,task,false);});
+  }
+  var addBtn=document.createElement('button');
+  addBtn.className='wr-add-btn';
+  addBtn.onclick=wrAddNewTask;
+  addBtn.style.cssText='width:100%;padding:14px;background:var(--bg2);border:none;color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;';
+  addBtn.innerHTML='+ Add New Task';
+  container.appendChild(addBtn);
+}
+
+function saveWeeklyReport(){
+  initWeeklyReport();
+  var tasks=[];
+  var container=document.getElementById('wrTableContainer');
+  if(!container)return;
+  var groups=container.querySelectorAll('.wr-task-group');
+  groups.forEach(function(group,idx){
+    var taskId=idx+1;
+    var name=document.getElementById(wrCurrentUser+'-'+taskId+'-name');
+    var planStart=document.getElementById(wrCurrentUser+'-'+taskId+'-start');
+    var planEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-end');
+    var actualStart=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-start');
+    var actualEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-end');
+    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:'',actualStart:actualStart?actualStart.value:'',actualEnd:actualEnd?actualEnd.value:''});
+  });
+  data.weeklyReports.users[wrCurrentUser][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
+  saveData();
+  wrUpdateRecordsCount();
+  wrShowToast('Week '+wrCurrentWeek+' saved!','success');
+}
+
+function exportWeeklyReportPDF(){
+  initWeeklyReport();
+  var weekData=data.weeklyReports.users[wrCurrentUser][wrCurrentWeek];
+  var tasks=weekData&&weekData.tasks||[];
+  if(tasks.length===0){wrShowToast('No data to export!','error');return;}
+  var dates=getWeekDates(wrCurrentWeek);
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#333}h1{color:#1a5f7a;text-align:center}h2{color:#555;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:25px}table{width:100%;border-collapse:collapse;margin-top:15px}th{background:#1a5f7a;color:#fff;padding:10px;text-align:left}td{padding:10px;border-bottom:1px solid #ddd}.plan{background:#e3f2fd}.actual{background:#e8f5e9}.status{padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold}.ontime{background:#c8e6c9;color:#2e7d32}.early{background:#bbdefb;color:#1565c0}.delayed{background:#ffcdd2;color:#c62828}.pending{background:#f5f5f5;color:#757575}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:30px;color:#888;font-size:12px}</style></head><body>';
+  html+='<h1>Weekly Report</h1>';
+  html+='<p style="text-align:center;color:#666">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
+  html+='<h2>'+wrUserNames[wrCurrentUser]+' - Business Dept</h2>';
+  html+='<table><thead><tr><th>#</th><th>Task / Project</th><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>Status</th></tr></thead><tbody>';
+  tasks.forEach(function(task,idx){
+    var planStart=task.planStart||'-';
+    var planEnd=task.planEnd||'-';
+    var actualStart=task.actualStart||'-';
+    var actualEnd=task.actualEnd||'-';
+    var days='-';if(task.planStart&&task.planEnd){var s=new Date(task.planStart);var e=new Date(task.planEnd);days=Math.ceil((e-s)/(1000*60*60*24));}
+    var aDays='-';var status='Pending';var sClass='pending';
+    if(task.actualStart&&task.actualEnd){var as=new Date(task.actualStart);var ae=new Date(task.actualEnd);aDays=Math.ceil((ae-as)/(1000*60*60*24));if(task.planEnd){var pe=new Date(task.planEnd);var diff=Math.ceil((ae-pe)/(1000*60*60*24));if(diff<0){status='Early '+Math.abs(diff)+'d';sClass='early';}else if(diff===0){status='On Time';sClass='ontime';}else{status='Delayed +'+diff+'d';sClass='delayed';}}else{status='In Progress';sClass='progress';}}
+    html+='<tr><td colspan="7" style="background:#f5f5f5;font-weight:bold;padding:8px;">#'+(idx+1)+' - '+(task.name||'Task')+'</td></tr>';
+    html+='<tr class="plan"><td></td><td></td><td>PLAN</td><td>'+planStart+'</td><td>'+planEnd+'</td><td>'+days+'</td><td>-</td></tr>';
+    html+='<tr class="actual"><td></td><td>Actual Result</td><td>ACTUAL</td><td>'+actualStart+'</td><td>'+actualEnd+'</td><td>'+aDays+'</td><td><span class="status '+sClass+'">'+status+'</span></td></tr>';
+  });
+  html+='</tbody></table>';
+  html+='<div class="footer">Generated on '+new Date().toLocaleString()+' | MGD Business Management System</div>';
+  html+='</body></html>';
+  var win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){win.print();},500);
+  wrShowToast('PDF preview opened!','success');
+}
+
+function wrShowToast(msg,type){
+  var existing=document.querySelector('.wr-toast');
+  if(existing)existing.remove();
+  var toast=document.createElement('div');
+  toast.className='wr-toast';
+  var bg=type==='success'?'#22c55e':'#ef4444';
+  toast.style.cssText='position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;animation:slideInWR .3s ease;z-index:9999;background:'+bg+';color:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+  toast.innerHTML='<span>'+(type==='success'?'OK':'Error')+'</span> '+msg;
+  document.body.appendChild(toast);
+  setTimeout(function(){toast.style.animation='slideOutWR .3s ease forwards';setTimeout(function(){toast.remove();},300);},2500);
+}
+
+// Add animation styles if not exists
+if(!document.getElementById('wr-animations')){
+  var animStyle=document.createElement('style');
+  animStyle.id='wr-animations';
+  animStyle.textContent='@keyframes slideInWR{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideOutWR{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}.wr-status{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}.wr-progress{background:rgba(245,158,11,0.2);color:#fbbf24}.wr-ontime{background:rgba(34,197,94,0.2);color:#4ade80}.wr-delayed{background:rgba(244,63,94,0.2);color:#fb7185}.wr-early{background:rgba(59,130,246,0.2);color:#60a5fa}.wr-pending{background:rgba(113,113,122,0.2);color:#94a3b8}';
+  document.head.appendChild(animStyle);
 }
 
 function saveQuarterlyData(qKey){
@@ -1565,6 +1958,8 @@ function sm(m){
   document.getElementById('win123Container').style.display='none';
   document.getElementById('plan2026Section').style.display='none';
   document.getElementById('q2resultContainer').style.display='none';
+  var wrContainer=document.getElementById('weeklyReportContainer');
+  if(wrContainer)wrContainer.style.display='none';
 
   // 隐藏表格容器
   document.querySelector('.tc').style.display='none';
@@ -1602,6 +1997,12 @@ function sm(m){
     document.getElementById('q2resultContainer').style.display='block';
     document.querySelector('.tc').style.display='none';
     renderQ2Result();
+  }else if(m==='weeklyreport'){
+    var wrC=document.getElementById('weeklyReportContainer');
+    if(wrC)wrC.style.display='block';
+    document.querySelector('.tc').style.display='none';
+    wrUpdateDisplay();
+    wrSwitchUser(wrCurrentUser);
   }else{
     document.querySelector('.tc').style.display='block';
   }
@@ -1614,7 +2015,8 @@ function sm(m){
     projects:{title:'客户互动',sub:'记录客户沟通和互动历史'},
     chambers:{title:'商会信息',sub:'管理商会和组织联系信息'},
     q2result:{title:'Q2结果',sub:'Apr - Jun / 4月-6月'},
-    plan2026:{title:'计划2026',sub:'System Tracking List'}
+    plan2026:{title:'计划2026',sub:'System Tracking List'},
+    weeklyreport:{title:'Weekly Report',sub:'Business Dept Weekly Report'}
   };
   document.getElementById('pt').textContent=titles[m]?titles[m].title:'';
   document.getElementById('ps').textContent=titles[m]?titles[m].sub:'';
