@@ -1209,7 +1209,37 @@ function wrDeleteTask(user,taskId){
   if(!confirm('Delete this task?'))return;
   var taskEl=document.getElementById('wr-task-'+user+'-'+taskId);
   if(taskEl)taskEl.remove();
-  wrShowToast('Task deleted!','success');
+  // Renumber remaining tasks
+  var container=document.getElementById('wrTableContainer');
+  if(!container)return;
+  var groups=container.querySelectorAll('.wr-task-group');
+  groups.forEach(function(group,idx){
+    var newNum=idx+1;
+    var oldNum=parseInt(group.id.replace('wr-task-'+user+'-',''));
+    if(newNum===oldNum)return;
+    group.id='wr-task-'+user+'-'+newNum;
+    // Update # header number
+    var headerRow=group.querySelector('div');
+    if(headerRow){
+      var firstCell=headerRow.children[0];
+      if(firstCell)firstCell.textContent='#'+newNum;
+    }
+    // Update element IDs
+    var suffixs=['-name','-start','-end','-days','-actual-start','-actual-end','-actual-days','-actual-status'];
+    suffixs.forEach(function(suf){
+      var oldEl=document.getElementById(user+'-'+oldNum+suf);
+      if(oldEl)oldEl.id=user+'-'+newNum+suf;
+    });
+    // Update delete button onclick
+    var delBtn=group.querySelector('button');
+    if(delBtn)delBtn.setAttribute('onclick',"wrDeleteTask('"+user+"',"+newNum+")");
+    // Update date input onchange
+    var dateInputs=group.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(function(inp){
+      inp.setAttribute('onchange',"wrAutoCalculate('"+user+"',"+newNum+")");
+    });
+  });
+  wrShowToast('Task deleted & renumbered!','success');
 }
 
 function wrAddNewTask(){
@@ -1306,8 +1336,9 @@ function saveWeeklyReport(){
   var container=document.getElementById('wrTableContainer');
   if(!container)return;
   var groups=container.querySelectorAll('.wr-task-group');
-  groups.forEach(function(group,idx){
-    var taskId=idx+1;
+  groups.forEach(function(group){
+    // Extract actual taskId from group.id (e.g. 'wr-task-tony-3' -> 3)
+    var taskId=parseInt(group.id.replace('wr-task-'+wrCurrentUser+'-',''));
     var name=document.getElementById(wrCurrentUser+'-'+taskId+'-name');
     var planStart=document.getElementById(wrCurrentUser+'-'+taskId+'-start');
     var planEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-end');
@@ -1317,6 +1348,7 @@ function saveWeeklyReport(){
   });
   data.weeklyReports.users[wrCurrentUser][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
+  wrTaskCounter[wrCurrentUser]=tasks.length;
   wrUpdateRecordsCount();
   wrShowToast('Week '+wrCurrentWeek+' saved!','success');
 }
