@@ -2249,6 +2249,7 @@ function sm(m){
     document.getElementById('sum').style.display='none';
     document.getElementById('win123Container').style.display='none';
     document.getElementById('q2resultContainer').style.display='block';
+    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderQ2Result();
   }else if(m==='weeklyreport'){
