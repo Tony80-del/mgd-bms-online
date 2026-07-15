@@ -266,10 +266,10 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button onclick="setBidsFilter('bidding')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfBidding">投标中 / Bidding</button>
       <button onclick="setBidsFilter('tracking')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfTracking">追踪 / Tracking</button>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
-      <button onclick="exportSummaryPDF()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📄 Summary Export PDF</button>
-    </div>
     <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
+      <div style="grid-column:1/-1;display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button onclick="exportSummaryPDF()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📄 Summary Export PDF</button>
+      </div>
       <!-- 项目信息(复合卡片) -->
       <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)]">
         <div class="text-sm text-[var(--muted)] mb-4 text-center" id="bidInfoStatsLabel">项目信息 / Project Info</div>
@@ -444,6 +444,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
         <span id="wrWeekDates" style="font-size:13px;color:var(--text2);">July 6 - July 12, 2026</span>
         <div style="display:flex;gap:8px;">
           <button onclick="wrToggleRecords()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📁 Week Records <span id="wrRecordsCount" style="background:var(--green);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">0</span></button>
+          <button onclick="exportWeeklyReportPDF()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📄 Export PDF</button>
           <button onclick="saveWeeklyReport()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;">💾 保存</button>
         </div>
       </div>
