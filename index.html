@@ -1214,7 +1214,7 @@ function wrDeleteTask(user,taskId){
       if(firstCell)firstCell.textContent='#'+newNum;
     }
     // Update element IDs
-    var suffixs=['-name','-start','-end','-days'];
+    var suffixs=['-name','-start','-end','-days','-status','-pct','-noted'];
     suffixs.forEach(function(suf){
       var oldEl=document.getElementById(user+'-'+oldNum+suf);
       if(oldEl)oldEl.id=user+'-'+newNum+suf;
@@ -1245,23 +1245,23 @@ function wrAddNewTask(){
   group.style.cssText='border-bottom:1px solid var(--border);';
   var uInitials=wrCurrentUser==='tony'?'TC':(wrCurrentUser==='quoc'?'Q':'H');
   group.innerHTML=
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+newId+'</div>'+
     '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Start</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">End</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Days</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">%</div>'+
-    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Noted</div>'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
     '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+wrCurrentUser+'-'+newId+'-name" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-start" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-end" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+wrCurrentUser+'-'+newId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">-</div></div>'+'<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+wrCurrentUser+'-'+newId+'-pct" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:44px;color:#fbbf24;">50%</div></div>'+
-     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+wrCurrentUser+'-'+newId+'-status" onchange="wrUpdateStatusColor(this)" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending">Pending</option><option value="In Progress" selected>In Progress</option><option value="Completed">Completed</option><option value="Delay">Delay</option></select></div>'+
+     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+wrCurrentUser+'-'+newId+'-status" onchange="wrUpdateStatusColor(this)" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending">Pending</option><option value="In Progress" selected>In Progress</option><option value="Completed">Completed</option><option value="Delay">Delay</option></select></div>'+'<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+wrCurrentUser+'-'+newId+'-noted" value="" placeholder="Notes..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+wrCurrentUser+'\','+newId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>';
   // Insert BEFORE the Add New Task button
   var addBtn=container.querySelector('.wr-add-btn');
@@ -1292,23 +1292,23 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
   group.style.cssText='border-bottom:1px solid var(--border);';
   var uInitials=user==='tony'?'TC':(user==='quoc'?'Q':'H');
   group.innerHTML=
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+taskId+'</div>'+
     '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Start</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">End</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Days</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">%</div>'+
-    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+
+    '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Noted</div>'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
     '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+user+'-'+taskId+'-name" value="'+(taskData.name||'')+'" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-start" value="'+(taskData.planStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-end" value="'+(taskData.planEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">'+(planDays>0?planDays:'-')+'</div></div>'+'<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-pct" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:44px;color:'+pctColor+';">'+(pctVal!=='-'?pctVal+'%':'-')+'</div></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+user+'-'+taskId+'-status" onchange="wrUpdateStatusColor(this)" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending" '+(taskData.taskStatus==='Pending'?'selected':'')+'>Pending</option><option value="In Progress" '+(taskData.taskStatus==='In Progress'?'selected':'')+'>In Progress</option><option value="Completed" '+(taskData.taskStatus==='Completed'?'selected':'')+'>Completed</option><option value="Delay" '+(taskData.taskStatus==='Delay'?'selected':'')+'>Delay</option></select></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+user+'-'+taskId+'-status" onchange="wrUpdateStatusColor(this)" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending" '+(taskData.taskStatus==='Pending'?'selected':'')+'>Pending</option><option value="In Progress" '+(taskData.taskStatus==='In Progress'?'selected':'')+'>In Progress</option><option value="Completed" '+(taskData.taskStatus==='Completed'?'selected':'')+'>Completed</option><option value="Delay" '+(taskData.taskStatus==='Delay'?'selected':'')+'>Delay</option></select></div>'+'<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+user+'-'+taskId+'-noted" value="'+(taskData.noted||'')+'" placeholder="Notes..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+user+'\','+taskId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>';
   if(taskData.planStart&&taskData.planEnd)setTimeout(function(){wrAutoCalculate(user,taskId);},50);
   container.appendChild(group);
@@ -1362,7 +1362,8 @@ function saveWeeklyReport(){
     var planStart=document.getElementById(wrCurrentUser+'-'+taskId+'-start');
     var planEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-end');
     var planStatus=document.getElementById(wrCurrentUser+'-'+taskId+'-status');
-    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:'',taskStatus:planStatus?planStatus.value:''});
+    var noted=document.getElementById(wrCurrentUser+'-'+taskId+'-noted');
+    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:'',taskStatus:planStatus?planStatus.value:'',noted:noted?noted.value:''});
   });
   data.weeklyReports.users[wrCurrentUser][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
@@ -1381,7 +1382,7 @@ function exportWeeklyReportPDF(){
   html+='<h1>Weekly Report</h1>';
   html+='<p style="text-align:center;color:#666">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
   html+='<h2>'+wrUserNames[wrCurrentUser]+' - Business Dept</h2>';
-  html+='<table><thead><tr><th>#</th><th>Task / Project</th><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>%</th><th>Status</th></tr></thead><tbody>';
+  html+='<table><thead><tr><th>#</th><th>Task / Project</th><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>%</th><th>Status</th><th>Noted</th></tr></thead><tbody>';
   tasks.forEach(function(task,idx){
     var planStart=task.planStart||'-';
     var planEnd=task.planEnd||'-';
@@ -1391,8 +1392,8 @@ function exportWeeklyReportPDF(){
     var pctHtml=(taskStatus!=='-'&&pct!==undefined)?pct+'%':'-';
     var statusClass={'Pending':'pending','In Progress':'progress','Completed':'ontime','Delay':'delayed'}[taskStatus]||'';
     var statusHtml=taskStatus!=='-'?'<span class="status '+statusClass+'">'+taskStatus+'</span>':'-';
-    html+='<tr><td colspan="8" style="background:#f5f5f5;font-weight:bold;padding:8px;">#'+(idx+1)+' - '+(task.name||'Task')+'</td></tr>';
-    html+='<tr class="plan"><td></td><td></td><td>PLAN</td><td>'+planStart+'</td><td>'+planEnd+'</td><td>'+days+'</td><td>'+pctHtml+'</td><td>'+statusHtml+'</td></tr>';
+    html+='<tr><td colspan="9" style="background:#f5f5f5;font-weight:bold;padding:8px;">#'+(idx+1)+' - '+(task.name||'Task')+'</td></tr>';
+    html+='<tr class="plan"><td></td><td></td><td>PLAN</td><td>'+planStart+'</td><td>'+planEnd+'</td><td>'+days+'</td><td>'+pctHtml+'</td><td>'+statusHtml+'</td><td>'+(task.noted||'')+'</td></tr>';
   });
   html+='</tbody></table>';
   html+='<div class="footer">Generated on '+new Date().toLocaleString()+' | MGD Business Management System</div>';
