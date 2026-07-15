@@ -2260,6 +2260,9 @@ function sm(m){
     document.querySelector('.tc').style.display='none';
     wrUpdateDisplay();
     wrSwitchUser(wrCurrentUser);
+  }else if(m==='projects'){
+    document.querySelector('.tc').style.display='block';
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else{
     document.querySelector('.tc').style.display='block';
   }
