@@ -472,7 +472,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
         </div>
       </div>
       <!-- Weekly Report Table -->
-      <div id="wrTableContainer" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;"></div>
+      <div id="wrTableContainer" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto;"></div>
     </div>
 
     <div class="tc ai" style="animation-delay:.6s"><table id="dt"><thead></thead><tbody id="tb"></tbody></table></div>
@@ -1246,8 +1246,8 @@ function wrAddNewTask(){
   var uInitials=wrCurrentUser==='tony'?'TC':(wrCurrentUser==='quoc'?'Q':'H');
   group.innerHTML=
     '<div style="display:grid;grid-template-columns:40px 380px 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
-    '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+newId+'</div>'+
-    '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
+    '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);position:sticky;left:0;z-index:3;background:var(--bg2);">#'+newId+'</div>'+
+    '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);position:sticky;left:40px;z-index:3;background:var(--bg2);">'+uInitials+'</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Start</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">End</div>'+
@@ -1255,8 +1255,8 @@ function wrAddNewTask(){
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Noted</div>'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
     '<div style="display:grid;grid-template-columns:40px 380px 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
-    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
-    '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+wrCurrentUser+'-'+newId+'-name" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);position:sticky;left:0;z-index:3;background:var(--bg2);"></div>'+
+    '<div style="padding:8px;border-right:1px solid var(--border);position:sticky;left:40px;z-index:3;background:var(--bg2);display:flex;align-items:center;"><input type="text" id="'+wrCurrentUser+'-'+newId+'-name" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-start" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-end" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
@@ -1293,8 +1293,8 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
   var uInitials=user==='tony'?'TC':(user==='quoc'?'Q':'H');
   group.innerHTML=
     '<div style="display:grid;grid-template-columns:40px 380px 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
-    '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+taskId+'</div>'+
-    '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
+    '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);position:sticky;left:0;z-index:3;background:var(--bg2);">#'+taskId+'</div>'+
+    '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);position:sticky;left:40px;z-index:3;background:var(--bg2);">'+uInitials+'</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Start</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">End</div>'+
@@ -1302,8 +1302,8 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Noted</div>'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
     '<div style="display:grid;grid-template-columns:40px 380px 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
-    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
-    '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+user+'-'+taskId+'-name" value="'+(taskData.name||'')+'" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
+    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);position:sticky;left:0;z-index:3;background:var(--bg2);"></div>'+
+    '<div style="padding:8px;border-right:1px solid var(--border);position:sticky;left:40px;z-index:3;background:var(--bg2);display:flex;align-items:center;"><input type="text" id="'+user+'-'+taskId+'-name" value="'+(taskData.name||'')+'" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-start" value="'+(taskData.planStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-end" value="'+(taskData.planEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
