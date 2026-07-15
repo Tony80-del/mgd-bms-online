@@ -2226,6 +2226,7 @@ function sm(m){
     document.getElementById('bs').style.display='grid';
     document.getElementById('bf').style.display='flex';
     document.querySelector('.tc').style.display='block';
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     setBidsFilter(bidsFilter);
     updateStats();
   }else if(m==='customers'){
@@ -2237,6 +2238,7 @@ function sm(m){
     var di=document.getElementById('custDateInput');
     if(di) di.value=custDateFilter;
     document.querySelector('.tc').style.display='block';
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else if(m==='chambers'){
     document.getElementById('chf').style.display='flex';
     ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
