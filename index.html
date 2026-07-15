@@ -1418,74 +1418,125 @@ if(!document.getElementById('wr-animations')){
 
 
 function exportSummaryPDF(){
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Summary Report - MGD</title>';
-  html+='<style>';
+  // ---- clone a monthly bar chart from the live DOM (preserves bar heights & colors) ----
+  function cloneChart(id){
+    var c=document.getElementById(id);
+    if(!c) return '';
+    var html='<div class="chart">';
+    for(var i=0;i<c.children.length;i++){
+      var col=c.children[i];
+      var wrap=col.firstElementChild;
+      if(!wrap) continue;
+      html+='<div style="flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;gap:1px;height:90px;">';
+      for(var j=0;j<wrap.children.length;j++){
+        var bar=wrap.children[j];
+        var cs=getComputedStyle(bar);
+        var h=cs.height;
+        var w=cs.width;
+        var bg=cs.backgroundColor;
+        var label=bar.textContent.trim();
+        html+='<div style="width:'+w+';border-radius:3px 3px 0 0;background:'+bg+';height:'+h+';display:flex;align-items:flex-end;justify-content:center;color:#000;font-size:7px;font-weight:700;line-height:1;">'+(label?label:'')+'</div>';
+      }
+      html+='</div>';
+    }
+    html+='</div>';
+    return html;
+  }
+  function gv(id){var el=document.getElementById(id);return el?el.textContent:'0';}
+  function gt(id){var el=document.getElementById(id);return el?el.innerHTML:'';}
+  function legItem(color,txt){return '<span style="display:flex;align-items:center;gap:4px;"><span style="width:11px;height:11px;border-radius:3px;background:'+color+';display:inline-block;"></span>'+txt+'</span>';}
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function mSpans(){var s='';for(var i=0;i<12;i++)s+='<span style="flex:1;text-align:center;">'+MONTHS[i]+'</span>';return s;}
+  function buildCard(title,vals,chart,leg){
+    var h='<div class="scard">';
+    h+='<div class="ct">'+title+'</div>';
+    h+='<div class="nums">';
+    for(var k=0;k<vals.length;k++){
+      if(k>0) h+='<div class="div"></div>';
+      h+='<div style="flex:1;min-width:0;"><div class="v" style="color:'+vals[k].c+';">'+vals[k].v+'</div><div class="l">'+vals[k].l+'</div></div>';
+    }
+    h+='</div>';
+    h+=chart;
+    h+='<div class="mlabel">'+mSpans()+'</div>';
+    h+='<div class="leg">'+leg+'</div>';
+    h+='</div>';
+    return h;
+  }
+
+  // Card 1: 项目信息 / Project Info (Bid)
+  var bidCard=buildCard(
+    gt('bidInfoStatsLabel'),
+    [
+      {v:gv('sumBidsTotal'),c:'#60a5fa',l:gt('sumBidsTotalLbl')},
+      {v:gv('sumBidsActive'),c:'#fbbf24',l:gt('sumBidsActiveLbl')},
+      {v:gv('sumBidsWon'),c:'#34d399',l:gt('sumBidsWonLbl')}
+    ],
+    cloneChart('bidChart'),
+    legItem('#60a5fa',gt('bidLegTotal'))+legItem('#fbbf24',gt('bidLegActive'))+legItem('#34d399',gt('bidLegWon'))
+  );
+  // Card 2: 2026客户统计 / Customer Stats
+  var custCard=buildCard(
+    gt('cust2026StatsLabel'),
+    [
+      {v:gv('sumCust2026Total'),c:'#34d399',l:gt('sumCust2026TotalLbl')},
+      {v:gv('sumCustJun'),c:'#22d3ee',l:gt('sumCustJunLbl')},
+      {v:gv('sumCustInteract'),c:'#60a5fa',l:gt('sumCustInteractLbl')}
+    ],
+    cloneChart('customerChart'),
+    legItem('#34d399',gt('custLegNew'))+legItem('#60a5fa',gt('custLegInteract'))
+  );
+  // Card 3: 商会统计 / Chamber Stats
+  var chCard=buildCard(
+    gt('chStatsLabel'),
+    [
+      {v:gv('sumChambTotal'),c:'#c084fc',l:gt('sumChambTotalLbl')},
+      {v:gv('sumChambJuneAtt'),c:'#fbbf24',l:gt('sumChambAprAttLbl')},
+      {v:gv('sumChambJuneUpc'),c:'#38bdf8',l:gt('sumChambAprUpcLbl')}
+    ],
+    cloneChart('chamberChart'),
+    legItem('#fbbf24',gt('chLegAtt'))+legItem('#38bdf8',gt('chLegUpc'))
+  );
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Summary Report - MGD</title><style>';
   html+='@page{size:A4;margin:12mm;}';
-  html+='*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}';
-  html+='body{font-family:Arial,"Microsoft YaHei",sans-serif;color:#333;margin:0;padding:0;}';
-  html+='.page{page-break-after:always;padding-bottom:5mm;}';
+  html+='*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}';
+  html+='body{font-family:"Noto Sans SC","Microsoft YaHei",Arial,sans-serif;color:#333;margin:0;padding:0;}';
+  html+='.page{page-break-after:always;}';
   html+='.page:last-child{page-break-after:avoid;}';
   html+='.page-header{font-size:11px;color:#999;text-align:right;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;}';
   html+='h1{color:#1a5f7a;text-align:center;margin:0 0 3px 0;font-size:22px;}';
   html+='.subtitle{text-align:center;color:#666;margin:0 0 20px 0;font-size:12px;}';
   html+='h2{color:#555;border-bottom:2px solid #1a5f7a;padding-bottom:6px;margin:22px 0 14px 0;font-size:16px;}';
-  html+='.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;}';
-  html+='.stat-card{background:#f5f5f5;border-radius:8px;padding:18px 12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);}';
-  html+='.stat-card h3{font-size:12px;color:#666;margin:0 0 8px 0;}';
-  html+='.stat-card .value{font-size:38px;font-weight:bold;margin:8px 0;}';
-  html+='.stat-card.bids .value{color:#1a5f7a;}';
-  html+='.stat-card.cust .value{color:#2e7d32;}';
-  html+='.stat-card.chamb .value{color:#7b1fa2;}';
-  html+='.stat-card .sub{font-size:10px;color:#888;margin-top:4px;}';
   html+='.table{width:100%;border-collapse:collapse;margin-top:10px;}';
   html+='.table th{background:#1a5f7a;color:#fff;padding:9px 8px;text-align:left;font-size:11px;}';
   html+='.table td{padding:8px;border-bottom:1px solid #ddd;font-size:11px;}';
   html+='.table tr{page-break-inside:avoid;}';
   html+='.table tr:nth-child(even){background:#f9f9f9;}';
   html+='.footer{text-align:center;margin-top:20px;color:#999;font-size:10px;}';
+  // ---- Page 1 Summary cards (match on-screen display) ----
+  html+='.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px;}';
+  html+='.scard{background:#0b1e3d;border:1px solid #0f2d50;border-radius:12px;padding:18px 14px;}';
+  html+='.scard .ct{font-size:13px;color:#7FB3D8;text-align:center;margin-bottom:14px;}';
+  html+='.scard .nums{display:flex;align-items:center;justify-content:space-around;gap:6px;text-align:center;}';
+  html+='.scard .div{width:1px;height:42px;background:#0f2d50;}';
+  html+='.scard .v{font-size:30px;font-weight:700;}';
+  html+='.scard .l{font-size:11px;color:#3D5A80;margin-top:4px;line-height:1.3;}';
+  html+='.scard .chart{display:flex;align-items:flex-end;justify-content:space-between;gap:2px;height:90px;margin-top:16px;}';
+  html+='.scard .mlabel{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:#3D5A80;}';
+  html+='.scard .leg{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px;font-size:11px;color:#7FB3D8;}';
   html+='</style></head><body>';
-  
-  // ============ PAGE 1: STATS ============
+
+  // ============ PAGE 1: SUMMARY DISPLAY (3 cards + charts) ============
   html+='<div class="page">';
   html+='<div class="page-header">Page 1 / 3</div>';
   html+='<h1>MGD Business Management System</h1>';
   html+='<p class="subtitle">Summary Report | Generated: '+new Date().toLocaleString()+'</p>';
-  
-  // Bids Stats
-  var bTotal=document.getElementById('sumBidsTotal')?document.getElementById('sumBidsTotal').textContent:'0';
-  var bBidding=document.getElementById('sumBidsActive')?document.getElementById('sumBidsActive').textContent:'0';
-  var bTracking=document.getElementById('sumBidsWon')?document.getElementById('sumBidsWon').textContent:'0';
-  html+='<h2>投标统计 / Bid Statistics</h2>';
-  html+='<div class="stats-grid">';
-  html+='<div class="stat-card bids"><h3>总计 / Total</h3><div class="value">'+bTotal+'</div><div class="sub">投标 / Bids</div></div>';
-  html+='<div class="stat-card bids"><h3>投标中 / Bidding</h3><div class="value">'+bBidding+'</div><div class="sub">进行中 / In Progress</div></div>';
-  html+='<div class="stat-card bids"><h3>跟踪 / Following</h3><div class="value">'+bTracking+'</div><div class="sub">追踪 / Tracking</div></div>';
-  html+='</div>';
-  
-  // Customer Stats
-  var c2026=document.getElementById('sumCust2026Total')?document.getElementById('sumCust2026Total').textContent:'0';
-  var cJuly=document.getElementById('sumCustJun')?document.getElementById('sumCustJun').textContent:'0';
-  var cInteract=document.getElementById('sumCustInteract')?document.getElementById('sumCustInteract').textContent:'0';
-  html+='<h2>客户统计 / Customer Statistics</h2>';
-  html+='<div class="stats-grid">';
-  html+='<div class="stat-card cust"><h3>2026 总计 / Total 2026</h3><div class="value">'+c2026+'</div><div class="sub">客户 / Customers</div></div>';
-  html+='<div class="stat-card cust"><h3>July 新增 / July New</h3><div class="value">'+cJuly+'</div><div class="sub">新客户 / New</div></div>';
-  html+='<div class="stat-card cust"><h3>客户互动 / Interactions</h3><div class="value">'+cInteract+'</div><div class="sub">互动 / Interactions</div></div>';
-  html+='</div>';
-  
-  // Chamber Stats
-  var chTotal=document.getElementById('sumChambTotal')?document.getElementById('sumChambTotal').textContent:'0';
-  var chAtt=document.getElementById('sumChambJuneAtt')?document.getElementById('sumChambJuneAtt').textContent:'0';
-  var chUpc=document.getElementById('sumChambJuneUpc')?document.getElementById('sumChambJuneUpc').textContent:'0';
-  html+='<h2>商会统计 / Chamber Statistics</h2>';
-  html+='<div class="stats-grid">';
-  html+='<div class="stat-card chamb"><h3>总计 / Total</h3><div class="value">'+chTotal+'</div><div class="sub">商会 / Chambers</div></div>';
-  html+='<div class="stat-card chamb"><h3>July 已出席 / Attended</h3><div class="value">'+chAtt+'</div><div class="sub">已出席 / Attended</div></div>';
-  html+='<div class="stat-card chamb"><h3>July 即将出席 / Upcoming</h3><div class="value">'+chUpc+'</div><div class="sub">即将 / Upcoming</div></div>';
+  html+='<div class="grid3">';
+  html+=bidCard+custCard+chCard;
   html+='</div>';
   html+='</div>';
-  
-  // ============ PAGE 2: BIDDING LIST ============
+
+  // ============ PAGE 2: BIDDING LIST (keep as-is) ============
   var biddingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中');});
   if(biddingBids.length>0){
     html+='<div class="page">';
@@ -1499,8 +1550,8 @@ function exportSummaryPDF(){
     html+='</tbody></table>';
     html+='</div>';
   }
-  
-  // ============ PAGE 3: TRACKING LIST ============
+
+  // ============ PAGE 3: TRACKING LIST (keep as-is) ============
   var trackingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪');});
   if(trackingBids.length>0){
     html+='<div class="page">';
@@ -1514,13 +1565,14 @@ function exportSummaryPDF(){
     html+='</tbody></table>';
     html+='</div>';
   }
-  
+
   html+='</body></html>';
   var win=window.open('','_blank');
   win.document.write(html);
   win.document.close();
-  setTimeout(function(){win.print();},500);
+  setTimeout(function(){win.print();},600);
 }
+
 
 function saveQuarterlyData(qKey){
   saveData();
