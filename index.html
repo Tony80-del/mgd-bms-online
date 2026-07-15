@@ -266,6 +266,9 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button onclick="setBidsFilter('bidding')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfBidding">投标中 / Bidding</button>
       <button onclick="setBidsFilter('tracking')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfTracking">追踪 / Tracking</button>
     </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button onclick="exportSummaryPDF()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📄 Export PDF</button>
+    </div>
     <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
       <!-- 项目信息(复合卡片) -->
       <div class="bg-[var(--card)] rounded-xl p-6 border border-[var(--border)]">
@@ -1411,6 +1414,73 @@ if(!document.getElementById('wr-animations')){
   animStyle.id='wr-animations';
   animStyle.textContent='@keyframes slideInWR{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes slideOutWR{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}.wr-status{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}.wr-progress{background:rgba(245,158,11,0.2);color:#fbbf24}.wr-ontime{background:rgba(34,197,94,0.2);color:#4ade80}.wr-delayed{background:rgba(244,63,94,0.2);color:#fb7185}.wr-early{background:rgba(59,130,246,0.2);color:#60a5fa}.wr-pending{background:rgba(113,113,122,0.2);color:#94a3b8}';
   document.head.appendChild(animStyle);
+}
+
+
+function exportSummaryPDF(){
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Summary Report - MGD</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#333}h1{color:#1a5f7a;text-align:center;margin-bottom:5px}h2{color:#555;border-bottom:2px solid #1a5f7a;padding-bottom:5px;margin-top:25px}.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:15px}.stat-card{background:#f5f5f5;border-radius:10px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)}.stat-card h3{font-size:12px;color:#666;margin:0 0 10px 0}.stat-card .value{font-size:36px;font-weight:bold;margin:10px 0}.stat-card.bids .value{color:#1a5f7a}.stat-card.cust .value{color:#2e7d32}.stat-card.chamb .value{color:#7b1fa2}.stat-card .sub{font-size:11px;color:#888;margin-top:5px}.table{width:100%;border-collapse:collapse;margin-top:20px}.table th{background:#1a5f7a;color:#fff;padding:10px;text-align:left}.table td{padding:8px;border-bottom:1px solid #ddd}.table tr:nth-child(even){background:#f9f9f9}.footer{text-align:center;margin-top:40px;color:#888;font-size:12px}</style></head><body>';
+  html+='<h1>MGD Business Management System</h1>';
+  html+='<p style="text-align:center;color:#666;margin-top:0">Summary Report | Generated: '+new Date().toLocaleString()+'</p>';
+  
+  // Bids Stats
+  var bTotal=document.getElementById('sumBidsTotal')?document.getElementById('sumBidsTotal').textContent:'0';
+  var bBidding=document.getElementById('sumBidsActive')?document.getElementById('sumBidsActive').textContent:'0';
+  var bTracking=document.getElementById('sumBidsWon')?document.getElementById('sumBidsWon').textContent:'0';
+  html+='<h2>投标统计 / Bid Statistics</h2>';
+  html+='<div class="stats-grid">';
+  html+='<div class="stat-card bids"><h3>总计 / Total</h3><div class="value">'+bTotal+'</div><div class="sub">投标 / Bids</div></div>';
+  html+='<div class="stat-card bids"><h3>投标中 / Bidding</h3><div class="value">'+bBidding+'</div><div class="sub">进行中 / In Progress</div></div>';
+  html+='<div class="stat-card bids"><h3>跟踪 / Following</h3><div class="value">'+bTracking+'</div><div class="sub">追踪 / Tracking</div></div>';
+  html+='</div>';
+  
+  // Customer Stats
+  var c2026=document.getElementById('sumCust2026Total')?document.getElementById('sumCust2026Total').textContent:'0';
+  var cJuly=document.getElementById('sumCustJun')?document.getElementById('sumCustJun').textContent:'0';
+  var cInteract=document.getElementById('sumCustInteract')?document.getElementById('sumCustInteract').textContent:'0';
+  html+='<h2>客户统计 / Customer Statistics</h2>';
+  html+='<div class="stats-grid">';
+  html+='<div class="stat-card cust"><h3>2026 总计 / Total 2026</h3><div class="value">'+c2026+'</div><div class="sub">客户 / Customers</div></div>';
+  html+='<div class="stat-card cust"><h3>July 新增 / July New</h3><div class="value">'+cJuly+'</div><div class="sub">新客户 / New</div></div>';
+  html+='<div class="stat-card cust"><h3>客户互动 / Interactions</h3><div class="value">'+cInteract+'</div><div class="sub">互动 / Interactions</div></div>';
+  html+='</div>';
+  
+  // Chamber Stats
+  var chTotal=document.getElementById('sumChambTotal')?document.getElementById('sumChambTotal').textContent:'0';
+  var chAtt=document.getElementById('sumChambJuneAtt')?document.getElementById('sumChambJuneAtt').textContent:'0';
+  var chUpc=document.getElementById('sumChambJuneUpc')?document.getElementById('sumChambJuneUpc').textContent:'0';
+  html+='<h2>商会统计 / Chamber Statistics</h2>';
+  html+='<div class="stats-grid">';
+  html+='<div class="stat-card chamb"><h3>总计 / Total</h3><div class="value">'+chTotal+'</div><div class="sub">商会 / Chambers</div></div>';
+  html+='<div class="stat-card chamb"><h3>July 已出席 / Attended</h3><div class="value">'+chAtt+'</div><div class="sub">已出席 / Attended</div></div>';
+  html+='<div class="stat-card chamb"><h3>July 即将出席 / Upcoming</h3><div class="value">'+chUpc+'</div><div class="sub">即将 / Upcoming</div></div>';
+  html+='</div>';
+  
+  // Recent Bids Table
+  if(data.bids && data.bids.length>0){
+    html+='<h2>投标列表 / Bid List</h2>';
+    html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Stage / 阶段</th><th>Est. Value / 金额</th></tr></thead><tbody>';
+    data.bids.slice(0,20).forEach(function(b,i){
+      html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.stage||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+  
+  // Recent Customers Table
+  if(data.customers && data.customers.length>0){
+    html+='<h2>客户列表 / Customer List</h2>';
+    html+='<table class="table"><thead><tr><th>#</th><th>Company / 公司</th><th>Contact / 联系人</th><th>Phone / 电话</th><th>Country / 国家</th><th>Created / 创建</th></tr></thead><tbody>';
+    data.customers.slice(0,20).forEach(function(c,i){
+      html+='<tr><td>'+(i+1)+'</td><td>'+(c.companyName||'')+'</td><td>'+(c.contactPerson||'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.country||'')+'</td><td>'+(c.createdDate||'')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+  
+  html+='<div class="footer">MGD Business Management System | Generated: '+new Date().toLocaleString()+'</div>';
+  html+='</body></html>';
+  var win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(function(){win.print();},500);
 }
 
 function saveQuarterlyData(qKey){
