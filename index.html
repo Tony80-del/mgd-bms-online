@@ -2872,8 +2872,8 @@ function doSave(){
         data[mod].push(item);
       }
     }else{
-      // Set createdDate for new customers so 2026 count works
-      if(mod==='customers'){
+      // Set createdDate for new customers if not already set
+      if(mod==='customers' && !item.createdDate){
         const today=new Date();
         const y=today.getFullYear();
         const m=String(today.getMonth()+1).padStart(2,'0');
