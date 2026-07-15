@@ -1206,8 +1206,11 @@ function wrDeleteTask(user,taskId){
 function wrAddNewTask(){
   var container=document.getElementById('wrTableContainer');
   if(!container)return;
-  wrTaskCounter[wrCurrentUser]=(wrTaskCounter[wrCurrentUser]||0)+1;
-  var newId=wrTaskCounter[wrCurrentUser];
+  // Get current tasks and use tasks.length + 1 as new ID for logical numbering
+  var weekData=data.weeklyReports.users[wrCurrentUser]&&data.weeklyReports.users[wrCurrentUser][wrCurrentWeek];
+  var currentTasks=weekData&&weekData.tasks||[];
+  var newId=currentTasks.length+1;
+  wrTaskCounter[wrCurrentUser]=newId;
   var group=document.createElement('div');
   group.className='wr-task-group';
   group.id='wr-task-'+wrCurrentUser+'-'+newId;
