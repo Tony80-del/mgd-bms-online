@@ -1233,7 +1233,7 @@ function wrAddNewTask(){
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-start" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-end" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+wrCurrentUser+'-'+newId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">-</div></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><span style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(245,158,11,0.2);color:#fbbf24;">In Progress</span></div>'+
+     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+wrCurrentUser+'-'+newId+'-status" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending">Pending</option><option value="In Progress" selected>In Progress</option><option value="Completed">Completed</option></select></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+wrCurrentUser+'\','+newId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>';
   // Insert BEFORE the Add New Task button
   var addBtn=container.querySelector('.wr-add-btn');
@@ -1277,7 +1277,7 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-start" value="'+(taskData.planStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-end" value="'+(taskData.planEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">'+(planDays>0?planDays:'-')+'</div></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><span style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(245,158,11,0.2);color:#fbbf24;">In Progress</span></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+user+'-'+taskId+'-status" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending" '+(taskData.taskStatus==='Pending'?'selected':'')+'>Pending</option><option value="In Progress" '+(taskData.taskStatus==='In Progress'?'selected':'')+'>In Progress</option><option value="Completed" '+(taskData.taskStatus==='Completed'?'selected':'')+'>Completed</option></select></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+user+'\','+taskId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>';
   if(taskData.planStart&&taskData.planEnd)setTimeout(function(){wrAutoCalculate(user,taskId);},50);
   container.appendChild(group);
@@ -1327,9 +1327,8 @@ function saveWeeklyReport(){
     var name=document.getElementById(wrCurrentUser+'-'+taskId+'-name');
     var planStart=document.getElementById(wrCurrentUser+'-'+taskId+'-start');
     var planEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-end');
-    // var actualStart=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-start');
-    // var actualEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-end');
-    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:''});
+    var planStatus=document.getElementById(wrCurrentUser+'-'+taskId+'-status');
+    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:'',taskStatus:planStatus?planStatus.value:''});
   });
   data.weeklyReports.users[wrCurrentUser][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
