@@ -1455,7 +1455,7 @@ function exportSummaryPDF(){
   html+='<div class="stat-card chamb"><h3>July 即将出席 / Upcoming</h3><div class="value">'+chUpc+'</div><div class="sub">即将 / Upcoming</div></div>';
   html+='</div>';
   
-  // Bidding List - use same filter as renderTable
+  // Bidding List - match same filter as renderTable (stageContent only)
   var biddingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中');});
   if(biddingBids.length>0){
     html+='<h2>投标中列表 / Bidding List</h2>';
@@ -1466,7 +1466,7 @@ function exportSummaryPDF(){
     html+='</tbody></table>';
   }
   
-  // Tracking List - use same filter as renderTable
+  // Tracking List - match same filter as renderTable (stageContent only)
   var trackingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪');});
   if(trackingBids.length>0){
     html+='<h2>跟踪项目列表 / Tracking Project List</h2>';
