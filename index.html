@@ -1552,13 +1552,14 @@ function exportSummaryPDF(){
   html+='.table tr{page-break-inside:avoid;}';
   html+='.table tr:nth-child(even){background:#f9f9f9;}';
   // ---- Summary cards (match on-screen display) ----
-  html+='.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;}';
-  html+='.grid3b{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}';
+  html+='.row{display:flex;gap:12px;margin-top:10px;align-items:stretch;}';
+  html+='.row > .scard{flex:1 1 0;min-width:0;}';
+  html+='.scard svg{max-width:100%;height:auto;}';
   html+='.scard{background:#0b1e3d;border:1px solid #0f2d50;border-radius:12px;padding:16px 14px;}';
   html+='.scard .ct{font-size:13px;color:#7FB3D8;text-align:center;margin-bottom:12px;line-height:1.3;}';
   html+='.scard .nums{display:flex;align-items:center;justify-content:space-around;gap:6px;text-align:center;}';
   html+='.scard .div{width:1px;height:42px;background:#0f2d50;}';
-  html+='.scard .v{font-size:28px;font-weight:700;}';
+  html+='.scard .v{font-size:30px;font-weight:700;}';
   html+='.scard .l{font-size:11px;color:#3D5A80;margin-top:4px;line-height:1.3;}';
   html+='.scard .chart{display:flex;align-items:flex-end;justify-content:space-between;gap:2px;height:90px;margin-top:14px;}';
   html+='.scard .mlabel{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:#3D5A80;}';
@@ -1570,10 +1571,10 @@ function exportSummaryPDF(){
   html+='<div class="page-header">Page 1 / 3</div>';
   html+='<h1>MGD Business Management System</h1>';
   html+='<p class="subtitle">Summary Report | Generated: '+new Date().toLocaleString()+'</p>';
-  html+='<div class="grid3">';
+  html+='<div class="row">';
   html+=bidCard+custCard+chCard;
   html+='</div>';
-  html+='<div class="grid3b">';
+  html+='<div class="row">';
   html+=win1Card+win2Card+win3Card;
   html+='</div>';
   html+='</div>';
