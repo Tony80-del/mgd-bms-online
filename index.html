@@ -1455,22 +1455,24 @@ function exportSummaryPDF(){
   html+='<div class="stat-card chamb"><h3>July 即将出席 / Upcoming</h3><div class="value">'+chUpc+'</div><div class="sub">即将 / Upcoming</div></div>';
   html+='</div>';
   
-  // Recent Bids Table
-  if(data.bids && data.bids.length>0){
-    html+='<h2>投标列表 / Bid List</h2>';
+  // Bidding List (投标中)
+  var biddingBids=data.bids.filter(function(b){return b.stageContent&&(b.stageContent.indexOf('投标中')!==-1||b.stageContent.indexOf('Bidding')!==-1);});
+  if(biddingBids.length>0){
+    html+='<h2>投标中列表 / Bidding List</h2>';
     html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Stage / 阶段</th><th>Est. Value / 金额</th></tr></thead><tbody>';
-    data.bids.slice(0,20).forEach(function(b,i){
+    biddingBids.forEach(function(b,i){
       html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.stage||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
     });
     html+='</tbody></table>';
   }
   
-  // Recent Customers Table
-  if(data.customers && data.customers.length>0){
-    html+='<h2>客户列表 / Customer List</h2>';
-    html+='<table class="table"><thead><tr><th>#</th><th>Company / 公司</th><th>Contact / 联系人</th><th>Phone / 电话</th><th>Country / 国家</th><th>Created / 创建</th></tr></thead><tbody>';
-    data.customers.slice(0,20).forEach(function(c,i){
-      html+='<tr><td>'+(i+1)+'</td><td>'+(c.companyName||'')+'</td><td>'+(c.contactPerson||'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.country||'')+'</td><td>'+(c.createdDate||'')+'</td></tr>';
+  // Tracking List (跟踪/Following)
+  var trackingBids=data.bids.filter(function(b){return b.stageContent&&(b.stageContent.indexOf('跟踪')!==-1||b.stageContent.indexOf('Following')!==-1);});
+  if(trackingBids.length>0){
+    html+='<h2>跟踪项目列表 / Tracking Project List</h2>';
+    html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Stage / 阶段</th><th>Est. Value / 金额</th></tr></thead><tbody>';
+    trackingBids.forEach(function(b,i){
+      html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.stage||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
     });
     html+='</tbody></table>';
   }
