@@ -1162,47 +1162,6 @@ function wrAutoCalculate(user,taskId){
       planDays.style.color='var(--text)';
     }
   }
-  var actualStart=document.getElementById(user+'-'+taskId+'-actual-start');
-  var actualEnd=document.getElementById(user+'-'+taskId+'-actual-end');
-  var actualDays=document.getElementById(user+'-'+taskId+'-actual-days');
-  var actualStatus=document.getElementById(user+'-'+taskId+'-actual-status');
-  if(actualStart&&actualEnd&&actualDays&&actualStatus){
-    var aStart=actualStart.value?new Date(actualStart.value):null;
-    var aEnd=actualEnd.value?new Date(actualEnd.value):null;
-    if(aStart&&aEnd&&!isNaN(aStart)&&!isNaN(aEnd)){
-      var days=Math.ceil((aEnd-aStart)/(1000*60*60*24));
-      actualDays.textContent=days>=0?days:'-';
-      actualDays.style.background='rgba(34,197,94,0.2)';
-      actualDays.style.color='#4ade80';
-      var pEnd=planEnd&&planEnd.value?new Date(planEnd.value):null;
-      if(pEnd&&!isNaN(pEnd)){
-        var diff=Math.ceil((aEnd-pEnd)/(1000*60*60*24));
-        if(diff<0){
-          actualStatus.className='wr-status wr-early';
-          actualStatus.textContent='Early '+Math.abs(diff)+'d';
-          actualDays.style.background='rgba(59,130,246,0.2)';
-          actualDays.style.color='#60a5fa';
-        }else if(diff===0){
-          actualStatus.className='wr-status wr-ontime';
-          actualStatus.textContent='On Time';
-        }else{
-          actualStatus.className='wr-status wr-delayed';
-          actualStatus.textContent='Delayed +'+diff+'d';
-          actualDays.style.background='rgba(244,63,94,0.2)';
-          actualDays.style.color='#fb7185';
-        }
-      }else{
-        actualStatus.className='wr-status wr-progress';
-        actualStatus.textContent='In Progress';
-      }
-    }else{
-      actualDays.textContent='-';
-      actualDays.style.background='var(--bg2)';
-      actualDays.style.color='var(--text)';
-      actualStatus.className='wr-status wr-pending';
-      actualStatus.textContent='Pending';
-    }
-  }
 }
 
 function wrDeleteTask(user,taskId){
@@ -1225,7 +1184,7 @@ function wrDeleteTask(user,taskId){
       if(firstCell)firstCell.textContent='#'+newNum;
     }
     // Update element IDs
-    var suffixs=['-name','-start','-end','-days','-actual-start','-actual-end','-actual-days','-actual-status'];
+    var suffixs=['-name','-start','-end','-days'];
     suffixs.forEach(function(suf){
       var oldEl=document.getElementById(user+'-'+oldNum+suf);
       if(oldEl)oldEl.id=user+'-'+newNum+suf;
@@ -1283,19 +1242,9 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">'+(planDays>0?planDays:'-')+'</div></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><span style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(245,158,11,0.2);color:#fbbf24;">In Progress</span></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+user+'\','+taskId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>'+
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 110px 40px;background:rgba(34,197,94,0.02);">'+
-    '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
-    '<div style="padding:10px 12px;border-right:1px solid var(--border);display:flex;align-items:center;"><span style="color:var(--text2);font-size:12px;font-style:italic;">Actual Result</span></div>'+
-    '<div style="padding:10px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(34,197,94,0.2);color:#4ade80;">ACTUAL</span></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-actual-start" value="'+(taskData.actualStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-actual-end" value="'+(taskData.actualEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-actual-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">-</div></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><span id="'+user+'-'+taskId+'-actual-status" class="wr-status wr-pending" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;">Pending</span></div>'+
-    '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"></div></div>';
-  var addBtn=container.querySelector('.wr-add-btn');
-  if(addBtn){container.insertBefore(group,addBtn);}
-  else{container.appendChild(group);}
+    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 110px 40px;background:rgba(34,197,94,0.02);">';
   if(taskData.planStart&&taskData.planEnd)setTimeout(function(){wrAutoCalculate(user,taskId);},50);
+  container.appendChild(group);
 }
 
 function wrRenderWeeklyReportTable(){
@@ -1342,9 +1291,9 @@ function saveWeeklyReport(){
     var name=document.getElementById(wrCurrentUser+'-'+taskId+'-name');
     var planStart=document.getElementById(wrCurrentUser+'-'+taskId+'-start');
     var planEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-end');
-    var actualStart=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-start');
-    var actualEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-end');
-    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:'',actualStart:actualStart?actualStart.value:'',actualEnd:actualEnd?actualEnd.value:''});
+    // var actualStart=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-start');
+    // var actualEnd=document.getElementById(wrCurrentUser+'-'+taskId+'-actual-end');
+    tasks.push({name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:''});
   });
   data.weeklyReports.users[wrCurrentUser][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
@@ -1367,14 +1316,9 @@ function exportWeeklyReportPDF(){
   tasks.forEach(function(task,idx){
     var planStart=task.planStart||'-';
     var planEnd=task.planEnd||'-';
-    var actualStart=task.actualStart||'-';
-    var actualEnd=task.actualEnd||'-';
     var days='-';if(task.planStart&&task.planEnd){var s=new Date(task.planStart);var e=new Date(task.planEnd);days=Math.ceil((e-s)/(1000*60*60*24));}
-    var aDays='-';var status='Pending';var sClass='pending';
-    if(task.actualStart&&task.actualEnd){var as=new Date(task.actualStart);var ae=new Date(task.actualEnd);aDays=Math.ceil((ae-as)/(1000*60*60*24));if(task.planEnd){var pe=new Date(task.planEnd);var diff=Math.ceil((ae-pe)/(1000*60*60*24));if(diff<0){status='Early '+Math.abs(diff)+'d';sClass='early';}else if(diff===0){status='On Time';sClass='ontime';}else{status='Delayed +'+diff+'d';sClass='delayed';}}else{status='In Progress';sClass='progress';}}
     html+='<tr><td colspan="7" style="background:#f5f5f5;font-weight:bold;padding:8px;">#'+(idx+1)+' - '+(task.name||'Task')+'</td></tr>';
     html+='<tr class="plan"><td></td><td></td><td>PLAN</td><td>'+planStart+'</td><td>'+planEnd+'</td><td>'+days+'</td><td>-</td></tr>';
-    html+='<tr class="actual"><td></td><td>Actual Result</td><td>ACTUAL</td><td>'+actualStart+'</td><td>'+actualEnd+'</td><td>'+aDays+'</td><td><span class="status '+sClass+'">'+status+'</span></td></tr>';
   });
   html+='</tbody></table>';
   html+='<div class="footer">Generated on '+new Date().toLocaleString()+' | MGD Business Management System</div>';
