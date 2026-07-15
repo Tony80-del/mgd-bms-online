@@ -1166,6 +1166,14 @@ function wrAutoCalculate(user,taskId){
   }
 }
 
+
+function wrUpdateStatusColor(sel){
+  var v=sel.value;
+  var bg={'Pending':'rgba(100,116,139,0.2)','In Progress':'rgba(245,158,11,0.2)','Completed':'rgba(34,197,94,0.2)','Delay':'rgba(239,68,68,0.2)'};
+  var fg={'Pending':'#64748b','In Progress':'#fbbf24','Completed':'#22c55e','Delay':'#ef4444'};
+  if(bg[v]){sel.style.background=bg[v];sel.style.color=fg[v];}
+  else{sel.style.background='var(--bg2)';sel.style.color='var(--text)';}
+}
 function wrDeleteTask(user,taskId){
   if(!confirm('Delete this task?'))return;
   var taskEl=document.getElementById('wr-task-'+user+'-'+taskId);
@@ -1233,7 +1241,7 @@ function wrAddNewTask(){
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-start" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+wrCurrentUser+'-'+newId+'-end" onchange="wrAutoCalculate(\''+wrCurrentUser+'\','+newId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+wrCurrentUser+'-'+newId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">-</div></div>'+
-     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+wrCurrentUser+'-'+newId+'-status" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending">Pending</option><option value="In Progress" selected>In Progress</option><option value="Completed">Completed</option></select></div>'+
+     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+wrCurrentUser+'-'+newId+'-status" onchange="wrUpdateStatusColor(this)" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending">Pending</option><option value="In Progress" selected>In Progress</option><option value="Completed">Completed</option><option value="Delay">Delay</option></select></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+wrCurrentUser+'\','+newId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>';
   // Insert BEFORE the Add New Task button
   var addBtn=container.querySelector('.wr-add-btn');
@@ -1277,10 +1285,13 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-start" value="'+(taskData.planStart||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="date" id="'+user+'-'+taskId+'-end" value="'+(taskData.planEnd||'')+'" onchange="wrAutoCalculate(\''+user+'\','+taskId+')" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><div id="'+user+'-'+taskId+'-days" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;text-align:center;font-weight:600;min-width:40px;">'+(planDays>0?planDays:'-')+'</div></div>'+
-    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+user+'-'+taskId+'-status" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending" '+(taskData.taskStatus==='Pending'?'selected':'')+'>Pending</option><option value="In Progress" '+(taskData.taskStatus==='In Progress'?'selected':'')+'>In Progress</option><option value="Completed" '+(taskData.taskStatus==='Completed'?'selected':'')+'>Completed</option></select></div>'+
+    '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;"><select id="'+user+'-'+taskId+'-status" onchange="wrUpdateStatusColor(this)" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:11px;font-weight:600;width:100%;"><option value="Pending" '+(taskData.taskStatus==='Pending'?'selected':'')+'>Pending</option><option value="In Progress" '+(taskData.taskStatus==='In Progress'?'selected':'')+'>In Progress</option><option value="Completed" '+(taskData.taskStatus==='Completed'?'selected':'')+'>Completed</option><option value="Delay" '+(taskData.taskStatus==='Delay'?'selected':'')+'>Delay</option></select></div>'+
     '<div style="padding:8px 6px;display:flex;align-items:center;justify-content:center;"><button onclick="wrDeleteTask(\''+user+'\','+taskId+')" style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;">🗑️</button></div></div>';
   if(taskData.planStart&&taskData.planEnd)setTimeout(function(){wrAutoCalculate(user,taskId);},50);
   container.appendChild(group);
+  // Apply status color for existing tasks
+  var statusSel=document.getElementById(user+'-'+taskId+'-status');
+  if(statusSel)wrUpdateStatusColor(statusSel);
 }
 
 function wrRenderWeeklyReportTable(){
