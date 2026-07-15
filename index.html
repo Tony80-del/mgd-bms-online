@@ -517,7 +517,7 @@ function toggleWin1Lang(){
 
 function updateUI(){
   // 安全防护: 确保 mod 是有效值
-  const validMods=['summary','bids','customers','projects','chambers','q2result','plan2026'];
+  const validMods=['summary','bids','customers','projects','chambers','q2result','plan2026','weeklyreport'];
   const safeMod=validMods.includes(mod)?mod:'summary';
   ['ttl','sub','nd','nb','nc','ni','nch','nq2result','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s3','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
   document.getElementById('si').placeholder=t('sp');
