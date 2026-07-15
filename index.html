@@ -2254,6 +2254,7 @@ function sm(m){
   }else if(m==='weeklyreport'){
     var wrC=document.getElementById('weeklyReportContainer');
     if(wrC)wrC.style.display='block';
+    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     wrUpdateDisplay();
     wrSwitchUser(wrCurrentUser);
