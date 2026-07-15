@@ -1245,7 +1245,7 @@ function wrAddNewTask(){
   group.style.cssText='border-bottom:1px solid var(--border);';
   var uInitials=wrCurrentUser==='tony'?'TC':(wrCurrentUser==='quoc'?'Q':'H');
   group.innerHTML=
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 180px 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+newId+'</div>'+
     '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
@@ -1254,7 +1254,7 @@ function wrAddNewTask(){
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Days</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">%</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Noted</div>'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 180px 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
     '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+wrCurrentUser+'-'+newId+'-name" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
@@ -1292,7 +1292,7 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
   group.style.cssText='border-bottom:1px solid var(--border);';
   var uInitials=user==='tony'?'TC':(user==='quoc'?'Q':'H');
   group.innerHTML=
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 180px 90px 120px 120px 70px 70px 110px 160px 40px;background:var(--bg2);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">#'+taskId+'</div>'+
     '<div style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">'+uInitials+'</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Type</div>'+
@@ -1301,7 +1301,7 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">Days</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);">%</div>'+
     '<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Status</div>'+'<div style="padding:10px 8px;font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;border-right:1px solid var(--border);">Noted</div>'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;"></div></div>'+
-    '<div style="display:grid;grid-template-columns:40px 1fr 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
+    '<div style="display:grid;grid-template-columns:40px 180px 90px 120px 120px 70px 70px 110px 160px 40px;background:rgba(59,130,246,0.03);border-bottom:1px solid var(--border);">'+
     '<div style="padding:10px 6px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);"></div>'+
     '<div style="padding:8px;border-right:1px solid var(--border);display:flex;align-items:center;"><input type="text" id="'+user+'-'+taskId+'-name" value="'+(taskData.name||'')+'" placeholder="Task name..." style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:100%;"></div>'+
     '<div style="padding:8px 8px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;"><span style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(59,130,246,0.2);color:#60a5fa;">PLAN</span></div>'+
