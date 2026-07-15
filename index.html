@@ -699,9 +699,15 @@ function updateCustomerStats(){
 function getWeekNumber(d){
   const date=new Date(d);
   date.setHours(0,0,0,0);
-  date.setDate(date.getDate()+4-(date.getDay()||7));
-  const yearStart=new Date(date.getFullYear(),0,1);
-  return Math.ceil((((date-yearStart)/86400000)+1)/7);
+  // Saturday-based weeks: find first Saturday of year, then calculate week number
+  const year=date.getFullYear();
+  const jan1=new Date(year,0,1);
+  const daysToSaturday=(6-jan1.getDay()+7)%7;
+  const firstSaturday=new Date(jan1);
+  firstSaturday.setDate(jan1.getDate()+daysToSaturday);
+  if(date<firstSaturday)return 1;
+  const diffDays=Math.floor((date-firstSaturday)/(1000*60*60*24));
+  return Math.floor(diffDays/7)+2;
 }
 
 function setYearFilter(year){
@@ -1040,24 +1046,32 @@ function initWeeklyReport(){
 }
 
 function getWeekNumber(d){
-  d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
-  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
-  var yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+  const date=new Date(d);
+  date.setHours(0,0,0,0);
+  // Saturday-based weeks: find first Saturday of year, then calculate week number
+  const year=date.getFullYear();
+  const jan1=new Date(year,0,1);
+  const daysToSaturday=(6-jan1.getDay()+7)%7;
+  const firstSaturday=new Date(jan1);
+  firstSaturday.setDate(jan1.getDate()+daysToSaturday);
+  if(date<firstSaturday)return 1;
+  const diffDays=Math.floor((date-firstSaturday)/(1000*60*60*24));
+  return Math.floor(diffDays/7)+2;
 }
 
 function getWeekDates(weekNum,year){
   year=year||2026;
+  // Find first Saturday of the year (Week 1 starts from first Saturday)
   var jan1=new Date(year,0,1);
-  var daysToMonday=jan1.getDay()<=1?1-jan1.getDay():8-jan1.getDay();
-  var week1Monday=new Date(jan1);
-  week1Monday.setDate(jan1.getDate()+daysToMonday);
-  var targetMonday=new Date(week1Monday);
-  targetMonday.setDate(week1Monday.getDate()+(weekNum-1)*7);
-  var targetSunday=new Date(targetMonday);
-  targetSunday.setDate(targetMonday.getDate()+6);
+  var daysToSaturday=(6-jan1.getDay()+7)%7; // Days until first Saturday
+  var week1Saturday=new Date(jan1);
+  week1Saturday.setDate(jan1.getDate()+daysToSaturday);
+  var targetSaturday=new Date(week1Saturday);
+  targetSaturday.setDate(week1Saturday.getDate()+(weekNum-2)*7);
+  var targetNextSaturday=new Date(targetSaturday);
+  targetNextSaturday.setDate(targetSaturday.getDate()+7);
   var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return{start:months[targetMonday.getMonth()]+' '+targetMonday.getDate()+', '+targetMonday.getFullYear(),end:months[targetSunday.getMonth()]+' '+targetSunday.getDate()+', '+targetSunday.getFullYear()};
+  return{start:months[targetSaturday.getMonth()]+' '+targetSaturday.getDate()+', '+targetSaturday.getFullYear(),end:months[targetNextSaturday.getMonth()]+' '+targetNextSaturday.getDate()+', '+targetNextSaturday.getFullYear()};
 }
 
 function wrUpdateDisplay(){
