@@ -1026,7 +1026,7 @@ function saveQ2Notes(){
 }
 
 // ===================== WEEKLY REPORT SYSTEM =====================
-var wrCurrentWeek=parseInt(getWeekNumber(new Date()))||28;
+var wrCurrentWeek=parseInt(localStorage.getItem('wr_last_week'))||parseInt(getWeekNumber(new Date()))||28;
 var wrCurrentUser='tony';
 var wrRecordsVisible=false;
 var wrTaskCounter={tony:0,quoc:0,huong:0};
@@ -1111,6 +1111,7 @@ function wrRenderRecordsList(){
 
 function wrChangeWeek(direction){
   wrCurrentWeek=Math.max(1,Math.min(52,wrCurrentWeek+direction));
+  localStorage.setItem('wr_last_week',wrCurrentWeek);
   wrUpdateDisplay();
   wrRenderWeeklyReportTable();
   if(wrRecordsVisible)wrRenderRecordsList();
@@ -1118,6 +1119,7 @@ function wrChangeWeek(direction){
 
 function wrLoadWeek(weekNum){
   wrCurrentWeek=weekNum;
+  localStorage.setItem('wr_last_week',wrCurrentWeek);
   wrUpdateDisplay();
   wrRenderWeeklyReportTable();
   if(wrRecordsVisible){wrRenderRecordsList();wrToggleRecords();}
