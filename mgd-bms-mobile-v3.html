@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MGD BMS — Mobile</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0E1116;--panel:#161B22;--card:#1C2330;--card2:#243040;
+  --line:#2D3A4A;--txt:#E6EDF3;--mut:#8B949E;--acc:#00C7B7;--acc2:#009E92;
+  --red:#F85149;--org:#FF8C42;--yel:#E3B341;--grn:#3FB950;--blu:#58A6FF;--gry:#6E7681;--pur:#BC8CFF;
+}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:14px;overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);
+  position:relative;display:flex;flex-direction:column}
+
+/* ── Top Bar ── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;background:linear-gradient(180deg,#11161D,#0E1116);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(10px)
+}
+.topbar .logo{font-size:17px;font-weight:700;flex:1;white-space:nowrap}
+.topbar .logo .dot{color:var(--acc)}
+.lang-btn{
+  font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;
+  border:1px solid var(--line);background:var(--card);color:var(--mut);cursor:pointer;
+  white-space:nowrap
+}
+.lang-btn.active{background:var(--acc);color:#04201d;border-color:var(--acc)}
+.conn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);white-space:nowrap}
+.conn .led{width:8px;height:8px;border-radius:50%;background:var(--gry)}
+.conn .led.on{background:var(--grn);box-shadow:0 0 6px var(--grn)}
+.conn .led.err{background:var(--red)}
+
+/* ── Bottom Nav ── */
+.tabnav{
+  position:sticky;bottom:0;z-index:30;
+  display:flex;background:#0B0E13;
+  border-top:1px solid var(--line);padding:5px 2px
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;
+  padding:5px 0;color:var(--mut);font-size:10px;cursor:pointer;position:relative;user-select:none
+}
+.tab .ti{font-size:20px;line-height:1}
+.tab.active{color:var(--acc)}
+.tab .badge{
+  position:absolute;top:1px;right:50%;margin-right:-16px;
+  background:var(--acc);color:#04201d;font-size:9px;font-weight:700;
+  border-radius:9px;padding:0 5px;min-width:15px;text-align:center;display:none
+}
+.tab .badge.warn{background:var(--org);color:#1a0a00}
+
+/* ── Screens ── */
+.screen{flex:1;overflow-y:auto;padding:12px 14px 90px;display:none}
+.screen.active{display:block}
+
+/* ── Section Title ── */
+.sec-title{
+  font-size:11px;color:var(--mut);text-transform:uppercase;
+  letter-spacing:.8px;margin:16px 0 7px;font-weight:600
+}
+.sec-title:first-child{margin-top:2px}
+
+/* ── Stat Grid (Dashboard) ── */
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:11px 12px;cursor:pointer;transition:border-color .15s
+}
+.stat:active{border-color:var(--acc)}
+.stat .h{font-size:11px;color:var(--mut);font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.stat .big{font-size:28px;font-weight:700;margin:2px 0}
+.stat .sub{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:11px;color:var(--mut);margin-top:3px}
+.stat .sub b{color:var(--txt);font-weight:600}
+.stat.full{grid-column:1/-1}
+.stat.accent{border-color:var(--acc);background:linear-gradient(135deg,#13252a,#1C2330)}
+
+/* ── Reminder Banner ── */
+.banner{
+  background:linear-gradient(135deg,#3a1d00,#2a1500);
+  border:1px solid var(--org);color:#ffd9b0;border-radius:12px;
+  padding:9px 12px;margin:6px 0;font-size:12px;display:flex;align-items:center;gap:8px
+}
+.banner.red{background:linear-gradient(135deg,#3a0000,#2a0000);border-color:var(--red);color:#ffb3ae}
+.banner .msg{flex:1;line-height:1.4}
+.banner .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.banner .tag.ov{background:rgba(248,81,73,.25);color:var(--red)}
+.banner .tag.d2{background:rgba(255,140,66,.25);color:var(--org)}
+.banner .del{margin-left:auto;color:var(--mut);cursor:pointer;font-size:13px;padding:0 4px}
+
+/* ── Activity Feed ── */
+.activity{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.act{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-bottom:1px solid var(--line)
+}
+.act:last-child{border-bottom:none}
+.act .ic{
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;background:var(--card2);flex-shrink:0
+}
+.act .tx{flex:1;min-width:0}
+.act .tx .title{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act .tx .sub{font-size:11px;color:var(--mut);margin-top:1px}
+.act .dt{font-size:11px;color:var(--mut);white-space:nowrap;flex-shrink:0}
+
+/* ── Quick Actions ── */
+.quick-actions{display:flex;gap:8px;margin-top:4px}
+.qa{
+  flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:10px 8px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--mut);transition:border-color .15s,color .15s
+}
+.qa:active{border-color:var(--acc);color:var(--acc)}
+.qa .ic{display:block;font-size:20px;margin-bottom:3px}
+
+/* ── List Cards ── */
+.search{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.search input{
+  flex:1;min-width:0;background:var(--card);border:1px solid var(--line);
+  color:var(--txt);border-radius:10px;padding:9px 11px;font-size:13px
+}
+.search select{
+  background:var(--card);border:1px solid var(--line);color:var(--txt);
+  border-radius:10px;padding:9px 8px;font-size:13px
+}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:12px;cursor:pointer;transition:border-color .15s
+}
+.item:active{border-color:var(--acc);background:var(--card2)}
+.item .row1{display:flex;align-items:center;gap:7px;margin-bottom:5px;min-width:0}
+.item .name{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .meta{font-size:12px;color:var(--mut);display:flex;flex-wrap:wrap;gap:3px 10px}
+.item .meta b{color:var(--txt);font-weight:600}
+.item .edit{
+  position:absolute;top:10px;right:10px;
+  color:var(--mut);font-size:11px;background:var(--card2);
+  border:1px solid var(--line);border-radius:7px;padding:3px 8px;cursor:pointer
+}
+.item{position:relative}
+.item:hover .edit{display:block}
+
+/* ── Pill Badges ── */
+.pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
+.p-Bidding,.p-Upcoming,.p-Meeting,.p-Blue{background:rgba(88,166,255,.18);color:var(--blu)}
+.p-Won,.p-Attended,.p-Completed,.p-Green{background:rgba(63,185,80,.18);color:var(--grn)}
+.p-Lost,.p-Overdue,.p-Red{background:rgba(248,81,73,.18);color:var(--red)}
+.p-Following,.p-Medium,.p-Pending,.p-Yellow,.p-进行中,.p-In{background:rgba(227,179,65,.18);color:var(--yel)}
+.p-Reviewing,.p-PQ,.p-Purple{background:rgba(188,140,255,.18);color:var(--pur)}
+.p-High,.p-高,.p-高High{background:rgba(248,81,73,.18);color:var(--red)}
+.p-Low,.p-Low,.p-Grey{background:rgba(110,118,129,.20);color:var(--gry)}
+.p-中,.p-Medium,.p-MediumMedium{background:rgba(227,179,65,.18);color:var(--yel)}
+.p-due2,.p-Orange{background:rgba(255,140,66,.18);color:var(--org)}
+.p-资料收集,.p-Data{background:rgba(188,140,255,.18);color:var(--pur)}
+.p-投标中,.p-BiddingBidding{background:rgba(88,166,255,.18);color:var(--blu)}
+
+/* ── FAB ── */
+.fab{
+  position:fixed;bottom:68px;right:max(14px,calc(50% - 215px + 14px));z-index:40;
+  width:56px;height:56px;border-radius:50%;background:var(--acc);color:#04201d;
+  font-size:26px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(0,199,183,.4);cursor:pointer
+}
+.fab:active{transform:scale(.93)}
+
+/* ── Modal Form ── */
+.modal{
+  position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);
+  display:none;align-items:flex-end
+}
+.modal.show{display:flex}
+.sheet{
+  background:var(--panel);width:100%;max-width:430px;margin:0 auto;
+  border-radius:18px 18px 0 0;max-height:92vh;overflow-y:auto;
+  padding:16px 16px 32px;border-top:1px solid var(--line)
+}
+.sheet h3{
+  margin:2px 0 14px;font-size:16px;font-weight:700;
+  display:flex;align-items:center;gap:8px
+}
+.sheet h3 .x{margin-left:auto;color:var(--mut);cursor:pointer;font-size:22px;font-weight:400;line-height:1}
+.fld{margin-bottom:11px}
+.fld label{display:block;font-size:12px;color:var(--mut);margin-bottom:5px;font-weight:600}
+.fld label .req{color:var(--red)}
+.fld input,.fld select,.fld textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);color:var(--txt);
+  border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit
+}
+.fld textarea{resize:vertical;min-height:68px}
+.fld.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.btnrow{display:flex;gap:9px;margin-top:8px}
+.btn{flex:1;padding:12px;border-radius:11px;font-size:14px;font-weight:600;border:1px solid var(--line);cursor:pointer}
+.btn.primary{background:var(--acc);color:#04201d;border-color:var(--acc)}
+.btn.ghost{background:transparent;color:var(--txt)}
+.btn.danger{background:rgba(248,81,73,.12);color:var(--red);border-color:rgba(248,81,73,.4);flex:0 0 auto;padding:12px 16px}
+.btn:active{transform:scale(.97)}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+  z-index:60;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+  padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;
+  transition:.25s;pointer-events:none;max-width:90%;white-space:nowrap
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:var(--red);color:#ffb3ae}
+
+/* ── Empty ── */
+.empty{text-align:center;color:var(--mut);padding:36px 0;font-size:13px;line-height:1.6}
+
+/* ── Title bar for list screen ── */
+.screen-head{display:flex;align-items:center;margin-bottom:10px;gap:10px}
+.screen-head h2{flex:1;margin:0;font-size:18px;font-weight:700}
+
+/* ── Filter pill row ── */
+.filter-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+.fp{
+  font-size:12px;font-weight:600;padding:5px 13px;border-radius:20px;
+  border:1px solid var(--line);background:var(--card);color:var(--mut);cursor:pointer
+}
+.fp.active{background:var(--acc);color:#04201d;border-color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ Top Bar ══ -->
+  <div class="topbar">
+    <div class="logo">🔄 MGD<span class="dot">·</span>BMS</div>
+    <button class="lang-btn" id="lzh" onclick="setLang('zh')">中文</button>
+    <button class="lang-btn" id="len" onclick="setLang('en')">EN</button>
+    <div class="conn"><span class="led" id="led"></span><span id="connTxt">—</span></div>
+  </div>
+
+  <!-- ══ HOME / DASHBOARD ══ -->
+  <div class="screen active" id="scr-home">
+    <div class="sec-title" id="home-greet">综合概览</div>
+    <div class="statgrid" id="dashStats"></div>
+
+    <div class="sec-title" id="sec-remind">⚠️ 待办提醒</div>
+    <div id="dashReminders"></div>
+
+    <div class="sec-title" id="sec-rec">📋 最近动态</div>
+    <div class="activity" id="dashActivity"></div>
+  </div>
+
+  <!-- ══ BIDS ══ -->
+  <div class="screen" id="scr-bids">
+    <div class="screen-head">
+      <h2 id="ttl-bids">投标项目</h2>
+    </div>
+    <div class="search">
+      <input id="bidSearch" placeholder="🔍 搜索项目 / 客户…">
+      <select id="bidFilter"><option value="">全部</option><option value="Bidding">投标中</option><option value="Tracking">跟踪</option><option value="Other">其他</option></select>
+    </div>
+    <div class="list" id="listBids"></div>
+  </div>
+
+  <!-- ══ CUSTOMERS ══ -->
+  <div class="screen" id="scr-customers">
+    <div class="screen-head">
+      <h2 id="ttl-customers">客户管理</h2>
+    </div>
+    <div class="search">
+      <input id="conSearch" placeholder="🔍 搜索公司 / 联系人…">
+      <select id="conFilter"><option value="">全部</option><option value="High">高 High</option><option value="Medium">中 Medium</option><option value="Low">低 Low</option></select>
+    </div>
+    <div class="list" id="listCustomers"></div>
+  </div>
+
+  <!-- ══ INTERACTIONS ══ -->
+  <div class="screen" id="scr-inter">
+    <div class="screen-head">
+      <h2 id="ttl-inter">客户互动</h2>
+    </div>
+    <div class="search">
+      <input id="intSearch" placeholder="🔍 搜索客户 / 内容…">
+      <select id="intFilter"><option value="">全部</option><option>已完成</option><option>进行中</option><option>待跟进</option></select>
+    </div>
+    <div class="list" id="listInter"></div>
+  </div>
+
+  <!-- ══ CHAMBERS ══ -->
+  <div class="screen" id="scr-chambers">
+    <div class="screen-head">
+      <h2 id="ttl-chambers">商会信息</h2>
+    </div>
+    <div class="search">
+      <input id="chSearch" placeholder="🔍 搜索商会 / 主题…">
+      <select id="chFilter"><option value="">全部</option><option value="Upcoming">即将出席</option><option value="Attended">已出席</option></select>
+    </div>
+    <div class="list" id="listChambers"></div>
+  </div>
+
+
+  <!-- ══ Weekly Report Screen ══ -->
+  <div class="screen" id="scr-report">
+    <div class="screen-head">
+      <h2 id="ttl-report">Weekly Report · 周报</h2>
+    </div>
+    <!-- Week Navigator -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;background:#1a1f2e;border-bottom:1px solid #2a3040;">
+      <button class="btn-icon" onclick="changeReportWeek(-1)" style="background:#1e2433;color:#00C7B7;font-size:16px;padding:6px 12px;border-radius:6px;border:1px solid #2a3040;">‹</button>
+      <span id="reportWeekLabel" style="color:#e0e0e0;font-size:13px;font-weight:600;min-width:160px;text-align:center;">W28 · 2026年7月7日-13日</span>
+      <button class="btn-icon" onclick="changeReportWeek(1)" style="background:#1e2433;color:#00C7B7;font-size:16px;padding:6px 12px;border-radius:6px;border:1px solid #2a3040;">›</button>
+    </div>
+    <div id="reportContent" style="padding:12px 14px 80px;overflow-y:auto;">
+      <!-- 8 KPI Cards -->
+      <div id="reportKPIs" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      </div>
+      <!-- Detail Sections -->
+      <div id="reportDetails"></div>
+    </div>
+  </div>
+
+  <!-- ══ Bottom Nav ══ -->
+  <div class="tabnav">
+    <div class="tab active" data-tab="home">
+      <div class="ti">📊</div>Home<span class="badge" id="b-home"></span>
+    </div>
+    <div class="tab" data-tab="bids">
+      <div class="ti">📋</div><span id="lbl-bids">投标</span><span class="badge" id="b-bids">0</span>
+    </div>
+    <div class="tab" data-tab="customers">
+      <div class="ti">👥</div><span id="lbl-customers">客户</span><span class="badge" id="b-customers">0</span>
+    </div>
+    <div class="tab" data-tab="inter">
+      <div class="ti">💬</div><span id="lbl-inter">互动</span><span class="badge" id="b-inter">0</span>
+    </div>
+    <div class="tab" data-tab="report">
+      <div class="ti">📑</div><span id="lbl-report">周报</span>
+    </div>
+    <div class="tab" data-tab="chambers">
+      <div class="ti">🏛️</div><span id="lbl-chambers">商会</span><span class="badge" id="b-chambers">0</span>
+    </div>
+  </div>
+
+  <!-- ══ FAB ══ -->
+  <div class="fab" id="fab" onclick="fabAction()">+</div>
+
+  <!-- ══ Modal Form ══ -->
+  <div class="modal" id="modal" onclick="if(event.target===this)closeForm()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <h3 id="formTitle">新增</h3>
+      <form id="formBody" onsubmit="event.preventDefault();doSave()"></form>
+    </div>
+  </div>
+
+  <!-- ══ Toast ══ -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  FIREBASE CONFIG — 与网页端 mgd-bms-online-index.html 完全一致
+// ═══════════════════════════════════════════════════════
+firebase.initializeApp({
+  apiKey: "AIzaSyAVmd-Fn6n0ZUQzT6PgI52VKNLqO1qdeJE",
+  authDomain: "mgd-bms.firebaseapp.com",
+  projectId: "mgd-bms",
+  storageBucket: "mgd-bms.firebasestorage.app",
+  messagingSenderId: "236930354313",
+  appId: "1:236930354313:web:cf114889a3f31de7d6ca58"
+});
+const APP={db:null,data:{bids:[],customers:[],projects:[],chambers:[]},busy:false};
+const TODAY=new Date();const NOW=TODAY;const TODAY_STR=TODAY.toISOString().slice(0,10);
+
+// ═══════════════════════════════════════════════════════
+//  i18n — 与网页端 mgd-bms-online-index.html 完全一致
+// ═══════════════════════════════════════════════════════
+const I18N={
+  zh:{
+    homeGreet:'综合概览 · '+NOW.toLocaleDateString('zh-CN',{month:'long',year:'numeric'}),
+    secRemind:'⚠️ 待办提醒',secRec:'📋 最近动态',
+    lblBids:'投标',lblCust:'客户',lblInter:'互动',lblChamb:'商会',
+    ttlBids:'投标项目',ttlCust:'客户管理',ttlInter:'客户互动',ttlChamb:'商会信息',
+    // Bids 表单
+    f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'跟踪日期',
+    f6:'投标阶段',f26:'下一步日期',f27:'下一步内容',f22:'备注',
+    f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估金额',ph4:'单位:平方米',ph10:'单位:VND',
+    // Customers 表单
+    f11:'公司名称',f11b:'业务类型',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f23:'创建日期',
+    // Interactions 表单
+    f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱内容',f19:'负责人',f20:'下一步计划',f21:'状态',f22n:'备注',
+    // Chambers 表单
+    ch1:'商会名称',ch3:'国家',ch6:'电话',ch7:'邮箱',ch9:'联系人',ch13:'主题',ch14:'出席日期',ch15:'出席地点',ch12:'备注',
+    // Options
+    s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',
+    p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',
+    it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',
+    is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',
+    catA:'A类',catB:'B类',
+    btnAdd:'新增',btnSave:'保存',btnCancel:'取消',btnDel:'删除',
+    req:'* 必填',noData:'暂无数据',noRemind:'暂无待办 🎉',
+    all:'全部',bidding:'投标中',tracking:'跟踪',other:'其他',
+    high:'高',medium:'中',low:'低',
+    upcoming:'即将出席',attended:'已出席',
+    completed:'已完成',inProgress:'进行中',pending:'待跟进',
+    // Dashboard
+    dashBids:'📋 投标总数',dashBidsActive:'投标中',dashBidsFollow:'跟踪',
+    dashCust:'👥 客户总数',dashCustNew:'本月新增',dashCustHigh:'高优先',
+    dashInter:'💬 互动总数',dashInterJul:'本月互动',
+    dashChamb:'🏛️ 商会活动',dashChambUpc:'即将出席',
+    dashTasks:'✅ 待办任务',dashTasksDue:'本周到期',dashTasksOver:'已逾期',
+    valTotal:'总预估',valUnit:'VND',
+    daysLeft:'天后',dayLeft:'天后',overdue:'逾期',dueToday:'今日到期',
+  },
+  en:{
+    homeGreet:'Overview · '+NOW.toLocaleDateString('en-US',{month:'long',year:'numeric'}),
+    secRemind:'⚠️ Reminders',secRec:'📋 Recent Activity',
+    lblBids:'Bids',lblCust:'Cust',lblInter:'Inter',lblChamb:'Chamb',
+    ttlBids:'Bid Projects',ttlCust:'Customer Mgmt',ttlInter:'Customer Interactions',ttlChamb:'Chambers',
+    f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Track Date',
+    f6:'Bid Stage',f26:'Next Action Date',f27:'Next Action',f22:'Notes',
+    f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Value',ph4:'Unit: sq.m',ph10:'Unit: VND',
+    f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f23:'Created Date',
+    f15:'Customer',f16:'Interaction Date',f17:'Type',f18:'Content',f18b:'Email Content',f19:'PIC',f20:'Next Step',f21:'Status',f22n:'Notes',
+    ch1:'Chamber Name',ch3:'Country',ch6:'Phone',ch7:'Email',ch9:'Contact',ch13:'Topic',ch14:'Attendance Date',ch15:'Location',ch12:'Notes',
+    s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',
+    p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',
+    it1:'Phone',it2:'Email',it3:'Meeting',it4:'Visit',it5:'Other',
+    is1:'Completed',is2:'In Progress',is3:'Pending',
+    catA:'Category A',catB:'Category B',
+    btnAdd:'Add',btnSave:'Save',btnCancel:'Cancel',btnDel:'Delete',
+    req:'* Required',noData:'No data',noRemind:'All clear 🎉',
+    all:'All',bidding:'Bidding',tracking:'Following',other:'Other',
+    high:'High',medium:'Medium',low:'Low',
+    upcoming:'Upcoming',attended:'Attended',
+    completed:'Completed',inProgress:'In Progress',pending:'Pending',
+    dashBids:'📋 Total Bids',dashBidsActive:'Bidding',dashBidsFollow:'Following',
+    dashCust:'👥 Total Customers',dashCustNew:'New This Month',dashCustHigh:'High Priority',
+    dashInter:'💬 Total Interactions',dashInterJul:'This Month',
+    dashChamb:'🏛️ Chamber Events',dashChambUpc:'Upcoming',
+    dashTasks:'✅ Tasks',dashTasksDue:'Due This Week',dashTasksOver:'Overdue',
+    valTotal:'Total Est.',valUnit:'VND',
+    daysLeft:'days left',dayLeft:'day left',overdue:'Overdue',dueToday:'Due today',
+  }
+};
+let lang='zh';
+function T(k){return I18N[lang][k]||k;}
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const $=s=>document.querySelector(s);
+const uid=()=>crypto.randomUUID?crypto.randomUUID():'id'+Date.now()+Math.random().toString(16).slice(2);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=d=>{if(!d)return'—';const d2=new Date(d+"T00:00:00");if(isNaN(d2))return d;return d2.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});};
+const daysLeft=d=>{
+  if(!d)return 9999;
+  const d2=new Date(d+"T00:00:00");
+  if(isNaN(d2))return 9999;
+  return Math.round((d2-TODAY)/86400000);
+};
+const sameMonth=(d,ref)=>{
+  if(!d)return false;
+  const d2=new Date(d+"T00:00:00");
+  if(isNaN(d2))return false;
+  return ref?d2.getMonth()===ref.getMonth()&&d2.getFullYear()===ref.getFullYear():d2.getMonth()===NOW.getMonth()&&d2.getFullYear()===NOW.getFullYear();
+};
+const fmtV=n=>{
+  if(!n||isNaN(n))return'—';
+  const v=Number(n);
+  if(v>=1e9)return(v/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+  if(v>=1e6)return(v/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(v>=1e3)return(v/1e3).toFixed(1).replace(/\.0$/,'')+'K';
+  return v.toLocaleString();
+};
+const pill=(cls,txt)=>'<span class="pill p-'+esc(cls)+'">'+esc(txt)+'</span>';
+
+function toast(msg,err){
+  const t=$('#toast');
+  t.textContent=msg;t.className='toast show'+(err?' err':'');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast'+(err?' err':''),2500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  LANGUAGE
+// ═══════════════════════════════════════════════════════
+function setLang(l){
+  lang=l;
+  localStorage.setItem('bms_lang',l);
+  $('#lzh').classList.toggle('active',l==='zh');
+  $('#len').classList.toggle('active',l==='en');
+  document.documentElement.lang=l;
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIREBASE
+// ═══════════════════════════════════════════════════════
+async function initFirebase(){
+  APP.db=firebase.firestore();
+  setConn('connecting');
+  try{
+    await firebase.auth().signInWithEmailAndPassword("tong@mgd.com","MGD2024!");
+  }catch(e){
+    try{await firebase.auth().createUserWithEmailAndPassword("tong@mgd.com","MGD2024!");}
+    catch(e2){/* may already exist */}
+  }
+  APP.db.collection('bms_data').doc('master').onSnapshot(snap=>{
+    if(snap.exists){
+      APP.data=snap.data().data||{bids:[],customers:[],projects:[],chambers:[]};
+      ensureArrays();
+      setConn('online');
+      renderAll();
+    }
+  },err=>{setConn('err');console.error('sync err',err);});
+  await loadOnce();
+}
+
+async function loadOnce(){
+  try{
+    const snap=await APP.db.collection('bms_data').doc('master').get();
+    if(snap.exists){
+      APP.data=snap.data().data||{bids:[],customers:[],projects:[],chambers:[]};
+      ensureArrays();setConn('online');renderAll();
+    } else {
+      APP.data={bids:[],customers:[],projects:[],chambers:[]};ensureArrays();setConn('online');renderAll();
+    }
+  }catch(e){setConn('err');toast('Load failed: '+e.message,true);}
+}
+
+function ensureArrays(){
+  ['bids','customers','projects','chambers'].forEach(k=>{
+    if(!APP.data[k])APP.data[k]=[];
+    APP.data[k].forEach(it=>{if(!it.id)it.id=uid();});
+  });
+}
+
+async function saveData(){
+  if(!APP.db)return;
+  APP.busy=true;
+  try{
+    await APP.db.collection('bms_data').doc('master').set({
+      data:APP.data,
+      updatedBy:'mobile-v3',
+      updatedAt:new Date().toISOString()
+    });
+  }catch(e){toast('Save failed: '+e.message,true);}
+  APP.busy=false;
+}
+
+function setConn(s){
+  const led=$('#led'),txt=$('#connTxt');
+  led.className='led'+(s==='online'?' on':s==='err'?' err':'');
+  txt.textContent=s==='online'?(lang==='zh'?'已同步':'Synced'):s==='err'?(lang==='zh'?'离线':'Offline'):'…';
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+let curTab='home';
+let curMod=null,curId=null;
+
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  $('#scr-'+tab).classList.add('active');
+  const t=$('.tab[data-tab="'+tab+'"]');
+  if(t)t.classList.add('active');
+  // FAB visible only on list screens
+  $('#fab').style.display=(tab==='home'||tab==='bids'||tab==='customers'||tab==='inter'||tab==='chambers')?'flex':'none';
+  if(tab==='report')renderReport();
+  if(tab!=='home')renderScreen(tab);
+  window.scrollTo(0,0);
+}
+
+function fabAction(){
+  const map={home:'bids',bids:'bids',customers:'customers',inter:'inter',chambers:'chambers',report:null};
+  if(map[curTab])openForm(map[curTab]);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════════
+function renderAll(){
+  renderLabels();
+  renderDashboard();
+  renderBadges();
+}
+
+function renderLabels(){
+  $('#home-greet').textContent=T('homeGreet');
+  $('#sec-remind').textContent=T('secRemind');
+  $('#sec-rec').textContent=T('secRec');
+  $('#lbl-bids').textContent=T('lblBids');
+  $('#lbl-customers').textContent=T('lblCust');
+  $('#lbl-inter').textContent=T('lblInter');
+  $('#lbl-chambers').textContent=T('lblChamb');
+  $('#ttl-bids').textContent=T('ttlBids');
+  $('#ttl-customers').textContent=T('ttlCust');
+  $('#ttl-inter').textContent=T('ttlInter');
+  $('#ttl-chambers').textContent=T('ttlChamb');
+  // Sync lang btn
+  $('#lzh').classList.toggle('active',lang==='zh');
+  $('#len').classList.toggle('active',lang==='en');
+}
+
+function renderScreen(tab){
+  if(tab==='bids')renderBids();
+  else if(tab==='customers')renderCustomers();
+  else if(tab==='inter')renderInter();
+  else if(tab==='chambers')renderChambers();
+  else if(tab==='report')renderReport();
+  renderBadges();
+}
+
+// ═══════════════════════════════════════════════════════
+//  BADGES
+// ═══════════════════════════════════════════════════════
+function renderBadges(){
+  const b=APP.data.bids||[];
+  const c=APP.data.customers||[];
+  const i=(APP.data.projects||[]);
+  const ch=(APP.data.chambers||[]);
+  function badge(id,n,warn){const el=$('#'+id);if(el){el.textContent=n>0?n:'';el.style.display=n>0?'inline':'none';el.className='badge'+(warn?' warn':'');}}
+  badge('b-bids',b.length);
+  badge('b-customers',c.length);
+  badge('b-inter',i.length);
+  badge('b-chambers',ch.length);
+}
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════
+// contentStageMap — 与网页端完全一致
+const stageMap={
+  '投标中':'bidding','投标中 / Bidding':'bidding','Bidding':'bidding','Bidding / 投标中':'bidding',
+  '跟踪':'tracking','跟踪 / Following':'tracking','Following':'tracking','Following / 跟踪':'tracking'
+};
+const stageMap2={
+  '评审中':'reviewing','评审中 / Reviewing':'reviewing','Reviewing':'reviewing','Reviewing / 评审中':'reviewing',
+  '中标':'won','中标 / Won':'won','Won':'won','Won / 中标':'won',
+  '资料收集':'pq','资格审核':'pq',
+  '资格审核 / PQ':'pq','PQ / 资格审核':'pq'
+};
+
+function renderDashboard(){
+  const bids=APP.data.bids||[];
+  const cust=APP.data.customers||[];
+  const proj=(APP.data.projects||[]);
+  const chambers=APP.data.chambers||[];
+
+  // Bids stats
+  const bTotal=bids.length;
+  const bActive=bids.filter(b=>stageMap[b.stageContent||b.stage||'']==='bidding'&&!b.inactive).length;
+  const bFollow=bids.filter(b=>stageMap[b.stageContent||b.stage||'']==='tracking'&&!b.inactive).length;
+  const totalVal=bids.filter(b=>!b.inactive).reduce((s,b)=>{const v=parseFloat(String(b.estimatedValue||0).replace(/,/g,''));return s+(isNaN(v)?0:v);},0);
+
+  // Customer stats
+  const cNewJul=cust.filter(c=>sameMonth(c.createdDate)).length;
+  const cHigh=cust.filter(c=>/高|High/i.test(c.priority||'')).length;
+
+  // Interactions
+  const iJul=proj.filter(p=>sameMonth(p.interactionDate)).length;
+
+  // Chambers
+  const chUpc=chambers.filter(ch=>daysLeft(ch.attendanceDate)>0).length;
+
+  // Tasks from Interactions (projects has status field)
+  const tasks=proj;
+  const taskOver=tasks.filter(t=>t.status&&!t.status.includes(isZh?'完成':'Completed')&&daysLeft(t.nextActionDate||t.interactionDate)<0).length;
+  const taskDue=tasks.filter(t=>t.status&&!t.status.includes(isZh?'完成':'Completed')&&daysLeft(t.nextActionDate||t.interactionDate)<=7&&daysLeft(t.nextActionDate||t.interactionDate)>=0).length;
+
+  const stats=[
+    {t:T('dashBids'),big:bTotal,sub:[[T('dashBidsActive'),bActive],[T('dashBidsFollow'),bFollow]],val:fmtV(totalVal),valLabel:T('valTotal')},
+    {t:T('dashCust'),big:cust.length,sub:[[T('dashCustNew'),cNewJul],[T('dashCustHigh'),cHigh]]},
+    {t:T('dashInter'),big:proj.length,sub:[[T('dashInterJul'),iJul]]},
+    {t:T('dashChamb'),big:chambers.length,sub:[[T('dashChambUpc'),chUpc]]},
+  ];
+
+  $('#dashStats').innerHTML=stats.map(s=>`
+    <div class="stat" onclick="switchTab('${s.t.includes('投标')||s.t.includes('Bids')?'bids':s.t.includes('客户')||s.t.includes('Customer')?'customers':s.t.includes('互动')||s.t.includes('Inter')?'inter':'chambers'}')">
+      <div class="h">${s.t}</div>
+      <div class="big">${s.big}</div>
+      <div class="sub">${s.sub.map(x=>`<span>${x[0]}<b>${x[1]||0}</b></span>`).join('')}${s.val?`<span>${s.valLabel}<b>${s.val}</b></span>`:''}</div>
+    </div>`).join('');
+
+  // Reminders
+  const urgent=tasks
+    .filter(t=>t.status&&!/完成|Completed/i.test(t.status||''))
+    .map(t=>({t,dl:daysLeft(t.nextActionDate||t.interactionDate||'')}))
+    .filter(x=>x.dl<=7)
+    .sort((a,b)=>a.dl-b.dl)
+    .slice(0,5);
+
+  if(urgent.length){
+    $('#dashReminders').innerHTML=urgent.map(x=>{
+      const isOv=x.dl<0,isD2=x.dl<=2&&!isOv;
+      const cls=isOv?'red':isD2?'':'';
+      const tag=isOv?(lang==='zh'?'逾期 '+Math.abs(x.dl)+'天':x.dl===-1?'1d overdue':Math.abs(x.dl)+'d overdue'):x.dl===0?(lang==='zh'?'今日到期':'Due today'):(lang==='zh'?x.dl+'天':x.dl+'d');
+      return `<div class="banner ${cls}"><span class="msg"><b>${esc(x.t.customerName||'?')} — ${esc(x.t.nextStep||x.t.content||'?')}</b></span><span class="tag ${isOv?'ov':isD2?'d2':''}">${tag}</span></div>`;
+    }).join('');
+  } else {
+    $('#dashReminders').innerHTML=`<div class="empty" style="padding:18px 0">${T('noRemind')}</div>`;
+  }
+
+  // Recent Activity
+  const acts=[];
+  proj.slice(-5).reverse().forEach(p=>acts.push({ic:'💬',txt:p.customerName||'?',sub:p.interactionType||p.content||'?',dt:p.interactionDate||''}));
+  chambers.slice(-4).reverse().forEach(c=>acts.push({ic:'🏛️',txt:c.chamberName||'?',sub:c.topic||'?',dt:c.attendanceDate||''}));
+  if(acts.length){
+    $('#dashActivity').innerHTML=acts.map(a=>`
+      <div class="act">
+        <div class="ic">${a.ic}</div>
+        <div class="tx"><div class="title">${esc(a.txt)}</div><div class="sub">${esc(a.sub)}</div></div>
+        <div class="dt">${fmt(a.dt)}</div>
+      </div>`).join('');
+  } else {
+    $('#dashActivity').innerHTML=`<div class="empty" style="padding:18px 0">${T('noData')}</div>`;
+  }
+}
+
+const isZh=()=>lang==='zh';
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: BIDS
+// ═══════════════════════════════════════════════════════
+function renderBids(){
+  const arr=APP.data.bids||[];
+  const q=$('#bidSearch').value.toLowerCase().trim();
+  const f=$('#bidFilter').value;
+  let list=arr.filter(b=>{
+    const okQ=!q||(b.customerName||'').toLowerCase().includes(q)||(b.projectName||'').toLowerCase().includes(q)||(b.location||'').toLowerCase().includes(q)||(b.personInCharge||'').toLowerCase().includes(q)||(b.email||'').toLowerCase().includes(q);
+    const sc=b.stageContent||b.stage||'';
+    const cls=stageMap[sc]||stageMap2[sc]||'other';
+    let okF=true;
+    if(f==='Bidding')okF=(cls==='bidding'&&!b.inactive);
+    else if(f==='Tracking')okF=(cls==='tracking'&&!b.inactive);
+    else if(f==='Other')okF=(cls==='other');
+    return okQ&&okF;
+  });
+
+  if(!list.length){$('#listBids').innerHTML=`<div class="empty">${T('noData')}</div>`;return;}
+  $('#listBids').innerHTML=list.map(b=>{
+    const sc=b.stageContent||b.stage||'—';
+    const scCls=stageMap[sc]||stageMap2[sc]||'Grey';
+    const val=fmtV(b.estimatedValue);
+    const dl=daysLeft(b.nextActionDate||b.trackDate);
+    const dlLbl=dl<0?(lang==='zh'?'逾期 '+Math.abs(dl):Math.abs(dl)+'d overdue'):dl===0?(lang==='zh'?'今日':''):(lang==='zh'?dl+'天':dl+'d');
+    const dlCls=dl<0?'Red':dl<=2?'Orange':dl<=7?'Yellow':'Grey';
+    return `<div class="item" onclick="openForm('bids','${b.id}')">
+      <div class="row1"><div class="name">${esc(b.projectName||b.customerName||'—')}</div>${pill(scCls,sc)}</div>
+      <div class="meta">
+        <span>👤 <b>${esc(b.customerName||'—')}</b></span>
+        <span>📍 ${esc(b.location||'—')}</span>
+        <span>📅 ${fmt(b.trackDate)}</span>
+        <span>💰 ${val}</span>
+        ${b.nextActionDate?`<span>⏱ <b class="p-${dlCls}" style="background:rgba(0,0,0,0)">${dlLbl}</b></span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: CUSTOMERS
+// ═══════════════════════════════════════════════════════
+function renderCustomers(){
+  const arr=APP.data.customers||[];
+  const q=$('#conSearch').value.toLowerCase().trim();
+  const f=$('#conFilter').value;
+  let list=arr.filter(c=>{
+    const okQ=!q||(c.companyName||'').toLowerCase().includes(q)||(c.contactPerson||'').toLowerCase().includes(q)||(c.phone||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q)||(c.country||'').toLowerCase().includes(q);
+    const okF=!f||(f==='High'&&/高|High/i.test(c.priority||''))||(f==='Medium'&&/中|Medium/i.test(c.priority||''))||(f==='Low'&&/低|Low/i.test(c.priority||''))||(f==='All');
+    return okQ&&okF;
+  });
+  if(!list.length){$('#listCustomers').innerHTML=`<div class="empty">${T('noData')}</div>`;return;}
+  $('#listCustomers').innerHTML=list.map(c=>{
+    const pri=c.priority||'';
+    const priCls=/高|High/i.test(pri)?'High':/中|Medium/i.test(pri)?'Medium':/低|Low/i.test(pri)?'Low':'Grey';
+    return `<div class="item" onclick="openForm('customers','${c.id}')">
+      <div class="row1"><div class="name">${esc(c.companyName||'—')}</div>${pill(priCls,pri)}</div>
+      <div class="meta">
+        <span>👤 <b>${esc(c.contactPerson||'—')}</b></span>
+        <span>🏢 ${esc(c.position||c.companyBusiness||'—')}</span>
+        <span>🌐 ${esc(c.country||'—')}</span>
+        <span>📧 ${esc(c.email||'—')}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: INTERACTIONS
+// ═══════════════════════════════════════════════════════
+function renderInter(){
+  const arr=APP.data.projects||[];
+  const q=$('#intSearch').value.toLowerCase().trim();
+  const f=$('#intFilter').value;
+  let list=arr.filter(p=>{
+    const okQ=!q||(p.customerName||'').toLowerCase().includes(q)||(p.content||'').toLowerCase().includes(q)||(p.personInCharge||'').toLowerCase().includes(q)||(p.nextStep||'').toLowerCase().includes(q);
+    let okF=!f;
+    if(f==='已完成')okF=/完成|Completed/i.test(p.status||'');
+    else if(f==='进行中')okF=/进行中|In Progress/i.test(p.status||'');
+    else if(f==='待跟进')okF=/待跟进|Pending/i.test(p.status||'');
+    return okQ&&okF;
+  });
+  if(!list.length){$('#listInter').innerHTML=`<div class="empty">${T('noData')}</div>`;return;}
+  $('#listInter').innerHTML=list.map(p=>{
+    const st=p.status||'—';
+    const stCls=/完成|Completed/i.test(st)?'Green':/进行中|In Progress/i.test(st)?'Yellow':/待跟进|Pending/i.test(st)?'Red':'Grey';
+    const dl=daysLeft(p.nextActionDate||p.interactionDate);
+    const dlLbl=dl<0?(lang==='zh'?'逾期':dl===-1?'1d overdue':Math.abs(dl)+'d overdue'):dl===0?(lang==='zh'?'今日到期':'Due today'):(lang==='zh'?dl+'天':dl+'d');
+    const dlCls=dl<0?'Red':dl<=2?'Orange':dl<=7?'Yellow':'Grey';
+    return `<div class="item" onclick="openForm('inter','${p.id}')">
+      <div class="row1"><div class="name">${esc(p.customerName||'—')}</div>${pill(stCls,st)}</div>
+      <div class="meta">
+        <span>📋 <b>${esc(p.interactionType||'—')}</b></span>
+        <span>📅 ${fmt(p.interactionDate||'—')}</span>
+        <span>👤 ${esc(p.personInCharge||'—')}</span>
+        <span>📌 ${esc(p.nextStep||p.content||'—').slice(0,40)}</span>
+        ${p.nextActionDate?`<span>⏱ <b class="p-${dlCls}">${dlLbl}</b></span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER: CHAMBERS
+// ═══════════════════════════════════════════════════════
+function renderChambers(){
+  const arr=APP.data.chambers||[];
+  const q=$('#chSearch').value.toLowerCase().trim();
+  const f=$('#chFilter').value;
+  let list=arr.filter(c=>{
+    const okQ=!q||(c.chamberName||'').toLowerCase().includes(q)||(c.topic||'').toLowerCase().includes(q)||(c.country||'').toLowerCase().includes(q)||(c.contactPerson||'').toLowerCase().includes(q);
+    const dl=daysLeft(c.attendanceDate||'');
+    let okF=!f;
+    if(f==='Upcoming')okF=dl>0;
+    else if(f==='Attended')okF=dl<=0;
+    return okQ&&okF;
+  });
+  if(!list.length){$('#listChambers').innerHTML=`<div class="empty">${T('noData')}</div>`;return;}
+  $('#listChambers').innerHTML=list.map(c=>{
+    const dl=daysLeft(c.attendanceDate||'');
+    const stCls=dl>0?'Blue':'Green';
+    const stLbl=dl>0?(lang==='zh'?'即将出席':'Upcoming'):(lang==='zh'?'已出席':'Attended');
+    return `<div class="item" onclick="openForm('chambers','${c.id}')">
+      <div class="row1"><div class="name">${esc(c.chamberName||'—')}</div>${pill(stCls,stLbl)}</div>
+      <div class="meta">
+        <span>📍 <b>${esc(c.country||'—')}</b></span>
+        <span>🏷 ${esc(c.topic||'—')}</span>
+        <span>📅 ${fmt(c.attendanceDate)}</span>
+        <span>📍 ${esc(c.attendanceLocation||'—')}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+// ─── Weekly Report Logic ────────────────────────────────
+let reportWeekOffset = 0; // 0=current week, -1=prev, +1=next
+
+function getWeekRange(offset){
+  var now = new Date();
+  var dow = now.getDay(); // 0=Sun, 1=Mon, ...
+  var monday = new Date(now);
+  if(dow === 0) monday.setDate(now.getDate() - 6);
+  else if(dow > 1) monday.setDate(now.getDate() - (dow - 1));
+  monday.setHours(0,0,0,0);
+  // Add offset
+  monday.setDate(monday.getDate() + offset * 7);
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  // Week number: count Mondays from Jan 1
+  var jan1 = new Date(now.getFullYear(), 0, 1);
+  var jan1Dow = jan1.getDay();
+  var daysSinceJan1Mon = Math.floor((monday - jan1) / 86400000);
+  var week = Math.floor(daysSinceJan1Mon / 7) + 1 + offset;
+  return { monday: monday, sunday: sunday, week: week, year: monday.getFullYear() };
+}
+
+function inWeek(dateStr, weekRange){
+  if(!dateStr) return false;
+  var d = new Date(dateStr);
+  if(isNaN(d)) return false;
+  return d >= weekRange.monday && d <= weekRange.sunday;
+}
+
+function weekLabel(weekRange){
+  var mDay = weekRange.monday.getDate();
+  var mMon = weekRange.monday.getMonth()+1;
+  var sDay = weekRange.sunday.getDate();
+  var sMon = weekRange.sunday.getMonth()+1;
+  if(lang==='zh') return 'W'+weekRange.week+' · '+weekRange.year+'年'+mMon+'月'+mDay+'日-'+sMon+'月'+sDay+'日';
+  return 'W'+weekRange.week+' · '+mMon+'/'+mDay+' - '+sMon+'/'+sDay+', '+weekRange.year;
+}
+
+function renderReport(){
+  var wr = getWeekRange(reportWeekOffset);
+  document.getElementById('reportWeekLabel').textContent = weekLabel(wr);
+  document.getElementById('reportWeekLabel').style.color = (reportWeekOffset===0)?'#00C7B7':'#e0e0e0';
+
+  var bids = APP.data.bids||[];
+  var inters = APP.data.projects||[];
+  var chambers = APP.data.chambers||[];
+  var customers = APP.data.customers||[];
+
+  // ── KPI 1: 本周新增投标 ──
+  var newBids = bids.filter(function(b){ return inWeek(b.trackDate,wr); });
+  var newBidTotal = newBids.length;
+  var newBidValue = newBids.reduce(function(s,b){ return s+(parseFloat(b.estimatedValue)||0); },0);
+
+  // ── KPI 2: 本周投标中 ──
+  var biddingBids = bids.filter(function(b){
+    return (b.stageContent||b.stage||'').match(/投标|Bidding/i);
+  });
+
+  // ── KPI 3: 本周跟踪中 ──
+  var followingBids = bids.filter(function(b){
+    return (b.stageContent||b.stage||'').match(/跟踪|Following/i);
+  });
+
+  // ── KPI 4: 本周中标/失标 ──
+  var wonBids = bids.filter(function(b){
+    return inWeek(b.trackDate,wr) && (b.stageContent||b.stage||'').match(/中标|Won/i);
+  });
+  var lostBids = bids.filter(function(b){
+    return inWeek(b.trackDate,wr) && (b.stageContent||b.stage||'').match(/未|Lost/i);
+  });
+
+  // ── KPI 5: 本周互动 ──
+  var weekInter = inters.filter(function(p){ return inWeek(p.interactionDate,wr); });
+
+  // ── KPI 6: 本周商会活动 ──
+  var weekChambers = chambers.filter(function(c){ return inWeek(c.attendanceDate,wr); });
+
+  // ── KPI 7: 本周预估金额 ──
+  var weekValue = newBids.reduce(function(s,b){ return s+(parseFloat(b.estimatedValue)||0); },0);
+
+  // ── KPI 8: 高优先级客户 ──
+  var highPriCust = customers.filter(function(c){
+    return (c.priority||'').match(/高|High/i);
+  });
+
+  var kpiHtml = [
+    mkKPI('📋','本周新增投标','New Bids',newBidTotal, newBidTotal>0?('¥'+Math.round(newBids[0].estimatedValue/1e9*10)/10+'B'):'¥—', newBidTotal>0?'#00C7B7':'#555'),
+    mkKPI('🎯','本周投标中','Bidding',biddingBids.length, lang==='zh'?'投标中':'In Progress', biddingBids.length>0?'#3B82F6':'#555'),
+    mkKPI('🔭','本周跟踪中','Following',followingBids.length, lang==='zh'?'跟踪中':'Following', followingBids.length>0?'#8B5CF6':'#555'),
+    mkKPI('✅','本周中标','Won',wonBids.length, lang==='zh'?'已中标':'Won', wonBids.length>0?'#10B981':'#555'),
+    mkKPI('❌','本周失标','Lost',lostBids.length, lang==='zh'?'未中标':'Lost', lostBids.length>0?'#EF4444':'#555'),
+    mkKPI('💬','本周互动','Interactions',weekInter.length, lang==='zh'?'次互动':'interactions', weekInter.length>0?'#F59E0B':'#555'),
+    mkKPI('🏛️','本周商会活动','Chambers',weekChambers.length, lang==='zh'?'商会活动':'events', weekChambers.length>0?'#06B6D4':'#555'),
+    mkKPI('💰','本周预估金额','Est. Value',null, weekValue>0?('¥'+Math.round(weekValue/1e9*10)/10+'B'):'¥—', weekValue>0?'#F59E0B':'#555'),
+  ].join('');
+
+  document.getElementById('reportKPIs').innerHTML = kpiHtml;
+
+  // ── Detail Sections ──
+  var detailHtml = '';
+
+  if(newBids.length>0){
+    detailHtml += '<h3 style="color:#00C7B7;font-size:13px;margin:16px 0 8px;">📋 '+esc(lang==='zh'?'本周新增投标':'New Bids This Week')+'</h3>';
+    detailHtml += newBids.map(function(b){
+      return '<div class="item" style="padding:10px 12px;margin-bottom:8px;">'+
+        '<div style="font-weight:600;color:#e0e0e0;">'+esc(b.projectName||b.customerName||'—')+'</div>'+
+        '<div style="color:#888;font-size:12px;margin-top:4px;">'+
+        '👤 '+esc(b.customerName||'')+' &nbsp;|&nbsp; 📍 '+esc(b.location||'')+' &nbsp;|&nbsp; 📅 '+fmt(b.trackDate)+'</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  if(weekInter.length>0){
+    detailHtml += '<h3 style="color:#00C7B7;font-size:13px;margin:16px 0 8px;">💬 '+esc(lang==='zh'?'本周客户互动':'Interactions This Week')+'</h3>';
+    detailHtml += weekInter.map(function(p){
+      return '<div class="item" style="padding:10px 12px;margin-bottom:8px;">'+
+        '<div style="font-weight:600;color:#e0e0e0;">'+esc(p.customerName||'—')+'</div>'+
+        '<div style="color:#888;font-size:12px;margin-top:4px;">'+
+        esc(p.interactionType||'')+' &nbsp;|&nbsp; '+esc(p.content||'').substring(0,60)+'...</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  if(weekChambers.length>0){
+    detailHtml += '<h3 style="color:#00C7B7;font-size:13px;margin:16px 0 8px;">🏛️ '+esc(lang==='zh'?'本周商会活动':'Chamber Events This Week')+'</h3>';
+    detailHtml += weekChambers.map(function(c){
+      return '<div class="item" style="padding:10px 12px;margin-bottom:8px;">'+
+        '<div style="font-weight:600;color:#e0e0e0;">'+esc(c.chamberName||'—')+'</div>'+
+        '<div style="color:#888;font-size:12px;margin-top:4px;">🏷 '+esc(c.topic||'')+' &nbsp;|&nbsp; 📅 '+fmt(c.attendanceDate)+'</div>'+
+        '</div>';
+    }).join('');
+  }
+
+  if(!newBids.length && !weekInter.length && !weekChambers.length){
+    detailHtml += '<div style="text-align:center;color:#555;padding:40px 0;font-size:13px;">'+
+      esc(lang==='zh'?'本周暂无数据':'No data for this week')+'</div>';
+  }
+
+  document.getElementById('reportDetails').innerHTML = detailHtml;
+}
+
+function mkKPI(icon,titleZh,titleEn,count,sub,color){
+  var c = count!=null?('<span style="font-size:28px;font-weight:700;color:'+color+';">'+count+'</span>'):'';
+  var v = count==null?('<span style="font-size:18px;font-weight:700;color:'+color+';">'+sub+'</span>'):'';
+  var subTxt = count!=null?('<div style="font-size:11px;color:#888;margin-top:4px;">'+esc(sub)+'</div>'):'';
+  return '<div style="background:#1a1f2e;border:1px solid #2a3040;border-radius:10px;padding:12px 10px;text-align:center;">'+
+    '<div style="font-size:18px;margin-bottom:6px;">'+icon+'</div>'+
+    '<div style="font-size:11px;color:#888;margin-bottom:6px;">'+(lang==='zh'?esc(titleZh):esc(titleEn))+'</div>'+c+v+subTxt+
+    '</div>';
+}
+
+function changeReportWeek(dir){
+  reportWeekOffset += dir;
+  renderReport();
+}
+
+// ═══════════════════════════════════════════════════════
+//  FORM — FORMS 定义（与网页端 getFields 完全对齐）
+// ═══════════════════════════════════════════════════════
+const FORMS={
+  bids:[
+    {f:'customerName',t:'f1',type:'text',req:true},
+    {f:'projectName',t:'f2',type:'text',req:true},
+    {f:'location',t:'f3',type:'text'},
+    {f:'landArea',t:'f4',type:'text'},
+    {f:'trackDate',t:'f5',type:'date'},
+    {f:'stage',t:'f6',type:'select',opts:['s2','s3','s4','s6','s7','s8']},
+    {f:'nextActionDate',t:'f26',type:'date'},
+    {f:'nextActionContent',t:'f27',type:'text'},
+    {f:'notes',t:'f22',type:'textarea'},
+    {f:'personInCharge',t:'f7',type:'text'},
+    {f:'email',t:'f8',type:'email'},
+    {f:'category',t:'f9',type:'select',opts:['catA','catB']},
+    {f:'estimatedValue',t:'f10',type:'number'},
+    {f:'startDate',t:'f5',type:'date'},
+    {f:'stageContent',t:'f6',type:'hidden'},
+  ],
+  customers:[
+    {f:'companyName',t:'f11',type:'text',req:true},
+    {f:'companyBusiness',t:'f11b',type:'text'},
+    {f:'contactPerson',t:'f12',type:'text',req:true},
+    {f:'position',t:'f12b',type:'text'},
+    {f:'phone',t:'f13',type:'text'},
+    {f:'email',t:'f14',type:'email'},
+    {f:'country',t:'f14b',type:'text'},
+    {f:'priority',t:'f14c',type:'select',opts:['p1','p2','p3']},
+    {f:'createdDate',t:'f23',type:'date'},
+  ],
+  inter:[
+    {f:'customerName',t:'f15',type:'text',req:true},
+    {f:'interactionDate',t:'f16',type:'date'},
+    {f:'interactionType',t:'f17',type:'select',opts:['it1','it2','it3','it4','it5']},
+    {f:'content',t:'f18',type:'textarea'},
+    {f:'emailContent',t:'f18b',type:'textarea'},
+    {f:'personInCharge',t:'f19',type:'text'},
+    {f:'nextStep',t:'f20',type:'text'},
+    {f:'status',t:'f21',type:'select',opts:['is1','is2','is3']},
+    {f:'notes',t:'f22n',type:'textarea'},
+  ],
+  chambers:[
+    {f:'chamberName',t:'ch1',type:'text',req:true},
+    {f:'country',t:'ch3',type:'text'},
+    {f:'phone',t:'ch6',type:'text'},
+    {f:'email',t:'ch7',type:'email'},
+    {f:'contactPerson',t:'ch9',type:'text'},
+    {f:'topic',t:'ch13',type:'text'},
+    {f:'attendanceDate',t:'ch14',type:'date'},
+    {f:'attendanceLocation',t:'ch15',type:'text'},
+    {f:'notes',t:'ch12',type:'textarea'},
+  ]
+};
+
+const MOD={
+  bids:      {array:'bids',      titleKey:isZh()?'nb1':'Add Bid'},
+  customers: {array:'customers',  titleKey:isZh()?'nb2':'Add Customer'},
+  inter:     {array:'projects',   titleKey:isZh()?'nb3':'Add Interaction'},
+  chambers:  {array:'chambers',   titleKey:isZh()?'nb4':'Add Chamber'},
+};
+
+function getArr(mod){
+  const m={bids:'bids',customers:'customers',inter:'projects',chambers:'chambers'};
+  return APP.data[m[mod]||mod]||[];
+}
+
+// ═══════════════════════════════════════════════════════
+//  FORM OPEN / CLOSE / RENDER / SAVE
+// ═══════════════════════════════════════════════════════
+function openForm(mod,id){
+  curMod=mod;curId=id||null;
+  const spec=FORMS[mod]||[];
+  const isEdit=!!id;
+  const titleAdd={bids:lang==='zh'?'新增投标':'Add Bid',customers:lang==='zh'?'新增客户':'Add Customer',inter:lang==='zh'?'新增互动':'Add Interaction',chambers:lang==='zh'?'新增商会':'Add Chamber'};
+  const titleEdit={bids:lang==='zh'?'编辑投标':'Edit Bid',customers:lang==='zh'?'编辑客户':'Edit Customer',inter:lang==='zh'?'编辑互动':'Edit Interaction',chambers:lang==='zh'?'编辑商会':'Edit Chamber'};
+  $('#formTitle').textContent=isEdit?titleEdit[mod]:titleAdd[mod];
+
+  let html='';
+  spec.forEach(fld=>{
+    if(fld.type==='hidden'){
+      html+=`<input type="hidden" data-field="${fld.f}" id="ff_${fld.f}">`;
+      return;
+    }
+    const label=T(fld.t)+(fld.req?' <span class="req">*</span>':'');
+    if(fld.type==='select'){
+      const opts=(fld.opts||[]).map(o=>`<option value="${T(o)}">${T(o)}</option>`).join('');
+      html+=`<div class="fld"><label>${label}</label><select data-field="${fld.f}">${opts}</select></div>`;
+    } else if(fld.type==='textarea'){
+      html+=`<div class="fld"><label>${label}</label><textarea data-field="${fld.f}" rows="3"></textarea></div>`;
+    } else {
+      html+=`<div class="fld"><label>${label}</label><input type="${fld.type||'text'}" data-field="${fld.f}"></div>`;
+    }
+  });
+
+  html+=`<div class="btnrow">
+    <button type="button" class="btn danger" onclick="doDelete()" style="display:${isEdit?'flex':'none'}">${T('btnDel')}</button>
+    <button type="button" class="btn ghost" onclick="closeForm()">${T('btnCancel')}</button>
+    <button type="submit" class="btn primary">${T('btnSave')}</button>
+  </div>`;
+  $('#formBody').innerHTML=html;
+
+  // Prefill edit data
+  if(isEdit){
+    const rec=getArr(mod).find(x=>x.id===id);
+    if(rec){
+      spec.forEach(fld=>{
+        const el=$(`[data-field="${fld.f}"]`);
+        if(el&&rec[fld.f]!=null)el.value=rec[fld.f];
+      });
+    }
+  } else {
+    // Default dates
+    spec.forEach(fld=>{
+      if(fld.type==='date'){
+        const el=$(`[data-field="${fld.f}"]`);
+        if(el&&!el.value)el.value=TODAY_STR;
+      }
+    });
+  }
+
+  $('#modal').classList.add('show');
+  // scroll top
+  $('.sheet').scrollTop=0;
+}
+
+function closeForm(){$('#modal').classList.remove('show');curMod=null;curId=null;}
+
+function doSave(){
+  if(!curMod)return;
+  const spec=FORMS[curMod];
+  const obj={};
+  let missing=[];
+  spec.forEach(fld=>{
+    if(fld.type==='hidden')return;
+    const el=$(`[data-field="${fld.f}"]`);
+    const v=el?el.value.trim():'';
+    if(fld.req&&!v){missing.push(T(fld.t));}
+    obj[fld.f]=fld.type==='number'?Number(v)||0:v;
+  });
+  if(missing.length){toast(lang==='zh'?'必填：'+missing.join(', '):'Required: '+missing.join(', '),true);return;}
+
+  // Sync stage → stageContent (critical for web-app filter)
+  if(curMod==='bids'){
+    obj.stageContent=obj.stage||obj.stageContent||'';
+    // Default trackDate to today if new
+    if(!obj.trackDate)obj.trackDate=TODAY_STR;
+  }
+  if(curMod==='customers'&&!obj.createdDate)obj.createdDate=TODAY_STR;
+  if(curMod==='inter'&&!obj.interactionDate)obj.interactionDate=TODAY_STR;
+  if(curMod==='chambers'&&!obj.attendanceDate)obj.attendanceDate=TODAY_STR;
+
+  const arr=getArr(curMod);
+  if(curId){
+    const idx=arr.findIndex(x=>x.id===curId);
+    if(idx>=0){obj.id=curId;arr[idx]={...arr[idx],...obj};}
+  } else {
+    obj.id=uid();
+    arr.push(obj);
+  }
+  saveData().then(()=>{closeForm();renderAll();renderScreen(curTab);toast((lang==='zh'?'已保存 ✓':'Saved ✓'),false);});
+}
+
+function doDelete(){
+  if(!curMod||!curId)return;
+  if(!confirm(lang==='zh'?'确定删除这条记录？':'Delete this record?'))return;
+  const arr=getArr(curMod);
+  const idx=arr.findIndex(x=>x.id===curId);
+  if(idx>=0)arr.splice(idx,1);
+  saveData().then(()=>{closeForm();renderAll();renderScreen(curTab);toast((lang==='zh'?'已删除 ✓':'Deleted ✓'),false);});
+}
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH INPUT BINDING
+// ═══════════════════════════════════════════════════════
+function bindSearch(id,renderFn){
+  const el=$(id);
+  if(!el)return;
+  el.addEventListener('input',()=>renderFn());
+  el.addEventListener('change',()=>renderFn());
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+  // Bottom nav
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click',function(){switchTab(t.dataset.tab);});
+  });
+
+  // Search listeners
+  bindSearch('#bidSearch',renderBids);
+  bindSearch('#bidFilter',renderBids);
+  bindSearch('#conSearch',renderCustomers);
+  bindSearch('#conFilter',renderCustomers);
+  bindSearch('#intSearch',renderInter);
+  bindSearch('#intFilter',renderInter);
+  bindSearch('#chSearch',renderChambers);
+  bindSearch('#chFilter',renderChambers);
+
+  // Lang from localStorage
+  var sl=localStorage.getItem('bms_lang');
+  if(sl)lang=sl;
+  document.getElementById('lzh').classList.toggle('active',lang==='zh');
+  document.getElementById('len').classList.toggle('active',lang==='en');
+
+  // Init Firebase
+  initFirebase();
+});
+</script>
+</body>
+</html>
