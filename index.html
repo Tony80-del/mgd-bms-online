@@ -1216,11 +1216,29 @@ function wrUpdateFromPct(user,taskId,pctVal){
   if(statusSel){statusSel.value=newStatus;statusSel.style.background=bg[newStatus];statusSel.style.color=fg[newStatus];}
   if(statusTxt){statusTxt.innerText=newStatus;statusTxt.style.background=bg[newStatus];statusTxt.style.color=fg[newStatus];}
   if(pctInput){pctInput.value=Math.min(pct,100);pctInput.style.color=fg[newStatus];}
-  // Auto-save pct & status back to cloud
-  var uData=(data.weeklyReports.users||{})[user]||{};
-  var wData=uData[wrCurrentWeek]||{};
-  var t=(wData.tasks||[]).find(function(x){return x.id==taskId;});
-  if(t){t.pct=pct;t.taskStatus=newStatus;saveData();}else{console.warn('[wrUpdateFromPct] Task not found, user='+user+' taskId='+taskId+' week='+wrCurrentWeek);}
+  // Read all tasks from DOM and save
+  initWeeklyReport();
+  var container=document.getElementById('wrTableContainer');
+  if(!container)return;
+  var groups=container.querySelectorAll('.wr-task-group');
+  var tasks=[];
+  groups.forEach(function(group){
+    var tid=parseInt(group.id.replace('wr-task-'+user+'-',''));
+    var pEl=document.getElementById(user+'-'+tid+'-pct');
+    var sSel=document.getElementById(user+'-'+tid+'-status');
+    var sTxt=document.getElementById(user+'-'+tid+'-status-txt');
+    var nEl=document.getElementById(user+'-'+tid+'-name');
+    var ssEl=document.getElementById(user+'-'+tid+'-start');
+    var seEl=document.getElementById(user+'-'+tid+'-end');
+    var ndEl=document.getElementById(user+'-'+tid+'-noted');
+    var currentPct=pEl?pEl.value:'-';
+    var currentStatus=sTxt?sTxt.innerText:(sSel?sSel.value:'Pending');
+    tasks.push({id:tid,name:nEl?nEl.value:'',planStart:ssEl?ssEl.value:'',planEnd:seEl?seEl.value:'',taskStatus:currentStatus,pct:currentPct,noted:ndEl?ndEl.value:''});
+  });
+  data.weeklyReports.users[user][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
+  saveData();
+  wrTaskCounter[user]=tasks.length;
+  wrUpdateRecordsCount();
 }
   var v=sel.value;
   var bg={'Pending':'rgba(100,116,139,0.2)','In Progress':'rgba(245,158,11,0.2)','Completed':'rgba(34,197,94,0.2)','Delay':'rgba(239,68,68,0.2)'};
