@@ -3232,6 +3232,8 @@ function getPlanTracking(){
 }
 
 function renderPlanTracking(){
+  // Guard: picOptions should be globally defined, but Cloud sync can null it
+  var PO = typeof picOptions !== 'undefined' && picOptions ? picOptions : ['Tony','Huong','Quoc','All Members','Tony / Quoc','Huong / Tony','Quoc / Huong'];
   var items = getPlanTracking();
   var container = document.getElementById('planTrackingContainer');
   if(!container) return;
@@ -3357,7 +3359,7 @@ function renderPlanTracking(){
     // Person in Charge dropdown
     html += '<td style="padding:8px 6px;text-align:center"><select data-idx="'+idx+'" data-k="pic" class="plan-input" style="width:130px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none;cursor:pointer" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'">';
     html += '<option value="">'+(isZh?'请选择':'Select')+'</option>';
-    picOptions.forEach(function(opt){
+    PO.forEach(function(opt){
       html += '<option value="'+opt+'"'+(item.pic===opt?' selected':'')+'>'+opt+'</option>';
     });
     html += '</select></td>';
