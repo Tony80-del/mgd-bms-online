@@ -1235,12 +1235,10 @@ function wrUpdateFromPct(user,taskId,pctVal){
     var currentStatus=sTxt?sTxt.innerText:(sSel?sSel.value:'Pending');
     tasks.push({id:tid,name:nEl?nEl.value:'',planStart:ssEl?ssEl.value:'',planEnd:seEl?seEl.value:'',taskStatus:currentStatus,pct:currentPct,noted:ndEl?ndEl.value:''});
   });
-  console.log('[DEBUG wrUpdateFromPct] Saving pct='+pct+' user='+user+' week='+wrCurrentWeek+' tasks='+tasks.length);
   data.weeklyReports.users[user][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
-  saveData();
+  localStorage.setItem('bms_data',JSON.stringify(data));
   wrTaskCounter[user]=tasks.length;
   wrUpdateRecordsCount();
-  console.log('[DEBUG wrUpdateFromPct] Saved! localStorage check:', localStorage.getItem('bms_data') ? 'HAS DATA' : 'EMPTY');
 }
   var v=sel.value;
   var bg={'Pending':'rgba(100,116,139,0.2)','In Progress':'rgba(245,158,11,0.2)','Completed':'rgba(34,197,94,0.2)','Delay':'rgba(239,68,68,0.2)'};
@@ -1375,10 +1373,7 @@ function wrRenderWeeklyReportTable(){
   if(!container)return;
   container.innerHTML='';
   var weekData=data.weeklyReports.users[wrCurrentUser][wrCurrentWeek];
-  console.log('[DEBUG wrRender] Loading week='+wrCurrentWeek+' user='+wrCurrentUser+' tasks in data='+(weekData&&weekData.tasks?weekData.tasks.length:'undefined'));
-  if(weekData&&weekData.tasks&&weekData.tasks.length>0){
-    weekData.tasks.forEach(function(t){console.log('[DEBUG wrRender] task id='+t.id+' name='+t.name+' pct='+t.pct);});
-  }
+
   var tasks=weekData&&weekData.tasks||[];
   wrTaskCounter[wrCurrentUser]=tasks.length>0?tasks.length:0;
   if(tasks.length>0){
@@ -1422,13 +1417,11 @@ function saveWeeklyReport(){
     var pctVal=document.getElementById(wrCurrentUser+'-'+taskId+'-pct');
     tasks.push({id:taskId,name:name?name.value:'',planStart:planStart?planStart.value:'',planEnd:planEnd?planEnd.value:'',taskStatus:planStatus?planStatus.value:'',pct:pctVal?pctVal.value:'',noted:noted?noted.value:''});
   });
-  console.log('[DEBUG saveWeeklyReport] Saving week='+wrCurrentWeek+' user='+wrCurrentUser+' groups='+groups.length+' tasks='+tasks.length);
   data.weeklyReports.users[wrCurrentUser][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
   wrTaskCounter[wrCurrentUser]=tasks.length;
   wrUpdateRecordsCount();
-  wrShowToast('Week '+wrCurrentWeek+' saved! tasks='+tasks.length,'success');
-  console.log('[DEBUG saveWeeklyReport] Done. localStorage length:', (localStorage.getItem('bms_data')||'').length);
+  wrShowToast('Week '+wrCurrentWeek+' saved!','success');
 }
 
 function exportWeeklyReportPDF(){
@@ -3774,7 +3767,7 @@ function listenToCloud(){
       if(JSON.stringify(data) !== JSON.stringify(fbData)){
         data = fbData;
         _origSave(); // Save to localStorage
-        updateStats(); updateSummary(); updateUI(); renderTable();
+        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
         
         // Show brief notification
         showToast('☁️ Cloud data updated!');
@@ -3797,7 +3790,7 @@ function syncFromCloud(){
         // Merge / replace data
         data = fbData;
         _origSave();
-        updateStats(); updateSummary(); updateUI(); renderTable();
+        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
         cloudStatus = 'synced';
         lastSyncFrom = doc.data().updatedAt ? 'cloud' : 'local';
         updateSyncStatus('☁️');
