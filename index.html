@@ -1220,7 +1220,7 @@ function wrUpdateFromPct(user,taskId,pctVal){
   var uData=(data.weeklyReports.users||{})[user]||{};
   var wData=uData[wrCurrentWeek]||{};
   var t=(wData.tasks||[]).find(function(x){return x.id==taskId;});
-  if(t){t.pct=pct;t.taskStatus=newStatus;saveWeeklyReportToCloud(user,wrCurrentWeek);}
+  if(t){t.pct=pct;t.taskStatus=newStatus;saveData();}
 }
   var v=sel.value;
   var bg={'Pending':'rgba(100,116,139,0.2)','In Progress':'rgba(245,158,11,0.2)','Completed':'rgba(34,197,94,0.2)','Delay':'rgba(239,68,68,0.2)'};
