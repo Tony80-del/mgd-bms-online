@@ -1248,6 +1248,7 @@ function wrUpdateFromPct(user,taskId,pctVal){
     tasks.push({id:tid,name:nEl?nEl.value:'',planStart:ssEl?ssEl.value:'',planEnd:seEl?seEl.value:'',taskStatus:currentStatus,pct:currentPct,noted:ndEl?ndEl.value:''});
   });
   data.weeklyReports.users[user][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
+  saveData();
   wrUpdateRecordsCount();
 }
 
