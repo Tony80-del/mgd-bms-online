@@ -1251,6 +1251,7 @@ function wrUpdateFromPct(user,taskId,pctVal){
   });
   data.weeklyReports.users[user][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
+  console.log('[DEBUG wrUpdateFromPct] saved, pct:', tasks.length > 0 ? tasks[0].pct : 'none', 'savedAt:', new Date().toISOString());
   wrUpdateRecordsCount();
 }
 
@@ -3842,6 +3843,7 @@ function syncFromCloud(){
         // Timestamp check: if local was saved in last 10s, prefer local weeklyReports
         var LOCAL_GRACE_MS = 10000;
         var localIsFresh = _lastSaveTimestamp && (Date.now() - _lastSaveTimestamp < LOCAL_GRACE_MS);
+        console.log('[DEBUG syncFromCloud] _lastSaveTimestamp:', _lastSaveTimestamp, 'localIsFresh:', localIsFresh, 'Date.now():', Date.now());
         if(fbData.weeklyReports){
           if(!data.weeklyReports) data.weeklyReports = fbData.weeklyReports;
           var localWR = data.weeklyReports.users || {};
