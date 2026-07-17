@@ -1178,14 +1178,27 @@ function wrAutoCalculate(user,taskId){
   var planStart=document.getElementById(user+'-'+taskId+'-start');
   var planEnd=document.getElementById(user+'-'+taskId+'-end');
   var planDays=document.getElementById(user+'-'+taskId+'-days');
+  var statusTxt=document.getElementById(user+'-'+taskId+'-status-txt');
+  var statusSel=document.getElementById(user+'-'+taskId+'-status');
+  var bg={'Pending':'rgba(100,116,139,0.2)','In Progress':'rgba(245,158,11,0.2)','Completed':'rgba(34,197,94,0.2)','Delay':'rgba(239,68,68,0.2)'};
+  var fg={'Pending':'#64748b','In Progress':'#fbbf24','Completed':'#22c55e','Delay':'#ef4444'};
   if(planStart&&planEnd&&planDays){
     var start=planStart.value?new Date(planStart.value):null;
     var end=planEnd.value?new Date(planEnd.value):null;
+    var today=new Date();today.setHours(0,0,0,0);
     if(start&&end&&!isNaN(start)&&!isNaN(end)){
       var days=Math.ceil((end-start)/(1000*60*60*24));
       planDays.textContent=days>=0?days:'-';
       planDays.style.background='rgba(34,197,94,0.2)';
       planDays.style.color='#4ade80';
+      // Auto-set Delay if planEnd < today and not Completed
+      var isOverdue=end<today;
+      var currentStatus=statusTxt?statusTxt.innerText:(statusSel?statusSel.value:'Pending');
+      if(isOverdue&&currentStatus!=='Completed'){
+        var newStatus='Delay';
+        if(statusTxt){statusTxt.innerText=newStatus;statusTxt.style.background=bg[newStatus];statusTxt.style.color=fg[newStatus];}
+        if(statusSel){statusSel.value=newStatus;statusSel.style.background=bg[newStatus];statusSel.style.color=fg[newStatus];}
+      }
     }else{
       planDays.textContent='-';
       planDays.style.background='var(--bg2)';
@@ -1216,8 +1229,7 @@ function wrUpdateFromPct(user,taskId,pctVal){
   if(statusSel){statusSel.value=newStatus;statusSel.style.background=bg[newStatus];statusSel.style.color=fg[newStatus];}
   if(statusTxt){statusTxt.innerText=newStatus;statusTxt.style.background=bg[newStatus];statusTxt.style.color=fg[newStatus];}
   if(pctInput){pctInput.value=Math.min(pct,100);pctInput.style.color=fg[newStatus];}
-  // Read all tasks from DOM and save
-  initWeeklyReport();
+  // Read all tasks from DOM and save (no re-render to avoid flicker)
   var container=document.getElementById('wrTableContainer');
   if(!container)return;
   var groups=container.querySelectorAll('.wr-task-group');
@@ -1236,8 +1248,6 @@ function wrUpdateFromPct(user,taskId,pctVal){
     tasks.push({id:tid,name:nEl?nEl.value:'',planStart:ssEl?ssEl.value:'',planEnd:seEl?seEl.value:'',taskStatus:currentStatus,pct:currentPct,noted:ndEl?ndEl.value:''});
   });
   data.weeklyReports.users[user][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
-  localStorage.setItem('bms_data',JSON.stringify(data));
-  wrTaskCounter[user]=tasks.length;
   wrUpdateRecordsCount();
 }
 
