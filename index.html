@@ -1244,7 +1244,6 @@ function wrUpdateFromPct(user,taskId,pctVal){
     var seEl=document.getElementById(user+'-'+tid+'-end');
     var ndEl=document.getElementById(user+'-'+tid+'-noted');
     var currentPct=pEl?pEl.value:'-';
-    console.log('[DEBUG] Saving pct:', currentPct, 'taskId:', tid, 'user:', user, 'pEl.value:', pEl ? pEl.value : 'null');
     var currentStatus=sTxt?sTxt.innerText:(sSel?sSel.value:'Pending');
     tasks.push({id:tid,name:nEl?nEl.value:'',planStart:ssEl?ssEl.value:'',planEnd:seEl?seEl.value:'',taskStatus:currentStatus,pct:currentPct,noted:ndEl?ndEl.value:''});
   });
@@ -1344,7 +1343,6 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
   }
   var pctMap={'Pending':0,'In Progress':50,'Completed':100,'Delay':0};
   var pctVal=taskData.pct && taskData.pct!=='-'?taskData.pct:(taskData.taskStatus?pctMap[taskData.taskStatus]:'-');
-  console.log('[DEBUG] taskData.pct:', JSON.stringify(taskData.pct), 'taskStatus:', taskData.taskStatus, '-> pctVal:', pctVal);
   var pctColor={'Pending':'#64748b','In Progress':'#fbbf24','Completed':'#22c55e','Delay':'#ef4444'}[taskData.taskStatus]||'var(--text)';
   var fg={'Pending':'#64748b','In Progress':'#fbbf24','Completed':'#22c55e','Delay':'#ef4444'};
   var bg={'Pending':'rgba(100,116,139,0.2)','In Progress':'rgba(245,158,11,0.2)','Completed':'rgba(34,197,94,0.2)','Delay':'rgba(239,68,68,0.2)'};
@@ -3779,8 +3777,38 @@ function listenToCloud(){
       
       // Only update if data is different from local
       if(JSON.stringify(data) !== JSON.stringify(fbData)){
-        data = fbData;
-        _origSave(); // Save to localStorage
+        // Deep merge: preserve local weeklyReports changes, only apply other sections from cloud
+        if(fbData.weeklyReports){
+          if(!data.weeklyReports) data.weeklyReports = fbData.weeklyReports;
+          // Merge each user in weeklyReports, but keep local week data if it has savedAt
+          var localWR = data.weeklyReports.users || {};
+          var cloudWR = fbData.weeklyReports.users || {};
+          var cloudUsers = Object.keys(cloudWR);
+          for(var ci=0;ci<cloudUsers.length;ci++){
+            var cu = cloudUsers[ci];
+            if(!localWR[cu]){ localWR[cu] = cloudWR[cu]; continue; }
+            var cloudWeeks = Object.keys(cloudWR[cu]);
+            for(var cw=0;cw<cloudWeeks.length;cw++){
+              var cwk = cloudWeeks[cw];
+              // Only take cloud week if local has no savedAt (never saved locally)
+              var localWeek = localWR[cu][cwk];
+              if(!localWeek || !localWeek.savedAt){ localWR[cu][cwk] = cloudWR[cu][cwk]; }
+              // If both exist, local wins (user has unsaved changes)
+            }
+          }
+          // Take new users/weeks from cloud that don't exist locally
+          for(var ci2=0;ci2<cloudUsers.length;ci2++){
+            var cu2 = cloudUsers[ci2];
+            if(!localWR[cu2]) localWR[cu2] = cloudWR[cu2];
+          }
+        }
+        // Apply other top-level sections from cloud (bids, customers, projects, etc.)
+        var toMerge = ['bids','customers','projects','chambers','quarterly','planItems'];
+        for(var mi=0;mi<toMerge.length;mi++){
+          var mk = toMerge[mi];
+          if(fbData[mk] !== undefined) data[mk] = fbData[mk];
+        }
+        _origSave(); // Save merged data to localStorage
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
         
         // Show brief notification
