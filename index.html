@@ -2206,9 +2206,9 @@ function renderRow(item,rowIdx){
     }
     // 可编辑单元格(投标模块和客户互动模块的字段)
     if((mod==='bids'||mod==='projects')&&x.ed){
-      const val=String(item[x.k]||'').replace(/'/g,"\\'").replace(/
-/g,'\\n');
-      v='<span class="cell-editable" onclick="openInlineEdit(\''+item.id+'\',\''+x.k+'\',\''+val.replace(/"/g,'&quot;')+'\',\''+x.tp+'\',\''+(x.opt?x.opt.join('|').replace(/'/g,'&apos;'):'')+'\')">'+v+'</span>';
+      const val=String(item[x.k]||'').replace(/'/g,"\\'").replace(/\n/g,'\\n');
+      const escVal=val.replace(/"/g,'&quot;');
+      v='<span class="cell-editable" onclick="openInlineEdit(\''+item.id+'\',\''+x.k+'\',\''+escVal+'\',\''+x.tp+'\',\''+(x.opt?x.opt.join('|').replace(/'/g,'&apos;'):'')+'\')">'+v+'</span>';
     }
     // 备注字段:限制最大宽度,显示省略号
     if(x.k==='notes'&&v&&v!=='-'){
@@ -2366,7 +2366,6 @@ function sm(m){
 
 function openAddModal(){
   eid=null;const f=getFields(mod),keys={bids:'nb1',customers:'nb2',projects:'nb3',chambers:'nb4'};
-  const h=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
   document.getElementById('mt').textContent=t(keys[mod]);
   const fm=document.getElementById('mf');
   const formFields=f.filter(x=>x.l).map(x=>{
@@ -2376,19 +2375,19 @@ function openAddModal(){
     }else if(x.tp==='sel'){
       if(x.k==='position' || x.k==='companyBusiness' || x.k==='country'){
         const listId='list_'+x.k+'_'+Date.now();
-        inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" '+(x.r?'required':'')+'><datalist id="'+listId+'">'+x.opt.map(function(o){return'<option value="'+h(o)+'">';}).join('')+'</datalist>';
+        inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" '+(x.r?'required':'')+'><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
       }else{
-        inputHtml='<select name="'+x.k+'" class="fi fi-sel" '+(x.r?'required':'')+' onchange="this.dataset.v=this.value"><option value="">'+t('sp2')+'</option>'+x.opt.map(function(o){return'<option value="'+h(o)+'">'+h(o)+'</option>';}).join('')+'</select>';
+        inputHtml='<select name="'+x.k+'" class="fi fi-sel" '+(x.r?'required':'')+' onchange="this.dataset.v=this.value"><option value="">'+t('sp2')+'</option>'+x.opt.map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select>';
       }
     }else if(x.tp==='datalist'){
       const listId='list_'+x.k+'_'+Date.now();
-      inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" '+(x.r?'required':'')+' autocomplete="off"><datalist id="'+listId+'">'+x.opt.map(function(o){return'<option value="'+h(o)+'">';}).join('')+'</datalist>';
+      inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" '+(x.r?'required':'')+' autocomplete="off"><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
     }else if(x.tp==='date'){
       inputHtml='<input type="date" name="'+x.k+'" value="" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' style="color:var(--text1);background:var(--bg2);">';
     }else{
       inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+'></div>';
     }
-    return'<div class="mb-4"><label class="block text-sm text-[var(--text2)] mb-2">'+h(x.l)+(x.r?' *':'')+'</label>'+inputHtml+'</div>';
+    return'<div class="mb-4"><label class="block text-sm text-[var(--text2)] mb-2">'+x.l+(x.r?' *':'')+'</label>'+inputHtml+'</div>';
   }).join('');
   fm.innerHTML='<div class="mform">'+formFields+'</div><div class="flex gap-3 mt-4" style="position:sticky;bottom:0;background:var(--card);padding-top:8px"><button type="button" onclick="cm()" class="bs flex-1">'+t('bc')+'</button><button type="button" onclick="doSave()" class="bp flex-1">'+t('bs')+'</button></div>';
   document.getElementById('md').classList.add('active');
@@ -2506,7 +2505,6 @@ function saveInlineEdit(id,k){
 }
 function editItem(id){
   console.log('[EDIT] editItem called. id =', id, '| mod =', mod);
-  const h=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
   eid = id;
   const item = data[mod].find(i => i.id === id);
   if(!item){
@@ -2528,19 +2526,19 @@ function editItem(id){
     }else if(x.tp==='sel'){
       if(x.k==='position' || x.k==='companyBusiness' || x.k==='country'){
         const listId='list_'+x.k+'_'+Date.now();
-        inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" value="'+h(v)+'" '+(x.r?'required':'')+'><datalist id="'+listId+'">'+x.opt.map(function(o){return'<option value="'+h(o)+'">';}).join('')+'</datalist>';
+        inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" value="'+v+'" '+(x.r?'required':'')+'><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
       }else{
-        inputHtml='<select name="'+x.k+'" class="fi fi-sel" '+(x.r?'required':'')+'><option value="">'+t('sp2')+'</option>'+x.opt.map(function(o){return'<option value="'+h(o)+'" '+(o===v?'selected':'')+'>'+h(o)+'</option>';}).join('')+'</select>';
+        inputHtml='<select name="'+x.k+'" class="fi fi-sel" '+(x.r?'required':'')+'><option value="">'+t('sp2')+'</option>'+x.opt.map(o=>'<option value="'+o+'" '+(o===v?'selected':'')+'>'+o+'</option>').join('')+'</select>';
       }
     }else if(x.tp==='datalist'){
       const listId='list_'+x.k+'_'+Date.now();
-      inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" value="'+h(v)+'" '+(x.r?'required':'')+' autocomplete="off"><datalist id="'+listId+'">'+x.opt.map(function(o){return'<option value="'+h(o)+'">';}).join('')+'</datalist>';
+      inputHtml='<input name="'+x.k+'" class="fi fi-t" list="'+listId+'" data-k="'+x.k+'" value="'+v+'" '+(x.r?'required':'')+' autocomplete="off"><datalist id="'+listId+'">'+x.opt.map(o=>'<option value="'+o+'">').join('')+'</datalist>';
     }else if(x.tp==='date'){
-      inputHtml='<input type="date" name="'+x.k+'" value="'+h(v)+'" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' style="color:var(--text1);background:var(--bg2);'>';
+      inputHtml='<input type="date" name="'+x.k+'" value="'+v+'" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+' style="color:var(--text1);background:var(--bg2);">';
     }else{
-      inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+'>'+h(v)+'</div>';
+      inputHtml='<div contenteditable="true" class="fi fi-t" data-k="'+x.k+'" '+(x.r?'required':'')+'>'+v+'</div>';
     }
-    return'<div class="mb-4"><label class="block text-sm text-[var(--text2)] mb-2">'+h(x.l)+(x.r?' *':'')+'</label>'+inputHtml+'</div>';
+    return'<div class="mb-4"><label class="block text-sm text-[var(--text2)] mb-2">'+x.l+(x.r?' *':'')+'</label>'+inputHtml+'</div>';
   }).join('');
   fm.innerHTML='<div class="mform">'+formFields+'</div><div class="flex gap-3 mt-4" style="position:sticky;bottom:0;background:var(--card);padding-top:8px"><button type="button" onclick="cm()" class="bs flex-1">'+t('bc')+'</button><button type="button" onclick="doSave()" class="bp flex-1">'+t('bs')+'</button></div>';
   document.getElementById('md').classList.add('active');
