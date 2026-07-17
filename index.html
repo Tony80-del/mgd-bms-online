@@ -580,6 +580,8 @@ function loadData(){
   if(sl)lang=sl;
   document.getElementById('lzh').classList.toggle('active',lang==='zh');
   document.getElementById('len').classList.toggle('active',lang==='en');
+  const savedLastSave = localStorage.getItem('bms_last_save');
+  if(savedLastSave) _lastSaveTimestamp = parseInt(savedLastSave, 10);
   const sd=localStorage.getItem('bms_data');
   if(sd){data=JSON.parse(sd);if(!data.chambers)data.chambers=[];if(!data.quarterly)data.quarterly={};if(!data.planTracking)data.planTracking=null;['Q1','Q2','Q3','Q4'].forEach(function(q){if(!data.quarterly[q])data.quarterly[q]={actual:{},qTarget:{},notes:{}};if(!data.quarterly[q].actual)data.quarterly[q].actual={};if(!data.quarterly[q].qTarget)data.quarterly[q].qTarget={};if(!data.quarterly[q].notes)data.quarterly[q].notes={};});
   // 数据迁移:给 projects 添加 interactionCount 字段
@@ -3714,6 +3716,9 @@ var fauth = firebase.auth();
 var cloudStatus = 'offline';
 var lastSyncFrom = null;
 
+// Track last save timestamp to handle race conditions between local saves and cloud loads
+var _lastSaveTimestamp = null;
+
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
 window.saveData = function(){
@@ -3723,6 +3728,9 @@ window.saveData = function(){
   if(!isLoggedIn) return; // Skip cloud if not logged in
   // Set flag to skip our own listener update
   _isSyncingFromOwnSave = true;
+  // Set timestamp to track local save (also persist so it survives reload)
+  _lastSaveTimestamp = Date.now();
+  localStorage.setItem('bms_last_save', _lastSaveTimestamp);
   // Push to Firebase (async)
   fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(function(){
@@ -3830,7 +3838,39 @@ function syncFromCloud(){
       if(doc.exists && doc.data().data){
         var fbData = doc.data().data;
         // Merge / replace data
-        data = fbData;
+        // Deep merge: preserve local weeklyReports, only apply other sections from cloud
+        // Timestamp check: if local was saved in last 10s, prefer local weeklyReports
+        var LOCAL_GRACE_MS = 10000;
+        var localIsFresh = _lastSaveTimestamp && (Date.now() - _lastSaveTimestamp < LOCAL_GRACE_MS);
+        if(fbData.weeklyReports){
+          if(!data.weeklyReports) data.weeklyReports = fbData.weeklyReports;
+          var localWR = data.weeklyReports.users || {};
+          var cloudWR = fbData.weeklyReports.users || {};
+          var cloudUsers = Object.keys(cloudWR);
+          for(var ci=0;ci<cloudUsers.length;ci++){
+            var cu = cloudUsers[ci];
+            if(!localWR[cu]){ localWR[cu] = cloudWR[cu]; continue; }
+            var cloudWeeks = Object.keys(cloudWR[cu]);
+            for(var cw=0;cw<cloudWeeks.length;cw++){
+              var cwk = cloudWeeks[cw];
+              var localWeek = localWR[cu][cwk];
+              if(localIsFresh && localWeek && localWeek.savedAt){
+                // Local save is fresh (< 10s) — keep local, ignore cloud for this week
+                continue;
+              }
+              if(!localWeek || !localWeek.savedAt){ localWR[cu][cwk] = cloudWR[cu][cwk]; }
+            }
+          }
+          for(var ci2=0;ci2<cloudUsers.length;ci2++){
+            var cu2 = cloudUsers[ci2];
+            if(!localWR[cu2]) localWR[cu2] = cloudWR[cu2];
+          }
+        }
+        var toMerge = ['bids','customers','projects','chambers','quarterly','planItems'];
+        for(var mi=0;mi<toMerge.length;mi++){
+          var mk = toMerge[mi];
+          if(fbData[mk] !== undefined) data[mk] = fbData[mk];
+        }
         _origSave();
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
         cloudStatus = 'synced';
