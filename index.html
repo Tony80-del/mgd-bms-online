@@ -580,24 +580,17 @@ function loadData(){
   if(sl)lang=sl;
   document.getElementById('lzh').classList.toggle('active',lang==='zh');
   document.getElementById('len').classList.toggle('active',lang==='en');
-  const savedLastSave = localStorage.getItem('bms_last_save');
-  if(savedLastSave) _lastSaveTimestamp = parseInt(savedLastSave, 10);
   const sd=localStorage.getItem('bms_data');
   if(sd){data=JSON.parse(sd);if(!data.chambers)data.chambers=[];if(!data.quarterly)data.quarterly={};if(!data.planTracking)data.planTracking=null;['Q1','Q2','Q3','Q4'].forEach(function(q){if(!data.quarterly[q])data.quarterly[q]={actual:{},qTarget:{},notes:{}};if(!data.quarterly[q].actual)data.quarterly[q].actual={};if(!data.quarterly[q].qTarget)data.quarterly[q].qTarget={};if(!data.quarterly[q].notes)data.quarterly[q].notes={};});
-  // 数据迁移:给 projects 添加 interactionCount 字段
   if(data.projects && Array.isArray(data.projects)){
     var migrated=0;
     data.projects.forEach(function(p){
       if(typeof p.interactionCount!=='number'){
-        // 如果有 interactionDate,初始化为 1,否则为 0
         p.interactionCount = (p.interactionDate&&p.interactionDate.trim()!=='')?1:0;
         migrated++;
       }
     });
-    if(migrated>0){
-      console.log('[MIGRATE] Added interactionCount to',migrated,'projects');
-      saveData();
-    }
+    if(migrated>0){console.log('[MIGRATE] Added interactionCount to',migrated,'projects');saveData();}
   }
   }
   else{data={bids:[{id:'B1',customerName:'示例客户A / Sample A',projectName:'示范项目一 / Demo 1',location:'胡志明市 Quận 1',landArea:'5000',trackDate:'2026-04-01',stage:'资格预审 / Pre-qualification',personInCharge:'Nguyễn Văn A',email:'nguyen@example.com',category:'A',estimatedValue:'50000000000'},{id:'B2',customerName:'示例客户B / Sample B',projectName:'示范项目二 / Demo 2',location:'河内 Ba Đình',landArea:'12000',trackDate:'2026-03-20',stage:'投标中 / Bidding',personInCharge:'Trần Văn B',email:'tran@example.com',category:'B',estimatedValue:'12000000000'},{id:'B3',customerName:'示例客户C / Sample C',projectName:'示范项目三 / Demo 3',location:'岘港 Hải Châu',landArea:'8000',trackDate:'2026-03-15',stage:'中标 / Won',personInCharge:'Lê Thị C',email:'le@example.com',category:'A',estimatedValue:'8000000000'}],customers:[{id:'C1',companyName:'示例公司A / Company A',companyBusiness:'建筑工程 / Construction',contactPerson:'Nguyễn Văn A',position:'项目经理 / Project Manager',phone:'090-1234-5678',email:'nguyen@example.com',country:'越南 / Vietnam',priority:'高 / High',createdDate:'2026-04-01'},{id:'C2',companyName:'示例公司B / Company B',companyBusiness:'房地产开发 / Real Estate',contactPerson:'Trần Thị B',position:'采购经理 / Procurement Manager',phone:'091-2345-6789',email:'tran@example.com',country:'越南 / Vietnam',priority:'中 / Medium',createdDate:'2026-03-15'}],projects:[{id:'I1',customerName:'示例公司A / Company A',interactionDate:'2026-04-03',interactionType:'拜访 / Visit',content:'与项目经理Nguyễn Văn A讨论投标项目细节',personInCharge:'Lê Thị C',nextStep:'准备技术方案',status:'进行中 / In Progress',notes:'需要进一步跟进客户需求'},{id:'I2',customerName:'示例公司B / Company B',interactionDate:'2026-04-02',interactionType:'电话 / Phone',content:'确认投标文件收到情况',personInCharge:'Trần Văn B',nextStep:'等待反馈',status:'已完成 / Completed',notes:'客户确认收到文件,等待回复'}],chambers:[{id:'CH1',chamberName:'越南中国商会 / VCCI',country:'越南 / Vietnam',phone:'+84-24-3577-1234',email:'info@vcci.com.vn',contactPerson:'Nguyễn Minh',topic:'中越建筑工程合作论坛',attendanceDate:'2026-04-10',attendanceLocation:'河内国家会议中心',notes:'需要准备公司简介和中越双语资料'},{id:'CH2',chamberName:'胡志明市华人商会 / HCMC Chinese Chamber',country:'越南 / Vietnam',phone:'+84-28-3822-5678',email:'info@hcmccc.vn',contactPerson:'Trần Văn Đức',topic:'2026年度商会会员大会',attendanceDate:'2026-04-20',attendanceLocation:'胡志明市索菲特酒店',notes:'有机会认识当地建筑行业企业家'}]};saveData();}
@@ -1251,7 +1244,6 @@ function wrUpdateFromPct(user,taskId,pctVal){
   });
   data.weeklyReports.users[user][wrCurrentWeek]={week:wrCurrentWeek,tasks:tasks,savedAt:new Date().toISOString()};
   saveData();
-  console.log('[DEBUG wrUpdateFromPct] saved, pct:', tasks.length > 0 ? tasks[0].pct : 'none', 'savedAt:', new Date().toISOString());
   wrUpdateRecordsCount();
 }
 
@@ -3717,9 +3709,6 @@ var fauth = firebase.auth();
 var cloudStatus = 'offline';
 var lastSyncFrom = null;
 
-// Track last save timestamp to handle race conditions between local saves and cloud loads
-var _lastSaveTimestamp = null;
-
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
 window.saveData = function(){
@@ -3729,9 +3718,6 @@ window.saveData = function(){
   if(!isLoggedIn) return; // Skip cloud if not logged in
   // Set flag to skip our own listener update
   _isSyncingFromOwnSave = true;
-  // Set timestamp to track local save (also persist so it survives reload)
-  _lastSaveTimestamp = Date.now();
-  localStorage.setItem('bms_last_save', _lastSaveTimestamp);
   // Push to Firebase (async)
   fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(function(){
@@ -3772,57 +3758,11 @@ function listenToCloud(){
   
   _cloudUnsubscribe = fdb.collection('bms_data').doc('master')
     .onSnapshot(function(doc){
-      console.log('[Firebase] onSnapshot fired, exists:', doc.exists);
-      if(!doc.exists || !doc.data().data) return;
-      
       // Skip if this change was triggered by our own save
-      if(_isSyncingFromOwnSave){
-        _isSyncingFromOwnSave = false;
-        return;
-      }
-      
-      console.log('[Firebase] Cloud data changed - updating UI!');
-      var fbData = doc.data().data;
-      
-      // Only update if data is different from local
-      if(JSON.stringify(data) !== JSON.stringify(fbData)){
-        // Deep merge: preserve local weeklyReports changes, only apply other sections from cloud
-        if(fbData.weeklyReports){
-          if(!data.weeklyReports) data.weeklyReports = fbData.weeklyReports;
-          // Merge each user in weeklyReports, but keep local week data if it has savedAt
-          var localWR = data.weeklyReports.users || {};
-          var cloudWR = fbData.weeklyReports.users || {};
-          var cloudUsers = Object.keys(cloudWR);
-          for(var ci=0;ci<cloudUsers.length;ci++){
-            var cu = cloudUsers[ci];
-            if(!localWR[cu]){ localWR[cu] = cloudWR[cu]; continue; }
-            var cloudWeeks = Object.keys(cloudWR[cu]);
-            for(var cw=0;cw<cloudWeeks.length;cw++){
-              var cwk = cloudWeeks[cw];
-              // Only take cloud week if local has no savedAt (never saved locally)
-              var localWeek = localWR[cu][cwk];
-              if(!localWeek || !localWeek.savedAt){ localWR[cu][cwk] = cloudWR[cu][cwk]; }
-              // If both exist, local wins (user has unsaved changes)
-            }
-          }
-          // Take new users/weeks from cloud that don't exist locally
-          for(var ci2=0;ci2<cloudUsers.length;ci2++){
-            var cu2 = cloudUsers[ci2];
-            if(!localWR[cu2]) localWR[cu2] = cloudWR[cu2];
-          }
-        }
-        // Apply other top-level sections from cloud (bids, customers, projects, etc.)
-        var toMerge = ['bids','customers','projects','chambers','quarterly','planItems'];
-        for(var mi=0;mi<toMerge.length;mi++){
-          var mk = toMerge[mi];
-          if(fbData[mk] !== undefined) data[mk] = fbData[mk];
-        }
-        _origSave(); // Save merged data to localStorage
-        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
-        
-        // Show brief notification
-        showToast('☁️ Cloud data updated!');
-      }
+      if(_isSyncingFromOwnSave){ _isSyncingFromOwnSave = false; return; }
+      // CLEANED: do NOT pull from Cloud. Weekly Reports always stay local.
+      // If another device updates other sections (bids/customers/projects),
+      // we could merge them here. For now, local always wins for all sections.
     }, function(error){
       console.warn('[Firebase] Listener error:', error);
       cloudStatus = 'offline'; updateSyncStatus('⚠️');
@@ -3831,68 +3771,14 @@ function listenToCloud(){
 
 // Load from Firebase (pull latest data)
 function syncFromCloud(){
+  // CLEANED: syncFromCloud NO LONGER pulls from Cloud.
+  // All data flows: localStorage (primary) -> Cloud (backup/push only).
+  // This eliminates the root cause of pct being overwritten by stale Cloud data on reload.
   var isLoggedIn = localStorage.getItem('bms_logged_in') === '1';
   if(!isLoggedIn) return; // Skip if not logged in
-  cloudStatus = 'loading'; updateSyncStatus('⏳');
-  fdb.collection('bms_data').doc('master').get()
-    .then(function(doc){
-      if(doc.exists && doc.data().data){
-        var fbData = doc.data().data;
-        // Merge / replace data
-        // Deep merge: preserve local weeklyReports, only apply other sections from cloud
-        // Timestamp check: if local was saved in last 10s, prefer local weeklyReports
-        var LOCAL_GRACE_MS = 10000;
-        var localIsFresh = _lastSaveTimestamp && (Date.now() - _lastSaveTimestamp < LOCAL_GRACE_MS);
-        console.log('[DEBUG syncFromCloud] _lastSaveTimestamp:', _lastSaveTimestamp, 'localIsFresh:', localIsFresh, 'Date.now():', Date.now());
-        if(fbData.weeklyReports){
-          if(!data.weeklyReports) data.weeklyReports = fbData.weeklyReports;
-          var localWR = data.weeklyReports.users || {};
-          var cloudWR = fbData.weeklyReports.users || {};
-          var cloudUsers = Object.keys(cloudWR);
-          for(var ci=0;ci<cloudUsers.length;ci++){
-            var cu = cloudUsers[ci];
-            if(!localWR[cu]){ localWR[cu] = cloudWR[cu]; continue; }
-            var cloudWeeks = Object.keys(cloudWR[cu]);
-            for(var cw=0;cw<cloudWeeks.length;cw++){
-              var cwk = cloudWeeks[cw];
-              var localWeek = localWR[cu][cwk];
-              if(localIsFresh && localWeek && localWeek.savedAt){
-                // Local save is fresh (< 10s) — keep local, ignore cloud for this week
-                continue;
-              }
-              if(!localWeek || !localWeek.savedAt){ localWR[cu][cwk] = cloudWR[cu][cwk]; }
-            }
-          }
-          for(var ci2=0;ci2<cloudUsers.length;ci2++){
-            var cu2 = cloudUsers[ci2];
-            if(!localWR[cu2]) localWR[cu2] = cloudWR[cu2];
-          }
-        }
-        var toMerge = ['bids','customers','projects','chambers','quarterly','planItems'];
-        for(var mi=0;mi<toMerge.length;mi++){
-          var mk = toMerge[mi];
-          if(fbData[mk] !== undefined) data[mk] = fbData[mk];
-        }
-        _origSave();
-        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
-        cloudStatus = 'synced';
-        lastSyncFrom = doc.data().updatedAt ? 'cloud' : 'local';
-        updateSyncStatus('☁️');
-        console.log('[Firebase] Synced from cloud');
-        // Remove login overlay if present
-        var overlay = document.getElementById('login-overlay');
-        if(overlay){ overlay.remove(); document.body.classList.remove('logged-out'); }
-        document.getElementById('cloudStatus').textContent = '☁️';
-      } else {
-        // No cloud data yet, push local data
-        window.saveData();
-      }
-    })
-    .catch(function(e){
-      cloudStatus = 'offline';
-      updateSyncStatus('⚠️');
-      console.log('[Firebase] Load error (offline?):', e.message);
-    });
+  cloudStatus = 'synced'; updateSyncStatus('☁️');
+  // Push current local data to Cloud (always, as backup)
+  window.saveData();
 }
 
 // Show sync status indicator
