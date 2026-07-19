@@ -413,9 +413,11 @@ function collectOverdueWR(){
       wd.tasks.forEach(function(t){
         if(!t.planEnd)return;
         var dl=daysLeft(t.planEnd);
-        if(dl<0 && (!t.taskStatus||t.taskStatus!=='Completed')){
+        if(dl<0){
           var pct=parseInt(t.pct)||0;
-          if(pct<100) out.push({user:u.name,userid:u.id,week:wk,name:t.name||'Unnamed',planEnd:t.planEnd,pct:t.pct,status:t.taskStatus,ov:dl});
+          // Completed (pct>=100 or status=Completed) → not overdue
+          if(pct>=100||t.taskStatus==='Completed')return;
+          out.push({user:u.name,userid:u.id,week:wk,name:t.name||'Unnamed',planEnd:t.planEnd,pct:t.pct,status:t.taskStatus,ov:dl});
         }
       });
     });
@@ -455,9 +457,9 @@ function renderWR(){
 
   var tasks=wrGetUserWeekData(wrSelUser,wn);
   var total=tasks.length;
-  var completed=tasks.filter(function(t){return parseInt(t.pct)>=100||t.taskStatus==='Completed';}).length;
+  var completed=tasks.filter(function(t){return parseInt(t.pct)>=100||/Completed/i.test(t.taskStatus||'');}).length;
   var delayed=tasks.filter(function(t){
-    if(parseInt(t.pct)>=100||t.taskStatus==='Completed')return false;
+    if(parseInt(t.pct)>=100||/Completed/i.test(t.taskStatus||''))return false;
     return t.planEnd&&daysLeft(t.planEnd)<0;
   }).length;
   var avgPct=tasks.length?Math.round(tasks.reduce(function(s,t){return s+(parseInt(t.pct)||0);},0)/tasks.length):0;
@@ -476,10 +478,10 @@ function renderWR(){
   $('#wrTaskList').innerHTML=tasks.map(function(t){
     var p=parseInt(t.pct)||0;
     var pCls=pctClass(p);
-    var st=t.taskStatus||(p>=100?'Completed':p>0?'In Progress':'Pending');
+    var st=/Completed/i.test(t.taskStatus||'')?'Completed':(p>=100?'Completed':p>0?'In Progress':'Pending');
     var stCls=st==='Completed'?'Completed':st==='Delay'||st==='Overdue'?'delay':'progress';
     var dl='';var dlBg='';
-    if(t.planEnd){
+    if(t.planEnd && p<100 && st!=='Completed'){
       var d=daysLeft(t.planEnd);
       if(d<0){dl=Math.abs(d)+'d overdue';dlBg='color:var(--red)';stCls='delay';}
       else if(d===0){dl='Due today';dlBg='color:var(--org)';}
