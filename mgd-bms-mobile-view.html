@@ -148,14 +148,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
     <div class="home-scroll">
       <div style="font-size:13px;color:var(--mut);margin:6px 0 4px" id="homeGreet"></div>
       <div id="alertSection"></div>
-      <div class="sec-title">📊 Overview</div>
       <div class="statgrid" id="statGrid"></div>
-      <div class="sec-title">⚠️ Overdue Weekly Tasks</div>
-      <div id="delayedTasks"></div>
-      <div class="sec-title">🏛️ Upcoming Chambers</div>
-      <div id="chamberPreview"></div>
-      <div class="sec-title">📋 Recent Activity</div>
-      <div class="activity" id="recentActivity"></div>
     </div>
   </div>
 
@@ -377,45 +370,21 @@ function renderAll(){
     $('#alertSection').innerHTML='<div class="banner" style="border-color:var(--grn);background:linear-gradient(135deg,#0a2a10,#0e1a12);color:#b0ffb0;"><span class="msg">All clear 🎉</span></div>';
   }
 
-  // ── Stats ──
+  // ── Delay-only Cards ──
   const activeBidsArr=bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive);
-  const bActive=bids.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')&&!b.inactive).length;
   const bOver=activeBidsArr.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
-  const cHigh=cust.filter(c=>/High/i.test(c.priority||'')).length;
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
-  const wrDelCount=wrOverdue.length+(proj.filter(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);return dl<0&&!/Completed/i.test(p.status||'');}).length);
+  const custNewMonth=cust.filter(c=>sameMonth(c.createdDate)).length;
+  const interMonth=proj.filter(p=>sameMonth(p.interactionDate)).length;
   $('#statGrid').innerHTML=[
-    '<div class="stat"><div class="h">📋 Active Bids</div><div class="big">'+activeBidsArr.length+'</div><div class="sub"><span>Bidding<b>'+bActive+'</b></span><span>Overdue<b style="color:var(--red)">'+bOver+'</b></span></div></div>',
-    '<div class="stat"><div class="h">👥 Total Clients</div><div class="big">'+cust.length+'</div><div class="sub"><span>High Pri<b style="color:var(--org)">'+cHigh+'</b></span><span>This Month<b>'+(cust.filter(c=>sameMonth(c.createdDate)).length)+'</b></span></div></div>',
-    '<div class="stat"><div class="h">⚠️ Overdue Items</div><div class="big" style="color:'+(wrDelCount>0?'var(--red)':'var(--grn)')+'">'+wrDelCount+'</div><div class="sub"><span>WR Delay<b>'+wrOverdue.length+'</b></span></div></div>',
-    '<div class="stat"><div class="h">🏛️ Chamber Events</div><div class="big">'+chambers.length+'</div><div class="sub"><span>Upcoming<b style="color:var(--blu)">'+chUp+'</b></span></div></div>'
+    '<div class="stat"><div class="h">📋 Overdue Bids</div><div class="big" style="color:'+(bOver>0?'var(--red)':'var(--grn)')+'">'+bOver+'</div></div>',
+    '<div class="stat"><div class="h">🏛️ Upcoming Chambers</div><div class="big" style="color:'+(chUp>0?'var(--blu)':'var(--mut)')+'">'+chUp+'</div></div>',
+    '<div class="stat"><div class="h">👥 New Clients (Month)</div><div class="big" style="color:'+(custNewMonth>0?'var(--org)':'var(--mut)')+'">'+custNewMonth+'</div></div>',
+    '<div class="stat"><div class="h">💬 Interactions (Month)</div><div class="big" style="color:'+(interMonth>0?'var(--yel)':'var(--mut)')+'">'+interMonth+'</div></div>',
+    '<div class="stat full"><div class="h">⚠️ WR Overdue Per Person</div><div class="big" style="color:'+(wrOverdue.length>0?'var(--red)':'var(--grn)')+'">'+wrOverdue.length+'</div><div class="sub">'+
+      wrOverdue.slice(0,6).map(function(t){return '<span style="font-size:10px">'+esc(t.user)+'<b style="color:var(--red)"> '+Math.abs(t.ov)+'d</b></span>';}).join(' | ')||'—'+
+    '</div></div>'
   ].join('');
-
-  // ── Delayed WR Tasks ──
-  if(wrOverdue.length){
-    $('#delayedTasks').innerHTML=wrOverdue.slice(0,10).map(t=>{
-      return '<div class="banner red"><span class="msg">📑 <b>'+esc(t.user)+'</b> — '+esc(t.name)+(t.pct?' ('+t.pct+'%)':'')+'</span><span class="tag ov">'+Math.abs(t.ov)+'d overdue</span></div>';
-    }).join('');
-  } else {
-    $('#delayedTasks').innerHTML='<div class="empty" style="padding:12px 0">No overdue tasks 🎉</div>';
-  }
-
-  // ── Upcoming Chambers ──
-  const upcoming=chambers.filter(c=>daysLeft(c.attendanceDate)>0).sort((a,b)=>daysLeft(a.attendanceDate)-daysLeft(b.attendanceDate)).slice(0,3);
-  if(upcoming.length){
-    $('#chamberPreview').innerHTML='<div class="activity">'+upcoming.map(c=>{
-      const dl=daysLeft(c.attendanceDate);const dlbl=delayLabel(dl);
-      return '<div class="act"><div class="ic">🏛️</div><div class="tx"><div class="title">'+esc(c.chamberName)+'</div><div class="sub">'+esc(c.topic||'')+' · '+fmt(c.attendanceDate)+'</div></div><div class="dt">'+esc(dlbl.txt)+'</div></div>';
-    }).join('')+'</div>';
-  } else {
-    $('#chamberPreview').innerHTML='<div class="empty" style="padding:12px 0">No upcoming events</div>';
-  }
-
-  // ── Recent Activity ──
-  const acts=[];
-  proj.slice(-4).reverse().forEach(p=>acts.push({ic:'💬',txt:p.customerName||'?',sub:p.interactionType||String(p.content||'').slice(0,50),dt:p.interactionDate}));
-  chambers.slice(-3).reverse().forEach(c=>acts.push({ic:'🏛️',txt:c.chamberName||'?',sub:c.topic||'?',dt:c.attendanceDate}));
-  $('#recentActivity').innerHTML=acts.length?acts.map(a=>'<div class="act"><div class="ic">'+a.ic+'</div><div class="tx"><div class="title">'+esc(a.txt)+'</div><div class="sub">'+esc(a.sub)+'</div></div><div class="dt">'+fmt(a.dt)+'</div></div>').join(''):'<div class="empty">No recent activity</div>';
 
   // Badges
   $('#b-bids').textContent=bOver>0?bOver:'';$('#b-bids').style.display=bOver>0?'inline':'none';$('#b-bids').className='badge'+(bOver>0?' danger':'');
