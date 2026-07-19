@@ -164,7 +164,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
     <div class="screen-head"><h2>Bid Projects</h2><span class="count" id="bidCount"></span></div>
     <div class="search">
       <input id="bidSearch" placeholder="🔍 Search...">
-      <select id="bidFilter"><option value="">All</option><option value="Bidding">Bidding</option><option value="Following">Following</option><option value="Overdue">Overdue</option></select>
+      <select id="bidFilter"><option value="">All Active</option><option value="Bidding">Bidding</option><option value="Following">Following</option><option value="Overdue">Overdue</option></select>
     </div>
     <div id="summaryBids" class="summary-cards"></div>
     <div class="list" id="listBids"></div>
@@ -362,7 +362,8 @@ function renderAll(){
 
   // ── Alerts ──
   var urgent=[];
-  bids.forEach(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);if(dl<0&&!b.inactive)urgent.push({icon:'📋',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d overdue',cls:'red'});});
+  const activeBids=bids=>bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive);
+  activeBids(bids).forEach(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);if(dl<0)urgent.push({icon:'📋',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d overdue',cls:'red'});});
   proj.forEach(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);if(dl<0&&!/Completed/i.test(p.status||''))urgent.push({icon:'💬',name:p.customerName||'?',tag:Math.abs(dl)+'d overdue',cls:'red'});});
   chambers.forEach(c=>{const dl=daysLeft(c.attendanceDate);if(dl>0&&dl<=7)urgent.push({icon:'🏛️',name:c.chamberName,tag:dl+'d',cls:''});});
   // Add overdue WR tasks to alerts
@@ -377,13 +378,14 @@ function renderAll(){
   }
 
   // ── Stats ──
+  const activeBidsArr=bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive);
   const bActive=bids.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')&&!b.inactive).length;
-  const bOver=bids.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0&&!b.inactive;}).length;
+  const bOver=activeBidsArr.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
   const cHigh=cust.filter(c=>/High/i.test(c.priority||'')).length;
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
   const wrDelCount=wrOverdue.length+(proj.filter(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);return dl<0&&!/Completed/i.test(p.status||'');}).length);
   $('#statGrid').innerHTML=[
-    '<div class="stat"><div class="h">📋 Total Bids</div><div class="big">'+bids.length+'</div><div class="sub"><span>Active<b>'+bActive+'</b></span><span>Overdue<b style="color:var(--red)">'+bOver+'</b></span></div></div>',
+    '<div class="stat"><div class="h">📋 Active Bids</div><div class="big">'+activeBidsArr.length+'</div><div class="sub"><span>Bidding<b>'+bActive+'</b></span><span>Overdue<b style="color:var(--red)">'+bOver+'</b></span></div></div>',
     '<div class="stat"><div class="h">👥 Total Clients</div><div class="big">'+cust.length+'</div><div class="sub"><span>High Pri<b style="color:var(--org)">'+cHigh+'</b></span><span>This Month<b>'+(cust.filter(c=>sameMonth(c.createdDate)).length)+'</b></span></div></div>',
     '<div class="stat"><div class="h">⚠️ Overdue Items</div><div class="big" style="color:'+(wrDelCount>0?'var(--red)':'var(--grn)')+'">'+wrDelCount+'</div><div class="sub"><span>WR Delay<b>'+wrOverdue.length+'</b></span></div></div>',
     '<div class="stat"><div class="h">🏛️ Chamber Events</div><div class="big">'+chambers.length+'</div><div class="sub"><span>Upcoming<b style="color:var(--blu)">'+chUp+'</b></span></div></div>'
@@ -532,21 +534,25 @@ function renderBids(){
   const arr=APP.data.bids||[];
   const q=$('#bidSearch').value.toLowerCase().trim();
   const f=$('#bidFilter').value;
+  // Only show Following or Bidding status (exclude cancelled/stopped)
   let list=arr.filter(b=>{
-    const okQ=!q||(b.projectName||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q)||(b.location||'').toLowerCase().includes(q);
     const sc=b.stageContent||b.stage||'';
-    const cls=/(Bidding)/i.test(sc)?'Bidding':/(Following)/i.test(sc)?'Following':'other';
+    const keep=/(Bidding|Following)/i.test(sc)&&!b.inactive;
+    if(!keep)return false;
+    const okQ=!q||(b.projectName||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q)||(b.location||'').toLowerCase().includes(q);
+    const cls=/(Bidding)/i.test(sc)?'Bidding':'Following';
     let okF=true;
-    if(f==='Bidding')okF=cls==='Bidding'&&!b.inactive;
-    else if(f==='Following')okF=cls==='Following'&&!b.inactive;
-    else if(f==='Overdue'){const dl=daysLeft(b.nextActionDate||b.trackDate);okF=dl<0&&!b.inactive;}
+    if(f==='Bidding')okF=cls==='Bidding';
+    else if(f==='Following')okF=cls==='Following';
+    else if(f==='Overdue'){const dl=daysLeft(b.nextActionDate||b.trackDate);okF=dl<0;}
     return okQ&&okF;
   });
-  const tB=list.length,aB=list.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')).length,oB=list.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
+  const aB=list.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')).length;
+  const oB=list.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
   $('#summaryBids').innerHTML=[
-    '<div class="sc"><div class="sc-n">'+tB+'</div><div class="sc-l">Total</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+aB+'</div><div class="sc-l">Active</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--red)">'+oB+'</div><div class="sc-l">Overdue</div></div>',
+    '<div class="sc"><div class="sc-n">'+list.length+'</div><div class="sc-l">Active</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+aB+'</div><div class="sc-l">Bidding</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--pur)">'+(list.length-aB)+'</div><div class="sc-l">Following</div></div>',
     '<div class="sc"><div class="sc-n" style="color:var(--acc)">'+fmtV(list.reduce((s,b)=>s+(parseFloat(b.estimatedValue)||0),0))+'</div><div class="sc-l">Est. Value</div></div>'
   ].join('');
   $('#bidCount').textContent='('+list.length+')';
