@@ -1321,14 +1321,12 @@ function wrRenderTaskGroup(user,taskId,taskData,isNew){
   }
   var pctVal=taskData.pct;
   if(pctVal===undefined||pctVal===null||pctVal==='') pctVal='-';
-  // Auto-detect status from pct if no saved taskStatus
-  var detectedStatus=taskData.taskStatus;
-  if(!detectedStatus||detectedStatus==='Pending'){
-    var pctNum=pctVal!=='-'?parseInt(pctVal,10):-1;
-    if(pctNum===100) detectedStatus='Completed';
-    else if(pctNum>=1) detectedStatus='In Progress';
-    else detectedStatus='In Progress'; // default for unknown/empty
-  }
+  // Always derive status from pct value (ignore saved taskStatus)
+  var pctNum=pctVal!=='-'?parseInt(pctVal,10):-1;
+  var detectedStatus;
+  if(pctNum===100) detectedStatus='Completed';
+  else if(pctNum>=1) detectedStatus='In Progress';
+  else detectedStatus='Delay';
   // pct color is always green
   var pctColor='#10b981';
   var fg={'Pending':'#64748b','In Progress':'#fbbf24','Completed':'#22c55e','Delay':'#ef4444'};
