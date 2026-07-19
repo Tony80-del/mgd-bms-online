@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,47 +11,24 @@
   --line:#2D3A4A;--txt:#E6EDF3;--mut:#8B949E;--acc:#00C7B7;--acc2:#009E92;
   --red:#F85149;--org:#FF8C42;--yel:#E3B341;--grn:#3FB950;--blu:#58A6FF;--gry:#6E7681;--pur:#BC8CFF;
 }
-html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  font-size:14px;overflow-x:hidden}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;display:flex;flex-direction:column}
 
 /* Top Bar */
-.topbar{
-  position:sticky;top:0;z-index:30;
-  display:flex;align-items:center;gap:8px;
-  padding:10px 14px;background:linear-gradient(180deg,#11161D,#0E1116);
-  border-bottom:1px solid var(--line)
-}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(180deg,#11161D,#0E1116);border-bottom:1px solid var(--line)}
 .topbar .logo{font-size:17px;font-weight:700;flex:1;white-space:nowrap}
 .topbar .logo .dot{color:var(--acc)}
-.lang-btn{
-  font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;
-  border:1px solid var(--line);background:var(--card);color:var(--mut);cursor:pointer;white-space:nowrap
-}
-.lang-btn.active{background:var(--acc);color:#04201d;border-color:var(--acc)}
 .conn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);white-space:nowrap}
 .conn .led{width:8px;height:8px;border-radius:50%;background:var(--gry)}
 .conn .led.on{background:var(--grn);box-shadow:0 0 6px var(--grn)}
 .conn .led.err{background:var(--red)}
 
-/* Bottom Nav - 4 tabs only */
-.tabnav{
-  position:sticky;bottom:0;z-index:30;
-  display:flex;background:#0B0E13;
-  border-top:1px solid var(--line);padding:5px 2px
-}
-.tab{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;
-  padding:5px 0;color:var(--mut);font-size:10px;cursor:pointer;position:relative;user-select:none
-}
+/* Bottom Nav */
+.tabnav{position:sticky;bottom:0;z-index:30;display:flex;background:#0B0E13;border-top:1px solid var(--line);padding:5px 2px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 0;color:var(--mut);font-size:10px;cursor:pointer;position:relative;user-select:none}
 .tab .ti{font-size:20px;line-height:1}
 .tab.active{color:var(--acc)}
-.tab .badge{
-  position:absolute;top:1px;right:50%;margin-right:-14px;
-  background:var(--acc);color:#04201d;font-size:9px;font-weight:700;
-  border-radius:9px;padding:0 5px;min-width:15px;text-align:center;display:none
-}
+.tab .badge{position:absolute;top:1px;right:50%;margin-right:-14px;background:var(--acc);color:#04201d;font-size:9px;font-weight:700;border-radius:9px;padding:0 5px;min-width:15px;text-align:center;display:none}
 .tab .badge.warn{background:var(--org);color:#1a0a00}
 .tab .badge.danger{background:var(--red);color:#1a0000}
 
@@ -59,20 +36,13 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
 .screen{flex:1;overflow-y:auto;padding:0 0 80px;display:none}
 .screen.active{display:block}
 
-/* Home Dashboard */
+/* Home */
 .home-scroll{padding:10px 14px}
-.sec-title{
-  font-size:11px;color:var(--mut);text-transform:uppercase;
-  letter-spacing:.8px;margin:16px 0 7px;font-weight:600
-}
+.sec-title{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 7px;font-weight:600}
 .sec-title:first-child{margin-top:2px}
 
-/* Alert banners */
-.banner{
-  background:linear-gradient(135deg,#3a1d00,#2a1500);
-  border:1px solid var(--org);color:#ffd9b0;border-radius:12px;
-  padding:9px 12px;margin:6px 0;font-size:12px;display:flex;align-items:center;gap:8px
-}
+/* Banner */
+.banner{background:linear-gradient(135deg,#3a1d00,#2a1500);border:1px solid var(--org);color:#ffd9b0;border-radius:12px;padding:9px 12px;margin:6px 0;font-size:12px;display:flex;align-items:center;gap:8px}
 .banner.red{background:linear-gradient(135deg,#3a0000,#2a0000);border-color:var(--red);color:#ffb3ae}
 .banner .msg{flex:1;line-height:1.4}
 .banner .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
@@ -81,16 +51,12 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
 
 /* Stat Grid */
 .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.stat{
-  background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:11px 12px
-}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px}
 .stat.full{grid-column:1/-1}
 .stat .h{font-size:11px;color:var(--mut);font-weight:600;margin-bottom:4px}
 .stat .big{font-size:28px;font-weight:700;margin:2px 0}
 .stat .sub{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:11px;color:var(--mut);margin-top:3px}
 .stat .sub b{color:var(--txt);font-weight:600}
-.stat-card.accent{grid-column:1/-1;background:linear-gradient(135deg,#13252a,#1C2330);border-color:var(--acc);border-radius:14px;padding:12px}
 
 /* Activity Feed */
 .activity{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
@@ -102,67 +68,43 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
 .act .tx .sub{font-size:11px;color:var(--mut);margin-top:1px}
 .act .dt{font-size:11px;color:var(--mut);white-space:nowrap;flex-shrink:0}
 
-/* List cards */
+/* List & Items */
 .screen-head{display:flex;align-items:center;padding:12px 14px 6px;gap:10px}
 .screen-head h2{flex:1;margin:0;font-size:18px;font-weight:700}
 .screen-head .count{font-size:12px;color:var(--mut);font-weight:400}
 .search{display:flex;gap:8px;margin:0 14px 10px;flex-wrap:wrap}
-.search input{
-  flex:1;min-width:0;background:var(--card);border:1px solid var(--line);
-  color:var(--txt);border-radius:10px;padding:9px 11px;font-size:13px
-}
-.search select{
-  background:var(--card);border:1px solid var(--line);color:var(--txt);
-  border-radius:10px;padding:9px 8px;font-size:13px
-}
+.search input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 11px;font-size:13px}
+.search select{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 8px;font-size:13px}
 .list{padding:0 14px;display:flex;flex-direction:column;gap:9px}
-.item{
-  background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:12px 14px;transition:border-color .15s;cursor:default
-}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:default;transition:border-color .15s}
+.item.clk{cursor:pointer}
+.item.clk:active{border-color:var(--acc);background:var(--card2)}
 .item .row1{display:flex;align-items:center;gap:7px;margin-bottom:5px;min-width:0}
 .item .name{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .item .meta{font-size:12px;color:var(--mut);display:flex;flex-wrap:wrap;gap:3px 10px}
 .item .meta b{color:var(--txt);font-weight:600}
 
-/* Pill badges */
+/* Pills */
 .pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
-.p-Bidding,.p-Blue{background:rgba(88,166,255,.18);color:var(--blu)}
-.p-Won,.p-Attended,.p-Completed,.p-Green{background:rgba(63,185,80,.18);color:var(--grn)}
-.p-Lost,.p-Overdue,.p-Red{background:rgba(248,81,73,.18);color:var(--red)}
-.p-Pending,.p-Yellow{background:rgba(227,179,65,.18);color:var(--yel)}
-.p-Following,.p-Purple{background:rgba(188,140,255,.18);color:var(--pur)}
-.p-Reviewing{background:rgba(188,140,255,.18);color:var(--pur)}
-.p-Data{background:rgba(188,140,255,.18);color:var(--pur)}
+.p-Bidding,.p-Blue,.p-Upcoming{background:rgba(88,166,255,.18);color:var(--blu)}
+.p-Won,.p-Attended,.p-Completed,.p-Green,.p-ontime{background:rgba(63,185,80,.18);color:var(--grn)}
+.p-Lost,.p-Overdue,.p-Red,.p-delay{background:rgba(248,81,73,.18);color:var(--red)}
+.p-Pending,.p-Yellow,.p-progress{background:rgba(227,179,65,.18);color:var(--yel)}
+.p-Following,.p-Purple,.p-Reviewing,.p-Data,.p-Reviewing{background:rgba(188,140,255,.18);color:var(--pur)}
 .p-High{background:rgba(248,81,73,.18);color:var(--red)}
-.p-Medium,.p-Orange{background:rgba(255,140,66,.18);color:var(--org)}
-.p-Low,.p-Grey{background:rgba(110,118,129,.20);color:var(--gry)}
-.p-Upcoming{background:rgba(88,166,255,.18);color:var(--blu)}
+.p-Medium{background:rgba(255,140,66,.18);color:var(--org)}
+.p-Low{background:rgba(110,118,129,.20);color:var(--gry)}
 
-/* Empty */
-.empty{text-align:center;color:var(--mut);padding:36px 0;font-size:13px;line-height:1.6}
+/* Summary Cards */
+.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 12px}
+.summary-cards .sc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.summary-cards .sc .sc-n{font-size:20px;font-weight:700}
+.summary-cards .sc .sc-l{font-size:10px;color:var(--mut);margin-top:2px}
 
-/* Toast */
-.toast{
-  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
-  z-index:60;background:var(--card2);border:1px solid var(--line);color:var(--txt);
-  padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;
-  transition:.25s;pointer-events:none;max-width:90%;white-space:nowrap
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.err{border-color:var(--red);color:#ffb3ae}
-
-/* Detail drawer */
-.drawer{
-  position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);
-  display:none;align-items:flex-end
-}
+/* Detail Drawer */
+.drawer{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.65);display:none;align-items:flex-end}
 .drawer.show{display:flex}
-.drawer-inner{
-  background:var(--panel);width:100%;max-width:430px;margin:0 auto;
-  border-radius:18px 18px 0 0;max-height:85vh;overflow-y:auto;
-  padding:16px 16px 32px;border-top:1px solid var(--line)
-}
+.drawer-inner{background:var(--panel);width:100%;max-width:430px;margin:0 auto;border-radius:18px 18px 0 0;max-height:85vh;overflow-y:auto;padding:16px 16px 32px;border-top:1px solid var(--line)}
 .drawer-inner .dh{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:16px;font-weight:700}
 .drawer-inner .dh .x{margin-left:auto;color:var(--mut);cursor:pointer;font-size:22px;font-weight:400;line-height:1}
 .drawer-inner .dr{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:13px;line-height:1.7}
@@ -170,14 +112,26 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
 .drawer-inner .dr .dv{color:var(--txt)}
 .drawer-inner .dr .full{grid-column:1/-1}
 
-/* Top summary cards on screens */
-.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 12px}
-.summary-cards .sc{
-  background:var(--card);border:1px solid var(--line);border-radius:12px;
-  padding:10px;text-align:center
-}
-.summary-cards .sc .sc-n{font-size:20px;font-weight:700}
-.summary-cards .sc .sc-l{font-size:10px;color:var(--mut);margin-top:2px}
+/* Person Tabs */
+.person-tabs{display:flex;gap:5px;margin:0 14px 10px}
+.person-tab{flex:1;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--mut);font-size:12px;font-weight:600;text-align:center;cursor:pointer}
+.person-tab.active{background:rgba(0,199,183,.12);color:var(--acc);border-color:var(--acc)}
+.week-nav{display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 0 10px;font-size:12px;color:var(--mut)}
+.week-nav button{background:var(--card);border:1px solid var(--line);border-radius:6px;color:var(--acc);padding:5px 12px;font-size:14px;cursor:pointer}
+.week-nav .w-label{color:var(--txt);font-weight:600;min-width:130px;text-align:center}
+.wr-task{padding:8px 12px;margin-bottom:7px}
+.wr-task .wr-title{font-weight:600;font-size:13px;margin-bottom:3px}
+.wr-task .wr-meta{font-size:11px;color:var(--mut);display:flex;gap:12px;flex-wrap:wrap}
+.wr-task .wr-bar{height:4px;border-radius:2px;margin-top:6px;background:rgba(255,255,255,.08)}
+.wr-task .wr-bar-inner{height:4px;border-radius:2px;transition:width .2s}
+.wr-task .wr-pr,.wr-task .wr-note{margin-top:4px;font-size:11px}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:60;background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;max-width:90%;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Empty */
+.empty{text-align:center;color:var(--mut);padding:36px 0;font-size:13px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -186,45 +140,31 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
   <!-- ══ Top Bar ══ -->
   <div class="topbar">
     <div class="logo">🔄 MGD<span class="dot">·</span>BMS</div>
-    <button class="lang-btn" id="lzh" onclick="setLang('zh')">中文</button>
-    <button class="lang-btn" id="len" onclick="setLang('en')">EN</button>
     <div class="conn"><span class="led" id="led"></span><span id="connTxt">—</span></div>
   </div>
 
   <!-- ══ HOME ══ -->
   <div class="screen active" id="scr-home">
     <div class="home-scroll">
-
-      <!-- Greeting -->
       <div style="font-size:13px;color:var(--mut);margin:6px 0 4px" id="homeGreet"></div>
-
-      <!-- Overdue / Urgent Alerts -->
       <div id="alertSection"></div>
-
-      <!-- Stat Grid -->
-      <div class="sec-title" id="secOverview">📊 概览</div>
+      <div class="sec-title">📊 Overview</div>
       <div class="statgrid" id="statGrid"></div>
-
-      <!-- Delayed WR Tasks -->
-      <div class="sec-title" id="secDelayed">⚠️ 逾期周任务</div>
+      <div class="sec-title">⚠️ Overdue Weekly Tasks</div>
       <div id="delayedTasks"></div>
-
-      <!-- Upcoming Chamber Events -->
-      <div class="sec-title" id="secChamber">🏛️ 即将出席的商会</div>
+      <div class="sec-title">🏛️ Upcoming Chambers</div>
       <div id="chamberPreview"></div>
-
-      <!-- Recent Interactions -->
-      <div class="sec-title" id="secRecent">📋 最近互动</div>
+      <div class="sec-title">📋 Recent Activity</div>
       <div class="activity" id="recentActivity"></div>
     </div>
   </div>
 
   <!-- ══ BIDS ══ -->
   <div class="screen" id="scr-bids">
-    <div class="screen-head"><h2 id="ttlBids">投标项目</h2><span class="count" id="bidCount"></span></div>
+    <div class="screen-head"><h2>Bid Projects</h2><span class="count" id="bidCount"></span></div>
     <div class="search">
-      <input id="bidSearch" placeholder="🔍 搜索…">
-      <select id="bidFilter"><option value="">全部</option><option value="Bidding">投标中</option><option value="Following">跟踪</option><option value="Overdue">已逾期</option></select>
+      <input id="bidSearch" placeholder="🔍 Search...">
+      <select id="bidFilter"><option value="">All</option><option value="Bidding">Bidding</option><option value="Following">Following</option><option value="Overdue">Overdue</option></select>
     </div>
     <div id="summaryBids" class="summary-cards"></div>
     <div class="list" id="listBids"></div>
@@ -232,46 +172,56 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
 
   <!-- ══ CUSTOMERS ══ -->
   <div class="screen" id="scr-customers">
-    <div class="screen-head"><h2 id="ttlCust">客户合同</h2><span class="count" id="custCount"></span></div>
+    <div class="screen-head"><h2>Customer Contracts</h2><span class="count" id="custCount"></span></div>
     <div class="search">
-      <input id="custSearch" placeholder="🔍 搜索…">
-      <select id="custFilter"><option value="">全部</option><option value="High">高优先</option><option value="Medium">中</option><option value="Low">低</option></select>
+      <input id="custSearch" placeholder="🔍 Search...">
+      <select id="custFilter"><option value="">All</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
     </div>
     <div id="summaryCust" class="summary-cards"></div>
     <div class="list" id="listCust"></div>
   </div>
 
+  <!-- ══ WEEKLY REPORT ══ -->
+  <div class="screen" id="scr-weekly">
+    <div class="screen-head"><h2>Weekly Report</h2></div>
+    <!-- Person Tabs -->
+    <div class="person-tabs" id="wrPersonTabs"></div>
+    <!-- Week Navigator -->
+    <div class="week-nav">
+      <button onclick="wrChangeWeek(-1)">‹</button>
+      <span class="w-label" id="wrWeekLabel">Week 28</span>
+      <button onclick="wrChangeWeek(1)">›</button>
+    </div>
+    <!-- Summary -->
+    <div class="summary-cards" id="wrSummaryCards"></div>
+    <!-- Tasks -->
+    <div class="list" id="wrTaskList"></div>
+  </div>
+
   <!-- ══ CHAMBERS ══ -->
   <div class="screen" id="scr-chambers">
-    <div class="screen-head"><h2 id="ttlChamb">商会活动</h2><span class="count" id="chambCount"></span></div>
+    <div class="screen-head"><h2>Chamber Events</h2><span class="count" id="chambCount"></span></div>
     <div class="search">
-      <input id="chambSearch" placeholder="🔍 搜索…">
-      <select id="chambFilter"><option value="">全部</option><option value="Upcoming">即将出席</option><option value="Attended">已出席</option></select>
+      <input id="chambSearch" placeholder="🔍 Search...">
+      <select id="chambFilter"><option value="">All</option><option value="Upcoming">Upcoming</option><option value="Attended">Attended</option></select>
     </div>
     <div id="summaryChamb" class="summary-cards"></div>
     <div class="list" id="listChamb"></div>
   </div>
 
-  <!-- ══ Bottom Nav (4 tabs) ══ -->
+  <!-- ══ Bottom Nav ══ -->
   <div class="tabnav">
-    <div class="tab active" data-tab="home">
-      <div class="ti">🏠</div>Home<span class="badge" id="b-home"></span>
-    </div>
-    <div class="tab" data-tab="bids">
-      <div class="ti">📋</div><span id="lblBids">投标</span><span class="badge" id="b-bids"></span>
-    </div>
-    <div class="tab" data-tab="customers">
-      <div class="ti">👥</div><span id="lblCust">客户</span><span class="badge" id="b-cust"></span>
-    </div>
-    <div class="tab" data-tab="chambers">
-      <div class="ti">🏛️</div><span id="lblChamb">商会</span><span class="badge" id="b-chamb"></span>
-    </div>
+    <div class="tab active" data-tab="home"><div class="ti">🏠</div>Home</div>
+    <div class="tab" data-tab="bids"><div class="ti">📋</div>Bids<span class="badge danger" id="b-bids"></span></div>
+    <div class="tab" data-tab="customers"><div class="ti">👥</div>Clients</div>
+    <div class="tab" data-tab="weekly"><div class="ti">📑</div>Weekly<span class="badge warn" id="b-weekly"></span></div>
+    <div class="tab" data-tab="chambers"><div class="ti">🏛️</div>Chamber<span class="badge warn" id="b-chamb"></span></div>
   </div>
 
-  <!-- ══ Detail Drawer (read-only) ══ -->
+  <!-- ══ Detail Drawer ══ -->
   <div class="drawer" id="drawer" onclick="if(event.target===this)closeDrawer()">
     <div class="drawer-inner" onclick="event.stopPropagation()">
-      <div class="dh"><span id="drawerTitle">详情</span><span class="x" onclick="closeDrawer()">✕</span></div>
+      <div class="dh"><span id="drawerTitle">Details</span><span class="x" onclick="closeDrawer()">✕</span></div>
       <div class="dr" id="drawerBody"></div>
     </div>
   </div>
@@ -285,7 +235,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
-//  FIREBASE — 只读（不保存不写入）
+//  FIREBASE — Read-only
 // ═══════════════════════════════════════════════════════
 firebase.initializeApp({
   apiKey: "AIzaSyAVmd-Fn6n0ZUQzT6PgI52VKNLqO1qdeJE",
@@ -297,65 +247,8 @@ firebase.initializeApp({
 });
 const APP={db:null,data:{bids:[],customers:[],projects:[],chambers:[]}};
 const TODAY=new Date();const TODAY_STR=TODAY.toISOString().slice(0,10);
-
-// ═══════════════════════════════════════════════════════
-//  i18n
-// ═══════════════════════════════════════════════════════
-const I18N={
-  zh:{
-    greet:'概览 · ',
-    secOverview:'📊 概览',secDelayed:'⚠️ 逾期周任务',secChamber:'🏛️ 即将出席的商会',secRecent:'📋 最近互动',
-    lblBids:'投标',lblCust:'客户',lblChamb:'商会',
-    ttlBids:'投标项目',ttlCust:'客户合同',ttlChamb:'商会活动',
-    noRemind:'暂无待办 🎉',noData:'暂无数据',
-    overdue:'逾期',dueToday:'今日到期',daysLeft:'天后',dayLeft:'天后',
-    upcoming:'即将出席',attended:'已出席',
-    high:'高',medium:'中',low:'低',
-    // Dashboard stat labels
-    sBids:'📋 投标总数',sBidsActive:'投标中',sBidsFollow:'跟踪中',sBidsOver:'已逾期',
-    sCust:'👥 客户总数',sCustHigh:'高优先',sCustNew:'本月新增',
-    sChamb:'🏛️ 商会总数',sChambUp:'即将出席',
-    dTasks:'⚠️ 延迟任务',dTasksN:'个逾期',
-    // Detail labels
-    dlCustomer:'客户名称',dlProject:'项目名称',dlLoc:'地点',dlArea:'土地面积',dlDate:'跟踪日期',
-    dlStage:'投标阶段',dlNext:'下一步日期',dlNextAct:'下一步内容',dlNotes:'备注',
-    dlPIC:'负责人',dlEmail:'邮箱',dlCat:'分类',dlVal:'预估金额',
-    dlComp:'公司名称',dlBiz:'业务类型',dlContact:'联系人',dlPos:'职位',dlPhone:'电话',dlCountry:'国家',dlPri:'优先级',
-    dlTopic:'主题',dlAttDate:'出席日期',dlAttLoc:'出席地点',
-    detail:'详情',
-    all:'全部',bidding:'投标中',following:'跟踪',
-    totalBids:'投标总数',activeBids:'投标中',overdueBids:'已逾期',
-    totalCust:'客户总数',highPri:'高优先级',
-    totalChamb:'活动总数',upcomingEv:'即将出席',
-  },
-  en:{
-    greet:'Overview · ',
-    secOverview:'📊 Overview',secDelayed:'⚠️ Overdue Tasks',secChamber:'🏛️ Upcoming Chambers',secRecent:'📋 Recent Activity',
-    lblBids:'Bids',lblCust:'Cust',lblChamb:'Chamb',
-    ttlBids:'Bid Projects',ttlCust:'Customer Contracts',ttlChamb:'Chamber Events',
-    noRemind:'All clear 🎉',noData:'No data',
-    overdue:'Overdue',dueToday:'Due today',daysLeft:'d left',dayLeft:'d left',
-    upcoming:'Upcoming',attended:'Attended',
-    high:'High',medium:'Medium',low:'Low',
-    sBids:'📋 Total Bids',sBidsActive:'Bidding',sBidsFollow:'Following',sBidsOver:'Overdue',
-    sCust:'👥 Total Customers',sCustHigh:'High Pri',sCustNew:'New This Month',
-    sChamb:'🏛️ Total Chambers',sChambUp:'Upcoming',
-    dTasks:'⚠️ Delayed',dTasksN:'overdue',
-    dlCustomer:'Customer',dlProject:'Project',dlLoc:'Location',dlArea:'Land Area',dlDate:'Track Date',
-    dlStage:'Stage',dlNext:'Next Action Date',dlNextAct:'Next Action',dlNotes:'Notes',
-    dlPIC:'PIC',dlEmail:'Email',dlCat:'Category',dlVal:'Est. Value',
-    dlComp:'Company',dlBiz:'Business Type',dlContact:'Contact',dlPos:'Position',dlPhone:'Phone',dlCountry:'Country',dlPri:'Priority',
-    dlTopic:'Topic',dlAttDate:'Attendance Date',dlAttLoc:'Location',
-    detail:'Details',
-    all:'All',bidding:'Bidding',following:'Following',
-    totalBids:'Total Bids',activeBids:'Active',overdueBids:'Overdue',
-    totalCust:'Total Customers',highPri:'High Priority',
-    totalChamb:'Total Events',upcomingEv:'Upcoming',
-  }
-};
-let lang='zh';
-const T=k=>I18N[lang][k]||k;
-const L=(zh,en)=>lang==='zh'?zh:en;
+const WR_USERS=[{id:'tony',name:'Tony Cheong',color:'#3b82f6'},{id:'quoc',name:'Mr. Quoc',color:'#22c55e'},{id:'huong',name:'Ms. Huong',color:'#f59e0b'}];
+var wrSelUser='tony',wrWeekOffset=0,wrWeekNum=28;
 
 // ═══════════════════════════════════════════════════════
 //  HELPERS
@@ -364,65 +257,68 @@ const $=s=>document.querySelector(s);
 const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=d=>{if(!d)return'—';const d2=new Date(d+"T00:00:00");if(isNaN(d2))return d;return d2.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});};
 const daysLeft=d=>{if(!d)return 9999;const d2=new Date(d+"T00:00:00");if(isNaN(d2))return 9999;return Math.round((d2-TODAY)/86400000);};
-const sameMonth=(d,ref)=>{if(!d)return false;const d2=new Date(d+"T00:00:00");if(isNaN(d2))return false;return ref?d2.getMonth()===ref.getMonth()&&d2.getFullYear()===ref.getFullYear():d2.getMonth()===NOW.getMonth()&&d2.getFullYear()===NOW.getFullYear();};
+const sameMonth=(d,ref)=>{if(!d)return false;const d2=new Date(d+"T00:00:00");if(isNaN(d2))return false;return ref?d2.getMonth()===ref.getMonth()&&d2.getFullYear()===ref.getFullYear():d2.getMonth()===TODAY.getMonth()&&d2.getFullYear()===TODAY.getFullYear();};
 const fmtV=n=>{if(!n||isNaN(n))return'—';const v=Number(n);if(v>=1e9)return(v/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(v>=1e6)return(v/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(v>=1e3)return(v/1e3).toFixed(1).replace(/\.0$/,'')+'K';return v.toLocaleString();};
 const pill=(cls,txt)=>'<span class="pill p-'+esc(cls)+'">'+esc(txt)+'</span>';
-const stageCls=s=>{const m={'投标中':'Bidding','Bidding':'Bidding','跟踪':'Following','Following':'Following','评审中':'Reviewing','Reviewing':'Reviewing','中标':'Won','Won':'Won','资料收集':'Data','资格审核':'Data','Data Collection':'Data'};return m[s]||'Grey';};
+const stageCls=s=>{const m={'Bidding':'Bidding','投标中':'Bidding','Following':'Following','跟踪':'Following','Reviewing':'Reviewing','评审中':'Reviewing','Won':'Won','中标':'Won','Data Collection':'Data','资格审核':'Data','PQ':'Data'};return m[s]||'Grey';};
 
 function delayLabel(dl){
-  if(dl<0) return {txt:L('逾期 '+Math.abs(dl)+'天',Math.abs(dl)+'d overdue'),cls:'ov'};
-  if(dl===0) return {txt:L('今日到期','Due today'),cls:'d2'};
-  if(dl<=2) return {txt:L(dl+'天',dl+'d'),cls:'d2'};
-  return {txt:L(dl+'天',dl+'d'),cls:''};
+  if(dl<0) return {txt:Math.abs(dl)+'d overdue',cls:'ov'};
+  if(dl===0) return {txt:'Due today',cls:'d2'};
+  if(dl<=2) return {txt:dl+'d',cls:'d2'};
+  return {txt:dl+'d',cls:''};
+}
+function pctClass(p){var n=parseInt(p)||0;if(n>=100)return'Completed';if(n>=70)return'progress';return'delay';}
+
+function getWeekNumber(d){
+  d=new Date(d);var y=d.getFullYear();
+  var jan1=new Date(y,0,1);
+  var daysToSat=(6-jan1.getDay()+7)%7;
+  var week1Sat=new Date(jan1);week1Sat.setDate(jan1.getDate()+daysToSat);
+  var diff=Math.floor((d-week1Sat)/86400000);
+  return Math.max(1,Math.ceil((diff+1)/7)+1);
+}
+function getWeekDates(wn,y){y=y||2026;
+  var jan1=new Date(y,0,1);var dts=(6-jan1.getDay()+7)%7;
+  var w1s=new Date(jan1);w1s.setDate(jan1.getDate()+dts);
+  var ts=new Date(w1s);ts.setDate(w1s.getDate()+(wn-2)*7);
+  var tns=new Date(ts);tns.setDate(ts.getDate()+7);
+  var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return{start:m[ts.getMonth()]+' '+ts.getDate(),end:m[tns.getMonth()]+' '+tns.getDate()+', '+tns.getFullYear()};
 }
 
 // ═══════════════════════════════════════════════════════
-//  LANGUAGE
-// ═══════════════════════════════════════════════════════
-function setLang(l){
-  lang=l;localStorage.setItem('bms_lang',l);
-  $('#lzh').classList.toggle('active',l==='zh');
-  $('#len').classList.toggle('active',l==='en');
-  document.documentElement.lang=l;
-  renderAll();
-}
-
-// ═══════════════════════════════════════════════════════
-//  FIREBASE (READ-ONLY)
+//  FIREBASE
 // ═══════════════════════════════════════════════════════
 function setConn(s){
   const led=$('#led'),txt=$('#connTxt');
   led.className='led'+(s==='online'?' on':s==='err'?' err':'');
-  txt.textContent=s==='online'?L('已同步','Synced'):s==='err'?L('离线','Offline'):'…';
+  txt.textContent=s==='online'?'Synced':s==='err'?'Offline':'…';
 }
 async function initFirebase(){
-  APP.db=firebase.firestore();
-  setConn('connecting');
-  try{
-    await firebase.auth().signInWithEmailAndPassword("tong@mgd.com","MGD2024!");
-  }catch(e){
-    try{await firebase.auth().createUserWithEmailAndPassword("tong@mgd.com","MGD2024!");}catch(e2){}
-  }
+  APP.db=firebase.firestore();setConn('connecting');
+  try{await firebase.auth().signInWithEmailAndPassword("tong@mgd.com","MGD2024!");}
+  catch(e){try{await firebase.auth().createUserWithEmailAndPassword("tong@mgd.com","MGD2024!");}catch(e2){}}
   APP.db.collection('bms_data').doc('master').onSnapshot(snap=>{
-    if(snap.exists){
-      APP.data=snap.data().data||{bids:[],customers:[],projects:[],chambers:[]};
-      ensureArrays();setConn('online');renderAll();
-    }
-  },err=>{setConn('err');console.error(err);});
+    if(snap.exists){APP.data=snap.data().data||{};ensureArrays();setConn('online');renderAll();}
+  },err=>{setConn('err');});
   try{
     const snap=await APP.db.collection('bms_data').doc('master').get();
-    if(snap.exists){
-      APP.data=snap.data().data||{bids:[],customers:[],projects:[],chambers:[]};
-      ensureArrays();setConn('online');renderAll();
-    } else {
-      APP.data={bids:[],customers:[],projects:[],chambers:[]};ensureArrays();setConn('online');renderAll();
-    }
-  }catch(e){setConn('err');console.error(e);}
+    if(snap.exists){APP.data=snap.data().data||{};ensureArrays();setConn('online');renderAll();}
+    else{APP.data={};ensureArrays();setConn('online');renderAll();}
+  }catch(e){setConn('err');}
+  // Set initial week
+  wrWeekNum=getWeekNumber(TODAY);
+  renderWR();
 }
-function ensureArrays(){['bids','customers','projects','chambers'].forEach(k=>{if(!APP.data[k])APP.data[k]=[];APP.data[k].forEach(it=>{if(!it.id)it.id=Math.random().toString(36).slice(2);});});}
+function ensureArrays(){
+  ['bids','customers','projects','chambers'].forEach(k=>{if(!APP.data[k])APP.data[k]=[];});
+  if(!APP.data.weeklyReports)APP.data.weeklyReports={users:{}};
+  WR_USERS.forEach(u=>{if(!APP.data.weeklyReports.users[u.id])APP.data.weeklyReports.users[u.id]={};});
+}
 
 // ═══════════════════════════════════════════════════════
-//  NAVIGATION (4 tabs)
+//  NAVIGATION
 // ═══════════════════════════════════════════════════════
 let curTab='home';
 function switchTab(tab){
@@ -430,50 +326,23 @@ function switchTab(tab){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   $('#scr-'+tab).classList.add('active');
-  const t=$('.tab[data-tab="'+tab+'"]');
-  if(t)t.classList.add('active');
+  $('.tab[data-tab="'+tab+'"]')?.classList.add('active');
+  if(tab==='weekly')renderWR();
   if(tab!=='home')renderScreen(tab);
   window.scrollTo(0,0);
 }
 
 // ═══════════════════════════════════════════════════════
-//  DRAWER — Read-only detail view
+//  DRAWER
 // ═══════════════════════════════════════════════════════
 function showDrawer(type,item){
   if(!item)return;
-  let rows=[];
-  if(type==='bid'){
-    rows=[
-      {l:T('dlCustomer'),v:item.customerName},{l:T('dlProject'),v:item.projectName},
-      {l:T('dlLoc'),v:item.location},{l:T('dlArea'),v:item.landArea},
-      {l:T('dlDate'),v:fmt(item.trackDate)},{l:T('dlStage'),v:item.stageContent||item.stage},
-      {l:T('dlNext'),v:fmt(item.nextActionDate)},{l:T('dlNextAct'),v:item.nextActionContent},
-      {l:T('dlPIC'),v:item.personInCharge},{l:T('dlEmail'),v:item.email},
-      {l:T('dlCat'),v:item.category},{l:T('dlVal'),v:fmtV(item.estimatedValue)},{l:T('dlNotes'),v:item.notes,full:true}
-    ];
-    $('#drawerTitle').textContent=item.projectName||item.customerName||T('detail');
-  }else if(type==='customer'){
-    rows=[
-      {l:T('dlComp'),v:item.companyName},{l:T('dlBiz'),v:item.companyBusiness},
-      {l:T('dlContact'),v:item.contactPerson},{l:T('dlPos'),v:item.position},
-      {l:T('dlPhone'),v:item.phone},{l:T('dlEmail'),v:item.email},
-      {l:T('dlCountry'),v:item.country},{l:T('dlPri'),v:item.priority}
-    ];
-    $('#drawerTitle').textContent=item.companyName||T('detail');
-  }else if(type==='chamber'){
-    rows=[
-      {l:T('dlComp'),v:item.chamberName},{l:T('dlTopic'),v:item.topic},
-      {l:T('dlAttDate'),v:fmt(item.attendanceDate)},{l:T('dlAttLoc'),v:item.attendanceLocation},
-      {l:T('dlContact'),v:item.contactPerson},{l:T('dlPhone'),v:item.phone},
-      {l:T('dlCountry'),v:item.country},{l:T('dlNotes'),v:item.notes,full:true}
-    ];
-    $('#drawerTitle').textContent=item.chamberName||T('detail');
-  }
-  $('#drawerBody').innerHTML=rows.map(r=>{
-    if(!r.v) return '';
-    const cls=r.full?' full':'';
-    return '<div class="'+cls+'"><span class="dl">'+esc(r.l)+'</span><span class="dv">'+esc(String(r.v))+'</span></div>';
-  }).join('');
+  var rows=[],title=item.projectName||item.companyName||item.chamberName||'Details';
+  if(type==='bid'){rows=[{l:'Customer',v:item.customerName},{l:'Project',v:item.projectName},{l:'Location',v:item.location},{l:'Land Area',v:item.landArea},{l:'Track Date',v:fmt(item.trackDate)},{l:'Stage',v:item.stageContent||item.stage},{l:'Next Action Date',v:fmt(item.nextActionDate)},{l:'Next Action',v:item.nextActionContent},{l:'PIC',v:item.personInCharge},{l:'Email',v:item.email},{l:'Category',v:item.category},{l:'Est. Value',v:fmtV(item.estimatedValue)},{l:'Notes',v:item.notes,full:true}];}
+  else if(type==='customer'){rows=[{l:'Company',v:item.companyName},{l:'Business',v:item.companyBusiness},{l:'Contact',v:item.contactPerson},{l:'Position',v:item.position},{l:'Phone',v:item.phone},{l:'Email',v:item.email},{l:'Country',v:item.country},{l:'Priority',v:item.priority}];}
+  else if(type==='chamber'){rows=[{l:'Chamber',v:item.chamberName},{l:'Topic',v:item.topic},{l:'Date',v:fmt(item.attendanceDate)},{l:'Location',v:item.attendanceLocation},{l:'Contact',v:item.contactPerson},{l:'Phone',v:item.phone},{l:'Country',v:item.country},{l:'Notes',v:item.notes,full:true}];}
+  $('#drawerTitle').textContent=title;
+  $('#drawerBody').innerHTML=rows.map(r=>{if(!r.v)return'';return'<div'+(r.full?' class="full"':'')+'><span class="dl">'+esc(r.l)+'</span><span class="dv">'+esc(String(r.v))+'</span></div>';}).join('');
   $('#drawer').classList.add('show');
 }
 function closeDrawer(){$('#drawer').classList.remove('show');}
@@ -487,119 +356,177 @@ function renderAll(){
   const proj=APP.data.projects||[];
   const chambers=APP.data.chambers||[];
 
-  // Home greeting
-  const m=lang==='zh'?['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'][TODAY.getMonth()]:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][TODAY.getMonth()];
-  $('#homeGreet').textContent=T('greet')+m+' '+TODAY.getFullYear();
+  // Greeting
+  const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][TODAY.getMonth()];
+  $('#homeGreet').textContent='Overview · '+m+' '+TODAY.getFullYear();
 
-  // ── Urgent Alerts ──
-  const urgent=[];
-  // Overdue bids
-  bids.forEach(b=>{
-    const dl=daysLeft(b.nextActionDate||b.trackDate);
-    if(dl<0&&!b.inactive){
-      urgent.push({type:'bid',icon:'📋',name:b.projectName||b.customerName,dl,tag:L('逾期 '+Math.abs(dl)+'天',Math.abs(dl)+'d overdue'),cls:'red'});
-    }
-  });
-  // Overdue interactions
-  proj.forEach(p=>{
-    const dl=daysLeft(p.nextActionDate||p.interactionDate);
-    if(dl<0&&!/完成|Completed/i.test(p.status||'')){
-      urgent.push({type:'inter',icon:'💬',name:p.customerName||'?',dl,tag:L('逾期 '+Math.abs(dl)+'天',Math.abs(dl)+'d overdue'),cls:'red'});
-    }
-  });
-  // Due today / soon
-  bids.concat(proj).forEach(x=>{
-    const d=x.nextActionDate||x.trackDate||x.interactionDate;
-    const dl=daysLeft(d);
-    if(dl===0||dl===1){
-      urgent.push({type:'bid',icon:x.nextActionDate?'📋':'💬',name:x.projectName||x.customerName||'?',dl,
-        tag:dl===0?L('今日到期','Due today'):L('明天到期','Due tomorrow'),cls:''});
-    }
-  });
-  // Upcoming chambers
-  chambers.forEach(c=>{
-    const dl=daysLeft(c.attendanceDate);
-    if(dl>0&&dl<=7){
-      urgent.push({type:'chamb',icon:'🏛️',name:c.chamberName,dl,tag:L(dl+'天后',dl+'d'),cls:''});
-    }
-  });
+  // ── Alerts ──
+  var urgent=[];
+  bids.forEach(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);if(dl<0&&!b.inactive)urgent.push({icon:'📋',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d overdue',cls:'red'});});
+  proj.forEach(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);if(dl<0&&!/Completed/i.test(p.status||''))urgent.push({icon:'💬',name:p.customerName||'?',tag:Math.abs(dl)+'d overdue',cls:'red'});});
+  chambers.forEach(c=>{const dl=daysLeft(c.attendanceDate);if(dl>0&&dl<=7)urgent.push({icon:'🏛️',name:c.chamberName,tag:dl+'d',cls:''});});
+  // Add overdue WR tasks to alerts
+  var wrOverdue=collectOverdueWR();
+  wrOverdue.forEach(t=>{urgent.push({icon:'📑',name:t.name+' ('+t.user+')',tag:Math.abs(t.ov)+'d overdue',cls:'red'});});
+  urgent.sort((a,b)=>a.cls===b.cls?0:a.cls?'a':'b').slice(0,8);
 
   if(urgent.length){
-    $('#alertSection').innerHTML=urgent.slice(0,6).map(x=>{
-      return '<div class="banner '+(x.cls||'')+'"><span class="msg">'+x.icon+' <b>'+esc(x.name)+'</b></span><span class="tag '+(x.cls==='red'?'ov':'d2')+'">'+esc(x.tag)+'</span></div>';
-    }).join('');
+    $('#alertSection').innerHTML=urgent.slice(0,8).map(x=>'<div class="banner '+(x.cls||'')+'"><span class="msg">'+x.icon+' <b>'+esc(x.name)+'</b></span><span class="tag '+(x.cls==='red'?'ov':'d2')+'">'+esc(x.tag)+'</span></div>').join('');
   } else {
-    $('#alertSection').innerHTML='<div class="banner" style="border-color:var(--grn);background:linear-gradient(135deg,#0a2a10,#0e1a12);color:#b0ffb0;"><span class="msg">'+T('noRemind')+'</span></div>';
+    $('#alertSection').innerHTML='<div class="banner" style="border-color:var(--grn);background:linear-gradient(135deg,#0a2a10,#0e1a12);color:#b0ffb0;"><span class="msg">All clear 🎉</span></div>';
   }
 
-  // ── Stat Grid ──
-  const bActive=bids.filter(b=>/(投标|Bidding)/i.test(b.stageContent||b.stage||'')&&!b.inactive).length;
-  const bOverdue=bids.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0&&!b.inactive;}).length;
-  const cHigh=cust.filter(c=>/高|High/i.test(c.priority||'')).length;
+  // ── Stats ──
+  const bActive=bids.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')&&!b.inactive).length;
+  const bOver=bids.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0&&!b.inactive;}).length;
+  const cHigh=cust.filter(c=>/High/i.test(c.priority||'')).length;
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
-  const dTasks=proj.filter(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);return dl<0&&!/完成|Completed/i.test(p.status||'');}).length + bOverdue;
-
+  const wrDelCount=wrOverdue.length+(proj.filter(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);return dl<0&&!/Completed/i.test(p.status||'');}).length);
   $('#statGrid').innerHTML=[
-    '<div class="stat"><div class="h">'+T('sBids')+'</div><div class="big">'+bids.length+'</div><div class="sub"><span>'+T('sBidsActive')+'<b>'+bActive+'</b></span><span>'+T('sBidsOver')+'<b style="color:var(--red)">'+bOverdue+'</b></span></div></div>',
-    '<div class="stat"><div class="h">'+T('sCust')+'</div><div class="big">'+cust.length+'</div><div class="sub"><span>'+T('sCustNew')+'<b>'+cust.filter(c=>sameMonth(c.createdDate)).length+'</b></span><span>'+T('sCustHigh')+'<b style="color:var(--org)">'+cHigh+'</b></span></div></div>',
-    '<div class="stat"><div class="h">'+T('dTasks')+'</div><div class="big" style="color:'+(dTasks>0?'var(--red)':'var(--grn)')+'">'+dTasks+'</div><div class="sub"><span>'+T('dTasksN')+'<b>'+dTasks+'</b></span></div></div>',
-    '<div class="stat"><div class="h">'+T('sChamb')+'</div><div class="big">'+chambers.length+'</div><div class="sub"><span>'+T('sChambUp')+'<b style="color:var(--blu)">'+chUp+'</b></span></div></div>'
+    '<div class="stat"><div class="h">📋 Total Bids</div><div class="big">'+bids.length+'</div><div class="sub"><span>Active<b>'+bActive+'</b></span><span>Overdue<b style="color:var(--red)">'+bOver+'</b></span></div></div>',
+    '<div class="stat"><div class="h">👥 Total Clients</div><div class="big">'+cust.length+'</div><div class="sub"><span>High Pri<b style="color:var(--org)">'+cHigh+'</b></span><span>This Month<b>'+(cust.filter(c=>sameMonth(c.createdDate)).length)+'</b></span></div></div>',
+    '<div class="stat"><div class="h">⚠️ Overdue Items</div><div class="big" style="color:'+(wrDelCount>0?'var(--red)':'var(--grn)')+'">'+wrDelCount+'</div><div class="sub"><span>WR Delay<b>'+wrOverdue.length+'</b></span></div></div>',
+    '<div class="stat"><div class="h">🏛️ Chamber Events</div><div class="big">'+chambers.length+'</div><div class="sub"><span>Upcoming<b style="color:var(--blu)">'+chUp+'</b></span></div></div>'
   ].join('');
 
   // ── Delayed WR Tasks ──
-  // Show overdue bids as "delayed tasks"
-  const delayed=bids.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0&&!b.inactive;}).slice(0,5);
-  const delayedInter=proj.filter(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);return dl<0&&!/完成|Completed/i.test(p.status||'');}).slice(0,3);
-  if(delayed.length||delayedInter.length){
-    let h='';
-    delayed.forEach(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);const dlbl=delayLabel(dl);
-      h+='<div class="banner red"><span class="msg">📋 <b>'+esc(b.projectName||b.customerName)+'</b> — '+esc(b.stageContent||b.stage||'')+'</span><span class="tag ov">'+esc(dlbl.txt)+'</span></div>';});
-    delayedInter.forEach(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);const dlbl=delayLabel(dl);
-      h+='<div class="banner red"><span class="msg">💬 <b>'+esc(p.customerName)+'</b> — '+esc(p.nextStep||p.content||'').slice(0,40)+'</span><span class="tag ov">'+esc(dlbl.txt)+'</span></div>';});
-    $('#delayedTasks').innerHTML=h;
+  if(wrOverdue.length){
+    $('#delayedTasks').innerHTML=wrOverdue.slice(0,10).map(t=>{
+      return '<div class="banner red"><span class="msg">📑 <b>'+esc(t.user)+'</b> — '+esc(t.name)+(t.pct?' ('+t.pct+'%)':'')+'</span><span class="tag ov">'+Math.abs(t.ov)+'d overdue</span></div>';
+    }).join('');
   } else {
-    $('#delayedTasks').innerHTML='<div class="empty" style="padding:12px 0">'+T('noRemind')+'</div>';
+    $('#delayedTasks').innerHTML='<div class="empty" style="padding:12px 0">No overdue tasks 🎉</div>';
   }
 
-  // ── Upcoming Chambers (next 3) ──
+  // ── Upcoming Chambers ──
   const upcoming=chambers.filter(c=>daysLeft(c.attendanceDate)>0).sort((a,b)=>daysLeft(a.attendanceDate)-daysLeft(b.attendanceDate)).slice(0,3);
   if(upcoming.length){
     $('#chamberPreview').innerHTML='<div class="activity">'+upcoming.map(c=>{
-      const dl=daysLeft(c.attendanceDate);
-      const dlbl=delayLabel(dl);
+      const dl=daysLeft(c.attendanceDate);const dlbl=delayLabel(dl);
       return '<div class="act"><div class="ic">🏛️</div><div class="tx"><div class="title">'+esc(c.chamberName)+'</div><div class="sub">'+esc(c.topic||'')+' · '+fmt(c.attendanceDate)+'</div></div><div class="dt">'+esc(dlbl.txt)+'</div></div>';
     }).join('')+'</div>';
   } else {
-    $('#chamberPreview').innerHTML='<div class="empty" style="padding:12px 0">'+T('noData')+'</div>';
+    $('#chamberPreview').innerHTML='<div class="empty" style="padding:12px 0">No upcoming events</div>';
   }
 
-  // ── Recent Activity (last 6) ──
+  // ── Recent Activity ──
   const acts=[];
-  proj.slice(-4).reverse().forEach(p=>acts.push({ic:'💬',txt:p.customerName||'?',sub:p.interactionType||p.content?.slice(0,50)||'?',dt:p.interactionDate}));
+  proj.slice(-4).reverse().forEach(p=>acts.push({ic:'💬',txt:p.customerName||'?',sub:p.interactionType||String(p.content||'').slice(0,50),dt:p.interactionDate}));
   chambers.slice(-3).reverse().forEach(c=>acts.push({ic:'🏛️',txt:c.chamberName||'?',sub:c.topic||'?',dt:c.attendanceDate}));
-  if(acts.length){
-    $('#recentActivity').innerHTML=acts.map(a=>'<div class="act"><div class="ic">'+a.ic+'</div><div class="tx"><div class="title">'+esc(a.txt)+'</div><div class="sub">'+esc(a.sub)+'</div></div><div class="dt">'+fmt(a.dt)+'</div></div>').join('');
-  } else {
-    $('#recentActivity').innerHTML='<div class="empty" style="padding:12px 0">'+T('noData')+'</div>';
-  }
+  $('#recentActivity').innerHTML=acts.length?acts.map(a=>'<div class="act"><div class="ic">'+a.ic+'</div><div class="tx"><div class="title">'+esc(a.txt)+'</div><div class="sub">'+esc(a.sub)+'</div></div><div class="dt">'+fmt(a.dt)+'</div></div>').join(''):'<div class="empty">No recent activity</div>';
 
   // Badges
-  $('#b-bids').textContent=bOverdue>0?bOverdue:'';$('#b-bids').style.display=bOverdue>0?'inline':'none';
-  $('#b-bids').className='badge'+(bOverdue>0?' danger':'');
-  const chUpcoming=chambers.filter(c=>daysLeft(c.attendanceDate)>0&&daysLeft(c.attendanceDate)<=7).length;
-  $('#b-chamb').textContent=chUpcoming>0?chUpcoming:'';$('#b-chamb').style.display=chUpcoming>0?'inline':'none';
-  $('#b-chamb').className='badge'+(chUpcoming>0?' warn':'');
+  $('#b-bids').textContent=bOver>0?bOver:'';$('#b-bids').style.display=bOver>0?'inline':'none';$('#b-bids').className='badge'+(bOver>0?' danger':'');
+  var chSoon=chambers.filter(c=>daysLeft(c.attendanceDate)>0&&daysLeft(c.attendanceDate)<=7).length;
+  $('#b-chamb').textContent=chSoon>0?chSoon:'';$('#b-chamb').style.display=chSoon>0?'inline':'none';$('#b-chamb').className='badge'+(chSoon>0?' warn':'');
+  $('#b-weekly').textContent=wrOverdue.length>0?wrOverdue.length:'';$('#b-weekly').style.display=wrOverdue.length>0?'inline':'none';$('#b-weekly').className='badge'+(wrOverdue.length>0?' danger':'');
 }
 
 function renderScreen(tab){
   if(tab==='bids')renderBids();
   else if(tab==='customers')renderCustomers();
   else if(tab==='chambers')renderChambers();
-  renderAll(); // update badges
+  renderAll();
 }
 
 // ═══════════════════════════════════════════════════════
-//  BIDS (read-only)
+//  WEEKLY REPORT HELPERS — reads from Firebase data
+// ═══════════════════════════════════════════════════════
+function collectOverdueWR(){
+  var out=[];
+  if(!APP.data.weeklyReports)return out;
+  WR_USERS.forEach(function(u){
+    var weeks=APP.data.weeklyReports.users[u.id]||{};
+    Object.keys(weeks).forEach(function(wk){
+      var wd=weeks[wk];if(!wd||!wd.tasks)return;
+      wd.tasks.forEach(function(t){
+        if(!t.planEnd)return;
+        var dl=daysLeft(t.planEnd);
+        if(dl<0 && (!t.taskStatus||t.taskStatus!=='Completed')){
+          var pct=parseInt(t.pct)||0;
+          if(pct<100) out.push({user:u.name,userid:u.id,week:wk,name:t.name||'Unnamed',planEnd:t.planEnd,pct:t.pct,status:t.taskStatus,ov:dl});
+        }
+      });
+    });
+  });
+  return out.sort((a,b)=>a.ov-b.ov);
+}
+
+function wrGetUserWeekData(userId,weekNum){
+  var wr=APP.data.weeklyReports;
+  if(!wr||!wr.users||!wr.users[userId])return[];
+  var wk=wr.users[userId][weekNum];
+  return wk&&wk.tasks?wk.tasks:[];
+}
+
+function wrChangeWeek(dir){
+  wrWeekOffset+=dir;
+  renderWR();
+}
+function wrSelectUser(uid){
+  wrSelUser=uid;
+  renderWR();
+}
+function wrWeekLabel(wn){
+  var gd=getWeekDates(wn);
+  return 'W'+wn+' · '+gd.start+' - '+gd.end;
+}
+
+function renderWR(){
+  // Person tabs
+  var pt='<div class="person-tab '+(wrSelUser==='tony'?'active':'')+'" onclick="wrSelectUser(\'tony\')" style="border-color:'+(wrSelUser==='tony'?'var(--acc)':'var(--line)')+'">Tony</div>'+
+    '<div class="person-tab '+(wrSelUser==='quoc'?'active':'')+'" onclick="wrSelectUser(\'quoc\')" style="border-color:'+(wrSelUser==='quoc'?'var(--acc)':'var(--line)')+'">Quoc</div>'+
+    '<div class="person-tab '+(wrSelUser==='huong'?'active':'')+'" onclick="wrSelectUser(\'huong\')" style="border-color:'+(wrSelUser==='huong'?'var(--acc)':'var(--line)')+'">Huong</div>';
+  $('#wrPersonTabs').innerHTML=pt;
+
+  var wn=wrWeekNum+wrWeekOffset;
+  $('#wrWeekLabel').textContent=wrWeekLabel(wn);
+
+  var tasks=wrGetUserWeekData(wrSelUser,wn);
+  var total=tasks.length;
+  var completed=tasks.filter(function(t){return parseInt(t.pct)>=100||t.taskStatus==='Completed';}).length;
+  var delayed=tasks.filter(function(t){
+    if(parseInt(t.pct)>=100||t.taskStatus==='Completed')return false;
+    return t.planEnd&&daysLeft(t.planEnd)<0;
+  }).length;
+  var avgPct=tasks.length?Math.round(tasks.reduce(function(s,t){return s+(parseInt(t.pct)||0);},0)/tasks.length):0;
+
+  $('#wrSummaryCards').innerHTML=[
+    '<div class="sc"><div class="sc-n">'+total+'</div><div class="sc-l">Tasks</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--grn)">'+completed+'</div><div class="sc-l">Completed</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--red)">'+delayed+'</div><div class="sc-l">Delayed</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:'+(avgPct>=100?'var(--grn)':avgPct>=70?'var(--yel)':'var(--red)')+'">'+avgPct+'%</div><div class="sc-l">Avg Progress</div></div>'
+  ].join('');
+
+  if(!tasks.length){
+    $('#wrTaskList').innerHTML='<div class="empty">No tasks for this week</div>';
+    return;
+  }
+  $('#wrTaskList').innerHTML=tasks.map(function(t){
+    var p=parseInt(t.pct)||0;
+    var pCls=pctClass(p);
+    var st=t.taskStatus||(p>=100?'Completed':p>0?'In Progress':'Pending');
+    var stCls=st==='Completed'?'Completed':st==='Delay'||st==='Overdue'?'delay':'progress';
+    var dl='';var dlBg='';
+    if(t.planEnd){
+      var d=daysLeft(t.planEnd);
+      if(d<0){dl=Math.abs(d)+'d overdue';dlBg='color:var(--red)';stCls='delay';}
+      else if(d===0){dl='Due today';dlBg='color:var(--org)';}
+      else if(d<=2){dl=d+'d';dlBg='color:var(--org)';}
+      else{dl=d+'d';dlBg='color:var(--mut)';}
+    }
+    return '<div class="item wr-task"><div class="wr-title">'+esc(t.name||'Unnamed')+'</div>'+
+      '<div class="wr-meta"><span>📅 '+fmt(t.planStart)+' → '+fmt(t.planEnd)+'</span>'+
+      (dl?'<span style="'+dlBg+'">⏱ '+esc(dl)+'</span>':'')+
+      '<span>'+pill(stCls,st)+'</span>'+
+      '<span><b>'+(t.pct?t.pct+'%':'0%')+'</b></span>'+
+      (t.noted?'<span>📝 '+esc(t.noted)+'</span>':'')+
+      '</div><div class="wr-bar"><div class="wr-bar-inner" style="width:'+Math.min(100,p)+'%;background:'+(p>=100?'var(--grn)':p>=70?'var(--yel)':'var(--red)')+'"></div></div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  BIDS
 // ═══════════════════════════════════════════════════════
 function renderBids(){
   const arr=APP.data.bids||[];
@@ -608,35 +535,28 @@ function renderBids(){
   let list=arr.filter(b=>{
     const okQ=!q||(b.projectName||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q)||(b.location||'').toLowerCase().includes(q);
     const sc=b.stageContent||b.stage||'';
-    const cls=/(投标|Bidding)/i.test(sc)?'Bidding':/(跟踪|Following)/i.test(sc)?'Following':'other';
+    const cls=/(Bidding)/i.test(sc)?'Bidding':/(Following)/i.test(sc)?'Following':'other';
     let okF=true;
     if(f==='Bidding')okF=cls==='Bidding'&&!b.inactive;
     else if(f==='Following')okF=cls==='Following'&&!b.inactive;
     else if(f==='Overdue'){const dl=daysLeft(b.nextActionDate||b.trackDate);okF=dl<0&&!b.inactive;}
     return okQ&&okF;
   });
-
-  // Summary cards
-  const tB=list.length;
-  const aB=list.filter(b=>/(投标|Bidding)/i.test(b.stageContent||b.stage||'')).length;
-  const oB=list.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
+  const tB=list.length,aB=list.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')).length,oB=list.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
   $('#summaryBids').innerHTML=[
-    '<div class="sc"><div class="sc-n">'+tB+'</div><div class="sc-l">'+T('totalBids')+'</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+aB+'</div><div class="sc-l">'+T('activeBids')+'</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--red)">'+oB+'</div><div class="sc-l">'+T('overdueBids')+'</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--acc)">'+fmtV(list.reduce((s,b)=>s+(parseFloat(b.estimatedValue)||0),0))+'</div><div class="sc-l">'+L('总预估','Total Est.')+'</div></div>'
+    '<div class="sc"><div class="sc-n">'+tB+'</div><div class="sc-l">Total</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+aB+'</div><div class="sc-l">Active</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--red)">'+oB+'</div><div class="sc-l">Overdue</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--acc)">'+fmtV(list.reduce((s,b)=>s+(parseFloat(b.estimatedValue)||0),0))+'</div><div class="sc-l">Est. Value</div></div>'
   ].join('');
   $('#bidCount').textContent='('+list.length+')';
-
-  if(!list.length){$('#listBids').innerHTML='<div class="empty">'+T('noData')+'</div>';return;}
+  if(!list.length){$('#listBids').innerHTML='<div class="empty">No data</div>';return;}
   $('#listBids').innerHTML=list.map(b=>{
-    const sc=b.stageContent||b.stage||'—';
-    const cls=stageCls(sc);
-    const val=fmtV(b.estimatedValue);
+    const sc=b.stageContent||b.stage||'—',cls=stageCls(sc),val=fmtV(b.estimatedValue);
     const dl=daysLeft(b.nextActionDate||b.trackDate);
     const dlbl=delayLabel(dl);
-    const dlBg=dl<0?'background:rgba(248,81,73,.18);color:var(--red)':dl<=2?'background:rgba(255,140,66,.18);color:var(--org)':'background:transparent;color:var(--mut)';
-    return '<div class="item" onclick="showDrawer(\'bid\',APP.data.bids.find(x=>x.id===\''+b.id+'\'))">'+
+    const dlBg=dl<0?'color:var(--red)':dl<=2?'color:var(--org)':'color:var(--mut)';
+    return '<div class="item clk" onclick="showDrawer(\'bid\',APP.data.bids.find(x=>x.id===\''+b.id+'\'))">'+
       '<div class="row1"><div class="name">'+esc(b.projectName||b.customerName||'—')+'</div>'+pill(cls,sc)+'</div>'+
       '<div class="meta"><span>👤 <b>'+esc(b.customerName||'—')+'</b></span><span>📍 '+esc(b.location||'—')+'</span><span>💰 '+val+'</span>'+
       (dl<9999?'<span>⏱ <b style="'+dlBg+'">'+esc(dlbl.txt)+'</b></span>':'')+
@@ -645,7 +565,7 @@ function renderBids(){
 }
 
 // ═══════════════════════════════════════════════════════
-//  CUSTOMERS (read-only)
+//  CUSTOMERS
 // ═══════════════════════════════════════════════════════
 function renderCustomers(){
   const arr=APP.data.customers||[];
@@ -654,32 +574,28 @@ function renderCustomers(){
   let list=arr.filter(c=>{
     const okQ=!q||(c.companyName||'').toLowerCase().includes(q)||(c.contactPerson||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q);
     let okF=true;
-    if(f==='High')okF=/高|High/i.test(c.priority||'');
-    else if(f==='Medium')okF=/中|Medium/i.test(c.priority||'');
-    else if(f==='Low')okF=/低|Low/i.test(c.priority||'');
+    if(f==='High')okF=/High/i.test(c.priority||'');
+    else if(f==='Medium')okF=/Medium/i.test(c.priority||'');
+    else if(f==='Low')okF=/Low/i.test(c.priority||'');
     return okQ&&okF;
   });
-
-  const high=list.filter(c=>/高|High/i.test(c.priority||'')).length;
+  const high=list.filter(c=>/High/i.test(c.priority||'')).length;
   $('#summaryCust').innerHTML=[
-    '<div class="sc"><div class="sc-n">'+list.length+'</div><div class="sc-l">'+T('totalCust')+'</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--org)">'+high+'</div><div class="sc-l">'+T('highPri')+'</div></div>'
+    '<div class="sc"><div class="sc-n">'+list.length+'</div><div class="sc-l">Total</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--org)">'+high+'</div><div class="sc-l">High Priority</div></div>'
   ].join('');
   $('#custCount').textContent='('+list.length+')';
-
-  if(!list.length){$('#listCust').innerHTML='<div class="empty">'+T('noData')+'</div>';return;}
+  if(!list.length){$('#listCust').innerHTML='<div class="empty">No data</div>';return;}
   $('#listCust').innerHTML=list.map(c=>{
-    const pri=c.priority||'';
-    const priCls=/高|High/i.test(pri)?'High':/中|Medium/i.test(pri)?'Medium':'Low';
-    return '<div class="item" onclick="showDrawer(\'customer\',APP.data.customers.find(x=>x.id===\''+c.id+'\'))">'+
+    const pri=c.priority||'';const priCls=/High/i.test(pri)?'High':/Medium/i.test(pri)?'Medium':'Low';
+    return '<div class="item clk" onclick="showDrawer(\'customer\',APP.data.customers.find(x=>x.id===\''+c.id+'\'))">'+
       '<div class="row1"><div class="name">'+esc(c.companyName||'—')+'</div>'+pill(priCls,pri)+'</div>'+
-      '<div class="meta"><span>👤 <b>'+esc(c.contactPerson||'—')+'</b></span><span>🌐 '+esc(c.country||'—')+'</span>'+
-      '<span>📧 '+esc(c.email||'—')+'</span></div></div>';
+      '<div class="meta"><span>👤 <b>'+esc(c.contactPerson||'—')+'</b></span><span>🌐 '+esc(c.country||'—')+'</span><span>📧 '+esc(c.email||'—')+'</span></div></div>';
   }).join('');
 }
 
 // ═══════════════════════════════════════════════════════
-//  CHAMBERS (read-only)
+//  CHAMBERS
 // ═══════════════════════════════════════════════════════
 function renderChambers(){
   const arr=APP.data.chambers||[];
@@ -693,33 +609,25 @@ function renderChambers(){
     else if(f==='Attended')okF=dl<=0;
     return okQ&&okF;
   });
-
   const upcoming=list.filter(c=>daysLeft(c.attendanceDate)>0).length;
   $('#summaryChamb').innerHTML=[
-    '<div class="sc"><div class="sc-n">'+list.length+'</div><div class="sc-l">'+T('totalChamb')+'</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+upcoming+'</div><div class="sc-l">'+T('upcomingEv')+'</div></div>'
+    '<div class="sc"><div class="sc-n">'+list.length+'</div><div class="sc-l">Total</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+upcoming+'</div><div class="sc-l">Upcoming</div></div>'
   ].join('');
   $('#chambCount').textContent='('+list.length+')';
-
-  if(!list.length){$('#listChamb').innerHTML='<div class="empty">'+T('noData')+'</div>';return;}
+  if(!list.length){$('#listChamb').innerHTML='<div class="empty">No data</div>';return;}
   $('#listChamb').innerHTML=list.map(c=>{
-    const dl=daysLeft(c.attendanceDate||'');
-    const stCls=dl>0?'Upcoming':'Green';
-    const stLbl=dl>0?T('upcoming'):T('attended');
-    return '<div class="item" onclick="showDrawer(\'chamber\',APP.data.chambers.find(x=>x.id===\''+c.id+'\'))">'+
+    const dl=daysLeft(c.attendanceDate||'');const stCls=dl>0?'Upcoming':'Green';const stLbl=dl>0?'Upcoming':'Attended';
+    return '<div class="item clk" onclick="showDrawer(\'chamber\',APP.data.chambers.find(x=>x.id===\''+c.id+'\'))">'+
       '<div class="row1"><div class="name">'+esc(c.chamberName||'—')+'</div>'+pill(stCls,stLbl)+'</div>'+
-      '<div class="meta"><span>🏷 '+esc(c.topic||'—')+'</span><span>📅 '+fmt(c.attendanceDate)+'</span>'+
-      '<span>📍 '+esc(c.attendanceLocation||c.country||'—')+'</span></div></div>';
+      '<div class="meta"><span>🏷 '+esc(c.topic||'—')+'</span><span>📅 '+fmt(c.attendanceDate)+'</span><span>📍 '+esc(c.attendanceLocation||c.country||'—')+'</span></div></div>';
   }).join('');
 }
 
 // ═══════════════════════════════════════════════════════
 //  SEARCH BINDING
 // ═══════════════════════════════════════════════════════
-function bindSearch(id,fn){
-  const el=$(id);if(!el)return;
-  el.addEventListener('input',fn);el.addEventListener('change',fn);
-}
+function bindSearch(id,fn){const el=$(id);if(!el)return;el.addEventListener('input',fn);el.addEventListener('change',fn);}
 
 // ═══════════════════════════════════════════════════════
 //  INIT
@@ -729,8 +637,6 @@ document.addEventListener('DOMContentLoaded',function(){
   bindSearch('#bidSearch',renderBids);bindSearch('#bidFilter',renderBids);
   bindSearch('#custSearch',renderCustomers);bindSearch('#custFilter',renderCustomers);
   bindSearch('#chambSearch',renderChambers);bindSearch('#chambFilter',renderChambers);
-  const sl=localStorage.getItem('bms_lang');if(sl)lang=sl;
-  $('#lzh').classList.toggle('active',lang==='zh');$('#len').classList.toggle('active',lang==='en');
   initFirebase();
 });
 </script>
