@@ -2415,7 +2415,7 @@ function sm(m){
   var expBtn=document.getElementById('expInteractBtn');
   if(expBtn){expBtn.style.display=m==='projects'?'inline-flex':'none';}
   var tplBtn=document.getElementById('exportCustTplBtn');
-  if(tplBtn){tplBtn.style.display=m==='customers'?'inline-flex':'none';}
+  if(tplBtn)tplBtn.style.display='none';
 
   updateUI();
   updateCustomerStats();
