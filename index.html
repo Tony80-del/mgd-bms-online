@@ -1481,11 +1481,11 @@ function exportWeeklyReportPDF(){
   var tasks=weekData&&weekData.tasks||[];
   if(tasks.length===0){wrShowToast('No data to export!','error');return;}
   var dates=getWeekDates(wrCurrentWeek);
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#333}h1{color:#1a5f7a;text-align:center}h2{color:#555;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:25px}table{width:100%;border-collapse:collapse;margin-top:15px}th{background:#1a5f7a;color:#fff;padding:10px;text-align:left}td{padding:10px;border-bottom:1px solid #ddd}.plan{background:#e3f2fd}.actual{background:#e8f5e9}.status{padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold}.ontime{background:#c8e6c9;color:#2e7d32}.early{background:#bbdefb;color:#1565c0}.delayed{background:#ffcdd2;color:#c62828}.pending{background:#f5f5f5;color:#757575}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:30px;color:#888;font-size:12px}</style></head><body>';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:8mm 10mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:12px}h1{color:#1a5f7a;text-align:center;font-size:18px;margin:2px 0}h2{color:#555;border-bottom:1px solid #ddd;padding-bottom:4px;margin:10px 0 4px 0;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:6px;font-size:11px}th{background:#1a5f7a;color:#fff;padding:6px 4px;text-align:left;font-size:11px}td{padding:5px 4px;border-bottom:1px solid #ddd;font-size:11px}.status{padding:3px 6px;border-radius:3px;font-size:10px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:15px;color:#888;font-size:10px}tr{page-break-inside:avoid}</style></head><body>'
   html+='<h1>Weekly Report</h1>';
-  html+='<p style="text-align:center;color:#666">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
-  html+='<h2>'+wrUserNames[wrCurrentUser]+' - Business Dept</h2>';
-  html+='<table><thead><tr><th>#</th><th>Task / Project</th><th>Start</th><th>End</th><th>Days</th><th>%</th><th>Status</th><th>Noted</th></tr></thead><tbody>';
+  html+='<p style="text-align:center;color:#666;margin:2px 0 10px 0;">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
+  html+='<h2 style="margin:8px 0 2px 0;font-size:14px;">'+wrUserNames[wrCurrentUser]+' - Business Dept</h2>';
+  html+='<table style="font-size:11px;"><thead><tr><th style="padding:6px 4px;font-size:11px;">#</th><th style="padding:6px 4px;font-size:11px;">Task / Project</th><th style="padding:6px 4px;font-size:11px;">Start</th><th style="padding:6px 4px;font-size:11px;">End</th><th style="padding:6px 4px;font-size:11px;">Days</th><th style="padding:6px 4px;font-size:11px;">%</th><th style="padding:6px 4px;font-size:11px;">Status</th><th style="padding:6px 4px;font-size:11px;">Noted</th></tr></thead><tbody>';
   tasks.forEach(function(task,idx){
     var tid=idx+1;
     var planStart=task.planStart||'-';
@@ -1502,10 +1502,10 @@ function exportWeeklyReportPDF(){
     var pctHtml=pctVal!=='-'?pctVal+'%':'-';
     var statusClass={'In Progress':'progress','Completed':'ontime','Delay':'delayed'}[exportStatus]||'';
     var statusHtml='<span class="status '+statusClass+'">'+exportStatus+'</span>';
-    html+='<tr style="border-bottom:1px solid #eee;"><td style="padding:8px;text-align:center;">'+tid+'</td><td style="padding:8px;">'+(task.name||'')+'</td><td style="padding:8px;text-align:center;">'+planStart+'</td><td style="padding:8px;text-align:center;">'+planEnd+'</td><td style="padding:8px;text-align:center;">'+days+'</td><td style="padding:8px;text-align:center;">'+pctHtml+'</td><td style="padding:8px;text-align:center;">'+statusHtml+'</td><td style="padding:8px;">'+(task.noted||'')+'</td></tr>';
+    html+='<tr><td style="padding:4px 4px;text-align:center;">'+tid+'</td><td style="padding:4px 4px;">'+(task.name||'')+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planStart+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planEnd+'</td><td style="padding:4px 4px;text-align:center;">'+days+'</td><td style="padding:4px 4px;text-align:center;">'+pctHtml+'</td><td style="padding:4px 4px;text-align:center;">'+statusHtml+'</td><td style="padding:4px 4px;font-size:10px;">'+(task.noted||'')+'</td></tr>';
   });
   html+='</tbody></table>';
-  html+='<div class="footer">Generated on '+new Date().toLocaleString()+' | MGD Business Management System</div>';
+  html+='<div class="footer">Generated on '+new Date().toLocaleString()+' &middot; MGD Business Management System</div>';
   html+='</body></html>';
   var win=window.open('','_blank');
   win.document.write(html);
