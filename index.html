@@ -3802,6 +3802,13 @@ function listenToCloud(){
       console.log('[Firebase] Cloud data changed - updating UI!');
       var fbData = doc.data().data;
       
+      // Prevent empty/invalid cloud data from overwriting local data
+      var fbKeys = Object.keys(fbData || {});
+      if(fbKeys.length === 0 || (fbKeys.length === 1 && fbKeys[0] === 'weeklyReports')){
+        console.log('[Firebase] Skipping empty/invalid cloud data (keys:', fbKeys.join(','), ')');
+        return;
+      }
+      
       // Only update if data is different from local
       // Only update non-weeklyReports fields (local-storage-driven)
       var dataClean = JSON.parse(JSON.stringify(data));
