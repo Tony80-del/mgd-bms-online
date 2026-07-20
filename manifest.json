@@ -1,0 +1,22 @@
+{
+  "name": "MGD BMS · View",
+  "short_name": "MGD BMS",
+  "description": "MGD Business Management System",
+  "start_url": "/mgd-bms-mobile-view.html",
+  "display": "standalone",
+  "background_color": "#0B0E13",
+  "theme_color": "#0B0E13",
+  "icons": [
+    {
+      "src": "/mgd-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/mgd-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
