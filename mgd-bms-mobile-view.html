@@ -29,8 +29,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .refbtn:active{background:var(--card);transform:scale(.88)}
 .refbtn.spin{animation:spin .6s linear}
 @keyframes spin{100%{transform:rotate(360deg)}}
-.toast{position:fixed;top:52px;left:50%;transform:translateX(-50%);background:#1C2330;border:1px solid var(--acc);color:var(--txt);padding:4px 14px;border-radius:16px;font-size:12px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}
 .conn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);white-space:nowrap}
 .conn .led{width:8px;height:8px;border-radius:50%;background:var(--gry)}
 .conn .led.on{background:var(--grn);box-shadow:0 0 6px var(--grn)}
@@ -142,7 +140,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .wr-task .wr-pr,.wr-task .wr-note{margin-top:4px;font-size:11px}
 
 /* Toast */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:60;background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 18px;border-radius:24px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;max-width:90%;white-space:nowrap}
+.toast{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:999;background:var(--card2);border:1px solid var(--acc);color:var(--txt);padding:5px 16px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;line-height:1.4}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* Empty */
