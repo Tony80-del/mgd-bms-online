@@ -4,6 +4,7 @@
   "description": "MGD Business Management System",
   "start_url": "mgd-bms-mobile-view.html",
   "display": "standalone",
+  "scope": ".",
   "background_color": "#0B0E13",
   "theme_color": "#0B0E13",
   "icons": [

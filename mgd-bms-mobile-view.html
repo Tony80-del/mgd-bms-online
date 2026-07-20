@@ -159,6 +159,9 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .wr-otbl .tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;background:var(--red);color:#fff}
 .wr-otbl .usr{font-size:10px;color:var(--acc);font-weight:600}
 </style>
+<script>
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
 </head>
 <body>
 <div id="app">
