@@ -29,7 +29,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .refbtn:active{background:var(--card);transform:scale(.88)}
 .refbtn.spin{animation:spin .6s linear}
 @keyframes spin{100%{transform:rotate(360deg)}}
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1C2330;border:1px solid var(--acc);color:var(--txt);padding:12px 24px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;top:52px;left:50%;transform:translateX(-50%);background:#1C2330;border:1px solid var(--acc);color:var(--txt);padding:4px 14px;border-radius:16px;font-size:12px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 .conn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);white-space:nowrap}
 .conn .led{width:8px;height:8px;border-radius:50%;background:var(--gry)}
@@ -328,7 +328,7 @@ function showToast(t,c){const el=$('#toast');el.textContent=t;el.className='toas
 function reconnectFirebase(){
   const btn=document.querySelector('.refbtn');
   btn.classList.add('spin');
-  showToast('🔄 Refreshing...',9999);
+  showToast('🔄 Syncing...',9999);
   setConn('connecting');
   if(APP.db){
     APP.db.collection('bms_data').doc('master').get()
