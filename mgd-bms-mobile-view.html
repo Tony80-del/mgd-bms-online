@@ -24,7 +24,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .conn .led.err{background:var(--red)}
 
 /* Bottom Nav */
-.tabnav{position:sticky;bottom:0;z-index:30;display:flex;background:#0B0E13;border-top:1px solid var(--line);padding:5px 2px}
+.tabnav{position:sticky;top:0;z-index:20;display:flex;background:#0B0E13;border-bottom:1px solid var(--line);padding:5px 2px}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 0;color:var(--mut);font-size:10px;cursor:pointer;position:relative;user-select:none}
 .tab .ti{font-size:20px;line-height:1}
 .tab.active{color:var(--acc)}
@@ -33,7 +33,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .tab .badge.danger{background:var(--red);color:#1a0000}
 
 /* Screens */
-.screen{flex:1;overflow-y:auto;padding:0 0 80px;display:none}
+.screen{flex:1;overflow-y:auto;padding:0 0 20px;display:none}
 .screen.active{display:block}
 
 /* Home */
@@ -143,6 +143,15 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
     <div class="conn"><span class="led" id="led"></span><span id="connTxt">—</span></div>
   </div>
 
+  <!-- ══ Tab Nav (top) ══ -->
+  <div class="tabnav">
+    <div class="tab active" data-tab="home"><div class="ti">🏠</div>Home</div>
+    <div class="tab" data-tab="bids"><div class="ti">📋</div>Bids<span class="badge danger" id="b-bids"></span></div>
+    <div class="tab" data-tab="customers"><div class="ti">👥</div>Clients</div>
+    <div class="tab" data-tab="weekly"><div class="ti">📑</div>Weekly<span class="badge warn" id="b-weekly"></span></div>
+    <div class="tab" data-tab="chambers"><div class="ti">🏛️</div>Chamber<span class="badge warn" id="b-chamb"></span></div>
+  </div>
+
   <!-- ══ HOME ══ -->
   <div class="screen active" id="scr-home">
     <div class="home-scroll">
@@ -202,15 +211,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
     <div class="list" id="listChamb"></div>
   </div>
 
-  <!-- ══ Bottom Nav ══ -->
-  <div class="tabnav">
-    <div class="tab active" data-tab="home"><div class="ti">🏠</div>Home</div>
-    <div class="tab" data-tab="bids"><div class="ti">📋</div>Bids<span class="badge danger" id="b-bids"></span></div>
-    <div class="tab" data-tab="customers"><div class="ti">👥</div>Clients</div>
-    <div class="tab" data-tab="weekly"><div class="ti">📑</div>Weekly<span class="badge warn" id="b-weekly"></span></div>
-    <div class="tab" data-tab="chambers"><div class="ti">🏛️</div>Chamber<span class="badge warn" id="b-chamb"></span></div>
-  </div>
-
+  <!-- ══ Tab Nav (top) ══ -->
   <!-- ══ Detail Drawer ══ -->
   <div class="drawer" id="drawer" onclick="if(event.target===this)closeDrawer()">
     <div class="drawer-inner" onclick="event.stopPropagation()">
