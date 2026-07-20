@@ -384,6 +384,7 @@ function renderAll(){
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
   const custNewMonth=cust.filter(c=>sameMonth(c.createdDate)).length;
   const interMonth=proj.filter(p=>sameMonth(p.interactionDate)).length;
+  var wrOverdue=collectOverdueWR();
   $('#statGrid').innerHTML=[
     '<div class="stat"><div class="h">🚨 Alarms (>7d overdue)</div><div class="big" style="color:'+(bAlarmCount>0?'var(--red)':'var(--grn)')+'">'+bAlarmCount+'</div></div>',
     '<div class="stat"><div class="h">📋 Overdue Bids</div><div class="big" style="color:'+(bOver>0?'var(--red)':'var(--grn)')+'">'+bOver+'</div></div>',
