@@ -366,7 +366,6 @@ function renderAll(){
   var urgent=[],alarms=[];
   const activeBids=bids=>bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
   activeBids(bids).forEach(b=>{if(!b.nextActionDate)return;const dl=daysLeft(b.nextActionDate);if(dl<0&&Math.abs(dl)>7)alarms.push({icon:'🚨',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d',cls:'alarm'});});
-  proj.forEach(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);if(dl<0&&!/Completed/i.test(p.status||''))urgent.push({icon:'💬',name:p.customerName||'?',tag:Math.abs(dl)+'d overdue',cls:'red'});});
   chambers.forEach(c=>{const dl=daysLeft(c.attendanceDate);if(dl>0&&dl<=7)urgent.push({icon:'🏛️',name:c.chamberName,tag:dl+'d',cls:''});});
   // Add overdue WR tasks to alerts
   var wrOverdue=collectOverdueWR();
