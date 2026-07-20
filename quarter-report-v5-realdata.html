@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarter Report — V5 Real Data</title>
+<style>
+  :root {
+    --bg: #0f172a; --bg2: #1e293b; --surface: #1e293b;
+    --border: #334155; --text: #e2e8f0; --text2: #94a3b8;
+    --accent: #3b82f6; --green: #22c55e; --yellow: #eab308;
+    --red: #ef4444; --purple: #8b5cf6; --orange: #f97316;
+    --cyan: #06b6d4; --pink: #ec4899;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); padding: 16px;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  .version-tag {
+    position: fixed; top: 12px; right: 12px;
+    background: linear-gradient(135deg, #064e3b, #0f766e);
+    color: #a7f3d0; font-size: 11px; font-weight: 700;
+    padding: 6px 14px; border-radius: 999px; border: 1px solid #0d9488;
+    z-index: 100; letter-spacing: 1px;
+  }
+
+  /* ===== HEADER COMPACT ===== */
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; margin-bottom: 16px;
+    background: linear-gradient(90deg, #0f172a, #134e4a);
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-left .logo {
+    width: 36px; height: 36px; background: #0d9488; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: white;
+  }
+  .header-left h1 { font-size: 16px; font-weight: 700; }
+  .header-left .sub { font-size: 11px; color: var(--text2); }
+  .header-right { display: flex; align-items: center; gap: 16px; font-size: 12px; }
+  .header-right .period { padding: 4px 12px; background: #134e4a; border-radius: 6px; font-weight: 600; color: #5eead4; }
+
+  /* ===== DASHBOARD GRID ===== */
+  .d-grid { display: grid; gap: 10px; }
+  .d-span-2 { grid-column: span 2; }
+  .d-span-3 { grid-column: span 3; }
+  .d-span-4 { grid-column: span 4; }
+  .d-span-6 { grid-column: span 6; }
+  .d-span-12 { grid-column: span 12; }
+
+  .row1 { grid-template-columns: repeat(6, 1fr); }
+  .row23 { grid-template-columns: repeat(6, 1fr); }
+  .row4 { grid-template-columns: repeat(6, 1fr); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+  }
+  .card .ctitle {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text2); margin-bottom: 6px;
+  }
+  .card .cvalue { font-size: 24px; font-weight: 700; }
+  .card .csub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .card .ctrend { font-size: 10px; font-weight: 600; margin-top: 4px; }
+
+  .mini-graph { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-top: 6px; }
+  .mini-graph .mg-bar { width: 100%; border-radius: 2px; min-height: 4px; }
+
+  /* ===== TABLE ===== */
+  .dash-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .dash-table th { text-align: left; padding: 6px 8px; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 9px; text-transform: uppercase; }
+  .dash-table td { padding: 6px 8px; border-bottom: 1px solid rgba(51,65,85,0.4); }
+  .dash-table tr:last-child td { border-bottom: none; }
+
+  /* ===== DONUT MINI ===== */
+  .donut-mini {
+    width: 80px; height: 80px; border-radius: 50%;
+    position: relative; margin: 0 auto;
+  }
+  .donut-mini-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center;
+  }
+  .donut-mini-center .num { font-size: 18px; font-weight: 700; display: block; }
+  .donut-mini-center .lbl { font-size: 8px; color: var(--text2); }
+
+  .legend2 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; justify-content: center; }
+  .legend2-item { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+  .legend2-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ===== FIT CARD ===== */
+  .fit-flex { display: flex; align-items: center; gap: 16px; }
+  .fit-flex .fit-text { flex: 1; }
+  .fit-flex .fit-text .fit-label { font-size: 10px; color: var(--text2); text-transform: uppercase; }
+  .fit-flex .fit-text .fit-val { font-size: 20px; font-weight: 700; }
+  .fit-flex .fit-gauge { width: 60px; height: 60px; }
+
+  /* ===== RING ===== */
+  .ring-wrap {
+    width: 60px; height: 60px; position: relative;
+  }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: #334155; stroke-width: 4; }
+  .ring-fg { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .ring-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 12px; font-weight: 700; text-align: center;
+  }
+
+  /* ===== ROW LABEL ===== */
+  .section-label {
+    font-size: 12px; font-weight: 700; color: var(--text2);
+    padding: 8px 0 4px; text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .na { color: #475569; font-style: italic; font-size: 11px; }
+
+  @media (max-width: 800px) {
+    .row1, .row23, .row4 { grid-template-columns: repeat(2, 1fr); }
+    .d-span-2,.d-span-3,.d-span-4,.d-span-6,.d-span-12 { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+<div class="version-tag">V5 · REAL DATA</div>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">M</div>
+      <div>
+        <h1>MGD Performance Dashboard</h1>
+        <div class="sub">Real-time quarterly snapshot · Data from BMS · 29 bids · 350 customers · 25 chambers</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span>📅 18 Jul 2026</span>
+      <span class="period">◉ Q2 2026</span>
+    </div>
+  </div>
+
+  <!-- ===== ROW 1: KPI GRID ===== -->
+  <div class="section-label">Top KPIs</div>
+  <div class="d-grid row1" style="margin-bottom:10px;">
+
+    <div class="card">
+      <div class="ctitle">💰 Revenue</div>
+      <div class="cvalue na">N/A</div>
+      <div class="csub">Not tracked in BMS</div>
+      <div class="ctrend" style="color:var(--text2);">—</div>
+      <div class="mini-graph">
+        <div class="mg-bar" style="height:5%;background:#334155;"></div>
+        <div class="mg-bar" style="height:5%;background:#334155;"></div>
+        <div class="mg-bar" style="height:5%;background:#334155;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">📈 S&M Revenue</div>
+      <div class="cvalue na">N/A</div>
+      <div class="csub">Not tracked in BMS</div>
+      <div class="ctrend" style="color:var(--text2);">—</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">🏗️ Pipeline Value</div>
+      <div class="cvalue c-blue">4,242B</div>
+      <div class="csub">29 active projects</div>
+      <div class="ctrend c-green">▲ Cat A: 8 · Cat B: 16</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">👥 New Contacts</div>
+      <div class="cvalue c-purple">233</div>
+      <div class="csub">YTD (Full 2025: 57)</div>
+      <div class="ctrend c-green">▲ +309% YoY</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">✅ Task Completion</div>
+      <div class="cvalue na">N/A</div>
+      <div class="csub">No Q2 weekly reports</div>
+      <div class="ctrend" style="color:var(--text2);">Jul weeks 28-29 only</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">🏆 Projects Won</div>
+      <div class="cvalue c-green">1</div>
+      <div class="csub">PROMEA Design Pkg · 9B</div>
+      <div class="ctrend" style="color:var(--text2);">No Q1 baseline</div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 2: TABLE + DONUT + TEAM ===== -->
+  <div class="d-grid row23" style="margin-bottom:10px;">
+
+    <!-- LEFT: Pipeline table -->
+    <div class="card" style="grid-column: span 4;">
+      <div class="ctitle">🏗️ Bid Pipeline · Stage Breakdown</div>
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Count</th>
+            <th>Est. Value</th>
+            <th>Key Projects</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--green);vertical-align:middle;margin-right:6px;"></span>Won</td>
+            <td style="font-weight:600;">1</td>
+            <td>9.0B</td>
+            <td style="font-size:10px;">PROMEA Design Pkg</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--accent);vertical-align:middle;margin-right:6px;"></span>Bidding</td>
+            <td style="font-weight:600;">2</td>
+            <td>170.0B</td>
+            <td style="font-size:10px;">GHHY 150B · PROMEA Leveling 20B</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--yellow);vertical-align:middle;margin-right:6px;"></span>Following</td>
+            <td style="font-weight:600;">8</td>
+            <td>1,564.0B</td>
+            <td style="font-size:10px;">Rochdale 763B · Nameson 238B · SBS 232B</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--orange);vertical-align:middle;margin-right:6px;"></span>Review/PQ</td>
+            <td style="font-weight:600;">8</td>
+            <td>1,519.0B</td>
+            <td style="font-size:10px;">Sembcorp LMX 800B · Sembcorp LocAn 600B</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);vertical-align:middle;margin-right:6px;"></span>No Stage</td>
+            <td style="font-weight:600;">10</td>
+            <td>980.7B</td>
+            <td style="font-size:10px;">DPW 600B · Gainwell Ph.2 333B · GlobalStar 48B</td>
+          </tr>
+          <tr style="background:rgba(59,130,246,0.05);">
+            <td><strong>Total</strong></td>
+            <td style="font-weight:700;">29</td>
+            <td style="font-weight:700;color:var(--accent);">4,242B</td>
+            <td style="font-size:10px;">8 Cat A · 16 Cat B · 5 Not set</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT TOP: Donut -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="ctitle">Project Status Mix</div>
+      <div class="donut-mini" style="background:conic-gradient(#22c55e 0% 3%, #3b82f6 3% 10%, #eab308 10% 38%, #f97316 38% 66%, #8b5cf6 66% 100%);">
+        <div class="donut-mini-center">
+          <span class="num">29</span>
+          <span class="lbl">Total</span>
+        </div>
+      </div>
+      <div class="legend2">
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--green);"></span> Won 1</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--accent);"></span> Bid 2</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--yellow);"></span> Fol 8</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--orange);"></span> Re/PQ 8</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--purple);"></span> No Stage 10</div>
+      </div>
+    </div>
+
+    <!-- RIGHT BOTTOM: Team Completion Rate — now shows REAL weekly report data for Jul -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="ctitle">👥 Weekly Tasks (Jul — Weeks 28-29)</div>
+      <div style="margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+          <span>Tony</span><span class="c-yellow">9 tasks</span>
+        </div>
+        <div style="height:6px;background:#334155;border-radius:3px;overflow:hidden;margin-bottom:8px;">
+          <div style="width:30%;height:100%;background:var(--green);border-radius:3px;"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+          <span>Quoc</span><span class="c-yellow">4 tasks</span>
+        </div>
+        <div style="height:6px;background:#334155;border-radius:3px;overflow:hidden;margin-bottom:8px;">
+          <div style="width:100%;height:100%;background:var(--accent);border-radius:3px;"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+          <span>Huong</span><span class="c-yellow">4 tasks</span>
+        </div>
+        <div style="height:6px;background:#334155;border-radius:3px;overflow:hidden;">
+          <div style="width:100%;height:100%;background:var(--purple);border-radius:3px;"></div>
+        </div>
+
+        <div style="margin-top:8px;font-size:10px;color:var(--text2);text-align:center;">
+          25 tasks · all pending/in progress · <span style="color:var(--orange);">No Q2 weekly data</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 3: Q1 → Q2 COMPARISON ===== -->
+  <div class="section-label">Q1 → Q2 Comparison</div>
+  <div class="d-grid row1" style="margin-bottom:10px;">
+
+    <div class="card">
+      <div class="ctitle">Q1 Revenue</div>
+      <div class="cvalue na">N/A</div>
+      <div class="ctrend" style="color:var(--text2);">Not in BMS</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Q2 Revenue</div>
+      <div class="cvalue na">N/A</div>
+      <div class="ctrend" style="color:var(--text2);">Not in BMS</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Q1 New Contacts</div>
+      <div class="cvalue" style="color:var(--text2);">22</div>
+      <div class="csub">Jan 10 + Feb 1 + Mar 11</div>
+      <div class="ctrend" style="color:var(--text2);">Baseline</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Q2 New Contacts</div>
+      <div class="cvalue c-green">180</div>
+      <div class="csub">Apr 107 + May 55 + Jun 18</div>
+      <div class="ctrend c-green">▲ +718% QoQ</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">H1 Contact Total</div>
+      <div class="cvalue c-blue">202</div>
+      <div class="csub">Jul already at 31</div>
+      <div class="ctrend c-green">▲ Tracking well</div>
+    </div>
+
+    <div class="card" style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div class="ctitle">Yearly Contact Goal Progress</div>
+        <div style="font-size:24px;font-weight:700;color:var(--green);">233</div>
+        <div style="font-size:10px;color:var(--text2);">YTD contacts · 57 in full 2025 (+309%)</div>
+      </div>
+      <div class="ring-wrap">
+        <svg width="60" height="60">
+          <circle class="ring-bg" cx="30" cy="30" r="26"/>
+          <circle class="ring-fg" style="stroke:var(--green);" cx="30" cy="30" r="26"
+            stroke-dasharray="163.36" stroke-dashoffset="0"/>
+        </svg>
+        <div class="ring-center">+309%</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 4: HIGHLIGHTS + RISKS ===== -->
+  <div class="section-label">Summary</div>
+  <div class="d-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+
+    <div class="card" style="border-left: 3px solid var(--green);">
+      <div class="ctitle">✅ Highlights</div>
+      <ul style="list-style:none;font-size:11px;line-height:1.8;">
+        <li>🏗️ <span class="c-green">4,242B pipeline</span> — 29 active bids</li>
+        <li>👥 <span class="c-green">233 new contacts YTD</span> — 309% YoY growth</li>
+        <li>🏛️ <span class="c-green">Q2: 15 chamber events</span> — up 200% from Q1</li>
+        <li>🌍 <span class="c-green">Rooms &amp; industrial parks</span> — multiple active</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-left: 3px solid var(--yellow);">
+      <div class="ctitle">⚠️ Observations</div>
+      <ul style="list-style:none;font-size:11px;line-height:1.8;">
+        <li>📉 <span class="c-yellow">Contact growth declining</span> — 107→55→18 monthly</li>
+        <li>📋 <span class="c-yellow">10 bids unstaged</span> — needs classification</li>
+        <li>🔄 <span class="c-yellow">8 bids unassigned PIC</span></li>
+        <li>📊 <span class="c-yellow">No Q2 weekly tasks</span> — can't measure team perf</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;padding:12px;color:var(--text2);font-size:10px;">
+    V5 · Real BMS Data · 29 bids · 350 customers · 25 chambers · 7 interactions · Export 18 Jul 2026
+  </div>
+</div>
+</body>
+</html>

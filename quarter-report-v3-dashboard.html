@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarter Report — V3 Dashboard</title>
+<style>
+  :root {
+    --bg: #0f172a; --bg2: #1e293b; --surface: #1e293b;
+    --border: #334155; --text: #e2e8f0; --text2: #94a3b8;
+    --accent: #3b82f6; --green: #22c55e; --yellow: #eab308;
+    --red: #ef4444; --purple: #8b5cf6; --orange: #f97316;
+    --cyan: #06b6d4; --pink: #ec4899;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); padding: 16px;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  .version-tag {
+    position: fixed; top: 12px; right: 12px;
+    background: linear-gradient(135deg, #064e3b, #0f766e);
+    color: #a7f3d0; font-size: 11px; font-weight: 700;
+    padding: 6px 14px; border-radius: 999px; border: 1px solid #0d9488;
+    z-index: 100; letter-spacing: 1px;
+  }
+
+  /* ===== HEADER COMPACT ===== */
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; margin-bottom: 16px;
+    background: linear-gradient(90deg, #0f172a, #134e4a);
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-left .logo {
+    width: 36px; height: 36px; background: #0d9488; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: white;
+  }
+  .header-left h1 { font-size: 16px; font-weight: 700; }
+  .header-left .sub { font-size: 11px; color: var(--text2); }
+  .header-right { display: flex; align-items: center; gap: 16px; font-size: 12px; }
+  .header-right .period { padding: 4px 12px; background: #134e4a; border-radius: 6px; font-weight: 600; color: #5eead4; }
+
+  /* ===== DASHBOARD GRID ===== */
+  .d-grid { display: grid; gap: 10px; }
+  .d-span-2 { grid-column: span 2; }
+  .d-span-3 { grid-column: span 3; }
+  .d-span-4 { grid-column: span 4; }
+  .d-span-6 { grid-column: span 6; }
+  .d-span-12 { grid-column: span 12; }
+
+  /* Row 1: 6 col each */
+  .row1 { grid-template-columns: repeat(6, 1fr); }
+  .row23 { grid-template-columns: repeat(6, 1fr); } /* top-left 4 + right 2 */
+  .row4 { grid-template-columns: repeat(6, 1fr); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+  }
+  .card .ctitle {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text2); margin-bottom: 6px;
+  }
+  .card .cvalue { font-size: 24px; font-weight: 700; }
+  .card .csub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .card .ctrend { font-size: 10px; font-weight: 600; margin-top: 4px; }
+
+  /* Mini bar graph in card */
+  .mini-graph { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-top: 6px; }
+  .mini-graph .mg-bar { width: 100%; border-radius: 2px; min-height: 4px; }
+
+  /* ===== TABLE ===== */
+  .dash-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .dash-table th { text-align: left; padding: 6px 8px; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 9px; text-transform: uppercase; }
+  .dash-table td { padding: 6px 8px; border-bottom: 1px solid rgba(51,65,85,0.4); }
+  .dash-table tr:last-child td { border-bottom: none; }
+
+  /* ===== DONUT MINI ===== */
+  .donut-mini {
+    width: 80px; height: 80px; border-radius: 50%;
+    position: relative; margin: 0 auto;
+  }
+  .donut-mini-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center;
+  }
+  .donut-mini-center .num { font-size: 18px; font-weight: 700; display: block; }
+  .donut-mini-center .lbl { font-size: 8px; color: var(--text2); }
+
+  .legend2 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; justify-content: center; }
+  .legend2-item { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+  .legend2-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ===== FIT CARD ===== */
+  .fit-flex { display: flex; align-items: center; gap: 16px; }
+  .fit-flex .fit-text { flex: 1; }
+  .fit-flex .fit-text .fit-label { font-size: 10px; color: var(--text2); text-transform: uppercase; }
+  .fit-flex .fit-text .fit-val { font-size: 20px; font-weight: 700; }
+  .fit-flex .fit-gauge { width: 60px; height: 60px; }
+
+  /* ===== PROGRESS RING ===== */
+  .ring-wrap {
+    width: 60px; height: 60px; position: relative;
+  }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: #334155; stroke-width: 4; }
+  .ring-fg { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .ring-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 12px; font-weight: 700; text-align: center;
+  }
+
+  /* ===== ROW LABEL ===== */
+  .section-label {
+    font-size: 12px; font-weight: 700; color: var(--text2);
+    padding: 8px 0 4px; text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  @media (max-width: 800px) {
+    .row1, .row23, .row4 { grid-template-columns: repeat(2, 1fr); }
+    .d-span-2,.d-span-3,.d-span-4,.d-span-6,.d-span-12 { grid-column: span 2; }
+  }
+</style>
+</head>
+<body>
+<div class="version-tag">V3 · DASHBOARD</div>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">M</div>
+      <div>
+        <h1>MGD Performance Dashboard</h1>
+        <div class="sub">Real-time quarterly snapshot · Auto-generated from BMS</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span>📅 18 Jul 2026</span>
+      <span class="period">◉ Q2 2026</span>
+    </div>
+  </div>
+
+  <!-- ===== ROW 1: KPI GRID ===== -->
+  <div class="section-label">Top KPIs</div>
+  <div class="d-grid row1" style="margin-bottom:10px;">
+
+    <div class="card">
+      <div class="ctitle">💰 Revenue</div>
+      <div class="cvalue c-green">315M</div>
+      <div class="csub">vs 350M target</div>
+      <div class="ctrend c-green">▲ +12% QoQ</div>
+      <div class="mini-graph">
+        <div class="mg-bar" style="height:60%;background:var(--accent);"></div>
+        <div class="mg-bar" style="height:75%;background:var(--accent);"></div>
+        <div class="mg-bar" style="height:90%;background:var(--green);"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">📈 S&M Revenue</div>
+      <div class="cvalue c-yellow">58M</div>
+      <div class="csub">vs 62.5M target</div>
+      <div class="ctrend c-yellow">⏳ 92.8%</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">🏗️ Pipeline Value</div>
+      <div class="cvalue c-blue">185B</div>
+      <div class="csub">18 active projects</div>
+      <div class="ctrend c-green">▲ +3 this Q</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">👥 New Contacts</div>
+      <div class="cvalue c-purple">28</div>
+      <div class="csub">Target: 30</div>
+      <div class="ctrend c-green">▲ +10 QoQ</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">✅ Task Completion</div>
+      <div class="cvalue c-yellow">80.6%</div>
+      <div class="csub">Target: ≥85%</div>
+      <div class="ctrend c-green">▲ +4.8% QoQ</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">🏆 Projects Won</div>
+      <div class="cvalue c-green">3</div>
+      <div class="csub">Est. value: 25B</div>
+      <div class="ctrend c-green">▲ +1 QoQ</div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 2: LEFT (PIPELINE TABLE) + RIGHT (DONUT + TEAM) ===== -->
+  <div class="d-grid row23" style="margin-bottom:10px;">
+
+    <!-- LEFT: Pipeline table — spans 4 cols -->
+    <div class="card" style="grid-column: span 4;">
+      <div class="ctitle">🏗️ Bid Pipeline · Stage Breakdown</div>
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Count</th>
+            <th>Est. Value</th>
+            <th>Action Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--green);vertical-align:middle;margin-right:6px;"></span>Won</td>
+            <td style="font-weight:600;">3</td>
+            <td>25B</td>
+            <td style="color:var(--text2);">—</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--accent);vertical-align:middle;margin-right:6px;"></span>Bidding</td>
+            <td style="font-weight:600;">2</td>
+            <td>55B</td>
+            <td style="color:var(--yellow);">Submit proposals</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--yellow);vertical-align:middle;margin-right:6px;"></span>Following</td>
+            <td style="font-weight:600;">5</td>
+            <td>80B</td>
+            <td style="color:var(--text2);">Follow up</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--orange);vertical-align:middle;margin-right:6px;"></span>Review/PQ</td>
+            <td style="font-weight:600;">3</td>
+            <td>15B</td>
+            <td style="color:var(--red);">Decision pending</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);vertical-align:middle;margin-right:6px;"></span>Data Collection</td>
+            <td style="font-weight:600;">5</td>
+            <td>10B</td>
+            <td style="color:var(--text2);">Gather info</td>
+          </tr>
+          <tr style="background:rgba(59,130,246,0.05);">
+            <td><strong>Total</strong></td>
+            <td style="font-weight:700;">18</td>
+            <td style="font-weight:700;color:var(--accent);">185B</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT TOP: Donut + Team — spans 2 cols -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="ctitle">Project Status Mix</div>
+      <div class="donut-mini" style="background:conic-gradient(#22c55e 0% 17%, #3b82f6 17% 28%, #eab308 28% 56%, #f97316 56% 72%, #8b5cf6 72% 100%);">
+        <div class="donut-mini-center">
+          <span class="num">18</span>
+          <span class="lbl">Total</span>
+        </div>
+      </div>
+      <div class="legend2">
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--green);"></span> Won 3</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--accent);"></span> Bid 2</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--yellow);"></span> Fol 5</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--orange);"></span> Rev 3</div>
+        <div class="legend2-item"><span class="legend2-dot" style="background:var(--purple);"></span> DC 5</div>
+      </div>
+    </div>
+
+    <!-- ===== ROW 2 EXTRA: Team bars — also in right column below donut ===== -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="ctitle">👥 Team Completion Rate</div>
+      <div style="margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+          <span>Tony</span><span class="c-green">86%</span>
+        </div>
+        <div style="height:6px;background:#334155;border-radius:3px;overflow:hidden;margin-bottom:8px;">
+          <div style="width:86%;height:100%;background:var(--green);border-radius:3px;"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+          <span>Quoc</span><span class="c-yellow">78%</span>
+        </div>
+        <div style="height:6px;background:#334155;border-radius:3px;overflow:hidden;margin-bottom:8px;">
+          <div style="width:78%;height:100%;background:var(--accent);border-radius:3px;"></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+          <span>Huong</span><span class="c-yellow">72%</span>
+        </div>
+        <div style="height:6px;background:#334155;border-radius:3px;overflow:hidden;">
+          <div style="width:72%;height:100%;background:var(--purple);border-radius:3px;"></div>
+        </div>
+
+        <div style="margin-top:8px;font-size:10px;color:var(--text2);text-align:center;">
+          57 tasks · 44 done · 10 WIP · 3 delayed
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 3: BOTTOM ROW ===== -->
+  <div class="section-label">Q1 → Q2 Comparison</div>
+  <div class="d-grid row1" style="margin-bottom:10px;">
+
+    <div class="card">
+      <div class="ctitle">Q1 Revenue</div>
+      <div class="cvalue" style="color:var(--text2);">281M</div>
+      <div class="ctrend" style="color:var(--text2);">Baseline</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">Q2 Revenue</div>
+      <div class="cvalue c-green">315M</div>
+      <div class="ctrend c-green">▲ +12%</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">H1 Total</div>
+      <div class="cvalue c-blue">596M</div>
+      <div class="csub">Annual Target: 1.4B</div>
+      <div class="ctrend c-yellow">42.6% of annual goal</div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle">H2 Required</div>
+      <div class="cvalue c-yellow">804M</div>
+      <div class="csub">To hit 1.4B</div>
+      <div class="ctrend c-red">Need +155% of Q2</div>
+    </div>
+
+    <div class="card" style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div class="ctitle">Progress to Annual Goal</div>
+        <div style="font-size:24px;font-weight:700;color:var(--yellow);">42.6%</div>
+        <div style="font-size:10px;color:var(--text2);">596M / 1.4B achieved</div>
+      </div>
+      <div class="ring-wrap">
+        <svg width="60" height="60">
+          <circle class="ring-bg" cx="30" cy="30" r="26"/>
+          <circle class="ring-fg" style="stroke:var(--yellow);" cx="30" cy="30" r="26"
+            stroke-dasharray="163.36" stroke-dashoffset="93.8"/>
+        </svg>
+        <div class="ring-center">42.6%</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ROW 4: HIGHLIGHTS + RISKS ===== -->
+  <div class="section-label">Summary</div>
+  <div class="d-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+
+    <div class="card" style="border-left: 3px solid var(--green);">
+      <div class="ctitle">✅ Highlights</div>
+      <ul style="list-style:none;font-size:11px;line-height:1.8;">
+        <li>🏆 <span class="c-green">3 projects won</span> — highest all year</li>
+        <li>👥 <span class="c-green">28 new contacts</span> — best quarter</li>
+        <li>📈 <span class="c-green">Revenue up 12% QoQ</span></li>
+        <li>🏭 <span class="c-green">3 new industrial parks</span></li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-left: 3px solid var(--red);">
+      <div class="ctitle">⚠️ Risks</div>
+      <ul style="list-style:none;font-size:11px;line-height:1.8;">
+        <li>💰 <span class="c-red">10% below Q2 revenue target</span></li>
+        <li>📊 <span class="c-red">Task completion 80.6% < 85% target</span></li>
+        <li>📉 <span class="c-yellow">H2 needs 804M — 2.6× Q2</span></li>
+        <li>🔄 <span class="c-yellow">3 projects in review pending</span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-tag" style="text-align:center;padding:12px;color:var(--text2);font-size:10px;">
+    V3 · Dashboard Mode · Designed for quick glance & data density
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarterly Sales Report - Demo</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg2: #1e293b;
+    --surface: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --orange: #f97316;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); padding: 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 24px 0; border-bottom: 1px solid var(--border); margin-bottom: 28px;
+  }
+  .header-left h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-left .sub { color: var(--text2); font-size: 14px; margin-top: 4px; }
+  .header-right { text-align: right; }
+  .header-right .period { font-size: 32px; font-weight: 800; color: var(--accent); }
+  .header-right .date { color: var(--text2); font-size: 12px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+  .badge-green { background: #166534; color: #86efac; }
+  .badge-blue { background: #1e3a5f; color: #93c5fd; }
+  .badge-yellow { background: #4d3d00; color: #fde047; }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 16px; position: relative;
+  }
+  .kpi-card .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .kpi-card .value { font-size: 28px; font-weight: 700; }
+  .kpi-card .value.green { color: var(--green); }
+  .kpi-card .value.yellow { color: var(--yellow); }
+  .kpi-card .value.red { color: var(--red); }
+  .kpi-card .value.blue { color: var(--blue); }
+  .kpi-card .sub-text { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .kpi-card .trend { font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .trend.up { color: var(--green); }
+  .trend.down { color: var(--red); }
+  .trend.flat { color: var(--text2); }
+
+  /* Chart Placeholder */
+  .chart-section {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;
+  }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  .chart-card .chart-area {
+    height: 200px; display: flex; align-items: flex-end; gap: 8px; padding-top: 10px;
+    position: relative;
+  }
+  .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; height: 200px; justify-content: flex-end; }
+  .bar {
+    width: 100%; max-width: 50px; border-radius: 4px 4px 0 0;
+    transition: height 0.3s; min-height: 4px;
+    position: relative;
+  }
+  .bar-value { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .bar-label { font-size: 10px; color: var(--text2); margin-top: 6px; text-align: center; }
+
+  /* Bar colors */
+  .bar-blue { background: linear-gradient(180deg, #60a5fa, #3b82f6); }
+  .bar-green { background: linear-gradient(180deg, #4ade80, #22c55e); }
+  .bar-purple { background: linear-gradient(180deg, #a78bfa, #8b5cf6); }
+  .bar-amber { background: linear-gradient(180deg, #fbbf24, #d97706); }
+  .bar-cyan { background: linear-gradient(180deg, #22d3ee, #06b6d4); }
+  .bar-rose { background: linear-gradient(180deg, #fb7185, #e11d48); }
+
+  /* Donut */
+  .donut-container {
+    display: flex; align-items: center; justify-content: center; gap: 24px;
+    height: 200px;
+  }
+  .donut {
+    width: 140px; height: 140px; border-radius: 50%;
+    position: relative; flex-shrink: 0;
+  }
+  .donut-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center;
+  }
+  .donut-center .num { font-size: 24px; font-weight: 700; display: block; }
+  .donut-center .lbl { font-size: 10px; color: var(--text2); }
+  .legend { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Table */
+  .table-section { margin-bottom: 28px; }
+  .table-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  }
+  .table-card h3 {
+    font-size: 14px; font-weight: 600; padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 16px; color: var(--text2); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(59,130,246,0.05); }
+  .status-pct { font-weight: 700; }
+  .status-pct.high { color: var(--green); }
+  .status-pct.mid { color: var(--yellow); }
+  .status-pct.low { color: var(--red); }
+  .progress-bar {
+    width: 80px; height: 6px; background: #334155; border-radius: 3px; overflow: hidden;
+    display: inline-block; vertical-align: middle;
+  }
+  .progress-bar .fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+  /* Weekly trends mini chart */
+  .mini-chart {
+    display: flex; align-items: flex-end; gap: 2px; height: 30px;
+  }
+  .mini-bar {
+    width: 8px; border-radius: 2px 2px 0 0;
+  }
+
+  /* Summary Section */
+  .summary-section {
+    background: linear-gradient(135deg, #1e3a5f, #1e293b);
+    border: 1px solid var(--border); border-radius: 12px; padding: 24px;
+    margin-bottom: 28px;
+  }
+  .summary-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .summary-section p { font-size: 13px; line-height: 1.7; color: var(--text2); }
+  .summary-section .highlight { color: var(--accent); font-weight: 600; }
+  .summary-section .green-text { color: var(--green); font-weight: 600; }
+  .summary-section .red-text { color: var(--red); font-weight: 600; }
+
+  /* Bottom actions */
+  .actions {
+    display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;
+    padding-top: 20px; border-top: 1px solid var(--border);
+  }
+  .btn {
+    padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-secondary:hover { background: #475569; }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-section { grid-template-columns: 1fr; }
+    .header { flex-direction: column; gap: 12px; }
+    .header-right { text-align: left; }
+    .table-card { overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>📊 Quarterly Sales Report</h1>
+      <div class="sub">MGD Business Team · 业务部季度销售报告</div>
+    </div>
+    <div class="header-right">
+      <div class="period">Q2 2026</div>
+      <div class="date">April — June 2026  ·  Generated: 18 Jul 2026</div>
+    </div>
+  </div>
+
+  <!-- === KPI Cards === -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="label">💰 Company Revenue</div>
+      <div class="value green">315<span style="font-size:14px;font-weight:400;">M</span></div>
+      <div class="sub-text">Q2 Target: 350M  ·  <span style="color:#22c55e;">90%</span></div>
+      <div class="trend up">▲ 12% vs Q1</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">📈 S&M Dept Revenue</div>
+      <div class="value yellow">58<span style="font-size:14px;font-weight:400;">M</span></div>
+      <div class="sub-text">Q2 Target: 62.5M  ·  <span style="color:#eab308;">92.8%</span></div>
+      <div class="trend up">▲ 8% vs Q1</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">🏗️ Est. Project Value</div>
+      <div class="value blue">185<span style="font-size:14px;font-weight:400;">B</span></div>
+      <div class="sub-text">Active Bids: 12  ·  Won: 3</div>
+      <div class="trend up">▲ 3 new this quarter</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">👥 New Contacts</div>
+      <div class="value purple">28</div>
+      <div class="sub-text">Consultants: 5  ·  Industrial Parks: 3</div>
+      <div class="trend up">▲ +10 vs Q1</div>
+    </div>
+  </div>
+
+  <!-- === Charts Row === -->
+  <div class="chart-section">
+
+    <!-- Bar: Monthly Revenue Trend -->
+    <div class="chart-card">
+      <h3>📅 Monthly Revenue Trend <span class="badge badge-blue">Actual vs Target</span></h3>
+      <div class="chart-area">
+        <div class="bar-group">
+          <div class="bar bar-blue" style="height:60%;"><div class="bar-value">60%</div></div>
+          <div class="bar-label">Apr</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-blue" style="height:75%;"><div class="bar-value">75%</div></div>
+          <div class="bar-label">May</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-blue" style="height:90%;"><div class="bar-value">90%</div></div>
+          <div class="bar-label">Jun</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:90%;"><div class="bar-value">90%</div></div>
+          <div class="bar-label">Q2 Avg</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:10px;font-size:11px;color:var(--text2);">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Actual</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#eab308;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Target</span>
+      </div>
+    </div>
+
+    <!-- Donut: Project Status Breakdown -->
+    <div class="chart-card">
+      <h3>🏗️ Bid Status Breakdown <span class="badge badge-green">12 Active</span></h3>
+      <div class="donut-container">
+        <div class="donut" style="background: conic-gradient(#22c55e 0% 25%, #3b82f6 25% 35%, #eab308 35% 65%, #ef4444 65% 75%, #6366f1 75% 100%);">
+          <div class="donut-center">
+            <span class="num">18</span>
+            <span class="lbl">Total Bids</span>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#22c55e;"></span> Won (3)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> Bidding (2)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#eab308;"></span> Following/Tracking (5)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Reviewing/PQ (3)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#6366f1;"></span> Data Collection (5)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar: Weekly Performance Trend (from weekly reports) -->
+    <div class="chart-card">
+      <h3>📋 Weekly Task Completion Rate <span class="badge badge-yellow">From Weekly Reports</span></h3>
+      <div class="chart-area" style="height:180px;">
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:72%;"><div class="bar-value">72%</div></div>
+          <div class="bar-label">W14</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:80%;"><div class="bar-value">80%</div></div>
+          <div class="bar-label">W15</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-amber" style="height:65%;"><div class="bar-value">65%</div></div>
+          <div class="bar-label">W16</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:85%;"><div class="bar-value">85%</div></div>
+          <div class="bar-label">W17</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-amber" style="height:70%;"><div class="bar-value">70%</div></div>
+          <div class="bar-label">W18</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:88%;"><div class="bar-value">88%</div></div>
+          <div class="bar-label">W19</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:92%;"><div class="bar-value">92%</div></div>
+          <div class="bar-label">W20</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:78%;"><div class="bar-value">78%</div></div>
+          <div class="bar-label">W21</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:82%;"><div class="bar-value">82%</div></div>
+          <div class="bar-label">W22</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:76%;"><div class="bar-value">76%</div></div>
+          <div class="bar-label">W23</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:90%;"><div class="bar-value">90%</div></div>
+          <div class="bar-label">W24</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:85%;"><div class="bar-value">85%</div></div>
+          <div class="bar-label">W25</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:86%;"><div class="bar-value">86%</div></div>
+          <div class="bar-label">W26</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:8px;font-size:11px;color:var(--text2);">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#22c55e;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Tony</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Quoc</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#8b5cf6;border-radius:2px;vertical-align:middle;margin-right:4px;"></span> Huong</span>
+        <span style="color:var(--text2);">|  Avg Completion: <span style="color:#22c55e;font-weight:600;">80.6%</span></span>
+      </div>
+    </div>
+
+    <!-- Bar: Team Member Contribution -->
+    <div class="chart-card">
+      <h3>👥 Team Contribution <span class="badge badge-blue">Task Completion by Person</span></h3>
+      <div class="chart-area" style="height:180px;">
+        <div class="bar-group">
+          <div class="bar bar-green" style="height:100%;"><div class="bar-value">86%</div></div>
+          <div class="bar-label">Tony</div>
+          <div class="bar-label" style="font-size:9px;color:var(--text2);">24 tasks</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-blue" style="height:85%;"><div class="bar-value">78%</div></div>
+          <div class="bar-label">Quoc</div>
+          <div class="bar-label" style="font-size:9px;color:var(--text2);">18 tasks</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar bar-purple" style="height:78%;"><div class="bar-value">72%</div></div>
+          <div class="bar-label">Huong</div>
+          <div class="bar-label" style="font-size:9px;color:var(--text2);">15 tasks</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:8px;font-size:11px;color:var(--text2);">
+        <span>Total Tasks: <span style="color:var(--text);font-weight:600;">57</span></span>
+        <span>Completed: <span style="color:var(--green);font-weight:600;">44</span></span>
+        <span>In Progress: <span style="color:var(--yellow);font-weight:600;">10</span></span>
+        <span>Delayed: <span style="color:var(--red);font-weight:600;">3</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- === KPI vs Target Comparison Table === -->
+  <div class="table-section">
+    <div class="table-card">
+      <h3>🎯 KPI vs Target  —  Q2 2026</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Annual Target</th>
+            <th>Q2 Target (25%)</th>
+            <th>Q2 Actual</th>
+            <th>Achievement</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Company Sales</strong></td>
+            <td>1,400M</td>
+            <td>350M</td>
+            <td>315M</td>
+            <td><span class="progress-bar"><div class="fill" style="width:90%;background:#22c55e;"></div></span> 90%</td>
+            <td class="trend up">▲ +12% vs Q1</td>
+          </tr>
+          <tr>
+            <td><strong>S&M Dept Revenue</strong></td>
+            <td>250M</td>
+            <td>62.5M</td>
+            <td>58M</td>
+            <td><span class="progress-bar"><div class="fill" style="width:92.8%;background:#eab308;"></div></span> 92.8%</td>
+            <td class="trend up">▲ +8% vs Q1</td>
+          </tr>
+          <tr>
+            <td><strong>Direct Projects</strong></td>
+            <td>—</td>
+            <td>—</td>
+            <td>3 Won</td>
+            <td><span class="status-pct high">✓ On Track</span></td>
+            <td class="trend up">▲ +1 vs Q1</td>
+          </tr>
+          <tr>
+            <td><strong>New Contacts</strong></td>
+            <td>120</td>
+            <td>30</td>
+            <td>28</td>
+            <td><span class="progress-bar"><div class="fill" style="width:93.3%;background:#eab308;"></div></span> 93.3%</td>
+            <td class="trend up">▲ +10 vs Q1</td>
+          </tr>
+          <tr>
+            <td><strong>Consultant Firms</strong></td>
+            <td>20</td>
+            <td>5</td>
+            <td>5</td>
+            <td><span class="status-pct high">100% ✓</span></td>
+            <td class="trend up">▲ +2 vs Q1</td>
+          </tr>
+          <tr>
+            <td><strong>Industrial Parks</strong></td>
+            <td>12</td>
+            <td>3</td>
+            <td>3</td>
+            <td><span class="status-pct high">100% ✓</span></td>
+            <td class="trend flat">— Same</td>
+          </tr>
+          <tr>
+            <td><strong>Active Interactions</strong></td>
+            <td>200</td>
+            <td>50</td>
+            <td>42</td>
+            <td><span class="progress-bar"><div class="fill" style="width:84%;background:#eab308;"></div></span> 84%</td>
+            <td class="trend up">▲ +6 vs Q1</td>
+          </tr>
+          <tr>
+            <td><strong>Weekly Task Completion</strong></td>
+            <td>—</td>
+            <td>≥ 85%</td>
+            <td>80.6%</td>
+            <td><span class="progress-bar"><div class="fill" style="width:80.6%;background:#eab308;"></div></span> 80.6%</td>
+            <td class="trend up">▲ +5% vs Q1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- === Executive Summary === -->
+  <div class="summary-section">
+    <h3>📝 Executive Summary</h3>
+    <p>
+      <strong>Q2 2026 Performance Overview:</strong><br><br>
+      • <span class="highlight">Company Revenue</span> reached <span class="green-text">315M VND</span> (90% of Q2 target, +12% vs Q1).<br>
+      • <span class="highlight">S&M Dept</span> contributed <span class="green-text">58M VND</span> (92.8% of target), <span class="red-text">short 4.5M from goal</span>.<br>
+      • <span class="highlight">3 projects won</span> this quarter (+1 vs Q1) with total est. value of <span class="green-text">185B VND</span> in pipeline.<br>
+      • <span class="highlight">28 new contacts</span> established (5 consultant firms, 3 industrial parks) — best quarter so far.<br>
+      • <span class="highlight">Weekly task completion</span> averaged <span class="green-text">80.6%</span>, <span class="red-text">still below the 85% target</span>.<br><br>
+      <strong>⚠️ Key Risks:</strong> Revenue is 10% below Q2 target — need to accelerate in Q3 to hit annual goal of 1.4B.<br>
+      <strong>✅ Bright Spots:</strong> New contact acquisition is strong (+10 vs Q1), and bid pipeline is healthy at 18 total.
+    </p>
+  </div>
+
+  <!-- === What This Report Can Do (Feature Overview) === -->
+  <div class="table-section">
+    <div class="table-card">
+      <h3>🔧 Proposed Features for the Quarter Report Agent</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Feature</th>
+            <th>Data Source</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><strong>Auto-consolidate 13 weekly reports</strong> into quarterly summary</td>
+            <td>Weekly Report (W14-W26)</td>
+            <td>📊 Completion rate per person/week/month</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>KPI vs Target comparison</strong></td>
+            <td>Plan 2026 + Q2 Result</td>
+            <td>🎯 Achievement % with color coding</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>Bid pipeline analysis</strong></td>
+            <td>Bid Tracking module</td>
+            <td>🏗️ Status breakdown (Won/Bidding/Following)</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>Revenue trend chart</strong> (monthly)</td>
+            <td>KPI data + manual input</td>
+            <td>📈 Monthly bar chart with target line</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><strong>Team performance comparison</strong></td>
+            <td>Weekly Report (per user)</td>
+            <td>👥 Tony vs Quoc vs Huong task completion</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><strong>Auto-generated Executive Summary</strong></td>
+            <td>All data sources</td>
+            <td>📝 Narrative with highlights & risks</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><strong>Export to PDF / Print</strong></td>
+            <td>—</td>
+            <td>📄 One-click printable report</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><strong>Quarter-over-Quarter comparison</strong></td>
+            <td>Q1 & Q2 data</td>
+            <td>📊 QoQ trend arrows (▲/▼)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print Preview</button>
+    <button class="btn btn-primary" onclick="alert('This is a demo layout preview. The actual Quarter Report Agent will auto-generate this from your BMS data.')">✅ Confirm Layout — Build This</button>
+  </div>
+
+  <!-- Footer note -->
+  <div style="text-align:center;padding:24px 0;color:var(--text2);font-size:12px;">
+    📌 This is a <strong>layout demo</strong> showing how the Quarter Report would look.<br>
+    The actual agent would auto-pull from your Weekly Reports, Bid Tracking, and KPI data to generate this dynamically.
+  </div>
+</div>
+
+<script>
+  // Demo animation — subtle bar entrance
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.bar, .progress-bar .fill, .mini-bar').forEach(function(el, i){
+      var h = el.style.height;
+      el.style.height = '0%';
+      setTimeout(function(){ el.style.height = h; }, 100 + i * 40);
+    });
+  });
+</script>
+</body>
+</html>
