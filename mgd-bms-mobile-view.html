@@ -44,6 +44,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 /* Banner */
 .banner{background:linear-gradient(135deg,#3a1d00,#2a1500);border:1px solid var(--org);color:#ffd9b0;border-radius:12px;padding:9px 12px;margin:6px 0;font-size:12px;display:flex;align-items:center;gap:8px}
 .banner.red{background:linear-gradient(135deg,#3a0000,#2a0000);border-color:var(--red);color:#ffb3ae}
+.banner.alarm{background:linear-gradient(135deg,#4a0000,#3a0000);border-color:#ff4444;color:#ff8888;animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:.85}50%{opacity:1}100%{opacity:.85}}
 .banner .msg{flex:1;line-height:1.4}
 .banner .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .banner .tag.ov{background:rgba(248,81,73,.25);color:var(--red)}
@@ -355,9 +357,9 @@ function renderAll(){
   $('#homeGreet').textContent='Overview · '+m+' '+TODAY.getFullYear();
 
   // ── Alerts ──
-  var urgent=[];
+  var urgent=[],alarms=[];
   const activeBids=bids=>bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
-  activeBids(bids).forEach(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);if(dl<0)urgent.push({icon:'📋',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d overdue',cls:'red'});});
+  activeBids(bids).forEach(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);if(dl<0){const daysSinceDue=Math.abs(dl);if(daysSinceDue>14)alarms.push({icon:'🚨',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d',cls:'alarm'});else urgent.push({icon:'📋',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d',cls:'red'});}});
   proj.forEach(p=>{const dl=daysLeft(p.nextActionDate||p.interactionDate);if(dl<0&&!/Completed/i.test(p.status||''))urgent.push({icon:'💬',name:p.customerName||'?',tag:Math.abs(dl)+'d overdue',cls:'red'});});
   chambers.forEach(c=>{const dl=daysLeft(c.attendanceDate);if(dl>0&&dl<=7)urgent.push({icon:'🏛️',name:c.chamberName,tag:dl+'d',cls:''});});
   // Add overdue WR tasks to alerts
@@ -365,8 +367,9 @@ function renderAll(){
   wrOverdue.forEach(t=>{urgent.push({icon:'📑',name:t.name+' ('+t.user+')',tag:Math.abs(t.ov)+'d overdue',cls:'red'});});
   urgent.sort((a,b)=>a.cls===b.cls?0:a.cls?'a':'b').slice(0,8);
 
-  if(urgent.length){
-    $('#alertSection').innerHTML=urgent.slice(0,8).map(x=>'<div class="banner '+(x.cls||'')+'"><span class="msg">'+x.icon+' <b>'+esc(x.name)+'</b></span><span class="tag '+(x.cls==='red'?'ov':'d2')+'">'+esc(x.tag)+'</span></div>').join('');
+  var allAlerts=[].concat(alarms,urgent);
+  if(allAlerts.length){
+    $('#alertSection').innerHTML=allAlerts.slice(0,10).map(x=>'<div class="banner '+(x.cls||'')+'"><span class="msg">'+x.icon+' <b>'+esc(x.name)+'</b></span><span class="tag '+(x.cls==='alarm'?'ov':(x.cls==='red'?'ov':'d2'))+'">'+esc(x.tag)+'</span></div>').join('');
   } else {
     $('#alertSection').innerHTML='<div class="banner" style="border-color:var(--grn);background:linear-gradient(135deg,#0a2a10,#0e1a12);color:#b0ffb0;"><span class="msg">All clear 🎉</span></div>';
   }
@@ -374,10 +377,12 @@ function renderAll(){
   // ── Delay-only Cards ──
   const activeBidsArr=bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
   const bOver=activeBidsArr.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0;}).length;
+  const bAlarmCount=activeBidsArr.filter(b=>{const dl=daysLeft(b.nextActionDate||b.trackDate);return dl<0&&Math.abs(dl)>14;}).length;
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
   const custNewMonth=cust.filter(c=>sameMonth(c.createdDate)).length;
   const interMonth=proj.filter(p=>sameMonth(p.interactionDate)).length;
   $('#statGrid').innerHTML=[
+    '<div class="stat"><div class="h">🚨 Alarms (>14d overdue)</div><div class="big" style="color:'+(bAlarmCount>0?'var(--red)':'var(--grn)')+'">'+bAlarmCount+'</div></div>',
     '<div class="stat"><div class="h">📋 Overdue Bids</div><div class="big" style="color:'+(bOver>0?'var(--red)':'var(--grn)')+'">'+bOver+'</div></div>',
     '<div class="stat"><div class="h">🏛️ Upcoming Chambers</div><div class="big" style="color:'+(chUp>0?'var(--blu)':'var(--mut)')+'">'+chUp+'</div></div>',
     '<div class="stat"><div class="h">👥 New Clients (Month)</div><div class="big" style="color:'+(custNewMonth>0?'var(--org)':'var(--mut)')+'">'+custNewMonth+'</div></div>',
@@ -388,7 +393,8 @@ function renderAll(){
   ].join('');
 
   // Badges
-  $('#b-bids').textContent=bOver>0?bOver:'';$('#b-bids').style.display=bOver>0?'inline':'none';$('#b-bids').className='badge'+(bOver>0?' danger':'');
+  var totalBidBadge=bAlarmCount+bOver;
+  $('#b-bids').textContent=totalBidBadge>0?totalBidBadge:'';$('#b-bids').style.display=totalBidBadge>0?'inline':'none';$('#b-bids').className='badge'+(totalBidBadge>0?' danger':'');
   var chSoon=chambers.filter(c=>daysLeft(c.attendanceDate)>0&&daysLeft(c.attendanceDate)<=7).length;
   $('#b-chamb').textContent=chSoon>0?chSoon:'';$('#b-chamb').style.display=chSoon>0?'inline':'none';$('#b-chamb').className='badge'+(chSoon>0?' warn':'');
   $('#b-weekly').textContent=wrOverdue.length>0?wrOverdue.length:'';$('#b-weekly').style.display=wrOverdue.length>0?'inline':'none';$('#b-weekly').className='badge'+(wrOverdue.length>0?' danger':'');
