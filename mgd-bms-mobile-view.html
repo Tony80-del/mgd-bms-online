@@ -299,15 +299,17 @@ function setConn(s){
 }
 async function initFirebase(){
   APP.db=firebase.firestore();setConn('connecting');
-  // Public Firestore — no auth needed
-  APP.db.collection('bms_data').doc('master').onSnapshot(snap=>{
-    if(snap.exists){APP.data=snap.data().data||{};ensureArrays();setConn('online');renderAll();}
-  },err=>{setConn('err');});
+  // Initial load
   try{
     const snap=await APP.db.collection('bms_data').doc('master').get();
     if(snap.exists){APP.data=snap.data().data||{};ensureArrays();setConn('online');renderAll();}
     else{APP.data={};ensureArrays();setConn('online');renderAll();}
-  }catch(e){setConn('err');}
+  }catch(e){setConn('err');return;}
+  // Real-time listener after initial load
+  var isOnline=true;
+  APP.db.collection('bms_data').doc('master').onSnapshot(snap=>{
+    if(snap.exists&&snap.data()&&snap.data().data){APP.data=snap.data().data;ensureArrays();isOnline=true;setConn('online');renderAll();}
+  },function(){if(!isOnline)setConn('err');});
   // Set initial week
   wrWeekNum=getWeekNumber(TODAY);
   renderWR();
