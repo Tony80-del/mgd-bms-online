@@ -145,6 +145,16 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 
 /* Empty */
 .empty{text-align:center;color:var(--mut);padding:36px 0;font-size:13px;line-height:1.6}
+
+/* WR Overdue Table */
+.wr-otbl{width:100%;border-collapse:collapse;font-size:11px}
+.wr-otbl th{text-align:left;padding:5px 6px;background:var(--panel);color:var(--mut);font-weight:600;position:sticky;top:0}
+.wr-otbl td{padding:5px 6px;border-bottom:1px solid var(--line);color:var(--txt);vertical-align:middle}
+.wr-otbl tr:last-child td{border-bottom:none}
+.wr-otbl .pct{font-weight:600;font-size:10px}
+.wr-otbl .pct0{color:var(--red)}
+.wr-otbl .tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;background:var(--red);color:#fff}
+.wr-otbl .usr{font-size:10px;color:var(--acc);font-weight:600}
 </style>
 </head>
 <body>
@@ -174,6 +184,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
       <div style="font-size:13px;color:var(--mut);margin:6px 0 4px" id="homeGreet"></div>
       <div id="alertSection"></div>
       <div class="statgrid" id="statGrid"></div>
+      <div id="wrOverdueSection" style="margin:12px 0 6px">
+        <div style="font-size:13px;font-weight:600;color:var(--txt);margin-bottom:6px">⚠️ WR Overdue Tasks</div>
+        <div id="wrOverdueTable"></div>
+      </div>
     </div>
   </div>
 
@@ -435,6 +449,29 @@ function renderAll(){
   var chSoon=chambers.filter(c=>daysLeft(c.attendanceDate)>0&&daysLeft(c.attendanceDate)<=7).length;
   $('#b-chamb').textContent=chSoon>0?chSoon:'';$('#b-chamb').style.display=chSoon>0?'inline':'none';$('#b-chamb').className='badge'+(chSoon>0?' warn':'');
   $('#b-weekly').textContent=wrOverdue.length>0?wrOverdue.length:'';$('#b-weekly').style.display=wrOverdue.length>0?'inline':'none';$('#b-weekly').className='badge'+(wrOverdue.length>0?' danger':'');
+
+  // ── WR Overdue Table ──
+  renderWROverdueTable(wrOverdue);
+}
+function renderWROverdueTable(list){
+  var el=$('#wrOverdueTable');
+  if(!list||!list.length){el.innerHTML='<div class="empty" style="padding:10px 0;font-size:12px">All caught up ✅</div>';return;}
+  var lastUser='',rows='';
+  list.forEach(function(t,i){
+    var pct=parseInt(t.pct)||0;
+    var pctCls=pct===0?'pct0':'';
+    var userLabel=(t.userid!==lastUser)?('<span class="usr">'+esc(t.user)+'</span>'):'';
+    lastUser=t.userid;
+    rows+='<tr>'+
+      '<td>'+userLabel+'</td>'+
+      '<td>'+esc(t.name)+'</td>'+
+      '<td>W'+esc(t.week)+'</td>'+
+      '<td class="pct '+pctCls+'">'+pct+'%</td>'+
+      '<td><span class="tag">'+Math.abs(t.ov)+'d</span></td>'+
+    '</tr>';
+  });
+  el.innerHTML='<table class="wr-otbl"><thead><tr><th>Person</th><th>Task</th><th>Week</th><th>%</th><th>Overdue</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div style="font-size:10px;color:var(--mut);text-align:right;padding:4px 6px">'+list.length+' tasks overdue</div>';
 }
 
 function renderScreen(tab){
