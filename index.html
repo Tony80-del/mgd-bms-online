@@ -1437,8 +1437,8 @@ function saveWeeklyReport(){
       return{
         id:idx+1,
         name:t.name||'',
-        planStart:'',
-        planEnd:'',
+        planStart:t.planStart||'',
+        planEnd:t.planEnd||'',
         taskStatus:'In Progress',
         pct:'50',
         noted:t.noted||''
