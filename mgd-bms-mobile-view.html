@@ -27,6 +27,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .topright{display:flex;align-items:center;gap:10px}
 .refbtn{font-size:20px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:.2s;line-height:1}
 .refbtn:active{background:var(--card);transform:scale(.88)}
+.refbtn.spin{animation:spin .6s linear}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1C2330;border:1px solid var(--acc);color:var(--txt);padding:12px 24px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
 .conn{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);white-space:nowrap}
 .conn .led{width:8px;height:8px;border-radius:50%;background:var(--gry)}
 .conn .led.on{background:var(--grn);box-shadow:0 0 6px var(--grn)}
@@ -320,17 +324,29 @@ async function initFirebase(){
   wrWeekNum=getWeekNumber(TODAY);
   renderWR();
 }
+function showToast(t,c){const el=$('#toast');el.textContent=t;el.className='toast show';clearTimeout(el._t);el._t=setTimeout(function(){el.className='toast'},c||1800);}
 function reconnectFirebase(){
+  const btn=document.querySelector('.refbtn');
+  btn.classList.add('spin');
+  showToast('🔄 Refreshing...',9999);
   setConn('connecting');
   if(APP.db){
     APP.db.collection('bms_data').doc('master').get()
       .then(snap=>{
         if(snap.exists){APP.data=snap.data().data||{};ensureArrays();setConn('online');renderAll();renderWR();}
         else{APP.data={};ensureArrays();setConn('online');renderAll();renderWR();}
+        btn.classList.remove('spin');
+        showToast('✓ Updated');
       })
-      .catch(()=>setConn('err'));
+      .catch(function(){
+        setConn('err');
+        btn.classList.remove('spin');
+        showToast('✗ Failed — tap to retry');
+      });
   }else{
     initFirebase();
+    btn.classList.remove('spin');
+    showToast('✓ Updated');
   }
 }
 function ensureArrays(){
