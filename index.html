@@ -1429,12 +1429,10 @@ function saveWeeklyReport(){
   wrUpdateRecordsCount();
   wrShowToast('Week '+wrCurrentWeek+' saved!','success');
 
-  // ===== AUTO CARRY-FORWARD: Copy tasks to next week if empty =====
+  // ===== AUTO CARRY-FORWARD: Always copy tasks to next week on every save =====
   var nextWeek=wrCurrentWeek+1;
   if(nextWeek>52)return; // Don't carry beyond week 52
-  var nextWeekData=data.weeklyReports.users[wrCurrentUser][nextWeek];
-  var nextHasTasks=nextWeekData&&nextWeekData.tasks&&nextWeekData.tasks.length>0;
-  if(!nextHasTasks&&tasks.length>0){
+  if(tasks.length>0){
     var carriedTasks=tasks.map(function(t,idx){
       return{
         id:idx+1,
