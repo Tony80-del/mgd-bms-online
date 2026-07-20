@@ -299,8 +299,7 @@ function setConn(s){
 }
 async function initFirebase(){
   APP.db=firebase.firestore();setConn('connecting');
-  try{await firebase.auth().signInWithEmailAndPassword("tong@mgd.com","MGD2024!");}
-  catch(e){try{await firebase.auth().createUserWithEmailAndPassword("tong@mgd.com","MGD2024!");}catch(e2){}}
+  // Public Firestore — no auth needed
   APP.db.collection('bms_data').doc('master').onSnapshot(snap=>{
     if(snap.exists){APP.data=snap.data().data||{};ensureArrays();setConn('online');renderAll();}
   },err=>{setConn('err');});
