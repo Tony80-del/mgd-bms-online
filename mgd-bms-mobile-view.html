@@ -431,7 +431,7 @@ function renderAll(){
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
   const custNewMonth=cust.filter(c=>sameMonth(c.createdDate)).length;
   const interMonth=proj.filter(p=>sameMonth(p.interactionDate)).length;
-  var wrOverdue=collectOverdueWR();
+  var wrOverdue=collectOverdueWR(wrWeekNum);
   $('#statGrid').innerHTML=[
     '<div class="stat"><div class="h">🚨 Alarms (>7d overdue)</div><div class="big" style="color:'+(bAlarmCount>0?'var(--red)':'var(--grn)')+'">'+bAlarmCount+'</div></div>',
     '<div class="stat"><div class="h">📋 Overdue Bids</div><div class="big" style="color:'+(bOver>0?'var(--red)':'var(--grn)')+'">'+bOver+'</div></div>',
@@ -484,12 +484,13 @@ function renderScreen(tab){
 // ═══════════════════════════════════════════════════════
 //  WEEKLY REPORT HELPERS — reads from Firebase data
 // ═══════════════════════════════════════════════════════
-function collectOverdueWR(){
+function collectOverdueWR(weekFilter){
   var out=[];
   if(!APP.data.weeklyReports)return out;
   WR_USERS.forEach(function(u){
     var weeks=APP.data.weeklyReports.users[u.id]||{};
     Object.keys(weeks).forEach(function(wk){
+      if(weekFilter&&String(wk)!==String(weekFilter))return;
       var wd=weeks[wk];if(!wd||!wd.tasks)return;
       wd.tasks.forEach(function(t){
         if(!t.planEnd)return;
