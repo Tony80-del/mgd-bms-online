@@ -1428,6 +1428,28 @@ function saveWeeklyReport(){
   wrTaskCounter[wrCurrentUser]=tasks.length;
   wrUpdateRecordsCount();
   wrShowToast('Week '+wrCurrentWeek+' saved!','success');
+
+  // ===== AUTO CARRY-FORWARD: Copy tasks to next week if empty =====
+  var nextWeek=wrCurrentWeek+1;
+  if(nextWeek>52)return; // Don't carry beyond week 52
+  var nextWeekData=data.weeklyReports.users[wrCurrentUser][nextWeek];
+  var nextHasTasks=nextWeekData&&nextWeekData.tasks&&nextWeekData.tasks.length>0;
+  if(!nextHasTasks&&tasks.length>0){
+    var carriedTasks=tasks.map(function(t,idx){
+      return{
+        id:idx+1,
+        name:t.name||'',
+        planStart:'',
+        planEnd:'',
+        taskStatus:'In Progress',
+        pct:'50',
+        noted:t.noted||''
+      };
+    });
+    data.weeklyReports.users[wrCurrentUser][nextWeek]={week:nextWeek,tasks:carriedTasks,savedAt:new Date().toISOString()};
+    saveData();
+    wrShowToast('Tasks carried forward to Week '+nextWeek,'info');
+  }
 }
 
 // ===== CLEAR ALL WEEKLY REPORT DATA =====
