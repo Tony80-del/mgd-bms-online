@@ -204,6 +204,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
         <button class="bs" id="btnCsv" onclick="exportCSV()" title="导出CSV" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.293.707l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span id="bcsv">CSV</span></button>
         <button class="bs" id="btnImport" onclick="document.getElementById('importFile').click()" title="导入数据" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg><span id="bi">导入</span></button>
         <button class="bs" id="btnBackup" onclick="backupAll()" title="全部数据备份" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg><span id="bb">备份</span></button>
+        <button class="bs" id="btnCloudVersions" onclick="showCloudSnapshots()" title="云端历史版本" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3zm3 5h10M8 17h8"/></svg><span id="bcv">云版本</span></button>
         <button class="bs" id="btnRestore" onclick="document.getElementById('restoreFile').click()" title="恢复全部数据" style="display:none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg><span id="br">恢复</span></button>
         <input type="file" id="importFile" accept=".json,.xls,.xlsx,.xlsm,.csv,.xml" style="display:none" onchange="importData(event)">
         <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreAll(event)">
@@ -2358,7 +2359,7 @@ function sm(m){
     document.getElementById('bs').style.display='grid';
     document.getElementById('bf').style.display='flex';
     document.querySelector('.tc').style.display='block';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     setBidsFilter(bidsFilter);
     updateStats();
   }else if(m==='customers'){
@@ -2370,33 +2371,33 @@ function sm(m){
     var di=document.getElementById('custDateInput');
     if(di) di.value=custDateFilter;
     document.querySelector('.tc').style.display='block';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else if(m==='chambers'){
     document.getElementById('chf').style.display='flex';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='block';
   }else if(m==='plan2026'){
     document.getElementById('plan2026Section').style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderPlanTracking();
   }else if(m==='q2result'){
     document.getElementById('sum').style.display='none';
     document.getElementById('win123Container').style.display='none';
     document.getElementById('q2resultContainer').style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderQ2Result();
   }else if(m==='weeklyreport'){
     var wrC=document.getElementById('weeklyReportContainer');
     if(wrC)wrC.style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     wrUpdateDisplay();
     wrSwitchUser(wrCurrentUser);
   }else if(m==='projects'){
     document.querySelector('.tc').style.display='block';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else{
     document.querySelector('.tc').style.display='block';
   }
@@ -2806,6 +2807,69 @@ function restoreAll(event){
     }
   };
   reader.readAsText(file);
+}
+
+function showCloudSnapshots(){
+  if(!fauth || !fauth.currentUser && localStorage.getItem('bms_logged_in') !== '1'){
+    wrShowToast('Please login first','error'); return;
+  }
+  // Create modal overlay
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99998;display:flex;align-items:center;justify-content:center;';
+  var box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;color:var(--text);font-size:13px;';
+  box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h3 style="margin:0;font-size:16px;font-weight:700;">☁️ Cloud Snapshots</h3><button onclick="this.closest(\'div[style]\').parentElement.parentElement.remove()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;">✕</button></div><div id="snapshotList" style="min-height:80px;"><p style="color:var(--text2);text-align:center;">Loading snapshots...</p></div>';
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+
+  // Fetch snapshots from Firestore
+  fdb.collection('bms_data').doc('master').collection('snapshots')
+    .orderBy('__name__', 'desc').limit(50).get()
+    .then(function(snap){
+      var list = document.getElementById('snapshotList');
+      if(!list) return;
+      if(snap.empty){
+        list.innerHTML = '<p style="color:var(--text2);text-align:center;padding:20px 0;">No snapshots yet. Save some data first.</p>';
+        return;
+      }
+      var html = '<div style="margin-bottom:8px;font-size:11px;color:var(--text2);">Click a snapshot to restore (will overwrite current data):</div>';
+      snap.forEach(function(docSnap){
+        var ts = docSnap.id;
+        var display = ts.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6');
+        var updatedBy = docSnap.data().updatedBy || 'unknown';
+        html += '<div onclick="restoreFromCloud(\''+ts+'\')" style="padding:10px 14px;margin:4px 0;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:0.15s;" onmouseover="this.style.background=\'var(--accent)\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'var(--bg2)\';this.style.color=\'var(--text)\'">';
+        html += '<span style="font-weight:600;">'+display+'</span>';
+        html += '<span style="font-size:11px;opacity:0.7;">'+updatedBy+'</span>';
+        html += '</div>';
+      });
+      list.innerHTML = html;
+    })
+    .catch(function(e){
+      var list = document.getElementById('snapshotList');
+      if(list) list.innerHTML = '<p style="color:var(--danger);text-align:center;">Error: '+e.message+'</p>';
+    });
+}
+
+function restoreFromCloud(ts){
+  if(!confirm('Restore snapshot '+ts+'?\n\nThis will overwrite ALL current data. Are you sure?')) return;
+  fdb.collection('bms_data').doc('master').collection('snapshots').doc(ts).get()
+    .then(function(docSnap){
+      if(!docSnap.exists){
+        wrShowToast('Snapshot not found','error'); return;
+      }
+      var snapData = docSnap.data().data || docSnap.data();
+      // Write back to master
+      return fdb.collection('bms_data').doc('master').set({ data: snapData, updatedBy: 'restore('+ts+')', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    })
+    .then(function(){
+      wrShowToast('✅ Restored snapshot '+ts.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6'));
+      // Close modal
+      var ov = document.querySelector('div[style*="z-index:99998"]');
+      if(ov) ov.remove();
+    })
+    .catch(function(e){
+      wrShowToast('Restore failed: '+e.message,'error');
+    });
 }
 
 function exportCSV(){
