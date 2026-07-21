@@ -3791,9 +3791,20 @@ window.saveData = function(){
   if(!isLoggedIn) return; // Skip cloud if not logged in
   // Set flag to skip our own listener update
   _isSyncingFromOwnSave = true;
-  // Push to Firebase (async)
-  fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
-    .then(function(){
+  // ===== Auto Snapshot: archive current cloud version before overwriting =====
+  fdb.collection('bms_data').doc('master').get().then(function(docSnap){
+    if(docSnap.exists){
+      // Build readable timestamp: YYYYMMDD_HHmmss, e.g. 20260721_143000
+      var d = new Date();
+      var pad=function(n){return n<10?'0'+n:''+n;};
+      var ts = d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds());
+      // Save current cloud data as snapshot (docs auto-sort by ts lexicographically)
+      return fdb.collection('bms_data').doc('master').collection('snapshots').doc(ts).set(docSnap.data());
+    }
+  }).then(function(){
+    // Push new data to Firebase (async)
+    return fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  }).then(function(){
       cloudStatus = 'synced';
       updateSyncStatus('✅');
     })
