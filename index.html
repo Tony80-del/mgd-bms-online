@@ -3836,14 +3836,12 @@ function listenToCloud(){
       }
       
       // Only update if data is different from local
-      // Only update non-weeklyReports fields (local-storage-driven)
+      // Full sync: accept cloud data (all modules, all users merged)
       var dataClean = JSON.parse(JSON.stringify(data));
       var fbClean = JSON.parse(JSON.stringify(fbData));
       delete dataClean.weeklyReports; delete fbClean.weeklyReports;
       if(JSON.stringify(dataClean) !== JSON.stringify(fbClean)){
-        var localReports = data.weeklyReports;
         data = fbData;
-        if(localReports) data.weeklyReports = localReports;
         _origSave(); // Save to localStorage
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
 
@@ -3865,10 +3863,8 @@ function syncFromCloud(){
     .then(function(doc){
       if(doc.exists && doc.data().data){
         var fbData = doc.data().data;
-        // Preserve local weeklyReports (local-storage-driven)
-        var localReports = data.weeklyReports;
+        // Full sync: accept cloud data (all modules, all users merged)
         data = fbData;
-        if(localReports) data.weeklyReports = localReports;
         _origSave();
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='q2result') renderTable();
         cloudStatus = 'synced';
