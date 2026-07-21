@@ -2359,7 +2359,7 @@ function sm(m){
     document.getElementById('bs').style.display='grid';
     document.getElementById('bf').style.display='flex';
     document.querySelector('.tc').style.display='block';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     setBidsFilter(bidsFilter);
     updateStats();
   }else if(m==='customers'){
@@ -2371,36 +2371,39 @@ function sm(m){
     var di=document.getElementById('custDateInput');
     if(di) di.value=custDateFilter;
     document.querySelector('.tc').style.display='block';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else if(m==='chambers'){
     document.getElementById('chf').style.display='flex';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='block';
   }else if(m==='plan2026'){
     document.getElementById('plan2026Section').style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderPlanTracking();
   }else if(m==='q2result'){
     document.getElementById('sum').style.display='none';
     document.getElementById('win123Container').style.display='none';
     document.getElementById('q2resultContainer').style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderQ2Result();
   }else if(m==='weeklyreport'){
     var wrC=document.getElementById('weeklyReportContainer');
     if(wrC)wrC.style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     wrUpdateDisplay();
     wrSwitchUser(wrCurrentUser);
   }else if(m==='projects'){
     document.querySelector('.tc').style.display='block';
-    ['exportMainBtn','btnCsv','btnImport','btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else{
     document.querySelector('.tc').style.display='block';
   }
+
+  // 全局备份/云版本/恢复按钮在所有模块显示
+  ['btnBackup','btnCloudVersions','btnRestore'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='inline-flex';});
 
   // 更新标题
   const titles={
