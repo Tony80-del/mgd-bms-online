@@ -2834,8 +2834,9 @@ function checkPwAndRun(){
   var err=document.getElementById('pwError');
   if(!inp||!err)return;
   if(inp.value==='MGD2026'){
+    var action=_pendingToolAction;
     removePwOverlay();
-    if(_pendingToolAction){_pendingToolAction();_pendingToolAction=null;}
+    if(action){action();}
   }else{
     err.textContent='❌ 密码错误，请重试';
     inp.value='';
