@@ -1483,49 +1483,64 @@ function wrClearAllData(){
 
 function exportWeeklyReportPDF(){
   initWeeklyReport();
-  var weekData=data.weeklyReports.users[wrCurrentUser][wrCurrentWeek];
-  var tasks=weekData&&weekData.tasks||[];
-  if(tasks.length===0){wrShowToast('No data to export!','error');return;}
   var dates=getWeekDates(wrCurrentWeek);
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:8mm 10mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:12px}h1{color:#1a5f7a;text-align:center;font-size:18px;margin:2px 0}h2{color:#555;border-bottom:1px solid #ddd;padding-bottom:4px;margin:10px 0 4px 0;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:6px;font-size:11px}th{background:#1a5f7a;color:#fff;padding:6px 4px;text-align:left;font-size:11px}td{padding:5px 4px;border-bottom:1px solid #ddd;font-size:11px}.status{padding:3px 6px;border-radius:3px;font-size:10px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:15px;color:#888;font-size:10px}tr{page-break-inside:avoid}</style></head><body>'
+  var allUsers=data.weeklyReports&&data.weeklyReports.users||{};
+  var userKeys=Object.keys(allUsers);
+  // Collect all user data for this week
+  var userSections=[];
+  userKeys.forEach(function(key){
+    var wk=allUsers[key]&&allUsers[key][wrCurrentWeek];
+    var tasks=wk&&wk.tasks||[];
+    if(tasks.length>0) userSections.push({key:key,tasks:tasks});
+  });
+  if(userSections.length===0){wrShowToast('No data to export!','error');return;}
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:8mm 10mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:12px}h1{color:#1a5f7a;text-align:center;font-size:18px;margin:2px 0}h2{color:#555;border-bottom:1px solid #ddd;padding-bottom:4px;margin:10px 0 4px 0;font-size:14px}.user-header{border-bottom:1px solid #88b7d0;padding-bottom:2px;margin:10px 0 3px 0;font-size:14px;color:#1a5f7a;font-weight:700;}table{width:100%;border-collapse:collapse;margin-top:4px;font-size:11px}th{background:#1a5f7a;color:#fff;padding:5px 4px;text-align:left;font-size:10px}td{padding:4px 4px;border-bottom:1px solid #ddd;font-size:10px}.status{padding:2px 5px;border-radius:3px;font-size:9px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:15px;color:#888;font-size:10px}.section{page-break-inside:avoid;margin-bottom:10px;}div.summary{margin-top:10px;margin-bottom:6px;text-align:center;}</style></head><body>';
   html+='<h1>Weekly Report</h1>';
   html+='<p style="text-align:center;color:#666;margin:2px 0 10px 0;">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
-  html+='<h2 style="margin:8px 0 2px 0;font-size:14px;">'+wrUserNames[wrCurrentUser]+' - Business Dept</h2>';
-  html+='<table style="font-size:11px;"><thead><tr><th style="padding:6px 4px;font-size:11px;">#</th><th style="padding:6px 4px;font-size:11px;">Task / Project</th><th style="padding:6px 4px;font-size:11px;">Start</th><th style="padding:6px 4px;font-size:11px;">End</th><th style="padding:6px 4px;font-size:11px;">Days</th><th style="padding:6px 4px;font-size:11px;">%</th><th style="padding:6px 4px;font-size:11px;">Status</th><th style="padding:6px 4px;font-size:11px;">Noted</th></tr></thead><tbody>';
-  tasks.forEach(function(task,idx){
-    var tid=idx+1;
-    var planStart=task.planStart||'-';
-    var planEnd=task.planEnd||'-';
-    var days='-';if(task.planStart&&task.planEnd){var s=new Date(task.planStart);var e=new Date(task.planEnd);days=Math.ceil((e-s)/(1000*60*60*24));}
-    // Use actual pct value, derive status from pct (same logic as page render)
-    var pctVal=task.pct;
-    if(pctVal===undefined||pctVal===null||pctVal==='') pctVal='-';
-    var pctNum=pctVal!=='-'?parseInt(pctVal,10):-1;
-    var exportStatus;
-    if(pctNum===100) exportStatus='Completed';
-    else if(pctNum>=1) exportStatus='In Progress';
-    else exportStatus='Delay';
-    var pctHtml=pctVal!=='-'?pctVal+'%':'-';
-    var statusClass={'In Progress':'progress','Completed':'ontime','Delay':'delayed'}[exportStatus]||'';
-    var statusHtml='<span class="status '+statusClass+'">'+exportStatus+'</span>';
-    html+='<tr><td style="padding:4px 4px;text-align:center;">'+tid+'</td><td style="padding:4px 4px;">'+(task.name||'')+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planStart+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planEnd+'</td><td style="padding:4px 4px;text-align:center;">'+days+'</td><td style="padding:4px 4px;text-align:center;">'+pctHtml+'</td><td style="padding:4px 4px;text-align:center;">'+statusHtml+'</td><td style="padding:4px 4px;font-size:10px;">'+(task.noted||'')+'</td></tr>';
+  var grandComp=0, grandProg=0, grandDelay=0;
+  userSections.forEach(function(sec,si){
+    var tasks=sec.tasks;
+    var userName=wrUserNames[sec.key]||sec.key;
+    html+='<div class="section">';
+    html+='<div class="user-header">'+userName+' - Business Dept</div>';
+    html+='<table><thead><tr><th style="padding:5px 4px;font-size:10px;">#</th><th style="padding:5px 4px;font-size:10px;">Task / Project</th><th style="padding:5px 4px;font-size:10px;">Start</th><th style="padding:5px 4px;font-size:10px;">End</th><th style="padding:5px 4px;font-size:10px;">Days</th><th style="padding:5px 4px;font-size:10px;">%</th><th style="padding:5px 4px;font-size:10px;">Status</th><th style="padding:5px 4px;font-size:10px;">Noted</th></tr></thead><tbody>';
+    tasks.forEach(function(task,idx){
+      var tid=idx+1;
+      var planStart=task.planStart||'-';
+      var planEnd=task.planEnd||'-';
+      var days='-';if(task.planStart&&task.planEnd){var s=new Date(task.planStart);var e=new Date(task.planEnd);days=Math.ceil((e-s)/(1000*60*60*24));}
+      var pctVal=task.pct;
+      if(pctVal===undefined||pctVal===null||pctVal==='') pctVal='-';
+      var pctNum=pctVal!=='-'?parseInt(pctVal,10):-1;
+      var exportStatus;
+      if(pctNum===100) exportStatus='Completed';
+      else if(pctNum>=1) exportStatus='In Progress';
+      else exportStatus='Delay';
+      var pctHtml=pctVal!=='-'?pctVal+'%':'-';
+      var statusClass={'In Progress':'progress','Completed':'ontime','Delay':'delayed'}[exportStatus]||'';
+      var statusHtml='<span class="status '+statusClass+'">'+exportStatus+'</span>';
+      html+='<tr><td style="padding:4px 4px;text-align:center;">'+tid+'</td><td style="padding:4px 4px;">'+(task.name||'')+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planStart+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planEnd+'</td><td style="padding:4px 4px;text-align:center;">'+days+'</td><td style="padding:4px 4px;text-align:center;">'+pctHtml+'</td><td style="padding:4px 4px;text-align:center;">'+statusHtml+'</td><td style="padding:4px 4px;font-size:10px;">'+(task.noted||'')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+    // Per-user summary (compact)
+    var uc=0, up=0, ud=0;
+    tasks.forEach(function(t){
+      var p=t.pct; if(p===undefined||p===null||p===''){ud++;return;}
+      var n=parseInt(p,10); if(isNaN(n)){ud++;return;}
+      if(n===100) uc++; else if(n>=1) up++; else ud++;
+    });
+    grandComp+=uc; grandProg+=up; grandDelay+=ud;
+    html+='<div class="summary" style="font-size:10px;color:#666;">Completed: '+uc+', In Progress: '+up+', Delay: '+ud+'</div>';
+    html+='</div>';
   });
-  html+='</tbody></table>';
-  // --- Status Summary ---
-  var compCount=0, progCount=0, delayCount=0;
-  tasks.forEach(function(t){
-    var p=t.pct; if(p===undefined||p===null||p===''){delayCount++;return;}
-    var n=parseInt(p,10);
-    if(isNaN(n)){delayCount++;return;}
-    if(n===100) compCount++;
-    else if(n>=1) progCount++;
-    else delayCount++;
-  });
-  html+='<div style="margin-top:12px;display:flex;gap:12px;justify-content:center;">';
-  html+='<div style="background:#e8f5e9;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#2e7d32;">'+compCount+'</div><div style="font-size:10px;color:#558b2f;">Completed</div></div>';
-  html+='<div style="background:#fff9c4;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#f57f17;">'+progCount+'</div><div style="font-size:10px;color:#f9a825;">In Progress</div></div>';
-  html+='<div style="background:#ffebee;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#c62828;">'+delayCount+'</div><div style="font-size:10px;color:#e53935;">Delay</div></div>';
-  html+='</div>';
+  // Grand total summary
+  html+='<div style="border-top:2px solid #1a5f7a;margin-top:8px;padding-top:8px;">';
+  html+='<p style="text-align:center;font-size:13px;font-weight:700;color:#1a5f7a;margin:0 0 8px 0;">All Users Summary</p>';
+  html+='<div style="display:flex;gap:12px;justify-content:center;">';
+  html+='<div style="background:#e8f5e9;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#2e7d32;">'+grandComp+'</div><div style="font-size:10px;color:#558b2f;">Completed</div></div>';
+  html+='<div style="background:#fff9c4;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#f57f17;">'+grandProg+'</div><div style="font-size:10px;color:#f9a825;">In Progress</div></div>';
+  html+='<div style="background:#ffebee;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#c62828;">'+grandDelay+'</div><div style="font-size:10px;color:#e53935;">Delay</div></div>';
+  html+='</div></div>';
   html+='<div class="footer">Generated on '+new Date().toLocaleString()+' &middot; MGD Business Management System</div>';
   html+='</body></html>';
   var win=window.open('','_blank');
