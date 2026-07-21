@@ -1511,6 +1511,21 @@ function exportWeeklyReportPDF(){
     html+='<tr><td style="padding:4px 4px;text-align:center;">'+tid+'</td><td style="padding:4px 4px;">'+(task.name||'')+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planStart+'</td><td style="padding:4px 4px;text-align:center;font-size:10px;">'+planEnd+'</td><td style="padding:4px 4px;text-align:center;">'+days+'</td><td style="padding:4px 4px;text-align:center;">'+pctHtml+'</td><td style="padding:4px 4px;text-align:center;">'+statusHtml+'</td><td style="padding:4px 4px;font-size:10px;">'+(task.noted||'')+'</td></tr>';
   });
   html+='</tbody></table>';
+  // --- Status Summary ---
+  var compCount=0, progCount=0, delayCount=0;
+  tasks.forEach(function(t){
+    var p=t.pct; if(p===undefined||p===null||p===''){delayCount++;return;}
+    var n=parseInt(p,10);
+    if(isNaN(n)){delayCount++;return;}
+    if(n===100) compCount++;
+    else if(n>=1) progCount++;
+    else delayCount++;
+  });
+  html+='<div style="margin-top:12px;display:flex;gap:12px;justify-content:center;">';
+  html+='<div style="background:#e8f5e9;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#2e7d32;">'+compCount+'</div><div style="font-size:10px;color:#558b2f;">Completed</div></div>';
+  html+='<div style="background:#fff9c4;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#f57f17;">'+progCount+'</div><div style="font-size:10px;color:#f9a825;">In Progress</div></div>';
+  html+='<div style="background:#ffebee;padding:8px 16px;border-radius:8px;text-align:center;min-width:80px;"><div style="font-size:20px;font-weight:700;color:#c62828;">'+delayCount+'</div><div style="font-size:10px;color:#e53935;">Delay</div></div>';
+  html+='</div>';
   html+='<div class="footer">Generated on '+new Date().toLocaleString()+' &middot; MGD Business Management System</div>';
   html+='</body></html>';
   var win=window.open('','_blank');
