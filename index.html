@@ -1499,14 +1499,14 @@ function exportWeeklyReportPDF(){
     if(tasks.length>0) userSections.push({key:key,tasks:tasks});
   });
   if(userSections.length===0){wrShowToast('No data to export!','error');return;}
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:7mm 8mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:11px}h1{color:#1a5f7a;text-align:center;font-size:17px;margin:2px 0;letter-spacing:1px}.user-header{color:#1a5f7a;font-size:12px;font-weight:700;margin:8px 0 2px 0;padding-bottom:1px;border-bottom:1px solid #88b7d0}table{width:100%;border-collapse:collapse;font-size:9px}th{background:#1a5f7a;color:#fff;padding:3px 2px;text-align:center;font-size:8px;white-space:nowrap}td{padding:2px 2px;border-bottom:1px solid #eee;text-align:center;font-size:8px;white-space:nowrap}.status{padding:1px 3px;border-radius:2px;font-size:7px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:12px;color:#888;font-size:8px}</style></head><body>';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:7mm 8mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:11px}h1{color:#1a5f7a;text-align:center;font-size:17px;margin:2px 0;letter-spacing:1px}.user-header{color:#1a5f7a;font-size:12px;font-weight:700;margin:8px 0 2px 0;padding-bottom:1px;border-bottom:1px solid #88b7d0}table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:9px}th{background:#1a5f7a;color:#fff;padding:3px 2px;text-align:center;font-size:8px;white-space:nowrap}td{padding:2px 2px;border-bottom:1px solid #eee;text-align:center;font-size:8px;white-space:nowrap}.status{padding:1px 3px;border-radius:2px;font-size:7px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:12px;color:#888;font-size:8px}</style></head><body>';
   html+='<h1>Weekly Report</h1>';
   html+='<p style="text-align:center;color:#666;margin:1px 0 6px 0;font-size:10px;">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
   userSections.forEach(function(sec){
     var tasks=sec.tasks;
     var userName=wrUserNames[sec.key]||sec.key;
     html+='<div class="user-header">'+userName+' - Business Dept</div>';
-    html+='<table><thead><tr><th>#</th><th style="text-align:left;padding:3px 4px;">Task / Project</th><th>Start</th><th>End</th><th>Days</th><th>%</th><th>Status</th><th>Noted</th></tr></thead><tbody>';
+    html+='<table><colgroup><col style="width:16px;"><col><col style="width:60px;"><col style="width:60px;"><col style="width:24px;"><col style="width:20px;"><col style="width:60px;"><col></colgroup><thead><tr><th>#</th><th style="text-align:left;padding:3px 4px;">Task / Project</th><th>Start</th><th>End</th><th>Days</th><th>%</th><th>Status</th><th>Noted</th></tr></thead><tbody>';
     tasks.forEach(function(task,idx){
       var tid=idx+1;
       var planStart=task.planStart||'-';
@@ -1522,7 +1522,7 @@ function exportWeeklyReportPDF(){
       var pctHtml=pctVal!=='-'?pctVal+'%':'-';
       var statusClass={'In Progress':'progress','Completed':'ontime','Delay':'delayed'}[exportStatus]||'';
       var statusHtml='<span class="status '+statusClass+'">'+exportStatus+'</span>';
-      html+='<tr><td style="width:14px;">'+tid+'</td><td style="text-align:left;padding:2px 4px;">'+(task.name||'')+'</td><td>'+planStart+'</td><td>'+planEnd+'</td><td>'+days+'</td><td>'+pctHtml+'</td><td>'+statusHtml+'</td><td>'+(task.noted||'')+'</td></tr>';
+      html+='<tr><td>'+tid+'</td><td style="text-align:left;padding:2px 4px;">'+(task.name||'')+'</td><td>'+planStart+'</td><td>'+planEnd+'</td><td>'+days+'</td><td>'+pctHtml+'</td><td>'+statusHtml+'</td><td>'+(task.noted||'')+'</td></tr>';
     });
     html+='</tbody></table>';
   });
