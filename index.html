@@ -2866,8 +2866,11 @@ function backupAll(){
   a.download = 'BMS_Full_Backup_' + date + '.json';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
+  // don't revoke immediately - browser needs time to start download
+  setTimeout(function(){
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }, 1000);
   alert(t('es'));
 }
 
