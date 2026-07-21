@@ -1487,6 +1487,12 @@ function exportWeeklyReportPDF(){
   var allUsers=data.weeklyReports&&data.weeklyReports.users||{};
   var userKeys=Object.keys(allUsers);
   // Collect all user data for this week
+  // Sort: Tony first, then others alphabetically
+  userKeys.sort(function(a,b){
+    if(a==='tony') return -1;
+    if(b==='tony') return 1;
+    return a.localeCompare(b);
+  });
   var userSections=[];
   userKeys.forEach(function(key){
     var wk=allUsers[key]&&allUsers[key][wrCurrentWeek];
