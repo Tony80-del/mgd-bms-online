@@ -1530,7 +1530,6 @@ function exportWeeklyReportPDF(){
       if(n===100) uc++; else if(n>=1) up++; else ud++;
     });
     grandComp+=uc; grandProg+=up; grandDelay+=ud;
-    html+='<div class="summary" style="font-size:10px;color:#666;">Completed: '+uc+', In Progress: '+up+', Delay: '+ud+'</div>';
     html+='</div>';
   });
   // Grand total summary
