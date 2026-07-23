@@ -967,45 +967,24 @@ function renderQuarterly(){
   var qd=data.quarterly[q]||{actual:{},qTarget:{},notes:{}};
   var ac=qd.actual||{};
 
-  // Quarter month filter
   var qMonths={Q1:{mn:1,mx:3,label:'Jan-Mar'},Q2:{mn:4,mx:6,label:'Apr-Jun'},Q3:{mn:7,mx:9,label:'Jul-Sep'},Q4:{mn:10,mx:12,label:'Oct-Dec'}};
   var qm=qMonths[q]||qMonths.Q1;
   var pf='qr_'+q+'_';
 
-  // --- Helper functions ---
   function pctColor(p){if(p>=100)return'#10b981';if(p>=70)return'#f59e0b';return'#ef4444';}
   function pctText(p){return p>=100?(isZh?'达标':'On Track'):p>=70?(isZh?'接近':'Close'):(isZh?'落后':'Behind');}
   function pctBadge(v,tgt){
     var vp=parseFloat(v),tp=parseFloat((''+tgt).replace(/,/g,''));
-    if(isNaN(vp)||isNaN(tp)||tp<=0)return'<span style="font-size:9px;color:var(--text2);background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">—</span>';
+    if(isNaN(vp)||isNaN(tp)||tp<=0)return'<span style="font-size:9px;color:var(--text2);background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">--</span>';
     var p=Math.round(vp/tp*100);
     return'<span style="font-size:9px;color:'+pctColor(p)+';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">'+pctText(p)+'</span>';
   }
-  function mrow(label,v,tgt,unit){
-    unit=unit||'';var vp=parseFloat(v),tp=parseFloat((''+tgt).replace(/,/g,''));
-    var pct=(!isNaN(vp)&&!isNaN(tp)&&tp>0)?Math.round(vp/tp*100):null;
-    var pctC=pct!==null?pctColor(pct):'var(--text2)';
-    var pctBar=pct!==null?'<div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:6px"><div style="height:4px;width:'+Math.min(100,pct)+'%;background:'+pctC+';border-radius:2px"></div></div><span style="font-size:9px;color:'+pctC+'">'+pct+'%</span>':'<span style="font-size:9px;color:var(--text2)">—</span>';
-    return'<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between">'+
-        '<span style="font-size:11px;color:var(--text2)">'+label+'</span>'+
-        '<span style="font-size:13px;font-weight:700;color:var(--text1)">'+v+unit+'<span style="font-size:10px;color:var(--text2);margin-left:4px"> / '+tgt+unit+'</span></span>'+
-      '</div>'+pctBar+'</div>';
-  }
-  function bign(v,unit,label,id){
-    var inp="<input type=\"number\" id=\""+id+"\" value=\""+v+"\" min=\"0\" step=\"0.1\" style=\"width:80px;font-size:22px;font-weight:800;color:var(--text1);background:transparent;border:none;border-bottom:2px solid var(--blue);text-align:center;outline:none;padding:0;line-height:1\" onfocus=\"this.style.borderBottomColor='#60a5fa'\" onblur=\"this.style.borderBottomColor='var(--blue)'\">";
-    return'<div style="text-align:center;padding:8px 4px">'+
-      '<div style="font-size:24px;font-weight:800;color:var(--text1);line-height:1">'+inp+'<span style="font-size:11px;font-weight:400;color:var(--text2);margin-left:2px">'+unit+'</span></div>'+
-      '<div style="font-size:10px;color:var(--text2);margin-top:4px">'+label+'</div></div>';
-  }
 
-  // --- Compute metrics for this quarter ---
   var compSales=parseFloat(ac.compSales)||0;
   var smDept=parseFloat(ac.smDept)||0;
   var newContacts=parseFloat(ac.newContacts)||0;
   var interactions=parseFloat(ac.interactions)||0;
 
-  // Chamber activity in this quarter
   var chamberAtt=(data.chambers||[]).filter(function(ch){
     if(!ch.attendanceDate)return false;
     var m=new Date(ch.attendanceDate).getMonth()+1;
@@ -1018,139 +997,306 @@ function renderQuarterly(){
     return m>=qm.mn&&m<=qm.mx&&d>now;
   }).length;
 
-  // Bids in this quarter
   var bidsWonQ=(data.bids||[]).filter(function(b){
     if(!b.trackDate)return false;
     var m=new Date(b.trackDate).getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx&&(b.stage==='中标'||b.stage==='Won');
+    return m>=qm.mn&&m<=qm.mx&&(b.stage==='Won'||b.stage==='中标');
   }).length;
   var totalBids=(data.bids||[]).length;
   var bidsActiveQ=(data.bids||[]).filter(function(b){
     if(!b.trackDate)return false;
     var m=new Date(b.trackDate).getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx&&(b.stage==='投标中'||b.stage==='Bidding');
+    return m>=qm.mn&&m<=qm.mx&&(b.stage==='Bidding'||b.stage==='投标中');
   }).length;
 
-  // Projects/Interactions in this quarter
   var projQ=(data.projects||[]).filter(function(p){
     if(!p.interactionDate||!p.customerName)return false;
     var m=new Date(p.interactionDate).getMonth()+1;
     return m>=qm.mn&&m<=qm.mx;
   }).length;
-  var projCount=(data.projects||[]).filter(function(p){return p.customerName;}).length;
 
-  // Pipeline metrics (live from bids)
   var bidPipeline=(data.bids||[]).reduce(function(a,b){
     if(!b.estValue)return a;
     var sc=(b.stageContent||'').toLowerCase();
     var v=parseFloat((''+b.estValue).replace(/,/g,''))||0;
     if(sc==='bidding'||b.stage==='Bidding')a.bidding+=v;
     if(sc==='following'||b.stage==='Following')a.following+=v;
+    if(sc==='potential')a.potential+=v;
     return a;
-  },{bidding:0,following:0});
-  var totalPipeline=bidPipeline.bidding+bidPipeline.following;
-  var totalPipelineStr=totalPipeline>=1000?((totalPipeline/1000).toFixed(1)+'B'):Math.round(totalPipeline)+'B';
+  },{bidding:0,following:0,potential:0});
+  var totalPipeline=bidPipeline.bidding+bidPipeline.following+bidPipeline.potential;
+  function fmt(b){return b>=1000?((b/1000).toFixed(1)+'B'):(Math.round(b)+'B');}
+  var pipCoverage=1.4>0?((bidPipeline.bidding+bidPipeline.following)/1.4).toFixed(1):'0';
 
-  // PLAN 2026 progress
+  var bidCounts={bidding:0,following:0,potential:0,cancelled:0,won:0};
+  (data.bids||[]).forEach(function(b){
+    var sc=(b.stageContent||'').toLowerCase();
+    if(sc==='bidding'||b.stage==='Bidding')bidCounts.bidding++;
+    else if(sc==='following'||b.stage==='Following')bidCounts.following++;
+    else if(sc==='potential')bidCounts.potential++;
+    else if(sc==='cancelled'||b.stage==='Cancelled')bidCounts.cancelled++;
+    else if(b.stage==='Won'||b.stage==='中标')bidCounts.won++;
+  });
+
   var planData=data.planTracking||[];
   var planTotal=planData.filter(function(p){return p.pct!==undefined&&p.pct!=='';}).length;
   var planPctTotal=planData.reduce(function(s,p){return s+(parseFloat(p.pct)||0);},0);
   var planAvgPct=planTotal>0?Math.round(planPctTotal/planTotal):0;
 
-  // New customers YTD (2026)
+  var custTotal=(data.customers||[]).length;
   var custYTD=(data.customers||[]).filter(function(c){
     if(!c.createdDate)return false;
-    var y=new Date(c.createdDate).getFullYear();
-    return y===2026;
+    return new Date(c.createdDate).getFullYear()===2026;
   }).length;
-  var custTotal=(data.customers||[]).length;
   var custQ=(data.customers||[]).filter(function(c){
     if(!c.createdDate)return false;
     var d=new Date(c.createdDate);
-    var m=d.getMonth()+1,y=d.getFullYear();
-    return y===2026&&m>=qm.mn&&m<=qm.mx;
+    return d.getFullYear()===2026&&(d.getMonth()+1)>=qm.mn&&(d.getMonth()+1)<=qm.mx;
   }).length;
 
-  // --- Render ---
-  var cBase='background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px';
-  var card=function(cls,delay,body){
-    return'<div class="'+cls+'" style="'+cBase+';animation:fadeInUp .3s ease both;animation-delay:'+delay+'s">'+body+'</div>';
-  };
-  var ctitle=function(icon,bg,col,text,badge){
-    return'<div style="font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px">'+
-      '<div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:'+bg+';color:'+col+'">'+icon+'</div>'+
-      '<span style="color:var(--text1)">'+text+'</span>'+
-      (badge?'<span style="margin-left:auto;font-size:10px;color:'+col+'">'+badge+'</span>':'')+'</div>';
-  };
+  var countries={};
+  (data.customers||[]).forEach(function(c){
+    var ct=c.country||'--';countries[ct]=(countries[ct]||0)+1;
+  });
+  var sortedCountries=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
+  var maxCtry=Math.max.apply(null,Object.values(countries));
+  var flagMap={'Vietnam':'VN','China':'CN','Singapore':'SG','Hong Kong':'HK','Taiwan':'TW','Germany':'DE','Malaysia':'MY','Australia':'AU','Japan':'JP','France':'FR','Canada':'CA','Thailand':'TH','Korea':'KR','United Kingdom':'GB','United States':'US','India':'IN','Indonesia':'ID','New Zealand':'NZ','Austria':'AT'};
+
+  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var monthlyCounts={};
+  (data.customers||[]).filter(function(c){
+    if(!c.createdDate)return false;
+    var d=new Date(c.createdDate);
+    return d.getFullYear()===2026&&(d.getMonth()+1)>=qm.mn&&(d.getMonth()+1)<=qm.mx;
+  }).forEach(function(c){
+    var m=new Date(c.createdDate).getMonth();
+    monthlyCounts[m]=(monthlyCounts[m]||0)+1;
+  });
+
+  function inp(id,v,unit){
+    return'<input type="number" id="'+id+'" value="'+(v||'')+'" min="0" step="0.1" style="width:65px;font-size:20px;font-weight:700;color:var(--text1);background:transparent;border:none;border-bottom:2px solid var(--blue);text-align:center;outline:none;padding:0;line-height:1" onfocus="this.style.borderBottomColor=\'#60a5fa\'" onblur="this.style.borderBottomColor=\'var(--blue)\'"><span style="font-size:10px;color:var(--text2);margin-left:2px">'+unit+'</span>';
+  }
+  function tag(text,cls){
+    var cMap={b:'background:#1e3a5f;color:#60a5fa',g:'background:#1a3a2a;color:#34d399',r:'background:#3a1a1a;color:#f87171',a:'background:#3a2a1a;color:#fbbf24',p:'background:#2a1a3a;color:#c084fc',gy:'background:#2a2a2a;color:#9ca3af'};
+    var s=cMap[cls]||cMap.gy;
+    return'<span style="display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500;'+s+'">'+text+'</span>';
+  }
+  function tblRow(cells,isHeader){
+    var tag=isHeader?'th':'td';
+    var sty=isHeader?'font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);padding:6px 10px;border-bottom:1px solid var(--border);background:var(--bg);font-weight:600':'padding:6px 10px;border-bottom:1px solid var(--border);font-size:12px';
+    return'<tr>'+cells.map(function(c){return'<'+tag+' style="'+sty+'">'+c+'</'+tag+'>';}).join('')+'</tr>';
+  }
+  function card(body){
+    return'<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;animation:fadeInUp .3s ease both">'+body+'</div>';
+  }
+  function progressBar(p,color){
+    color=color||pctColor(p);
+    return'<div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:6px 0"><div style="height:100%;width:'+Math.min(100,p)+'%;background:'+color+';border-radius:3px"></div></div>';
+  }
+
+  var hdr=
+    '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;padding:0 2px">'+
+      '<div>'+
+        '<div style="font-size:22px;font-weight:700;letter-spacing:-.3px;color:var(--text1)">MGD '+q+' &middot; 2026</div>'+
+        '<div style="font-size:11px;color:var(--text2);margin-top:2px">'+(isZh?'季度销售报告':'Quarterly Sales Report')+' <span style="display:inline-flex;align-items:center;padding:1px 8px;border-radius:4px;font-size:10px;font-weight:600;background:#1a3a2a;color:#34d399;margin-left:6px">'+qm.label+'</span></div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--text3);text-align:right">BMS live data<br>v4</div>'+
+    '</div>';
+
+  var row1=
+    card(
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'公司营收目标':'Company Sales Target')+'</div>'+
+      '<div style="font-size:24px;font-weight:700;color:var(--text1)">1,400B <span style="font-size:12px;font-weight:400;color:var(--text2)">VND</span></div>'+
+      '<div style="font-size:11px;color:var(--text2);margin-top:4px">'+pctBadge(compSales,1400)+' '+(isZh?'实际':'Actual')+': '+inp(pf+'compSales',compSales,'B')+'</div>'+
+      progressBar(compSales>0?Math.round(compSales/1400*100):0,compSales>=980?'#10b981':compSales>=140?'#f59e0b':'#f87171')
+    )+
+    card(
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'营销部营收目标':'S&M Revenue Target')+'</div>'+
+      '<div style="font-size:24px;font-weight:700;color:var(--text1)">250B <span style="font-size:12px;font-weight:400;color:var(--text2)">VND</span></div>'+
+      '<div style="font-size:11px;color:var(--text2);margin-top:4px">'+pctBadge(smDept,250)+' '+(isZh?'实际':'Actual')+': '+inp(pf+'smDept',smDept,'B')+'</div>'+
+      progressBar(smDept>0?Math.round(smDept/250*100):0,smDept>=175?'#10b981':smDept>=25?'#f59e0b':'#f87171')
+    )+
+    card(
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'活跃管道':'Active Pipeline')+'</div>'+
+      '<div style="font-size:24px;font-weight:700;color:var(--text1)">'+fmt(totalPipeline)+' <span style="font-size:12px;font-weight:400;color:var(--text2)">VND</span></div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px">'+
+        tag((isZh?'投标中':'Bidding')+' '+fmt(bidPipeline.bidding),'b')+
+        tag((isZh?'跟踪':'Following')+' '+fmt(bidPipeline.following),'g')+
+        tag((isZh?'潜在':'Potential')+' '+fmt(bidPipeline.potential),'p')+
+      '</div>'+
+      '<div style="margin-top:6px"><span style="display:inline-flex;align-items:center;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:500;background:#1e3a5f;color:#60a5fa">'+pipCoverage+'×</span> <span style="font-size:10px;color:var(--text2)">'+(isZh?'(投标+跟踪) vs 年度目标':'Bidding+Following vs FY target')+'</span></div>'+
+      '<div style="font-size:9px;color:var(--text3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px">'+(bidCounts.bidding+bidCounts.following+bidCounts.potential)+(isZh?'个有金额的活跃项目':' active projects with amounts')+'</div>'
+    );
+
+  var monthlyStr='';
+  for(var mi=qm.mn-1;mi<qm.mx;mi++){
+    monthlyStr+=monthNames[mi]+' '+(monthlyCounts[mi]||0)+(mi<qm.mx-1?' &middot; ':' ');
+  }
+  var gotMonthly=Object.keys(monthlyCounts).length>0;
+
+  var row2=
+    card(
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'新联系人(YTD)':'New Contacts YTD')+'</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<div style="font-size:28px;font-weight:700;color:#34d399">'+custQ+'</div>'+
+        '<div style="margin-left:auto;font-size:10px;color:#34d399;padding:1px 6px;border-radius:4px;background:#1a3a2a">+'+(custYTD>0?Math.round(custYTD/160*100):0)+'%</div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--text2);margin-top:2px">'+(isZh?'vs 年度目标 160':'vs Annual Target 160')+'</div>'+
+      (gotMonthly?'<div style="font-size:10px;color:var(--text3);margin-top:4px">'+monthlyStr+'</div>':'')+
+      progressBar(custYTD>0?Math.min(100,Math.round(custYTD/160*100)):0,custYTD>=160?'#10b981':'#f59e0b')+
+      '<div style="font-size:9px;color:var(--text3);border-top:1px solid var(--border);padding-top:6px;margin-top:4px">'+(isZh?'源: BMS customers (createdDate)':'Source: BMS customers (createdDate)')+'</div>'
+    )+
+    card(
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'本季中标':'Projects Won ('+q+')')+'</div>'+
+      '<div style="font-size:28px;font-weight:700;color:'+(bidsWonQ>0?'#34d399':'var(--text3)')+'">'+bidsWonQ+'</div>'+
+      '<div style="font-size:10px;color:'+(bidsWonQ>0?'var(--text2)':'var(--text3)')+'">'+(bidsWonQ>0?'':(isZh?'本季暂无中标记录':'No project won in '+qm.label))+'</div>'
+    )+
+    card(
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'商会':'Chambers')+'</div>'+
+      '<div style="font-size:28px;font-weight:700;color:var(--text1)">'+chamberAtt+' '+(isZh?'出席':'Att.')+'</div>'+
+      '<div style="font-size:10px;color:var(--text2)">'+(data.chambers||[]).length+(isZh?'个已登记':' registered')+'</div>'+
+      (chamberUpc>0?'<div style="font-size:10px;color:var(--text3)">'+(chamberUpc)+(isZh?'个即将出席':' upcoming')+'</div>':'')
+    );
+
+  var planHtml='<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:10px">'+(isZh?'计划 2026':'PLAN 2026')+'</div>';
+  var planCatColors={A:'#f59e0b',B:'#f59e0b',C:'#ef4444',D:'#34d399'};
+  planData.forEach(function(p){
+    var pct=parseFloat(p.pct)||0;
+    var col=planCatColors[p.category]||'#60a5fa';
+    planHtml+='<div style="display:flex;align-items:center;gap:8px;margin:3px 0">'+
+      '<span style="font-size:11px;font-weight:500;flex-shrink:0;width:120px;text-align:right;color:var(--text1)">'+p.category+'. '+(p.name||'')+'</span>'+
+      '<div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px"></div></div>'+
+      '<span style="font-size:11px;font-weight:600;width:28px;text-align:right;color:'+col+'">'+pct+'%</span>'+
+    '</div>';
+  });
+  planHtml+='<div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.6">'+
+    '<strong>D.1 Online:</strong> Bid 100% &middot; Customers 100% &middot; Event 100% &middot; Weekly 100% &middot; Q Rep 50% &middot; Sales 100%<br>'+
+    '<strong>D.2 Mobile:</strong> All 5 modules 100%<br>'+
+    '<strong>D.3 Ind. Park:</strong> Input 80% &middot; Land Price 10%'+
+  '</div>';
+  var planSection=card(planHtml);
+
+  var pipGroups={bidding:[],following:[],potential:[],cancelled:[],won:[]};
+  (data.bids||[]).forEach(function(b){
+    var sc=(b.stageContent||'').toLowerCase();
+    if(sc==='bidding'||b.stage==='Bidding')pipGroups.bidding.push(b);
+    else if(sc==='following'||b.stage==='Following')pipGroups.following.push(b);
+    else if(sc==='potential')pipGroups.potential.push(b);
+    else if(sc==='cancelled'||b.stage==='Cancelled')pipGroups.cancelled.push(b);
+    else if(b.stage==='Won'||b.stage==='中标')pipGroups.won.push(b);
+  });
+  var tabKeys=['bidding','following','potential','cancelled'];
+  var tabLabels={'bidding':isZh?'投标中':'Bidding','following':isZh?'跟踪':'Following','potential':isZh?'潜在':'Potential','cancelled':isZh?'已取消':'Cancelled'};
+
+  var pipSections='';
+  tabKeys.forEach(function(k,ki){
+    var items=pipGroups[k];
+    var rows=items.map(function(b){
+      var amt=b.estValue?fmt(parseFloat((''+b.estValue).replace(/,/g,''))||0):'&mdash;';
+      return tblRow(['<strong>'+(b.customerName||'')+'</strong>',b.projectName||'',amt,b.pic||'']);
+    }).join('');
+    var sum=items.reduce(function(s,b){
+      return s+(parseFloat((''+b.estValue).replace(/,/g,''))||0);
+    },0);
+    pipSections+=
+      '<div id="qp'+k+'" style="'+(ki>0?'display:none':'')+'">'+
+        '<table style="width:100%;border-collapse:collapse">'+
+          '<thead>'+tblRow([isZh?'客户':'Client',isZh?'项目':'Project',isZh?'金额':'Amount',isZh?'负责人':'PIC'],true)+'</thead>'+
+          '<tbody>'+(rows||'<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--text3);font-size:12px">'+(isZh?'暂无数据':'No data')+'</td></tr>')+'</tbody>'+
+        '</table>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg);border-top:1px solid var(--border);font-size:12px">'+
+          '<span>'+items.length+' '+(isZh?'个项目':'Projects')+'</span>'+
+          '<span style="font-weight:700">'+fmt(sum)+' VND</span>'+
+        '</div>'+
+      '</div>';
+  });
+
+  var pipTabsHtml='';
+  tabKeys.forEach(function(k,ki){
+    var cnt=pipGroups[k].length;
+    var active=ki===0;
+    pipTabsHtml+='<button class="qptab" onclick="'+
+      "var self=qpt,ql=document.querySelectorAll('.qptab');ql.forEach(function(t){t.style.background='transparent';t.style.color='var(--text2)';t.style.border='1px solid transparent'});"+
+      "self.style.background='var(--blue)';self.style.color='#fff';self.style.border='1px solid var(--blue)';"+
+      "document.querySelectorAll('[id^=qp]').forEach(function(t){t.style.display='none'});"+
+      "document.getElementById('qp"+k+"').style.display='block'"+
+      '" style="padding:4px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid '+(active?'var(--blue)':'transparent')+';background:'+(active?'var(--blue)':'transparent')+';color:'+(active?'#fff':'var(--text2)')+'">'+
+      tabLabels[k]+' <span style="margin-left:3px;font-size:10px;background:rgba(255,255,255,0.15);padding:0 5px;border-radius:8px">'+cnt+'</span></button>';
+  });
+
+  var pipSection=card(
+    '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:10px">'+(isZh?'管道详情':'Pipeline Detail')+'</div>'+
+    '<div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">'+pipTabsHtml+'</div>'+
+    pipSections
+  );
+
+  var countryRows='';
+  sortedCountries.slice(0,11).forEach(function(c,i){
+    var cnt=countries[c];
+    var w=Math.round(cnt/maxCtry*100);
+    var flag=flagMap[c?'🇻🇳':'']?c+' 🇻🇳':c;
+    if(i===0)countryRows+='<div style="display:flex;align-items:center;gap:8px;margin:3px 0">'+
+      '<span style="font-size:12px;font-weight:500;width:90px;flex-shrink:0;text-align:right;color:var(--text1)">'+flag+'</span>'+
+      '<div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:#60a5fa;border-radius:3px"></div></div>'+
+      '<span style="font-size:12px;font-weight:600;width:24px;text-align:right">'+cnt+'</span></div>';
+    else countryRows+='<div style="display:flex;align-items:center;gap:8px;margin:2px 0">'+
+      '<span style="font-size:11px;font-weight:400;width:90px;flex-shrink:0;text-align:right;color:var(--text1)">'+flag+'</span>'+
+      '<div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:#60a5fa;border-radius:2px"></div></div>'+
+      '<span style="font-size:11px;font-weight:500;width:24px;text-align:right">'+cnt+'</span></div>';
+  });
+  var extraCtry=sortedCountries.slice(11).length;
+  var countrySection=card(
+    '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'客户国家分布':'Top Client Countries')+'</div>'+
+    countryRows+
+    (extraCtry>0?'<div style="font-size:10px;color:var(--text3);margin-top:6px">+'+extraCtry+' '+(isZh?'更多国家':'more countries')+'</div>':'')+
+    '<div style="font-size:9px;color:var(--text3);border-top:1px solid var(--border);padding-top:6px;margin-top:4px">'+(isZh?'总计':'Total')+': '+(data.customers||[]).length+' '+(isZh?'个客户':'customers')+'</div>'
+  );
+
+  var activeAmt=bidPipeline.bidding+bidPipeline.following+bidPipeline.potential;
+  var canAmt=0;pipGroups.cancelled.forEach(function(b){canAmt+=parseFloat((''+b.estValue).replace(/,/g,''))||0;});
+  var pipSummaryRows=
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px">'+tag((isZh?'投标中':'Bidding'),'b')+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right">'+bidCounts.bidding+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right;font-weight:600">'+fmt(bidPipeline.bidding)+'</td></tr>'+
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px">'+tag((isZh?'跟踪':'Following'),'g')+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right">'+bidCounts.following+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right;font-weight:600">'+fmt(bidPipeline.following)+'</td></tr>'+
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px">'+tag((isZh?'潜在':'Potential'),'p')+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right">'+bidCounts.potential+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right;font-weight:600">'+fmt(bidPipeline.potential)+'</td></tr>'+
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600">'+(isZh?'活跃合计':'Active Total')+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right;font-weight:600">'+(bidCounts.bidding+bidCounts.following+bidCounts.potential)+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right;font-weight:700">'+fmt(activeAmt)+'</td></tr>'+
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px">'+tag((isZh?'已取消':'Cancelled'),'r')+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right">'+bidCounts.cancelled+'</td><td style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:right">'+fmt(canAmt)+'</td></tr>';
+
+  var pipSummarySection=card(
+    '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px">'+(isZh?'管道汇总':'Pipeline Summary')+'</div>'+
+    '<table style="width:100%;border-collapse:collapse">'+
+      '<thead><tr><th style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);background:var(--bg);font-weight:600;text-align:left">'+(isZh?'分类':'Category')+'</th><th style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);background:var(--bg);font-weight:600;text-align:right">'+(isZh?'数量':'Count')+'</th><th style="padding:4px 10px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);background:var(--bg);font-weight:600;text-align:right">'+(isZh?'金额(B)':'Amt(B)')+'</th></tr></thead>'+
+      '<tbody>'+pipSummaryRows+'</tbody>'+
+    '</table>'+
+    '<div style="font-size:10px;color:var(--text3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px;line-height:1.5">'+
+      '<strong>'+(isZh?'管道覆盖率':'Pipeline coverage')+':</strong> '+pipCoverage+'× '+(isZh?'(投标+跟踪) vs 年度目标':'Bidding+Following vs FY target')+'<br>'+
+      '<strong>'+(isZh?'有金额的项目':'Projects with amounts')+':</strong> '+(data.bids||[]).filter(function(b){return b.estValue;}).length+' / '+(data.bids||[]).length+
+    '</div>'
+  );
+
+  var footer=
+    '<div style="padding:10px 14px;background:var(--card);border-radius:10px;border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:var(--text2);margin-top:12px">'+
+      '<span><strong>'+(isZh?'活跃管道':'Active Pipeline')+':</strong> '+fmt(totalPipeline)+' VND</span>'+
+      '<span style="color:var(--border)">|</span>'+
+      '<span>'+(isZh?'投标中':'Bidding')+' <strong>'+fmt(bidPipeline.bidding)+'</strong></span>'+
+      '<span style="color:var(--border)">|</span>'+
+      '<span>'+(isZh?'跟踪':'Following')+' <strong>'+fmt(bidPipeline.following)+'</strong></span>'+
+      '<span style="color:var(--border)">|</span>'+
+      '<span>'+(isZh?'潜在':'Potential')+' <strong>'+fmt(bidPipeline.potential)+'</strong></span>'+
+      '<span style="color:var(--border)">|</span>'+
+      '<span>'+(isZh?'源: BMS 实时数据':'Source: BMS live data')+'</span>'+
+    '</div>';
 
   container.innerHTML=
-    '<style>.qr-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}</style>'+
+    '<style>.qr-g{display:grid;gap:12px}.qrg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.qrg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:900px){.qrg3,.qrg2{grid-template-columns:1fr}}@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>'+
     '<div class="qr-g">'+
-
-      // Card 1: Summary Dashboard
-      card('s1',0.05,
-        ctitle('📈','rgba(16,185,129,.15)','#10b981',q+' '+(isZh?'概览':'Dashboard'))+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'+
-          '<div style="text-align:center;background:rgba(16,185,129,0.1);border-radius:8px;padding:10px"><div style="font-size:20px;font-weight:800;color:#10b981">'+totalPipelineStr+'</div><div style="font-size:9px;color:var(--text2)">'+(isZh?'管道总额':'Pipeline')+'</div></div>'+
-          '<div style="text-align:center;background:rgba(59,130,246,0.1);border-radius:8px;padding:10px"><div style="font-size:20px;font-weight:800;color:#60a5fa">'+bidsActiveQ+'</div><div style="font-size:9px;color:var(--text2)">'+(isZh?'投标中':'Bidding')+'</div></div>'+
-          '<div style="text-align:center;background:rgba(251,191,36,0.1);border-radius:8px;padding:10px"><div style="font-size:20px;font-weight:800;color:#fbbf24">'+projQ+'</div><div style="font-size:9px;color:var(--text2)">'+(isZh?'互动':'Interact.')+'</div></div>'+
-        '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
-          '<div style="text-align:center;background:rgba(168,85,247,0.1);border-radius:8px;padding:10px"><div style="font-size:20px;font-weight:800;color:#c084fc">'+custQ+'</div><div style="font-size:9px;color:var(--text2)">'+(isZh?q+'新客户':q+' New C.')+'</div></div>'+
-          '<div style="text-align:center;background:rgba(239,68,68,0.1);border-radius:8px;padding:10px"><div style="font-size:20px;font-weight:800;color:#ef4444">'+chamberAtt+'</div><div style="font-size:9px;color:var(--text2)">'+(isZh?'商会出席':'Chamber')+'</div></div>'+
-          '<div style="text-align:center;background:rgba(52,211,153,0.1);border-radius:8px;padding:10px"><div style="font-size:20px;font-weight:800;color:#34d399">'+planAvgPct+'%</div><div style="font-size:9px;color:var(--text2)">'+(isZh?'计划进度':'PLAN')+'</div></div>'+
-        '</div>'
-      )+
-
-      // Card 2: Revenue
-      card('s2',0.1,
-        ctitle('💰','rgba(16,185,129,.15)','#10b981',isZh?'营收目标':'Revenue Target',pctBadge(compSales,1400))+
-        mrow(isZh?'公司年营收':'Company Sales',compSales,'1,400','B VND')+
-        mrow(isZh?'营销部营收':'S&M Dept',smDept,'250','B VND')+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'+bign(compSales,'B',isZh?'公司营收':'Comp.',''+pf+'compSales')+bign(smDept,'B',isZh?'营销部':'S&M',''+pf+'smDept')+'</div>'
-      )+
-
-      // Card 3: Contacts & Interactions
-      card('s3',0.15,
-        ctitle('📋','rgba(59,130,246,.15)','#60a5fa',isZh?'联系 & 互动':'Contacts & Interactions',pctBadge(newContacts,160))+
-        mrow(isZh?'新联系人':'New Contacts',newContacts,'160','')+
-        mrow(isZh?'活跃互动':'Active Interactions',interactions,'600','')+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'+bign(newContacts,'',isZh?'新联系人':'Contacts',''+pf+'newContacts')+bign(interactions,'',isZh?'互动':'Interact.',''+pf+'interactions')+'</div>'
-      )+
-
-      // Card 4: Pipeline & Chamber
-      card('s4',0.2,
-        ctitle('🏗️','rgba(251,191,36,.15)','#fbbf24',isZh?'管道与活动':'Pipeline & Activity','')+
-        mrow(isZh?'投标中管道':'Bidding Pipeline',bidPipeline.bidding>=1000?((bidPipeline.bidding/1000).toFixed(1)+'B'):(Math.round(bidPipeline.bidding)+'B'),'-','')+
-        mrow(isZh?'跟踪管道':'Following Pipeline',bidPipeline.following>=1000?((bidPipeline.following/1000).toFixed(1)+'B'):(Math.round(bidPipeline.following)+'B'),'-','')+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'+
-          bign(chamberAtt,'',isZh?'已出席':'Attended')+bign(chamberUpc,'',isZh?'即将':'Upcoming')+
-        '</div>'
-      )+
-
-      // Card 5: Bid Tracking
-      card('s5',0.25,
-        ctitle('📊','rgba(99,102,241,.15)','#818cf8',isZh?'投标追踪':'Bid Tracking','')+
-        mrow(isZh?'中标':'Won',bidsWonQ,'-','')+
-        mrow(isZh?'投标中':'Bidding',bidsActiveQ,'-','')+
-        mrow(isZh?'总计':'Total',totalBids,'-','')
-      )+
-
-      // Card 6: Customers & PLAN
-      card('s6',0.3,
-        ctitle('👥','rgba(168,85,247,.15)','#c084fc',isZh?'客户与计划':'Customers & Plan','')+
-        mrow(isZh?'新客户 (YTD)':'New Cust (YTD)',custYTD,'-','')+
-        mrow(isZh?'总客户数':'Total Customers',custTotal,'-','')+
-        '<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">'+
-          '<div style="display:flex;align-items:center;justify-content:space-between">'+
-            '<span style="font-size:11px;color:var(--text2)">'+(isZh?'PLAN 2026 进度':'PLAN 2026')+'</span>'+
-            '<span style="font-size:13px;font-weight:700;color:'+pctColor(planAvgPct)+'">'+planAvgPct+'%</span>'+
-          '</div>'+
-          '<div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:6px"><div style="height:6px;width:'+Math.min(100,planAvgPct)+'%;background:'+pctColor(planAvgPct)+';border-radius:3px"></div></div>'+
-        '</div>'
-      )+
-
-    '</div>'; // end qr-g
+      hdr+
+      '<div class="qrg3">'+row1+'</div>'+
+      '<div class="qrg3">'+row2+'</div>'+
+      planSection+
+      pipSection+
+      '<div class="qrg2">'+countrySection+pipSummarySection+'</div>'+
+      footer+
+    '</div>';
 }
 
 function switchQuarter(q){
