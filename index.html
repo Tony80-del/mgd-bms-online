@@ -2859,6 +2859,8 @@ function backupAll(){
     try { backup[key] = JSON.parse(localStorage.getItem(key)); }
     catch(e) { backup[key] = localStorage.getItem(key); }
   }
+  // 嵌入完整系统代码（index.html），万一重装无需再从 GitHub 拉
+  backup._sourceCode = document.documentElement.outerHTML;
   var jsonStr = JSON.stringify(backup, null, 2);
   var blob = new Blob([jsonStr], {type: 'application/json'});
   var a = document.createElement('a');
@@ -2884,10 +2886,23 @@ function restoreAll(event){
       var backup = JSON.parse(e.target.result);
       var count = 0;
       for (var key in backup) {
+        if(key==='_sourceCode') continue; // 代码在恢复数据时不写入 localStorage
         localStorage.setItem(key, JSON.stringify(backup[key]));
         count++;
       }
-      if(confirm('已恢复 ' + count + ' 条数据。页面将刷新以生效。\nRestored ' + count + ' entries. Reload to apply.')){
+      var codeStr = backup._sourceCode;
+      if(codeStr && confirm('已恢复 '+count+' 条数据。\n\n该备份包含系统代码(index.html)。\n是否下载代码文件？(下载后手动替换 GitHub 上的 index.html)\n\nRestored '+count+' entries.\nBackup also contains system code.\nDownload index.html to replace on GitHub?')){
+        // 也存一份到 localStorage 供手动下载
+        localStorage.setItem('_bms_backup_code', codeStr);
+        var blob = new Blob([codeStr], {type: 'text/html;charset=utf-8'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
+      }
+      if(confirm('数据已恢复。页面将刷新以生效。\nData restored. Reload to apply?')){
         location.reload();
       }
     } catch(err) {
