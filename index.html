@@ -1060,7 +1060,7 @@ function renderQuarterly(){
   });
   var sortedCountries=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
   var maxCtry=Math.max.apply(null,Object.values(countries));
-  var flagMap={'Vietnam':'VN','China':'CN','Singapore':'SG','Hong Kong':'HK','Taiwan':'TW','Germany':'DE','Malaysia':'MY','Australia':'AU','Japan':'JP','France':'FR','Canada':'CA','Thailand':'TH','Korea':'KR','United Kingdom':'GB','United States':'US','India':'IN','Indonesia':'ID','New Zealand':'NZ','Austria':'AT'};
+  var flagEmoji={'Vietnam':'🇻🇳','China':'🇨🇳','Singapore':'🇸🇬','Hong Kong':'🇭🇰','Taiwan':'🇹🇼','Germany':'🇩🇪','Malaysia':'🇲🇾','Australia':'🇦🇺','Japan':'🇯🇵','France':'🇫🇷','Canada':'🇨🇦','Thailand':'🇹🇭','Korea':'🇰🇷','United Kingdom':'🇬🇧','United States':'🇺🇸','India':'🇮🇳','Indonesia':'🇮🇩','New Zealand':'🇳🇿','Austria':'🇦🇹'};
 
   var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var monthlyCounts={};
@@ -1234,7 +1234,7 @@ function renderQuarterly(){
   sortedCountries.slice(0,11).forEach(function(c,i){
     var cnt=countries[c];
     var w=Math.round(cnt/maxCtry*100);
-    var flag=flagMap[c?'🇻🇳':'']?c+' 🇻🇳':c;
+    var flag=(flagEmoji[c]||'')+' '+c;
     if(i===0)countryRows+='<div style="display:flex;align-items:center;gap:8px;margin:3px 0">'+
       '<span style="font-size:12px;font-weight:500;width:90px;flex-shrink:0;text-align:right;color:var(--text1)">'+flag+'</span>'+
       '<div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:#60a5fa;border-radius:3px"></div></div>'+
