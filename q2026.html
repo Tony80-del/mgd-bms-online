@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MGD Q2 2026 · Quarterly Sales Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eef0f4;
+  --card:#fff;
+  --border:#e0e2e6;
+  --text:#141517;
+  --t2:#656d78;
+  --t3:#9098a3;
+  --blue:#2266cc;
+  --green:#1e8e3e;
+  --red:#d93025;
+  --amber:#e37400;
+  --purple:#7c3aed;
+  --radius:10px;
+}
+body{font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
+.page{max-width:1280px;margin:0 auto}
+h2{font-size:15px;font-weight:600;margin-bottom:12px;color:var(--text)}
+h2 small{font-weight:400;color:var(--t2);font-size:13px}
+
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;padding:0 2px}
+.hdr-l h1{font-size:26px;font-weight:700;letter-spacing:-.4px}
+.hdr-l .sub{color:var(--t2);font-size:13px;margin-top:2px}
+.hdr-r{font-size:12px;color:var(--t3)}
+
+/* LAYOUTS */
+.grid{display:grid;gap:12px;margin-bottom:12px}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g2{grid-template-columns:1fr 1fr}
+.g2-1{grid-template-columns:2fr 1fr}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+
+/* CARD */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
+.t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.v{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
+.vs{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.sub{font-size:12px;color:var(--t2);margin-top:2px}
+.sm{font-size:11px;color:var(--t3)}
+.bar{height:5px;background:var(--border);border-radius:3px;margin:6px 0;overflow:hidden}
+.bar-f{height:100%;border-radius:3px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}
+.flex{display:flex;align-items:center;gap:8px}
+
+/* BADGE / TAG */
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-b{background:#e8f0fe;color:var(--blue)}
+.tag-g{background:#e6f4ea;color:var(--green)}
+.tag-r{background:#fce8e6;color:var(--red)}
+.tag-a{background:#fef7e0;color:var(--amber)}
+.tag-p{background:#f3e8ff;color:var(--purple)}
+.tag-gy{background:#f2f3f5;color:var(--t2)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;background:var(--bg);font-weight:600;color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.r{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.footer{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-top:1px solid var(--border);font-size:13px}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--t2)}
+.tab.act{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:600}
+
+/* PROGRESS */
+.pr{display:flex;align-items:center;gap:8px;margin:4px 0}
+.pr-l{font-size:12px;font-weight:500;width:130px;flex-shrink:0;text-align:right}
+.pr-b{flex:1;height:5px;background:var(--border);border-radius:3px}
+.pr-f{height:100%;border-radius:3px}
+.pr-p{font-size:12px;font-weight:600;width:32px;text-align:right}
+
+/* CONTACT CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{padding:4px 8px;border-radius:5px;background:var(--bg);font-size:11px;color:var(--t2)}
+
+/* ACROSS ROW */
+.arow{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;margin-bottom:12px}
+
+/* FOOTER */
+.ft{padding:14px 16px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--t2);margin-top:12px}
+
+@media(max-width:900px){.g3,.g4,.g5,.g2-1,.arow{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g3,.g4,.g5,.g2,.g2-1,.arow{grid-template-columns:1fr}body{padding:14px}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ===== HEADER ===== -->
+<div class="hdr">
+  <div class="hdr-l">
+    <h1>MGD Q2 · 2026</h1>
+    <div class="sub">Quarterly Sales Report — realtime BMS data</div>
+  </div>
+  <div class="hdr-r">v1 · 23 Jul 2026</div>
+</div>
+
+<!-- ===== ROW 1: TOP 3 ===== -->
+<div class="grid g3">
+  <div class="card">
+    <div class="t">🎯 Company Sales Target</div>
+    <div class="v">1,400B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="sub">Q2 Actual: <span class="tag tag-r">Not entered</span></div>
+    <div class="bar"><div class="bar-f" style="width:0%;background:var(--border)"></div></div>
+  </div>
+  <div class="card">
+    <div class="t">📈 S&amp;M Revenue Target</div>
+    <div class="v">250B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="sub">Q2 Actual: <span class="tag tag-r">Not entered</span></div>
+    <div class="bar"><div class="bar-f" style="width:0%;background:var(--border)"></div></div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--blue)">
+    <div class="t">🏗️ Active Pipeline</div>
+    <div class="v">4,064B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="sub">Bid 1,400B · Action 719B · Following 1,945B</div>
+    <div class="flex mt-4">
+      <span class="tag tag-b">2.1×</span>
+      <span class="sm">Bid+Action vs 1,000B H1 target</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROW 2: LOW CARDS ===== -->
+<div class="grid g3">
+  <div class="card">
+    <div class="t">👥 New Contacts YTD</div>
+    <div class="flex">
+      <div class="v" style="color:var(--green)">235</div>
+      <div style="margin-left:auto">
+        <span class="tag tag-g">+146.9%</span>
+      </div>
+    </div>
+    <div class="sub">vs Annual Target 160 · Q2 alone: 180 (Apr 107 · May 55 · Jun 18)</div>
+    <div class="bar"><div class="bar-f" style="width:100%;background:var(--green)"></div></div>
+    <div class="sm" style="margin-top:6px;display:flex;gap:12px">
+      <span>Jul MTD: 33</span>
+      <span>2025 total: 57</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="t">✅ Project Won</div>
+    <div class="v" style="color:var(--green)">1</div>
+    <div class="sub"><strong>Treasure Lighting Vietnam</strong> · EVF Plant</div>
+    <div style="font-size:18px;font-weight:700;color:var(--green);margin-top:2px">9B VND</div>
+  </div>
+  <div class="card">
+    <div class="t">📋 Chambers</div>
+    <div class="v">25</div>
+    <div class="sub">Registered contacts in Q2 2026</div>
+  </div>
+</div>
+
+<!-- ===== ROW 3: PLAN 2026 + TEAM ===== -->
+<div class="grid g2">
+  <div class="card">
+    <div class="t">📋 PLAN 2026</div>
+    <div class="pr"><span class="pr-l">A. System Tender</span><div class="pr-b"><div class="pr-f" style="width:46%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">46%</span></div>
+    <div class="pr"><span class="pr-l">B. Build Database</span><div class="pr-b"><div class="pr-f" style="width:50%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">50%</span></div>
+    <div class="pr"><span class="pr-l">C. Training</span><div class="pr-b"><div class="pr-f" style="width:0%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">0%</span></div>
+    <div class="pr"><span class="pr-l">D. BMS System</span><div class="pr-b"><div class="pr-f" style="width:88%;background:var(--green)"></div></div><span class="pr-p" style="color:var(--green)">88%</span></div>
+    <div class="sm mt-8" style="line-height:1.6">
+      <strong>D.1 Online:</strong> Bid 100% · Customers 100% · Event 100% · Weekly 100% · Q Rep 50% · Sales 100%<br>
+      <strong>D.2 Mobile:</strong> All 5 modules 100%<br>
+      <strong>D.3 Ind. Park:</strong> Input 80% · Land Price 10%
+    </div>
+  </div>
+  <div class="card">
+    <div class="t">👤 Team — 3 Sales Engineers</div>
+    <div class="chips">
+      <span class="chip">Tony — MEP Lead</span>
+      <span class="chip">Huong — MEP</span>
+      <span class="chip">Quoc — Civil</span>
+      <span class="chip">Ms Giang — Ext. DPW</span>
+    </div>
+    <div class="mt-12" style="border-top:1px solid var(--border);padding-top:10px">
+      <div class="t" style="text-transform:none;font-size:12px">Weekly Task Completion (W28-31)</div>
+      <div class="pr"><span class="pr-l">Tony</span><div class="pr-b"><div class="pr-f" style="width:72%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">72%</span></div>
+      <div class="pr"><span class="pr-l">Huong</span><div class="pr-b"><div class="pr-f" style="width:39%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">39%</span></div>
+      <div class="pr"><span class="pr-l">Quoc</span><div class="pr-b"><div class="pr-f" style="width:35%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">35%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ROW 4: PIPELINE DETAIL ===== -->
+<div class="card" style="margin-bottom:12px">
+  <div class="t" style="margin-bottom:12px">Pipeline Detail</div>
+
+  <div class="tabs">
+    <button class="tab act" onclick="sw('tab1')">📋 Bid Page <span class="tag tag-gy" style="margin-left:4px">4</span></button>
+    <button class="tab" onclick="sw('tab2')">✅ Action <span class="tag tag-gy" style="margin-left:4px">3</span></button>
+    <button class="tab" onclick="sw('tab3')">📎 Following <span class="tag tag-gy" style="margin-left:4px">11</span></button>
+  </div>
+
+  <!-- Tab 1: Bid Page -->
+  <div id="t1">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Project</th><th>Location</th><th>Stage</th><th class="r">Amount</th><th>PIC</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Sembcorp LMX</strong></td><td>SB LMX</td><td>HCM</td><td><span class="tag tag-a">Reviewing</span></td><td class="r">800B</td><td>Huong</td></tr>
+        <tr><td><strong>Sembcorp RMB</strong></td><td>Loc An</td><td>Dong Nai</td><td><span class="tag tag-p">PQ</span></td><td class="r">600B</td><td>Huong</td></tr>
+        <tr><td><strong>Sembcorp VSIP3 SMS</strong></td><td>Firewall System</td><td>Binh Duong</td><td><span class="tag tag-a">Reviewing</span></td><td class="r">200M</td><td>Tony</td></tr>
+        <tr><td><strong>CTF Invest</strong></td><td>Nhon Trach</td><td>Dong Nai</td><td><span class="tag tag-b">Bidding</span></td><td class="r" style="color:var(--t3)">TBD</td><td>Huong &amp; Tony</td></tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>4 Projects</span><span style="font-weight:700">1,400.2B VND</span></div>
+  </div>
+
+  <!-- Tab 2: Action -->
+  <div id="t2" style="display:none">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Project</th><th>Stage</th><th class="r">Amount</th><th>PIC</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>DPW — SPCT</strong></td><td>Saigon Premier Container Terminal</td><td><span class="tag tag-p">PQ</span></td><td class="r">600B</td><td>Ms Giang</td></tr>
+        <tr><td><strong>Jiasheng Fabrics</strong></td><td>Factory MEP</td><td><span class="tag tag-p">PQ</span></td><td class="r">119B</td><td>Tony</td></tr>
+        <tr><td><strong>Treasure Lighting</strong></td><td>EVF Plant (Phase 2)</td><td><span class="tag tag-p">PQ</span></td><td class="r" style="color:var(--t3)">TBD</td><td>Joe Chen</td></tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>3 Projects</span><span style="font-weight:700">719B VND</span></div>
+  </div>
+
+  <!-- Tab 3: Following -->
+  <div id="t3" style="display:none">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>ROCHDALE SPEARS</strong></td><td>Binh Duong</td><td class="r">763B</td><td>Mr Can</td></tr>
+        <tr><td><strong>Gainwell</strong></td><td>Phase 2</td><td class="r">333B</td><td>Frankly Wu</td></tr>
+        <tr><td><strong>Nameson Holdings</strong></td><td>GTay Ninh</td><td class="r">238B</td><td>Winnie</td></tr>
+        <tr><td><strong>SBS zipper factory</strong></td><td>SBS Co.,Ltd</td><td class="r">232B</td><td>Luke Lam</td></tr>
+        <tr><td><strong>HADAY VIETNAM</strong></td><td>Factory</td><td class="r">159B</td><td>Mr Yen</td></tr>
+        <tr><td><strong>Herchang Plastic</strong></td><td>Factory</td><td class="r">95B</td><td>Luo Yu Sheng</td></tr>
+        <tr><td><strong>JINYI VIETNAM</strong></td><td>Factory</td><td class="r">77B</td><td>Minh Phuong</td></tr>
+        <tr><td><strong>Warehouse fitout</strong></td><td>Global star</td><td class="r">47.7B</td><td>Ms Hạnh</td></tr>
+        <tr><td><strong>Masan</strong></td><td>RBW</td><td class="r" style="color:var(--t3)">—</td><td>Mr Dat</td></tr>
+        <tr><td><strong>IntES / Shinryo</strong></td><td>MEP</td><td class="r" style="color:var(--t3)">—</td><td>Mr Neel</td></tr>
+        <tr><td><strong>Transimex Warehouse</strong></td><td>Port</td><td class="r" style="color:var(--t3)">—</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>11 Projects · 13 in Following tab</span><span style="font-weight:700">1,944.7B VND</span></div>
+  </div>
+</div>
+
+<!-- ===== ROW 5: TOP CLIENTS ===== -->
+<div class="grid g2">
+  <div class="card">
+    <div class="t">🌍 Top Client Countries</div>
+    <div style="margin-top:6px">
+      <div class="pr"><span class="pr-l" style="width:100px">🇻🇳 Vietnam</span><div class="pr-b"><div class="pr-f" style="width:100%;background:var(--blue)"></div></div><span class="pr-p">62</span></div>
+      <div class="pr"><span class="pr-l" style="width:100px">🇨🇳 China</span><div class="pr-b"><div class="pr-f" style="width:92%;background:var(--blue)"></div></div><span class="pr-p">57</span></div>
+      <div class="pr"><span class="pr-l" style="width:100px">🇹🇼 Taiwan</span><div class="pr-b"><div class="pr-f" style="width:48%;background:var(--blue)"></div></div><span class="pr-p">30</span></div>
+      <div class="pr"><span class="pr-l" style="width:100px">🇭🇰 Hong Kong</span><div class="pr-b"><div class="pr-f" style="width:34%;background:var(--blue)"></div></div><span class="pr-p">21</span></div>
+      <div class="pr"><span class="pr-l" style="width:100px">🇩🇪 Germany</span><div class="pr-b"><div class="pr-f" style="width:24%;background:var(--blue)"></div></div><span class="pr-p">15</span></div>
+    </div>
+    <div class="sm mt-8">+ Singapore 13 · Malaysia 9 · Australia, France, Japan, UK, US, Korea, Canada...</div>
+  </div>
+  <div class="card">
+    <div class="t">💡 Non-active Projects</div>
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>GHN Hưng Yên</td><td class="r">150B</td></tr>
+        <tr><td>PROMEA BIOPHARMA</td><td class="r">20B</td></tr>
+        <tr><td>POU CHEN</td><td class="r" style="color:var(--t3)">—</td></tr>
+        <tr><td>ShinYang Metal</td><td class="r" style="color:var(--t3)">—</td></tr>
+        <tr><td>Construction Package</td><td class="r" style="color:var(--t3)">—</td></tr>
+        <tr><td>JING YUAN / Dali / Messer / We Tech / Ready Build</td><td class="r" style="color:var(--t3)">—</td></tr>
+      </tbody>
+    </table>
+    <div class="sm mt-8">Total non-active: 170B VND</div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="ft">
+  <span>🏗️ <strong>Active Pipeline:</strong> 4,063.7B VND</span>
+  <span>·</span>
+  <span>Bid <strong>1,400B</strong></span>
+  <span>·</span>
+  <span>Action <strong>719B</strong></span>
+  <span>·</span>
+  <span>Following <strong>1,945B</strong></span>
+  <span>·</span>
+  <span>Won <strong>9B</strong> (Treasure Lighting)</span>
+  <span>·</span>
+  <span>Source: BMS</span>
+</div>
+
+</div>
+
+<script>
+function sw(id){
+  document.querySelectorAll('[id^="t"]').forEach(t=>t.style.display='none');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('act'));
+  document.getElementById(id).style.display='block';
+  event.target.classList.add('act');
+}
+</script>
+</body>
+</html>
