@@ -24,22 +24,19 @@
 }
 body{font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
 .page{max-width:1280px;margin:0 auto}
-h2{font-size:15px;font-weight:600;margin-bottom:12px;color:var(--text)}
-h2 small{font-weight:400;color:var(--t2);font-size:13px}
 
 /* HEADER */
 .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;padding:0 2px}
 .hdr-l h1{font-size:26px;font-weight:700;letter-spacing:-.4px}
 .hdr-l .sub{color:var(--t2);font-size:13px;margin-top:2px}
 .hdr-r{font-size:12px;color:var(--t3)}
+.tag-q2{display:inline-flex;align-items:center;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;background:#e6f4ea;color:var(--green);margin-left:8px}
 
 /* LAYOUTS */
 .grid{display:grid;gap:12px;margin-bottom:12px}
 .g3{grid-template-columns:1fr 1fr 1fr}
 .g2{grid-template-columns:1fr 1fr}
-.g2-1{grid-template-columns:2fr 1fr}
 .g4{grid-template-columns:repeat(4,1fr)}
-.g5{grid-template-columns:repeat(5,1fr)}
 
 /* CARD */
 .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
@@ -52,6 +49,7 @@ h2 small{font-weight:400;color:var(--t2);font-size:13px}
 .bar-f{height:100%;border-radius:3px}
 .mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}
 .flex{display:flex;align-items:center;gap:8px}
+.data-source{font-size:10px;color:var(--t3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px}
 
 /* BADGE / TAG */
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
@@ -86,14 +84,11 @@ tr:last-child td{border-bottom:none}
 .chips{display:flex;flex-wrap:wrap;gap:4px}
 .chip{padding:4px 8px;border-radius:5px;background:var(--bg);font-size:11px;color:var(--t2)}
 
-/* ACROSS ROW */
-.arow{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;margin-bottom:12px}
-
 /* FOOTER */
 .ft{padding:14px 16px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--t2);margin-top:12px}
 
-@media(max-width:900px){.g3,.g4,.g5,.g2-1,.arow{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.g3,.g4,.g5,.g2,.g2-1,.arow{grid-template-columns:1fr}body{padding:14px}}
+@media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g3,.g4,.g2{grid-template-columns:1fr}body{padding:14px}}
 </style>
 </head>
 <body>
@@ -103,9 +98,9 @@ tr:last-child td{border-bottom:none}
 <div class="hdr">
   <div class="hdr-l">
     <h1>MGD Q2 · 2026</h1>
-    <div class="sub">Quarterly Sales Report — realtime BMS data</div>
+    <div class="sub">Quarterly Sales Report<span class="tag-q2">📅 Jan–Jun 2026</span></div>
   </div>
-  <div class="hdr-r">v1 · 23 Jul 2026</div>
+  <div class="hdr-r">v4 · 23 Jul 2026 · BMS live data</div>
 </div>
 
 <!-- ===== ROW 1: TOP 3 ===== -->
@@ -113,23 +108,30 @@ tr:last-child td{border-bottom:none}
   <div class="card">
     <div class="t">🎯 Company Sales Target</div>
     <div class="v">1,400B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="sub">Q2 Actual: <span class="tag tag-r">Not entered</span></div>
+    <div class="sub">Q2 Actual (Jan–Jun): <span class="tag tag-r">0 VND</span></div>
+    <div class="sub" style="color:var(--t3);font-size:11px">ℹ️ No Q2 sales data entered in BMS quarterly module</div>
     <div class="bar"><div class="bar-f" style="width:0%;background:var(--border)"></div></div>
   </div>
   <div class="card">
-    <div class="t">📈 S&amp;M Revenue Target</div>
+    <div class="t">📈 S&M Revenue Target</div>
     <div class="v">250B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="sub">Q2 Actual: <span class="tag tag-r">Not entered</span></div>
+    <div class="sub">Q2 Actual (Jan–Jun): <span class="tag tag-r">0 VND</span></div>
+    <div class="sub" style="color:var(--t3);font-size:11px">ℹ️ No Q2 sales data entered in BMS quarterly module</div>
     <div class="bar"><div class="bar-f" style="width:0%;background:var(--border)"></div></div>
   </div>
   <div class="card" style="border-left:3px solid var(--blue)">
-    <div class="t">🏗️ Active Pipeline</div>
-    <div class="v">4,064B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="sub">Bid 1,400B · Action 719B · Following 1,945B</div>
-    <div class="flex mt-4">
-      <span class="tag tag-b">2.1×</span>
-      <span class="sm">Bid+Action vs 1,000B H1 target</span>
+    <div class="t">🏗️ Active Pipeline (Q2 snapshot)</div>
+    <div class="v">3,945B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="sub" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+      <span class="tag tag-b">Bidding 1,400B</span>
+      <span class="tag tag-g">Following 1,354B</span>
+      <span class="tag tag-p">Potential 1,191B</span>
     </div>
+    <div class="flex mt-4">
+      <span class="tag tag-b">2.0×</span>
+      <span class="sm">(Bidding+Following) vs 1,400B annual target</span>
+    </div>
+    <div class="data-source">11 active projects with confirmed amounts</div>
   </div>
 </div>
 
@@ -138,35 +140,35 @@ tr:last-child td{border-bottom:none}
   <div class="card">
     <div class="t">👥 New Contacts YTD</div>
     <div class="flex">
-      <div class="v" style="color:var(--green)">235</div>
+      <div class="v" style="color:var(--green)">202</div>
       <div style="margin-left:auto">
-        <span class="tag tag-g">+146.9%</span>
+        <span class="tag tag-g">+254%</span>
       </div>
     </div>
-    <div class="sub">vs Annual Target 160 · Q2 alone: 180 (Apr 107 · May 55 · Jun 18)</div>
-    <div class="bar"><div class="bar-f" style="width:100%;background:var(--green)"></div></div>
-    <div class="sm" style="margin-top:6px;display:flex;gap:12px">
-      <span>Jul MTD: 33</span>
-      <span>2025 total: 57</span>
+    <div class="sub">vs Annual Target 160 · 2025 total: 57</div>
+    <div class="sm" style="line-height:1.5;margin-top:4px">
+      <strong>Q1 (Jan–Mar):</strong> 22 contacts<br>
+      <strong>Q2 (Apr–Jun):</strong> 180 contacts
     </div>
+    <div class="bar"><div class="bar-f" style="width:100%;background:var(--green)"></div></div>
   </div>
   <div class="card">
-    <div class="t">✅ Project Won</div>
-    <div class="v" style="color:var(--green)">1</div>
-    <div class="sub"><strong>Treasure Lighting Vietnam</strong> · EVF Plant</div>
-    <div style="font-size:18px;font-weight:700;color:var(--green);margin-top:2px">9B VND</div>
+    <div class="t">✅ Project Won (Q2)</div>
+    <div class="v" style="color:var(--t3)">0</div>
+    <div class="sub" style="color:var(--t3)">No project won in Jan–Jun 2026</div>
+    <div class="data-source">PROMEA-KCP (9B) — Won 2025, excluded from Q2</div>
   </div>
   <div class="card">
     <div class="t">📋 Chambers</div>
-    <div class="v">25</div>
-    <div class="sub">Registered contacts in Q2 2026</div>
+    <div class="v">23</div>
+    <div class="sub">Registered contacts in 2026</div>
   </div>
 </div>
 
 <!-- ===== ROW 3: PLAN 2026 + TEAM ===== -->
 <div class="grid g2">
   <div class="card">
-    <div class="t">📋 PLAN 2026</div>
+    <div class="t">📋 PLAN 2026 <span class="sm">(BMS planTracking, Q2 snapshot)</span></div>
     <div class="pr"><span class="pr-l">A. System Tender</span><div class="pr-b"><div class="pr-f" style="width:46%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">46%</span></div>
     <div class="pr"><span class="pr-l">B. Build Database</span><div class="pr-b"><div class="pr-f" style="width:50%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">50%</span></div>
     <div class="pr"><span class="pr-l">C. Training</span><div class="pr-b"><div class="pr-f" style="width:0%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">0%</span></div>
@@ -186,83 +188,101 @@ tr:last-child td{border-bottom:none}
       <span class="chip">Ms Giang — Ext. DPW</span>
     </div>
     <div class="mt-12" style="border-top:1px solid var(--border);padding-top:10px">
-      <div class="t" style="text-transform:none;font-size:12px">Weekly Task Completion (W28-31)</div>
-      <div class="pr"><span class="pr-l">Tony</span><div class="pr-b"><div class="pr-f" style="width:72%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">72%</span></div>
-      <div class="pr"><span class="pr-l">Huong</span><div class="pr-b"><div class="pr-f" style="width:39%;background:var(--amber)"></div></div><span class="pr-p" style="color:var(--amber)">39%</span></div>
-      <div class="pr"><span class="pr-l">Quoc</span><div class="pr-b"><div class="pr-f" style="width:35%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">35%</span></div>
+      <div class="t" style="text-transform:none;font-size:12px">Weekly Task Completion</div>
+      <div class="sm" style="color:var(--t3);margin-bottom:6px">W28–31 · Jul 2026 (Q3 data — Q2 weekly reports not entered in BMS)</div>
+      <div class="pr"><span class="pr-l">Tony</span><div class="pr-b"><div class="pr-f" style="width:38%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">38%</span></div>
+      <div class="pr"><span class="pr-l">Huong</span><div class="pr-b"><div class="pr-f" style="width:14%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">14%</span></div>
+      <div class="pr"><span class="pr-l">Quoc</span><div class="pr-b"><div class="pr-f" style="width:0%;background:var(--red)"></div></div><span class="pr-p" style="color:var(--red)">0%</span></div>
     </div>
   </div>
 </div>
 
 <!-- ===== ROW 4: PIPELINE DETAIL ===== -->
 <div class="card" style="margin-bottom:12px">
-  <div class="t" style="margin-bottom:12px">Pipeline Detail</div>
+  <div class="t" style="margin-bottom:12px">Pipeline Detail <span class="sm">· BMS Activated content classification</span></div>
 
   <div class="tabs">
-    <button class="tab act" onclick="sw('tab1')">📋 Bid Page <span class="tag tag-gy" style="margin-left:4px">4</span></button>
-    <button class="tab" onclick="sw('tab2')">✅ Action <span class="tag tag-gy" style="margin-left:4px">3</span></button>
-    <button class="tab" onclick="sw('tab3')">📎 Following <span class="tag tag-gy" style="margin-left:4px">11</span></button>
+    <button class="tab act" onclick="sw('p1')">📋 Bidding<span class="tag tag-b" style="margin-left:4px">4</span></button>
+    <button class="tab" onclick="sw('p2')">📎 Following<span class="tag tag-g" style="margin-left:4px">9</span></button>
+    <button class="tab" onclick="sw('p3')">🟡 Potential<span class="tag tag-gy" style="margin-left:4px">4</span></button>
+    <button class="tab" onclick="sw('p4')">🔴 Cancelled<span class="tag tag-r" style="margin-left:4px">12</span></button>
   </div>
 
-  <!-- Tab 1: Bid Page -->
-  <div id="t1">
-    <table>
-      <thead>
-        <tr><th>Client</th><th>Project</th><th>Location</th><th>Stage</th><th class="r">Amount</th><th>PIC</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>Sembcorp LMX</strong></td><td>SB LMX</td><td>HCM</td><td><span class="tag tag-a">Reviewing</span></td><td class="r">800B</td><td>Huong</td></tr>
-        <tr><td><strong>Sembcorp RMB</strong></td><td>Loc An</td><td>Dong Nai</td><td><span class="tag tag-p">PQ</span></td><td class="r">600B</td><td>Huong</td></tr>
-        <tr><td><strong>Sembcorp VSIP3 SMS</strong></td><td>Firewall System</td><td>Binh Duong</td><td><span class="tag tag-a">Reviewing</span></td><td class="r">200M</td><td>Tony</td></tr>
-        <tr><td><strong>CTF Invest</strong></td><td>Nhon Trach</td><td>Dong Nai</td><td><span class="tag tag-b">Bidding</span></td><td class="r" style="color:var(--t3)">TBD</td><td>Huong &amp; Tony</td></tr>
-      </tbody>
-    </table>
-    <div class="footer"><span>4 Projects</span><span style="font-weight:700">1,400.2B VND</span></div>
-  </div>
-
-  <!-- Tab 2: Action -->
-  <div id="t2" style="display:none">
-    <table>
-      <thead>
-        <tr><th>Client</th><th>Project</th><th>Stage</th><th class="r">Amount</th><th>PIC</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>DPW — SPCT</strong></td><td>Saigon Premier Container Terminal</td><td><span class="tag tag-p">PQ</span></td><td class="r">600B</td><td>Ms Giang</td></tr>
-        <tr><td><strong>Jiasheng Fabrics</strong></td><td>Factory MEP</td><td><span class="tag tag-p">PQ</span></td><td class="r">119B</td><td>Tony</td></tr>
-        <tr><td><strong>Treasure Lighting</strong></td><td>EVF Plant (Phase 2)</td><td><span class="tag tag-p">PQ</span></td><td class="r" style="color:var(--t3)">TBD</td><td>Joe Chen</td></tr>
-      </tbody>
-    </table>
-    <div class="footer"><span>3 Projects</span><span style="font-weight:700">719B VND</span></div>
-  </div>
-
-  <!-- Tab 3: Following -->
-  <div id="t3" style="display:none">
+  <!-- Tab 1: Bidding -->
+  <div id="p1">
     <table>
       <thead>
         <tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>ROCHDALE SPEARS</strong></td><td>Binh Duong</td><td class="r">763B</td><td>Mr Can</td></tr>
-        <tr><td><strong>Gainwell</strong></td><td>Phase 2</td><td class="r">333B</td><td>Frankly Wu</td></tr>
+        <tr><td><strong>Sembcorp LMX</strong></td><td>SB LMX</td><td class="r">800B</td><td>Huong</td></tr>
+        <tr><td><strong>Sembcorp RMB</strong></td><td>Loc An</td><td class="r">600B</td><td>Huong</td></tr>
+        <tr><td><strong>Sembcorp VSIP3 SMS</strong></td><td>Firewall System</td><td class="r">—</td><td>Tony</td></tr>
+        <tr><td><strong>CTF Invest</strong></td><td>Nhon Trach</td><td class="r">—</td><td>Huong &amp; Tony</td></tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>4 Projects</span><span style="font-weight:700">1,400B VND</span></div>
+  </div>
+
+  <!-- Tab 2: Following -->
+  <div id="p2" style="display:none">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>DPW — SPCT</strong></td><td>Saigon Premier Container Terminal</td><td class="r">600B</td><td>Ms Giang</td></tr>
         <tr><td><strong>Nameson Holdings</strong></td><td>GTay Ninh</td><td class="r">238B</td><td>Winnie</td></tr>
         <tr><td><strong>SBS zipper factory</strong></td><td>SBS Co.,Ltd</td><td class="r">232B</td><td>Luke Lam</td></tr>
         <tr><td><strong>HADAY VIETNAM</strong></td><td>Factory</td><td class="r">159B</td><td>Mr Yen</td></tr>
-        <tr><td><strong>Herchang Plastic</strong></td><td>Factory</td><td class="r">95B</td><td>Luo Yu Sheng</td></tr>
-        <tr><td><strong>JINYI VIETNAM</strong></td><td>Factory</td><td class="r">77B</td><td>Minh Phuong</td></tr>
+        <tr><td><strong>JINYI VIETNAM</strong></td><td>Factory</td><td class="r">77B</td><td>—</td></tr>
         <tr><td><strong>Warehouse fitout</strong></td><td>Global star</td><td class="r">47.7B</td><td>Ms Hạnh</td></tr>
-        <tr><td><strong>Masan</strong></td><td>RBW</td><td class="r" style="color:var(--t3)">—</td><td>Mr Dat</td></tr>
-        <tr><td><strong>IntES / Shinryo</strong></td><td>MEP</td><td class="r" style="color:var(--t3)">—</td><td>Mr Neel</td></tr>
-        <tr><td><strong>Transimex Warehouse</strong></td><td>Port</td><td class="r" style="color:var(--t3)">—</td><td>—</td></tr>
+        <tr><td>ShinYang Metal</td><td>TaiYang Metal</td><td class="r">—</td><td>—</td></tr>
+        <tr><td>Transimex</td><td>Warehouse</td><td class="r">—</td><td>—</td></tr>
+        <tr><td>IntES / Shinryo</td><td>MEP</td><td class="r">—</td><td>—</td></tr>
       </tbody>
     </table>
-    <div class="footer"><span>11 Projects · 13 in Following tab</span><span style="font-weight:700">1,944.7B VND</span></div>
+    <div class="footer"><span>9 Projects</span><span style="font-weight:700">1,354B VND</span></div>
+  </div>
+
+  <!-- Tab 3: Potential -->
+  <div id="p3" style="display:none">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>ROCHDALE SPEARS</strong></td><td>Factory</td><td class="r">763B</td><td>Mr Can</td></tr>
+        <tr><td><strong>Gainwell</strong></td><td>Phase 2</td><td class="r">333B</td><td>Frankly Wu</td></tr>
+        <tr><td><strong>Herchang Plastic</strong></td><td>Factory</td><td class="r">95B</td><td>Luo Yu Sheng</td></tr>
+        <tr><td><strong>Treasure Lighting</strong></td><td>EVF Plant (Ph.2)</td><td class="r">—</td><td>Joe Chen</td></tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>4 Projects</span><span style="font-weight:700">1,191B VND</span></div>
+  </div>
+
+  <!-- Tab 4: Cancelled -->
+  <div id="p4" style="display:none">
+    <table>
+      <thead>
+        <tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>GHN Hưng Yên</td><td>GHHY</td><td class="r">150B</td><td class="sm">Cancelled</td></tr>
+        <tr><td>Jiasheng Fabrics</td><td>Factory MEP</td><td class="r">119B</td><td class="sm">Cancelled</td></tr>
+        <tr><td>PROMEA — Leveling Pkg</td><td>PROMEA BIOPHARMACEUTICALS</td><td class="r">20B</td><td class="sm">Cancelled</td></tr>
+        <tr><td>POU CHEN</td><td>Factory</td><td class="r">—</td><td class="sm">Cancelled</td></tr>
+        <tr><td>PROMEA — KCP Design Pkg</td><td>PROMEA BIOPHARMACEUTICALS</td><td class="r">9B</td><td class="sm">Won (2025)</td></tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>12 Projects · 4 with amounts</span><span style="font-weight:700">298B VND <span class="sm">excluded from active pipeline</span></span></div>
   </div>
 </div>
 
-<!-- ===== ROW 5: TOP CLIENTS ===== -->
+<!-- ===== ROW 5: TOP CLIENTS + SUMMARY ===== -->
 <div class="grid g2">
   <div class="card">
-    <div class="t">🌍 Top Client Countries</div>
+    <div class="t">🌍 Top Client Countries <span class="sm">(BMS customers, Q2 snapshot)</span></div>
     <div style="margin-top:6px">
       <div class="pr"><span class="pr-l" style="width:100px">🇻🇳 Vietnam</span><div class="pr-b"><div class="pr-f" style="width:100%;background:var(--blue)"></div></div><span class="pr-p">62</span></div>
       <div class="pr"><span class="pr-l" style="width:100px">🇨🇳 China</span><div class="pr-b"><div class="pr-f" style="width:92%;background:var(--blue)"></div></div><span class="pr-p">57</span></div>
@@ -270,50 +290,52 @@ tr:last-child td{border-bottom:none}
       <div class="pr"><span class="pr-l" style="width:100px">🇭🇰 Hong Kong</span><div class="pr-b"><div class="pr-f" style="width:34%;background:var(--blue)"></div></div><span class="pr-p">21</span></div>
       <div class="pr"><span class="pr-l" style="width:100px">🇩🇪 Germany</span><div class="pr-b"><div class="pr-f" style="width:24%;background:var(--blue)"></div></div><span class="pr-p">15</span></div>
     </div>
-    <div class="sm mt-8">+ Singapore 13 · Malaysia 9 · Australia, France, Japan, UK, US, Korea, Canada...</div>
+    <div class="sm mt-8">+ Singapore 13 · Malaysia 9 · Australia, France, Japan, UK, US, Korea, Canada…</div>
   </div>
   <div class="card">
-    <div class="t">💡 Non-active Projects</div>
-    <table>
+    <div class="t">📊 Pipeline Summary</div>
+    <table style="font-size:13px">
       <thead>
-        <tr><th>Client</th><th>Amount</th></tr>
+        <tr><th>Category</th><th class="r">Count</th><th class="r">Amount (B)</th></tr>
       </thead>
       <tbody>
-        <tr><td>GHN Hưng Yên</td><td class="r">150B</td></tr>
-        <tr><td>PROMEA BIOPHARMA</td><td class="r">20B</td></tr>
-        <tr><td>POU CHEN</td><td class="r" style="color:var(--t3)">—</td></tr>
-        <tr><td>ShinYang Metal</td><td class="r" style="color:var(--t3)">—</td></tr>
-        <tr><td>Construction Package</td><td class="r" style="color:var(--t3)">—</td></tr>
-        <tr><td>JING YUAN / Dali / Messer / We Tech / Ready Build</td><td class="r" style="color:var(--t3)">—</td></tr>
+        <tr><td><span class="tag tag-b">Bidding</span></td><td class="r">4</td><td class="r">1,400</td></tr>
+        <tr><td><span class="tag tag-g">Following</span></td><td class="r">9</td><td class="r">1,354</td></tr>
+        <tr><td><span class="tag tag-gy">Potential</span></td><td class="r">4</td><td class="r">1,191</td></tr>
+        <tr><td><strong>Active Total</strong></td><td class="r"><strong>17</strong></td><td class="r"><strong>3,945</strong></td></tr>
+        <tr><td><span class="tag tag-r">Cancelled</span></td><td class="r">12</td><td class="r">289</td></tr>
+        <tr><td><span class="tag tag-gy">Won (2025)</span></td><td class="r">1</td><td class="r">9</td></tr>
       </tbody>
     </table>
-    <div class="sm mt-8">Total non-active: 170B VND</div>
+    <div class="sm mt-8" style="line-height:1.5">
+      <strong>Projects with amounts:</strong> 11 active · 3 cancelled · 1 won (2025)<br>
+      <strong>Pipeline coverage:</strong> 2.0× (Bidding+Following) vs 1,400B FY target<br>
+      <strong>Q2 actual sales:</strong> 0 VND — not yet recorded in BMS
+    </div>
   </div>
 </div>
 
 <!-- ===== FOOTER ===== -->
 <div class="ft">
-  <span>🏗️ <strong>Active Pipeline:</strong> 4,063.7B VND</span>
+  <span>🏗️ <strong>Active Pipeline:</strong> 3,945B VND</span>
   <span>·</span>
-  <span>Bid <strong>1,400B</strong></span>
+  <span>Bidding <strong>1,400B</strong></span>
   <span>·</span>
-  <span>Action <strong>719B</strong></span>
+  <span>Following <strong>1,354B</strong></span>
   <span>·</span>
-  <span>Following <strong>1,945B</strong></span>
+  <span>Potential <strong>1,191B</strong></span>
   <span>·</span>
-  <span>Won <strong>9B</strong> (Treasure Lighting)</span>
-  <span>·</span>
-  <span>Source: BMS</span>
+  <span>Source: BMS · Q2 snapshot</span>
 </div>
 
 </div>
 
 <script>
 function sw(id){
-  document.querySelectorAll('[id^="t"]').forEach(t=>t.style.display='none');
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('act'));
-  document.getElementById(id).style.display='block';
-  event.target.classList.add('act');
+  document.querySelectorAll('[id^="p"]').forEach(t=>t.style.display="none");
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("act"));
+  document.getElementById(id).style.display="block";
+  event.target.classList.add("act");
 }
 </script>
 </body>
