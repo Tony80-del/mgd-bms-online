@@ -1104,163 +1104,304 @@ function renderQuarterly(){
 
   // ===== BRANCH: Q2 gets full dashboard, Q1/Q3/Q4 get compact =====
   if(q==='Q2'){
-    // ---- q2026-style full dashboard matching q2026.html (snapshot 23 Jul 2026) ----
-    var h='<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;padding:0 2px">'+
-      '<div><div style="font-size:22px;font-weight:700;letter-spacing:-.3px;color:var(--text1)">MGD '+q+' &middot; 2026</div>'+
-      '<div style="font-size:11px;color:var(--text2);margin-top:2px">'+(isZh?'季度销售报告':'Quarterly Sales Report')+' '+
-      '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:#1a3a2a;color:#34d399;margin-left:6px">📅 '+qm.label+' 2026</span></div></div>'+
-      '<div style="font-size:10px;color:var(--text3);text-align:right">BMS live data</div></div>';
+    container.innerHTML=`<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#eef0f4;--card:#fff;--border:#e0e2e6;--text:#141517;--t2:#656d78;--t3:#9098a3;--blue:#2266cc;--green:#1e8e3e;--red:#d93025;--amber:#e37400;--purple:#7c3aed;--radius:10px}
+body{font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
+.q26page{max-width:1280px;margin:0 auto}
+.q26hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;padding:0 2px}
+.hdr-l h1{font-size:26px;font-weight:700;letter-spacing:-.4px}
+.hdr-l .q26sub{color:var(--t2);font-size:13px;margin-top:2px}
+.q26hdr-r{font-size:12px;color:var(--t3)}
+.q26tag-q2{display:inline-flex;align-items:center;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;background:#e6f4ea;color:var(--green);margin-left:8px}
+.q26grid{display:grid;gap:12px;margin-bottom:12px}
+.q26g3{grid-template-columns:1fr 1fr 1fr}.q26g2{grid-template-columns:1fr 1fr}
+.q26card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
+.q26t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.q26v{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
+.q26vs{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.q26sub{font-size:12px;color:var(--t2);margin-top:2px}
+.q26sm{font-size:11px;color:var(--t3)}
+.q26bar{height:5px;background:var(--border);border-radius:3px;margin:6px 0;overflow:hidden}
+.q26bar-f{height:100%;border-radius:3px}
+.q26mt-4{margin-top:4px}.q26mt-8{margin-top:8px}
+.q26flex{display:flex;align-items:center;gap:8px}
+.q26data-source{font-size:10px;color:var(--t3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px}
+.q26tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.q26tag-b{background:#e8f0fe;color:var(--blue)}.q26tag-g{background:#e6f4ea;color:var(--green)}.q26tag-r{background:#fce8e6;color:var(--red)}.q26tag-a{background:#fef7e0;color:var(--amber)}.q26tag-p{background:#f3e8ff;color:var(--purple)}.q26tag-gy{background:#f2f3f5;color:var(--t2)}.q26tag-o{background:#fef3e2;color:#c55600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;background:var(--bg);font-weight:600;color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}.r{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q26footer{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-top:1px solid var(--border);font-size:13px}
+.q26tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.q26tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--t2)}
+.tab.q26act{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:600}
+.q26pr{display:flex;align-items:center;gap:8px;margin:4px 0}
+.q26pr-l{font-size:12px;font-weight:500;width:130px;flex-shrink:0;text-align:right}
+.q26pr-b{flex:1;height:5px;background:var(--border);border-radius:3px}
+.q26pr-f{height:100%;border-radius:3px}.q26pr-p{font-size:12px;font-weight:600;width:32px;text-align:right}
+.q26ft{padding:14px 16px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--t2);margin-top:12px}
+@media(max-width:900px){.q26g3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.q26g3,.q26g2{grid-template-columns:1fr}body{padding:14px}}</style><div class="q26page">
 
-    // Row 1: Revenue + Pipeline (3 cards)
-    var r1=card('<div class="t-sm">🎯 '+(isZh?'公司营收目标':'Company Sales Target (FY 2026)')+'</div>'+
-        '<div class="v">1,400B <span class="v-sm">VND</span></div>'+
-        '<div style="margin-top:4px;font-size:12px;color:var(--text2)">'+pctBadge(compSales,1400)+' '+(isZh?'实际':'Q2 Actual')+': '+inp(pf+'compSales',compSales,'B')+'</div>'+
-        (compSales>0?'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+(isZh?'Q2营收目标':'Q2 FY2026 target')+'</div>':'<div style="font-size:10px;color:var(--text3);margin-top:2px">ℹ️ '+(isZh?'BMS中无季度实际数据':'No quarterly actual data entered')+'</div>')+
-        progressBar(compSales>0?Math.round(compSales/1400*100):0,compSales>=980?'#10b981':compSales>=140?'#f59e0b':'#f87171'))+
-      card('<div class="t-sm">📈 '+(isZh?'营销部营收目标':'S&M Revenue Target (FY 2026)')+'</div>'+
-        '<div class="v">250B <span class="v-sm">VND</span></div>'+
-        '<div style="margin-top:4px;font-size:12px;color:var(--text2)">'+pctBadge(smDept,250)+' '+(isZh?'实际':'Q2 Actual')+': '+inp(pf+'smDept',smDept,'B')+'</div>'+
-        (smDept>0?'':'<div style="font-size:10px;color:var(--text3);margin-top:2px">ℹ️ '+(isZh?'BMS中无季度实际数据':'No quarterly actual data entered')+'</div>')+
-        progressBar(smDept>0?Math.round(smDept/250*100):0,smDept>=175?'#10b981':smDept>=25?'#f59e0b':'#f87171'))+
-      card('<div style="border-left:3px solid var(--blue);padding-left:13px"><div class="t-sm">🏗️ '+(isZh?'活跃管道':'Active Pipeline (Q2 snapshot)')+'</div>'+
-        '<div class="v">'+fmt(totalPipeline)+' <span class="v-sm">VND</span></div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"><span class="tag2 tag-b">'+(isZh?'投标':'Bidding')+' '+fmt(bidPipeline.bidding)+'</span><span class="tag2 tag-g">'+(isZh?'跟踪':'Following')+' '+fmt(bidPipeline.following)+'</span><span class="tag2 tag-o">'+(isZh?'评审':'In Review')+' '+fmt(bidPipeline.potential)+'</span></div>'+
-        '<div style="display:flex;align-items:center;gap:4px;margin-top:6px"><span class="tag2 tag-bl">'+pipCoverage+'x</span> <span style="font-size:10px;color:var(--text2)">'+(isZh?'(投标+跟踪) vs 1,400B年度目标':'(Bidding+Following) vs 1,400B annual target')+'</span></div>'+
-        '<div style="font-size:9px;color:var(--text3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px">'+
-        (data.bids||[]).filter(function(b){return b.estValue;}).length+' '+(isZh?'个有金额确认的活跃项目':'active projects with confirmed amounts')+' · '+(data.bids||[]).length+' '+(isZh?'个项目总数':'total bids')+'</div></div>');
+<!-- ===== HEADER ===== -->
+<div class="q26hdr">
+  <div class="q26hdr-l">
+    <h1>MGD Q2 · 2026</h1>
+    <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 Apr–Jun 2026</span></div>
+  </div>
+  <div class="q26hdr-r">Data: BMS backup 23 Jul 2026 · 22:19</div>
+</div>
 
-    // Row 2: New Contacts + Won + Chambers (3 cards)
-    var mStr=''; for(var mi=qm.mn-1;mi<qm.mx;mi++){mStr+=monthNames[mi]+' '+(monthlyCounts[mi]||0)+(mi<qm.mx-1?' · ':' ');}
-    var gotM=Object.keys(monthlyCounts).length>0;
-    var chamberNames=(data.chambers||[]).map(function(ch){return ch.name||'';}).filter(function(n){return n;});
-    var r2=card('<div class="t-sm">👥 '+(isZh?'新联系人':'New Contacts (Q2 · Apr-Jun)')+'</div>'+
-        '<div style="display:flex;align-items:center"><div class="v" style="color:#34d399">'+custQ+'</div>'+
-        '<div style="margin-left:auto"><span class="tag2 tag-g">'+(isZh?'年度迄今':'YTD')+': '+custYTD+'</span></div></div>'+
-        '<div class="sub">'+(isZh?'年度目标 160':'Annual target: 160')+' · '+(isZh?'2025总计 57':'2025 total: 57')+'</div>'+
-        (gotM?'<div style="font-size:10px;color:var(--text3);line-height:1.5;margin-top:4px"><strong>Apr:</strong> '+(monthlyCounts[3]||0)+' · <strong>May:</strong> '+(monthlyCounts[4]||0)+' · <strong>Jun:</strong> '+(monthlyCounts[5]||0)+'</div>':'')+
-        progressBar(custYTD>0?Math.round(custYTD/160*100):0,custYTD>=160?'#10b981':'#f59e0b')+
-        '<div class="sub-source">'+(isZh?'数据库中':'Database')+': '+(data.customers||[]).length+' '+(isZh?'个客户':'customers')+' · YTD '+(data.customers||[]).filter(function(c){if(!c.createdDate)return false;return new Date(c.createdDate).getFullYear()===2026;}).length+' '+(isZh?'个有2026日期':'with 2026 dates')+'</div>')+
-      card('<div class="t-sm">✅ '+(isZh?'本季中标':'Project Won (Q2)')+'</div>'+
-        '<div class="v" style="color:'+(bidsWonQ>0?'#34d399':'var(--text3)')+'">'+bidsWonQ+'</div>'+
-        '<div class="sub">'+(isZh?'本季度暂无项目中标':'No project won in '+qm.label)+'</div>'+
-        '<div class="sub-source">PROMEA-KCP (9B) — '+(isZh?'2025年度中标':'Won 2025, excluded')+'</div>')+
-      card('<div class="t-sm">📋 '+(isZh?'商会':'Chambers (Q2 active)')+'</div>'+
-        '<div class="v">'+chamberAtt+'</div>'+
-        '<div class="sub">'+(data.chambers||[]).length+' '+(isZh?'个已登记':'registered')+'</div>'+
-        (chamberNames.length>0?'<div style="font-size:9px;color:var(--text3);line-height:1.6;margin-top:4px;max-height:60px;overflow-y:auto">'+chamberNames.join(' · ')+'</div>':'')+
-        '<div class="sub-source">'+(isZh?'活动与会务':'Events and memberships tracked')+'</div>');
+<!-- ===== ROW 1: TOP 3 ===== -->
+<div class="grid g3">
+  <div class="q26card">
+    <div class="q26t">🎯 Company Sales Target (FY 2026)</div>
+    <div class="q26v">1,400B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="q26sub">Q2 Actual: <span class="tag tag-r">0 VND</span></div>
+    <div class="q26sub" style="color:var(--t3);font-size:11px">ℹ️ No quarterly actual data entered in BMS</div>
+    <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
+  </div>
+  <div class="q26card">
+    <div class="q26t">📈 S&M Revenue Target (FY 2026)</div>
+    <div class="q26v">250B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="q26sub">Q2 Actual: <span class="tag tag-r">0 VND</span></div>
+    <div class="q26sub" style="color:var(--t3);font-size:11px">ℹ️ No quarterly actual data entered in BMS</div>
+    <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
+  </div>
+  <div class="q26card" style="border-left:3px solid var(--blue)">
+    <div class="q26t">🏗️ Active Pipeline (Q2 snapshot)</div>
+    <div class="q26v">4,186B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="q26sub" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
+      <span class="tag tag-b">Bidding 170B</span>
+      <span class="tag tag-g">Following 1,897B</span>
+      <span class="tag tag-o">In Review 2,119B</span>
+    </div>
+    <div class="flex mt-4">
+      <span class="tag tag-b">2.1×</span>
+      <span class="q26sm">(Bidding+Following) vs 1,400B annual target</span>
+    </div>
+    <div class="q26data-source">13 active projects with confirmed amounts · 29 total bids</div>
+  </div>
+</div>
 
-    // Row 3: Plan 2026 + Q2 Key Figures (2 columns)
-    // Plan 2026 summary (A/B/C/D categories)
-    var planCC={A:'#f59e0b',B:'#f59e0b',C:'#ef4444',D:'#34d399'};
-    var catPcts={}; var catNames={};
-    planData.forEach(function(p){
-      var cat=p.category||'Z';
-      if(!catPcts[cat]){catPcts[cat]=0;catNames[cat]=[];}
-      catPcts[cat]+=parseFloat(p.pct)||0;
-      catNames[cat].push(p.name||'');
-    });
-    var planH='<div class="t-sm">📋 PLAN 2026 <span style="font-size:10px;color:var(--text3)">· Q2 progress snapshot</span></div>';
-    var catOrder=['A','B','C','D'];
-    catOrder.forEach(function(cat){
-      if(catPcts[cat]!==undefined){
-        var pct=Math.round(catPcts[cat]/catNames[cat].length);
-        var col=planCC[cat]||'#60a5fa';
-        planH+='<div class="pr-row" style="margin:4px 0"><span class="pr-l" style="width:130px;font-size:12px">'+({'A':'A. System Tender','B':'B. Build Database','C':'C. Training','D':'D. BMS System'}[cat]||cat+'. '+catNames[cat][0])+'</span>'+
-          '<div class="pr-bar"><div class="pr-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
-          '<span class="pr-pct" style="color:'+col+'">'+pct+'%</span></div>';
-      }
-    });
-    planH+='<div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.6">'+
-      '<strong>D.1 Online:</strong> Bid 100% · Customers 100% · Event 100% · Weekly 100% · Q Rep 50% · Sales 100%<br>'+
-      '<strong>D.2 Mobile:</strong> All 5 modules 100%<br>'+
-      '<strong>D.3 Ind. Park:</strong> Input 80% · Land Price 10%</div>';
-    var planSec=card(planH);
+<!-- ===== ROW 2: Q2 SPECIFIC CARDS ===== -->
+<div class="grid g3">
+  <div class="q26card">
+    <div class="q26t">👥 New Contacts (Q2 · Apr–Jun)</div>
+    <div class="q26flex">
+      <div class="q26v" style="color:var(--green)">180</div>
+      <div style="margin-left:auto"><span class="tag tag-g">YTD: 252</span></div>
+    </div>
+    <div class="q26sub">Annual target: 160 · 2025 total: 57</div>
+    <div class="q26sm" style="line-height:1.5;margin-top:4px">
+      <strong>Apr:</strong> 107 · <strong>May:</strong> 55 · <strong>Jun:</strong> 18
+    </div>
+    <div class="q26bar"><div class="q26bar-f" style="width:113%;background:var(--green)"></div></div>
+    <div class="q26data-source">369 customers in database · 252 with 2026 dates</div>
+  </div>
+  <div class="q26card">
+    <div class="q26t">✅ Project Won (Q2 · Apr–Jun)</div>
+    <div class="q26v" style="color:var(--t3)">0</div>
+    <div class="q26sub">No project won in Apr–Jun 2026</div>
+    <div class="q26data-source">PROMEA-KCP (9B) — Won 2025, excluded</div>
+  </div>
+  <div class="q26card">
+    <div class="q26t">📋 Chambers (Q2 active)</div>
+    <div class="q26v">25</div>
+    <div class="q26sub">Events and memberships tracked</div>
+    <div class="q26sm" style="line-height:1.5;margin-top:4px">
+      HKBVC · EURO CHAM (×2) · SIN CHAM (×2) · BlueScope (×2) · CANCHAM (×2) · FDi Group · HKBAV (×2) · VPC (×3) · GBA · HKBCV · China CHAM · TAIWAN CHAM · VIETNAM CHAM · VIPF · Malaysia CHAM · SignCham · AUSCHAM · Zhang Zhu
+    </div>
+  </div>
+</div>
 
-    // Q2 Key Figures table
-    var bidWithAmt=(data.bids||[]).filter(function(b){return b.estValue;}).length;
-    var kf='<div class="t-sm">📊 Q2 Key Figures</div><table style="font-size:12px">'+
-      '<tr><td>Active Pipeline (total)</td><td class="r fw">'+fmt(totalPipeline)+'</td></tr>'+
-      '<tr><td>Bidding</td><td class="r">'+bidCounts.bidding+' projects · '+fmt(bidPipeline.bidding)+'</td></tr>'+
-      '<tr><td>Following</td><td class="r">'+bidCounts.following+' projects · '+fmt(bidPipeline.following)+'</td></tr>'+
-      '<tr><td>In Review (PQ/Prequal)</td><td class="r">'+pgp.in_review.length+' projects · '+fmt(bidPipeline.potential)+'</td></tr>'+
-      '<tr><td>New Contacts (Q2)</td><td class="r">'+custQ+'</td></tr>'+
-      '<tr><td>New Contacts (YTD)</td><td class="r">'+custYTD+'</td></tr>'+
-      '<tr><td>Customers Database</td><td class="r">'+(data.customers||[]).length+'</td></tr>'+
-      '<tr><td>Chambers</td><td class="r">'+(data.chambers||[]).length+'</td></tr>'+
-      '<tr><td>Projects Tracked</td><td class="r">'+(data.bids||[]).length+'</td></tr>'+
-      '<tr><td>Q2 Realized Sales</td><td class="r"><span class="tag2 tag-'+(compSales>0?'b':'r')+'">'+fmt(compSales)+'</span></td></tr>'+
-      '</table>';
-    var keyFigSec=card(kf);
+<!-- ===== ROW 3: PLAN 2026 ===== -->
+<div class="grid g2">
+  <div class="q26card">
+    <div class="q26t">📋 PLAN 2026 <span class="q26sm">· Q2 progress snapshot</span></div>
+    <div class="q26pr"><span class="q26pr-l">A. System Tender</span><div class="q26pr-b"><div class="q26pr-f" style="width:45%;background:var(--amber)"></div></div><span class="q26pr-p" style="color:var(--amber)">45%</span></div>
+    <div class="q26pr"><span class="q26pr-l">B. Build Database</span><div class="q26pr-b"><div class="q26pr-f" style="width:50%;background:var(--amber)"></div></div><span class="q26pr-p" style="color:var(--amber)">50%</span></div>
+    <div class="q26pr"><span class="q26pr-l">C. Training</span><div class="q26pr-b"><div class="q26pr-f" style="width:0%;background:var(--red)"></div></div><span class="q26pr-p" style="color:var(--red)">0%</span></div>
+    <div class="q26pr"><span class="q26pr-l">D. BMS System</span><div class="q26pr-b"><div class="q26pr-f" style="width:79%;background:var(--green)"></div></div><span class="q26pr-p" style="color:var(--green)">79%</span></div>
+    <div class="sm mt-8" style="line-height:1.6">
+      <strong>D.1 Online:</strong> Bid 100% · Customers 100% · Event 100% · Weekly 100% · Q Rep 50% · Sales 100%<br>
+      <strong>D.2 Mobile:</strong> All 5 modules 100%<br>
+      <strong>D.3 Ind. Park:</strong> Input 80% · Land Price 10%
+    </div>
+  </div>
+  <div class="q26card">
+    <div class="q26t">📊 Q2 Key Figures</div>
+    <table style="font-size:13px">
+      <tr><td>Active Pipeline (total)</td><td class="r"><strong>4,186B</strong></td></tr>
+      <tr><td>Bidding</td><td class="r">3 projects · 170B</td></tr>
+      <tr><td>Following</td><td class="r">9 projects · 1,897B</td></tr>
+      <tr><td>In Review (PQ/Prequal)</td><td class="r">7 projects · 2,119B</td></tr>
+      <tr><td>New Contacts (Q2)</td><td class="r">180</td></tr>
+      <tr><td>New Contacts (YTD)</td><td class="r">252</td></tr>
+      <tr><td>Customers Database</td><td class="r">369</td></tr>
+      <tr><td>Chambers</td><td class="r">25</td></tr>
+      <tr><td>Projects Tracked</td><td class="r">10</td></tr>
+      <tr><td>Q2 Realized Sales</td><td class="r"><span class="tag tag-r">0</span></td></tr>
+    </table>
+  </div>
+</div>
 
-    // Pipeline tabs
-    var pgp={bidding:[],following:[],in_review:[],uncat:[],won:[]};
-    (data.bids||[]).forEach(function(b){
-      var sc=(b.stageContent||'').toLowerCase();
-      if(sc==='bidding'||b.stage==='Bidding')pgp.bidding.push(b);
-      else if(sc==='following'||b.stage==='Following')pgp.following.push(b);
-      else if(b.stage==='Won'||b.stage==='中标')pgp.won.push(b);
-      else if(sc==='potential'||sc==='in review'||sc==='prequal')pgp.in_review.push(b);
-      else pgp.uncat.push(b);
-    });
-    var tKeys=['bidding','following','in_review','uncat','won'];
-    var tLbl={'bidding':(isZh?'投标中':'Bidding'),'following':(isZh?'跟踪':'Following'),'in_review':(isZh?'评审中':'In Review'),'uncat':(isZh?'未分类':'Uncategorized'),'won':(isZh?'中标':'Won')};
-    var tIco={'bidding':'📋','following':'📎','in_review':'🔍','uncat':'📭','won':'🏆'};
-    var tFtr={'bidding':'Projects','following':'Projects','in_review':'Projects (PQ / Reviewing / 资格审核 / 评审中)','uncat':'Projects (no stage set)','won':'Project (2025)'};
-    var pipS='', pipT='';
-    tKeys.forEach(function(k,ki){
-      var it=pgp[k];
-      var sum=it.reduce(function(s,b){return s+(parseFloat((''+b.estValue).replace(/,/g,''))||0);},0);
-      pipS+='<div id="p_'+k+'" style="'+(ki>0?'display:none':'')+'"><table><thead><tr><th>'+tIco[k]+' '+(isZh?'客户':'Client')+'</th><th>'+(isZh?'项目':'Project')+'</th><th class="r">'+(isZh?'金额':'Amount')+'</th><th>PIC</th></tr></thead><tbody>'+
-        (it.map(function(b){var amt=b.estValue?fmt(parseFloat((''+b.estValue).replace(/,/g,''))||0):'—';return '<tr><td><strong>'+(b.customerName||'')+'</strong></td><td>'+(b.projectName||'')+'</td><td class="r">'+amt+'</td><td>'+(b.pic||'')+'</td></tr>';}).join('')||
-          '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--text3);font-size:12px">'+tIco[k]+' '+(isZh?'暂无数据':'No data')+'</td></tr>')+'</tbody></table>'+
-        '<div class="tab-footer"><span>'+it.length+' '+(tFtr[k]||'Projects')+'</span><span style="font-weight:700">'+fmt(sum)+' VND</span></div></div>';
-      pipT+='<button class="tab2'+(ki===0?' act':'')+'" onclick="switchQuarterlyTab(this,\''+k+'\')">'+
-      tIco[k]+' '+tLbl[k]+' <span class="tag2 tag-'+(ki===0?'b':k==='following'?'g':k==='in_review'?'o':k==='won'?'p':'gy')+'">'+it.length+'</span></button>';
-    });
-    var pipSec=card('<div class="t-sm" style="margin-bottom:12px">Pipeline Detail <span style="font-size:10px;color:var(--text3)">· Q2 snapshot by stage</span></div>'+
-      '<div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">'+pipT+'</div>'+pipS);
+<!-- ===== ROW 4: PIPELINE DETAIL ===== -->
+<div class="q26card" style="margin-bottom:12px">
+  <div class="q26t" style="margin-bottom:12px">Pipeline Detail <span class="q26sm">· Q2 snapshot by stage</span></div>
 
-    // Country distribution
-    var cRows='';
-    sortedCountries.slice(0,11).forEach(function(c,i){
-      var cnt=countries[c]; var w=Math.round(cnt/maxCtry*100); var flag=(flagEmoji[c]||'')+' '+c;
-      cRows+='<div class="pr-row" style="margin:'+(i===0?'6px':'3px')+' 0"><span class="pr-l" style="'+(i===0?'font-size:12px;font-weight:500;width:90px':'font-size:11px;font-weight:400;width:86px')+';">'+flag+'</span>'+
-        '<div class="pr-bar"><div class="pr-fill" style="width:'+w+'%;background:#60a5fa;border-radius:'+(i===0?'3px':'2px')+'"></div></div><span class="pr-pct" style="font-size:'+(i===0?'12px':'11px')+'">'+cnt+'</span></div>';
-    });
-    var extraC=sortedCountries.slice(11);
-    var extraStr=extraC.map(function(c){return c+' '+countries[c];}).join(' · ');
-    var cSec=card('<div class="t-sm">🌍 '+(isZh?'客户国家分布':'Top Client Countries')+' <span style="font-size:10px;color:var(--text3)">('+(data.customers||[]).length+' customers · Q2 snapshot)</span></div>'+cRows+
-      (extraStr?'<div style="font-size:9px;color:var(--text3);margin-top:6px">'+extraStr+'</div>':'')+
-      '<div class="sub-source" style="margin-top:6px">'+(isZh?'总计':'Total')+': '+(data.customers||[]).length+' '+(isZh?'个客户':'customers')+'</div>');
+  <div class="q26tabs">
+    <button class="tab act" onclick="q26sw('p1')">📋 Bidding<span class="tag tag-b" style="margin-left:4px">3</span></button>
+    <button class="q26tab" onclick="q26sw('p2')">📎 Following<span class="tag tag-g" style="margin-left:4px">9</span></button>
+    <button class="q26tab" onclick="q26sw('p3')">🔍 In Review<span class="tag tag-o" style="margin-left:4px">7</span></button>
+    <button class="q26tab" onclick="q26sw('p4')">📭 Uncategorized<span class="tag tag-gy" style="margin-left:4px">9</span></button>
+    <button class="q26tab" onclick="q26sw('p5')">🏆 Won<span class="tag tag-p" style="margin-left:4px">1</span></button>
+  </div>
 
-    // Pipeline Summary
-    var aB=bidPipeline.bidding, aF=bidPipeline.following, aI=bidPipeline.potential, aW=0, aU=0;
-    pgp.won.forEach(function(b){aW+=parseFloat((''+b.estValue).replace(/,/g,''))||0;});
-    pgp.uncat.forEach(function(b){aU+=parseFloat((''+b.estValue).replace(/,/g,''))||0;});
-    var pipSum='<tr><td><span class="tag2 tag-b">Bidding</span></td><td class="r">'+bidCounts.bidding+'</td><td class="r fw">'+fmt(aB)+'</td></tr>'+
-      '<tr><td><span class="tag2 tag-g">Following</span></td><td class="r">'+bidCounts.following+'</td><td class="r fw">'+fmt(aF)+'</td></tr>'+
-      '<tr><td><span class="tag2 tag-o">In Review</span></td><td class="r">'+pgp.in_review.length+'</td><td class="r fw">'+fmt(aI)+'</td></tr>'+
-      '<tr><td class="fw">Active Total</td><td class="r fw">'+(bidCounts.bidding+bidCounts.following+pgp.in_review.length)+'</td><td class="r fw">'+fmt(aB+aF+aI)+'</td></tr>'+
-      '<tr><td><span class="tag2 tag-gy">Uncategorized</span></td><td class="r">'+pgp.uncat.length+'</td><td class="r">'+fmt(aU)+'</td></tr>'+
-      '<tr><td><span class="tag2 tag-p">Won (2025)</span></td><td class="r">'+pgp.won.length+'</td><td class="r">'+fmt(aW)+'</td></tr>';
-    var pipSumSec=card('<div class="t-sm">📊 Pipeline Summary</div><table style="font-size:12px"><thead><tr><th>Category</th><th class="r">Count</th><th class="r">Amount (B)</th></tr></thead><tbody>'+pipSum+'</tbody></table>'+
-      '<div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5;border-top:1px solid var(--border);padding-top:8px">'+
-      '<strong>'+(isZh?'有金额的项目':'Projects with amounts')+':</strong> '+bidWithAmt+' '+(isZh?'个活跃项目的金额已确认':'active · ')+pgp.won.length+' won (2025)'+'<br>'+
-      '<strong>'+(isZh?'管道覆盖率':'Pipeline coverage')+':</strong> '+pipCoverage+'× (Bidding+Following vs 1,400B FY target)<br>'+
-      '<strong>Q2 '+(isZh?'新联系人':'new contacts')+':</strong> '+custQ+' (target 160 '+(custQ>=160?'✅ ':'')+(isZh?'超出目标':'surpassed')+')<br>'+
-      '<strong>Q2 '+(isZh?'实际销售额':'realized sales')+':</strong> '+fmt(compSales)+' VND</div>');
+  <!-- Tab 1: Bidding -->
+  <div id="q26p1">
+    <table>
+      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
+      <tbody>
+        <tr><td><strong>GHN Hưng Yên</strong></td><td>GHHY</td><td class="r">150B</td><td>LONG, QIAOWU</td></tr>
+        <tr><td><strong>PROMEA BIOPHARMACEUTICALS</strong></td><td>Leveling Pkg</td><td class="r">20B</td><td>Ms. Jyothi</td></tr>
+        <tr><td><strong>CTF Invest</strong></td><td>CTF</td><td class="r">—</td><td>Huong &amp; Tony</td></tr>
+      </tbody>
+    </table>
+    <div class="q26footer"><span>3 Projects</span><span style="font-weight:700">170B VND</span></div>
+  </div>
 
-    // Footer
-    var footer='<div class="q-foot"><span>🏗️ <strong>'+(isZh?'活跃管道':'Active Pipeline')+':</strong> '+fmt(totalPipeline)+' VND</span><span class="sep">·</span>'+
-      '<span>Bidding <strong>'+fmt(bidPipeline.bidding)+'</strong></span><span class="sep">·</span>'+
-      '<span>Following <strong>'+fmt(bidPipeline.following)+'</strong></span><span class="sep">·</span>'+
-      '<span>In Review <strong>'+fmt(bidPipeline.potential)+'</strong></span><span class="sep">·</span>'+
-      '<span>Q2 '+(isZh?'新联系人':'new contacts')+' <strong>'+custQ+'</strong> · '+(data.chambers||[]).length+' '+(isZh?'个商会':'chambers')+'</span></div>';
+  <!-- Tab 2: Following -->
+  <div id="q26p2" style="display:none">
+    <table>
+      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ROCHDALE SPEARS</strong></td><td>Factory</td><td class="r">763B</td><td>Mr Can</td></tr>
+        <tr><td><strong>Gainwell</strong></td><td>Phase 2</td><td class="r">333B</td><td>Frankly Wu</td></tr>
+        <tr><td><strong>Nameson Holdings</strong></td><td>GTay Ninh</td><td class="r">238B</td><td>Winnie</td></tr>
+        <tr><td><strong>SBS zipper factory</strong></td><td>SBS Co.,Ltd</td><td class="r">232B</td><td>Mr. Luke Lam</td></tr>
+        <tr><td><strong>HADAY VIETNAM</strong></td><td>Factory</td><td class="r">159B</td><td>Mr Yen</td></tr>
+        <tr><td><strong>Herchang Plastic</strong></td><td>HERCHANG PLASTIC</td><td class="r">95B</td><td>Luo Yu Sheng</td></tr>
+        <tr><td><strong>JINYI VIETNAM</strong></td><td>Factory</td><td class="r">77B</td><td>Minh Phuong</td></tr>
+        <tr><td>Masan</td><td>RBW</td><td class="r">—</td><td>Mr Dat</td></tr>
+        <tr><td>IntES Co. ltd</td><td>Shinryo</td><td class="r">—</td><td>Mr Neel Mumar</td></tr>
+      </tbody>
+    </table>
+    <div class="q26footer"><span>9 Projects</span><span style="font-weight:700">1,897B VND</span></div>
+  </div>
 
-    container.innerHTML='<style>.t-sm{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:8px}.v{font-size:24px;font-weight:700;color:var(--text1)}.v-sm{font-size:12px;font-weight:400;color:var(--text2)}.sub{font-size:11px;color:var(--text2);margin-top:2px}.sub-source{font-size:9px;color:var(--text3);margin-top:4px}.pr-row{display:flex;align-items:center;gap:6px;margin:4px 0}.pr-l{font-size:11px;font-weight:500;flex-shrink:0;width:60px;text-align:right;color:var(--text1)}.pr-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}.pr-fill{height:100%;border-radius:3px}.pr-pct{font-size:11px;font-weight:600;width:28px;text-align:right}.tag2{display:inline-flex;align-items:center;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:500}.tag-b{background:#3b1f1f;color:#f87171}.tag-g{background:#1a3a2a;color:#34d399}.tag-o{background:#1e3a1e;color:#fbbf24}.tag-p{background:#1e1a3a;color:#a78bfa}.tag-gy{background:#2a2a2a;color:#9ca3af}.tag-bl{background:#1e3a5f;color:#60a5fa}.tab2{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--text2);transition:all .15s}.tab2.act{background:var(--blue);color:#fff}.tab-footer{padding:8px 10px;background:var(--bg);border-top:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between;align-items:center}.q-foot{padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:11px;color:var(--text2)}.sep{color:var(--border)}table{width:100%;border-collapse:collapse;font-size:13px}table th{padding:6px 10px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);background:var(--bg);font-weight:600;text-align:left}table td{padding:6px 10px;border-bottom:1px solid var(--border)}.r{text-align:right}.fw{font-weight:700}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:900px){.g3,.g2{grid-template-columns:1fr}}@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>'+
-      '<div style="display:grid;gap:12px">'+h+'<div class="g3">'+r1+'</div><div class="g3">'+r2+'</div><div class="g2">'+planSec+keyFigSec+'</div>'+pipSec+'<div class="g2">'+cSec+pipSumSec+'</div>'+footer+'</div>';
+  <!-- Tab 3: In Review -->
+  <div id="q26p3" style="display:none">
+    <table>
+      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Sembcorp LMX</strong></td><td>SB LMX</td><td class="r">800B</td><td>Huong</td></tr>
+        <tr><td><strong>DPW — SPCT</strong></td><td>Saigon Premier Container Terminal</td><td class="r">600B</td><td>Ms Giang</td></tr>
+        <tr><td><strong>Sembcorp RMB</strong></td><td>Loc An</td><td class="r">600B</td><td>Huong</td></tr>
+        <tr><td><strong>Jiasheng Fabrics</strong></td><td>Factory MEP</td><td class="r">119B</td><td>Mr Hong (Owner)</td></tr>
+        <tr><td>Sembcorp VSIP3 SMS</td><td>Firewall System</td><td class="r">—</td><td>Tony</td></tr>
+        <tr><td>POU CHEN</td><td>Factory</td><td class="r">—</td><td>David Yen</td></tr>
+        <tr><td>Treasure Lighting Vietnam</td><td>EVF Plant</td><td class="r">—</td><td>Joe Chen</td></tr>
+      </tbody>
+    </table>
+    <div class="q26footer"><span>7 Projects (PQ / Reviewing / 资格审核 / 评审中)</span><span style="font-weight:700">2,119B VND</span></div>
+  </div>
 
+  <!-- Tab 4: Uncategorized -->
+  <div id="q26p4" style="display:none">
+    <table>
+      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
+      <tbody>
+        <tr><td>Warehouse fitout</td><td>Global star</td><td class="r">48B</td><td>Ms Lê Thị Ngọc Hạnh</td></tr>
+        <tr><td>ShinYang Metal</td><td>TaiYang Metal</td><td class="r">—</td><td>Mr. Luke Lam</td></tr>
+        <tr><td>Construction Package</td><td>—</td><td class="r">—</td><td>Mr. Patrick</td></tr>
+        <tr><td>Dali Project (Long Giang)</td><td>Dila group</td><td class="r">—</td><td>Mr. Vu Tran</td></tr>
+        <tr><td>JING YUAN TECHNOLOGY</td><td>Factory</td><td class="r">—</td><td>Mr Quang / Ms Linh</td></tr>
+        <tr><td>Transimex Warehouse</td><td>Transimex</td><td class="r">—</td><td>—</td></tr>
+        <tr><td>Ready Build Warehouse</td><td>Lucky Industrial Park</td><td class="r">—</td><td>—</td></tr>
+        <tr><td>Messer Binh Duong</td><td>Messer</td><td class="r">—</td><td>—</td></tr>
+        <tr><td>We Tech Solutions</td><td>We tech Factory</td><td class="r">—</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <div class="q26footer"><span>9 Projects (no stage set)</span><span style="font-weight:700">48B VND</span></div>
+  </div>
+
+  <!-- Tab 5: Won -->
+  <div id="q26p5" style="display:none">
+    <table>
+      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PROMEA</strong></td><td>KCP Design Pkg</td><td class="r">9B</td><td class="q26sm">Won 2025</td></tr>
+      </tbody>
+    </table>
+    <div class="q26footer"><span>1 Project</span><span style="font-weight:700">9B VND (2025)</span></div>
+  </div>
+</div>
+
+<!-- ===== ROW 5: TOP CLIENTS + SUMMARY ===== -->
+<div class="grid g2">
+  <div class="q26card">
+    <div class="q26t">🌍 Top Client Countries <span class="q26sm">(369 customers · Q2 snapshot)</span></div>
+    <div style="margin-top:6px">
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇻🇳 Vietnam</span><div class="q26pr-b"><div class="q26pr-f" style="width:100%;background:var(--blue)"></div></div><span class="q26pr-p">129</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇨🇳 China</span><div class="q26pr-b"><div class="q26pr-f" style="width:44%;background:var(--blue)"></div></div><span class="q26pr-p">57</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇹🇼 Taiwan</span><div class="q26pr-b"><div class="q26pr-f" style="width:30%;background:var(--blue)"></div></div><span class="q26pr-p">39</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇸🇬 Singapore</span><div class="q26pr-b"><div class="q26pr-f" style="width:22%;background:var(--blue)"></div></div><span class="q26pr-p">29</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇭🇰 Hong Kong</span><div class="q26pr-b"><div class="q26pr-f" style="width:17%;background:var(--blue)"></div></div><span class="q26pr-p">22</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇩🇪 Germany</span><div class="q26pr-b"><div class="q26pr-f" style="width:12%;background:var(--blue)"></div></div><span class="q26pr-p">15</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇯🇵 Japan</span><div class="q26pr-b"><div class="q26pr-f" style="width:10%;background:var(--blue)"></div></div><span class="q26pr-p">13</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇲🇾 Malaysia</span><div class="q26pr-b"><div class="q26pr-f" style="width:8%;background:var(--blue)"></div></div><span class="q26pr-p">10</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇦🇺 Australia</span><div class="q26pr-b"><div class="q26pr-f" style="width:7%;background:var(--blue)"></div></div><span class="q26pr-p">9</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇫🇷 France</span><div class="q26pr-b"><div class="q26pr-f" style="width:5%;background:var(--blue)"></div></div><span class="q26pr-p">6</span></div>
+      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇨🇦 Canada</span><div class="q26pr-b"><div class="q26pr-f" style="width:5%;background:var(--blue)"></div></div><span class="q26pr-p">6</span></div>
+    </div>
+    <div class="sm mt-8">UK 5 · Korea 4 · Thailand 4 · US 3 · India 2 · Indonesia 1 · Netherlands 1 · Europe/Intl 4 · (none) 4</div>
+  </div>
+  <div class="q26card">
+    <div class="q26t">📊 Pipeline Summary</div>
+    <table style="font-size:13px">
+      <thead><tr><th>Category</th><th class="r">Count</th><th class="r">Amount (B)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-b">Bidding</span></td><td class="r">3</td><td class="r">170</td></tr>
+        <tr><td><span class="tag tag-g">Following</span></td><td class="r">9</td><td class="r">1,897</td></tr>
+        <tr><td><span class="tag tag-o">In Review</span></td><td class="r">7</td><td class="r">2,119</td></tr>
+        <tr><td><strong>Active Total</strong></td><td class="r"><strong>19</strong></td><td class="r"><strong>4,186</strong></td></tr>
+        <tr><td><span class="tag tag-gy">Uncategorized</span></td><td class="r">9</td><td class="r">48</td></tr>
+        <tr><td><span class="tag tag-p">Won (2025)</span></td><td class="r">1</td><td class="r">9</td></tr>
+      </tbody>
+    </table>
+    <div class="sm mt-8" style="line-height:1.5">
+      <strong>Projects with amounts:</strong> 13 active · 1 won (2025)<br>
+      <strong>Pipeline coverage:</strong> 2.1× (Bidding+Following) vs 1,400B FY target<br>
+      <strong>Q2 new contacts:</strong> 180 (target 160 surpassed)<br>
+      <strong>Q2 realized sales:</strong> 0 VND
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="q26ft">
+  <span>🏗️ <strong>Active Pipeline:</strong> 4,186B VND</span>
+  <span>·</span>
+  <span>Bidding <strong>170B</strong></span>
+  <span>·</span>
+  <span>Following <strong>1,897B</strong></span>
+  <span>·</span>
+  <span>In Review <strong>2,119B</strong></span>
+  <span>·</span>
+  <span>Q2 new contacts <strong>180</strong> · 25 chambers</span>
+</div>
+
+</div>`;
+    var sc=document.createElement('script');
+    sc.textContent=`function q26sw(id){
+  document.querySelectorAll('[id^="q26p"]').forEach(t=>t.style.display="none");
+  document.querySelectorAll(".q26tab").forEach(b=>b.classList.remove("act"));
+  document.getElementById(id).style.display="block";
+  event.target.classList.add("act");
+}`;
+    document.body.appendChild(sc);
   } else {
     // Q1 / Q3 / Q4: compact 6-card layout
     var cBase='background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;animation:fadeInUp .3s ease both';
