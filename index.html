@@ -1104,9 +1104,7 @@ function renderQuarterly(){
 
   // ===== BRANCH: Q2 gets full dashboard, Q1/Q3/Q4 get compact =====
   if(q==='Q2'){
-    container.innerHTML=`<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#eef0f4;--card:#fff;--border:#e0e2e6;--text:#141517;--t2:#656d78;--t3:#9098a3;--blue:#2266cc;--green:#1e8e3e;--red:#d93025;--amber:#e37400;--purple:#7c3aed;--radius:10px}
-body{font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
+    container.innerHTML=`<style>.q26page{--bg:#eef0f4;--card:#fff;--border:#e0e2e6;--text:#141517;--t2:#656d78;--t3:#9098a3;--blue:#2266cc;--green:#1e8e3e;--red:#d93025;--amber:#e37400;--purple:#7c3aed;--radius:10px;font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
 .q26page{max-width:1280px;margin:0 auto}
 .q26hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;padding:0 2px}
 .hdr-l h1{font-size:26px;font-weight:700;letter-spacing:-.4px}
@@ -1128,10 +1126,10 @@ body{font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(-
 .q26data-source{font-size:10px;color:var(--t3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px}
 .q26tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
 .q26tag-b{background:#e8f0fe;color:var(--blue)}.q26tag-g{background:#e6f4ea;color:var(--green)}.q26tag-r{background:#fce8e6;color:var(--red)}.q26tag-a{background:#fef7e0;color:var(--amber)}.q26tag-p{background:#f3e8ff;color:var(--purple)}.q26tag-gy{background:#f2f3f5;color:var(--t2)}.q26tag-o{background:#fef3e2;color:#c55600}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:8px 12px;background:var(--bg);font-weight:600;color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border)}
-td{padding:8px 12px;border-bottom:1px solid var(--border)}
-tr:last-child td{border-bottom:none}.r{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q26page table{width:100%;border-collapse:collapse;font-size:13px}
+.q26page th{text-align:left;padding:8px 12px;background:var(--bg);font-weight:600;color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border)}
+.q26page td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.q26page tr:last-child td{border-bottom:none}.r{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 .q26footer{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-top:1px solid var(--border);font-size:13px}
 .q26tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .q26tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--t2)}
@@ -1142,7 +1140,7 @@ tr:last-child td{border-bottom:none}.r{text-align:right;font-weight:600;font-var
 .q26pr-f{height:100%;border-radius:3px}.q26pr-p{font-size:12px;font-weight:600;width:32px;text-align:right}
 .q26ft{padding:14px 16px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--t2);margin-top:12px}
 @media(max-width:900px){.q26g3{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.q26g3,.q26g2{grid-template-columns:1fr}body{padding:14px}}</style><div class="q26page">
+@media(max-width:600px){.q26g3,.q26g2{grid-template-columns:1fr}.q26page{padding:14px}}</style><div class="q26page">
 
 <!-- ===== HEADER ===== -->
 <div class="q26hdr">
