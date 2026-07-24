@@ -1136,7 +1136,7 @@ function renderQuarterly(){
     var r2=card('<div class="t-sm">👥 '+(isZh?'新联系人':'New Contacts (Q2 · Apr-Jun)')+'</div>'+
         '<div style="display:flex;align-items:center"><div class="v" style="color:#34d399">'+custQ+'</div>'+
         '<div style="margin-left:auto"><span class="tag2 tag-g">'+(isZh?'年度迄今':'YTD')+': '+custYTD+'</span></div></div>'+
-        '<div class="sub">'+(isZh?'年度目标 160':'Annual target 160')+' · '+(isZh?'2025总计 57':'2025 total: 57')+'</div>'+
+        '<div class="sub">'+(isZh?'年度目标 160':'Annual target: 160')+' · '+(isZh?'2025总计 57':'2025 total: 57')+'</div>'+
         (gotM?'<div style="font-size:10px;color:var(--text3);line-height:1.5;margin-top:4px"><strong>Apr:</strong> '+(monthlyCounts[3]||0)+' · <strong>May:</strong> '+(monthlyCounts[4]||0)+' · <strong>Jun:</strong> '+(monthlyCounts[5]||0)+'</div>':'')+
         progressBar(custYTD>0?Math.round(custYTD/160*100):0,custYTD>=160?'#10b981':'#f59e0b')+
         '<div class="sub-source">'+(isZh?'数据库中':'Database')+': '+(data.customers||[]).length+' '+(isZh?'个客户':'customers')+' · YTD '+(data.customers||[]).filter(function(c){if(!c.createdDate)return false;return new Date(c.createdDate).getFullYear()===2026;}).length+' '+(isZh?'个有2026日期':'with 2026 dates')+'</div>')+
@@ -1148,7 +1148,7 @@ function renderQuarterly(){
         '<div class="v">'+chamberAtt+'</div>'+
         '<div class="sub">'+(data.chambers||[]).length+' '+(isZh?'个已登记':'registered')+'</div>'+
         (chamberNames.length>0?'<div style="font-size:9px;color:var(--text3);line-height:1.6;margin-top:4px;max-height:60px;overflow-y:auto">'+chamberNames.join(' · ')+'</div>':'')+
-        '<div class="sub-source">'+(isZh?'活动与会务':'Events & memberships')+'</div>');
+        '<div class="sub-source">'+(isZh?'活动与会务':'Events and memberships tracked')+'</div>');
 
     // Row 3: Plan 2026 + Q2 Key Figures (2 columns)
     // Plan 2026 summary (A/B/C/D categories)
@@ -1166,7 +1166,7 @@ function renderQuarterly(){
       if(catPcts[cat]!==undefined){
         var pct=Math.round(catPcts[cat]/catNames[cat].length);
         var col=planCC[cat]||'#60a5fa';
-        planH+='<div class="pr-row" style="margin:4px 0"><span class="pr-l" style="width:100px;font-size:11px">'+cat+'. '+catNames[cat][0]+(catNames[cat].length>1?' etc':'')+'</span>'+
+        planH+='<div class="pr-row" style="margin:4px 0"><span class="pr-l" style="width:130px;font-size:12px">'+({'A':'A. System Tender','B':'B. Build Database','C':'C. Training','D':'D. BMS System'}[cat]||cat+'. '+catNames[cat][0])+'</span>'+
           '<div class="pr-bar"><div class="pr-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
           '<span class="pr-pct" style="color:'+col+'">'+pct+'%</span></div>';
       }
@@ -1246,7 +1246,7 @@ function renderQuarterly(){
       '<tr><td><span class="tag2 tag-p">Won (2025)</span></td><td class="r">'+pgp.won.length+'</td><td class="r">'+fmt(aW)+'</td></tr>';
     var pipSumSec=card('<div class="t-sm">📊 Pipeline Summary</div><table style="font-size:12px"><thead><tr><th>Category</th><th class="r">Count</th><th class="r">Amount (B)</th></tr></thead><tbody>'+pipSum+'</tbody></table>'+
       '<div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5;border-top:1px solid var(--border);padding-top:8px">'+
-      '<strong>'+(isZh?'有金额的项目':'Projects with amounts')+':</strong> '+bidWithAmt+' '+(isZh?'个活跃项目的金额已确认':'active · ')+pgp.won.length+' '+(isZh?'个历史中标项目':'won (2025)')+'<br>'+
+      '<strong>'+(isZh?'有金额的项目':'Projects with amounts')+':</strong> '+bidWithAmt+' '+(isZh?'个活跃项目的金额已确认':'active · ')+pgp.won.length+' won (2025)'+'<br>'+
       '<strong>'+(isZh?'管道覆盖率':'Pipeline coverage')+':</strong> '+pipCoverage+'× (Bidding+Following vs 1,400B FY target)<br>'+
       '<strong>Q2 '+(isZh?'新联系人':'new contacts')+':</strong> '+custQ+' (target 160 '+(custQ>=160?'✅ ':'')+(isZh?'超出目标':'surpassed')+')<br>'+
       '<strong>Q2 '+(isZh?'实际销售额':'realized sales')+':</strong> '+fmt(compSales)+' VND</div>');
