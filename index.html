@@ -1026,7 +1026,7 @@ function renderQuarterly(){
   },{bidding:0,following:0,potential:0});
   var totalPipeline=bidPipeline.bidding+bidPipeline.following+bidPipeline.potential;
   function fmt(b){return b>=1000?((b/1000).toFixed(1)+'B'):(Math.round(b)+'B');}
-  var pipCoverage=1.4>0?((bidPipeline.bidding+bidPipeline.following)/1.4).toFixed(1):'0';
+  var pipCoverage=(bidPipeline.bidding+bidPipeline.following)>0?((bidPipeline.bidding+bidPipeline.following)/1400).toFixed(1):'0';
 
   var bidCounts={bidding:0,following:0,potential:0,cancelled:0,won:0};
   (data.bids||[]).forEach(function(b){
@@ -1133,7 +1133,7 @@ function renderQuarterly(){
     var r2=card('<div class="t-sm">'+(isZh?'新联系人':'New Contacts')+'</div><div class="v" style="color:#34d399">'+custQ+'</div>'+
         '<div class="sub">'+(isZh?'Q2新增 (4-6月)':'Q2 new (Apr-Jun)')+'</div>'+(gotM?'<div style="font-size:11px;color:var(--text3);line-height:1.5;margin-top:4px">'+mStr+'</div>':'')+
         '<div style="font-size:10px;color:var(--text2);margin-top:2px">'+(isZh?'年度目标 160':'Annual target 160')+' & YTD: '+custYTD+'</div>'+
-        progressBar(custYTD>0?Math.min(100,Math.round(custYTD/160*100)):0,custYTD>=160?'#10b981':'#f59e0b')+
+        progressBar(custYTD>0?Math.round(custYTD/160*100):0,custYTD>=160?'#10b981':'#f59e0b')+
         '<div class="sub-source">'+(isZh?'源: BMS':'Source: BMS customers')+'</div>')+
       card('<div class="t-sm">'+(isZh?'本季中标':'Projects Won ('+q+')')+'</div><div class="v" style="color:'+(bidsWonQ>0?'#34d399':'var(--text3)')+'">'+bidsWonQ+'</div>'+
         '<div class="sub" style="color:'+(bidsWonQ>0?'var(--text2)':'var(--text3)')+'">'+(bidsWonQ>0?'':(isZh?'本季暂无中标记录':'No project won in '+qm.label))+'</div>'+
@@ -1165,6 +1165,7 @@ function renderQuarterly(){
     });
     var tKeys=['bidding','following','in_review','uncat','won'];
     var tLbl={'bidding':(isZh?'投标中':'Bidding'),'following':(isZh?'跟踪':'Following'),'in_review':(isZh?'评审中':'In Review'),'uncat':(isZh?'其他':'Uncat'),'won':(isZh?'中标':'Won')};
+    var tIco={'bidding':'\U0001f4cb','following':'\U0001f4ce','in_review':'\U0001f50d','uncat':'\U0001f4ed','won':'\U0001f3c6'};
     var pipS='', pipT='';
     tKeys.forEach(function(k,ki){
       var it=pgp[k];
