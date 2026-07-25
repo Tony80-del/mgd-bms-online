@@ -1104,6 +1104,24 @@ function renderQuarterly(){
 
   // ===== BRANCH: Q2 gets full dashboard, Q1/Q3/Q4 get compact =====
   if(q==='Q2'){
+    // Dynamic pipeline vars
+    var _sc=function(b,k){var s=(b.stageContent||'').toLowerCase();return k.some(function(x){return s.indexOf(x.toLowerCase())!==-1;});};
+    var _pa=function(v){if(!v||v==='-'||v==='—')return 0;var s=(''+v).replace(/,/g,'').trim();return /[bB]/.test(s)?(parseFloat(s.replace(/[^0-9.]/g,''))||0):((parseFloat(s)||0)/1e9);};
+    var _fa=function(v){return v<=0?'—':(v>=100?Math.round(v):v.toFixed(1))+'B';};
+    var _tr=function(it){if(!it||!it.length)return'<tr><td colspan="4" style="padding:24px;text-align:center;color:var(--t2)">No projects</td></tr><tr><td colspan="4" style="padding:0"><div class="q26footer"><span>0 Projects</span><span style="font-weight:700">— VND</span></div></td></tr>';
+    var r=it.map(function(b,i){var a=_pa(b.estimatedValue);return '<tr'+(i%2===1?' style="background:rgba(0,0,0,0.02)"':'')+'><td><strong>'+(b.customerName||'—')+'</strong></td><td>'+(b.projectName||'—')+'</td><td class="r">'+(a>0?_fa(a):'—')+'</td><td>'+(b.personInCharge||'—')+'</td></tr>';}).join('');
+    var t=it.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);return r+'<tr style="background:var(--bg)"><td colspan="4" style="padding:0"><div class="q26footer"><span>'+it.length+' Projects</span><span style="font-weight:700">'+(t>0?_fa(t):'—')+' VND</span></div></td></tr>';};
+    var _b=(data.bids||[]);
+    var _bl=_b.filter(function(b){return _sc(b,['Bidding','投标中']);});
+    var _tl=_b.filter(function(b){return _sc(b,['Following','跟踪']);});
+    var _pl=_b.filter(function(b){return _sc(b,['Potential','潜在']);});
+    var _cl=_b.filter(function(b){return _sc(b,['Cancelled','已取消']);});
+    var _ba=_bl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
+    var _ta=_tl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
+    var _pa_amt=_pl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
+    var _ca=_cl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
+    var _aa=_ba+_ta+_pa_amt;var _ac=_bl.length+_tl.length+_pl.length;var _bt=_b.length;var _cv=_aa/1400;
+    var _btr=_tr(_bl);var _ttr=_tr(_tl);var _ptr=_tr(_pl);var _ctr=_tr(_cl);
     container.innerHTML=`<style>.q26page{--bg:#eef0f4;--card:#fff;--border:#e0e2e6;--text:#141517;--t2:#656d78;--t3:#9098a3;--blue:#2266cc;--green:#1e8e3e;--red:#d93025;--amber:#e37400;--purple:#7c3aed;--radius:10px;font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
 .q26page{max-width:1280px;margin:0 auto}
 .q26hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;padding:0 2px}
@@ -1148,7 +1166,7 @@ function renderQuarterly(){
     <h1>MGD Q2 · 2026</h1>
     <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 Apr–Jun 2026</span></div>
   </div>
-  <div class="q26hdr-r">Data: BMS backup 23 Jul 2026 · 22:19</div>
+  <div class="q26hdr-r">Dynamic · live BMS data</div>
 </div>
 
 <!-- ===== ROW 1: TOP 3 ===== -->
@@ -1169,17 +1187,17 @@ function renderQuarterly(){
   </div>
   <div class="q26card" style="border-left:3px solid var(--blue)">
     <div class="q26t">🏗️ Active Pipeline (Q2 snapshot)</div>
-    <div class="q26v">4,234B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
+    <div class="q26v">${_fa(_aa)} <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
     <div class="q26sub" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-      <span class="tag tag-b">Bidding 170B</span>
-      <span class="tag tag-g">Tracking 4,016B</span>
-      <span class="tag tag-a">Potential 48B</span>
+      <span class="tag tag-b">Bidding ${_fa(_ba)}</span>
+      <span class="tag tag-g">Tracking ${_fa(_ta)}</span>
+      <span class="tag tag-a">Potential ${_fa(_pa_amt)}</span>
     </div>
     <div class="flex mt-4">
-      <span class="tag tag-b">2.1×</span>
+      <span class="tag tag-b">${_cv.toFixed(1)}×</span>
       <span class="q26sm">(Bidding+Tracking) vs 1,400B FY target</span>
     </div>
-    <div class="q26data-source">23 active projects · 29 total bids · 12 cancelled</div>
+    <div class="q26data-source">${_ac} active projects · ${_bt} total bids · ${_cl.length} cancelled</div>
   </div>
 </div>
 
@@ -1231,10 +1249,10 @@ function renderQuarterly(){
   <div class="q26card">
     <div class="q26t">📊 Q2 Key Figures</div>
     <table style="font-size:13px">
-      <tr><td>Active Pipeline (total)</td><td class="r"><strong>4,234B</strong></td></tr>
-      <tr><td>Bidding</td><td class="r">3 projects · 170B</td></tr>
-      <tr><td>Tracking</td><td class="r">16 projects · 4,016B</td></tr>
-      <tr><td>Potential</td><td class="r">4 projects · 48B</td></tr>
+      <tr><td>Active Pipeline (total)</td><td class="r"><strong>${_fa(_aa)}</strong></td></tr>
+      <tr><td>Bidding</td><td class="r">${_bl.length} projects · ${_fa(_ba)}</td></tr>
+      <tr><td>Tracking</td><td class="r">${_tl.length} projects · ${_fa(_ta)}</td></tr>
+      <tr><td>Potential</td><td class="r">${_pl.length} projects · ${_fa(_pa_amt)}</td></tr>
       <tr><td>New Contacts (Q2)</td><td class="r">180</td></tr>
       <tr><td>New Contacts (YTD)</td><td class="r">252</td></tr>
       <tr><td>Customers Database</td><td class="r">369</td></tr>
@@ -1250,85 +1268,42 @@ function renderQuarterly(){
   <div class="q26t" style="margin-bottom:12px">Pipeline Detail <span class="q26sm">· Q2 snapshot by stage</span></div>
 
   <div class="q26tabs">
-    <button class="tab act" onclick="q26sw('p1')">📋 Bidding<span class="tag tag-b" style="margin-left:4px">3</span></button>
-    <button class="q26tab" onclick="q26sw('p2')">📎 Tracking<span class="tag tag-g" style="margin-left:4px">16</span></button>
-    <button class="q26tab" onclick="q26sw('p3')">📭 Potential<span class="tag tag-a" style="margin-left:4px">4</span></button>
-    <button class="q26tab" onclick="q26sw('p4')">🚫 Cancelled<span class="tag tag-r" style="margin-left:4px">12</span></button>
+    <button class="tab act" onclick="q26sw('p1')">📋 Bidding<span class="tag tag-b" style="margin-left:4px">${_bl.length}</span></button>
+    <button class="q26tab" onclick="q26sw('p2')">📎 Tracking<span class="tag tag-g" style="margin-left:4px">${_tl.length}</span></button>
+    <button class="q26tab" onclick="q26sw('p3')">📭 Potential<span class="tag tag-a" style="margin-left:4px">${_pl.length}</span></button>
+    <button class="q26tab" onclick="q26sw('p4')">🚫 Cancelled<span class="tag tag-r" style="margin-left:4px">${_cl.length}</span></button>
   </div>
 
   <!-- Tab 1: Bidding -->
   <div id="q26p1">
     <table>
       <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      <tbody>
-        <tr><td><strong>GHN Hưng Yên</strong></td><td>GHHY</td><td class="r">150B</td><td>LONG, QIAOWU</td></tr>
-        <tr><td><strong>PROMEA BIOPHARMACEUTICALS</strong></td><td>Leveling Pkg</td><td class="r">20B</td><td>Ms. Jyothi</td></tr>
-        <tr><td><strong>CTF Invest</strong></td><td>CTF</td><td class="r">—</td><td>Huong &amp; Tony</td></tr>
-      </tbody>
+      ${_btr}
     </table>
-    <div class="q26footer"><span>3 Projects</span><span style="font-weight:700">170B VND</span></div>
   </div>
 
-  <!-- Tab 2: Tracking (= Following 9 + In Review 7) -->
+  <!-- Tab 2: Tracking -->
   <div id="q26p2" style="display:none">
     <table>
       <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      <tbody>
-        <tr><td><strong>ROCHDALE SPEARS</strong></td><td>Factory</td><td class="r">763B</td><td>Mr Can</td></tr>
-        <tr><td><strong>Gainwell</strong></td><td>Phase 2</td><td class="r">333B</td><td>Frankly Wu</td></tr>
-        <tr><td><strong>Nameson Holdings</strong></td><td>GTay Ninh</td><td class="r">238B</td><td>Winnie</td></tr>
-        <tr><td><strong>SBS zipper factory</strong></td><td>SBS Co.,Ltd</td><td class="r">232B</td><td>Mr. Luke Lam</td></tr>
-        <tr><td><strong>HADAY VIETNAM</strong></td><td>Factory</td><td class="r">159B</td><td>Mr Yen</td></tr>
-        <tr><td><strong>Herchang Plastic</strong></td><td>HERCHANG PLASTIC</td><td class="r">95B</td><td>Luo Yu Sheng</td></tr>
-        <tr><td><strong>JINYI VIETNAM</strong></td><td>Factory</td><td class="r">77B</td><td>Minh Phuong</td></tr>
-        <tr><td><strong>Sembcorp LMX</strong></td><td>SB LMX</td><td class="r">800B</td><td>Huong</td></tr>
-        <tr><td><strong>DPW — SPCT</strong></td><td>Saigon Premier Container Terminal</td><td class="r">600B</td><td>Ms Giang</td></tr>
-        <tr><td><strong>Sembcorp RMB</strong></td><td>Loc An</td><td class="r">600B</td><td>Huong</td></tr>
-        <tr><td><strong>Jiasheng Fabrics</strong></td><td>Factory MEP</td><td class="r">119B</td><td>Mr Hong (Owner)</td></tr>
-        <tr><td>Masan</td><td>RBW</td><td class="r">—</td><td>Mr Dat</td></tr>
-        <tr><td>IntES Co. ltd</td><td>Shinryo</td><td class="r">—</td><td>Mr Neel Mumar</td></tr>
-        <tr><td>Sembcorp VSIP3 SMS</td><td>Firewall System</td><td class="r">—</td><td>Tony</td></tr>
-        <tr><td>POU CHEN</td><td>Factory</td><td class="r">—</td><td>David Yen</td></tr>
-        <tr><td>Treasure Lighting Vietnam</td><td>EVF Plant</td><td class="r">—</td><td>Joe Chen</td></tr>
-      </tbody>
+      ${_ttr}
     </table>
-    <div class="q26footer"><span>16 Projects (Following + In Review)</span><span style="font-weight:700">4,016B VND</span></div>
   </div>
 
-  <!-- Tab 3: Potential (= Uncategorized 9 → 4 potential from Bid Tracking) -->
+  <!-- Tab 3: Potential -->
   <div id="q26p3" style="display:none">
     <table>
       <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      <tbody>
-        <tr><td>Warehouse fitout</td><td>Global star</td><td class="r">48B</td><td>Ms Lê Thị Ngọc Hạnh</td></tr>
-        <tr><td>ShinYang Metal</td><td>TaiYang Metal</td><td class="r">—</td><td>Mr. Luke Lam</td></tr>
-        <tr><td>Construction Package</td><td>—</td><td class="r">—</td><td>Mr. Patrick</td></tr>
-        <tr><td>Dali Project (Long Giang)</td><td>Dila group</td><td class="r">—</td><td>Mr. Vu Tran</td></tr>
-      </tbody>
+      ${_ptr}
     </table>
-    <div class="q26footer"><span>4 Projects (Potential / 潜在)</span><span style="font-weight:700">48B VND</span></div>
   </div>
 
   <!-- Tab 4: Cancelled -->
   <div id="q26p4" style="display:none">
     <table>
       <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      <tbody>
-        <tr><td>JING YUAN TECHNOLOGY</td><td>Factory</td><td class="r">—</td><td>Mr Quang / Ms Linh</td></tr>
-        <tr><td>Transimex Warehouse</td><td>Transimex</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>Ready Build Warehouse</td><td>Lucky Industrial Park</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>Messer Binh Duong</td><td>Messer</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>We Tech Solutions</td><td>We tech Factory</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>PROMEA</td><td>KCP Design Pkg</td><td class="r">9B</td><td>Won 2025</td></tr>
-        <tr><td>Jing Yuan Tech</td><td>Factory</td><td class="r">—</td><td>Mr Quang / Ms Linh</td></tr>
-        <tr><td>Hotech</td><td>Factory</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>TaiKang</td><td>Factory</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>Midea</td><td>Warehouse</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>Fuhong Precision</td><td>Component Factory</td><td class="r">—</td><td>—</td></tr>
-        <tr><td>Kingboard</td><td>PCB Plant</td><td class="r">—</td><td>—</td></tr>
-      </tbody>
+      ${_ctr}
     </table>
-    <div class="q26footer"><span>12 Projects (Cancelled / 已取消)</span><span style="font-weight:700">9B VND</span></div>
   </div>
 </div>
 
@@ -1356,17 +1331,17 @@ function renderQuarterly(){
     <table style="font-size:13px">
       <thead><tr><th>Category</th><th class="r">Count</th><th class="r">Amount (B)</th></tr></thead>
       <tbody>
-        <tr><td><span class="tag tag-b">Bidding</span></td><td class="r">3</td><td class="r">170</td></tr>
-        <tr><td><span class="tag tag-g">Tracking</span></td><td class="r">16</td><td class="r">4,016</td></tr>
-        <tr><td><span class="tag tag-a">Potential</span></td><td class="r">4</td><td class="r">48</td></tr>
-        <tr><td><strong>Active Total</strong></td><td class="r"><strong>23</strong></td><td class="r"><strong>4,234</strong></td></tr>
-        <tr><td><span class="tag tag-gy">No Stage</span></td><td class="r">4</td><td class="r">48</td></tr>
-        <tr><td><span class="tag tag-r">Cancelled</span></td><td class="r">12</td><td class="r">—</td></tr>
+        <tr><td><span class="tag tag-b">Bidding</span></td><td class="r">${_bl.length}</td><td class="r">${_fa(_ba)}</td></tr>
+        <tr><td><span class="tag tag-g">Tracking</span></td><td class="r">${_tl.length}</td><td class="r">${_fa(_ta)}</td></tr>
+        <tr><td><span class="tag tag-a">Potential</span></td><td class="r">${_pl.length}</td><td class="r">${_fa(_pa_amt)}</td></tr>
+        <tr><td><strong>Active Total</strong></td><td class="r"><strong>${_ac}</strong></td><td class="r"><strong>${_fa(_aa)}</strong></td></tr>
+        <tr><td><span class="tag tag-gy">No Stage</span></td><td class="r">${_bt-_bl.length-_tl.length-_pl.length-_cl.length}</td><td class="r">—</td></tr>
+        <tr><td><span class="tag tag-r">Cancelled</span></td><td class="r">${_cl.length}</td><td class="r">${_ca>0?_fa(_ca):'—'}</td></tr>
       </tbody>
     </table>
     <div class="sm mt-8" style="line-height:1.5">
-      <strong>Projects with amounts:</strong> 23 active · 12 cancelled<br>
-      <strong>Pipeline coverage:</strong> 2.1× (Bidding+Tracking) vs 1,400B FY target<br>
+      <strong>Projects with amounts:</strong> ${_ac} active · ${_cl.length} cancelled<br>
+      <strong>Pipeline coverage:</strong> ${_cv.toFixed(1)}× (Bidding+Tracking) vs 1,400B FY target<br>
       <strong>Q2 new contacts:</strong> 180 (target 160 surpassed)<br>
       <strong>Q2 realized sales:</strong> 0 VND
     </div>
@@ -1375,13 +1350,13 @@ function renderQuarterly(){
 
 <!-- ===== FOOTER ===== -->
 <div class="q26ft">
-  <span>🏗️ <strong>Active Pipeline:</strong> 4,234B VND</span>
+  <span>🏗️ <strong>Active Pipeline:</strong> ${_fa(_aa)} VND</span>
   <span>·</span>
-  <span>Bidding <strong>170B</strong></span>
+  <span>Bidding <strong>${_fa(_ba)}</strong></span>
   <span>·</span>
-  <span>Tracking <strong>4,016B</strong></span>
+  <span>Tracking <strong>${_fa(_ta)}</strong></span>
   <span>·</span>
-  <span>Potential <strong>48B</strong></span>
+  <span>Potential <strong>${_fa(_pa_amt)}</strong></span>
   <span>·</span>
   <span>Q2 new contacts <strong>180</strong> · 25 chambers</span>
 </div>
