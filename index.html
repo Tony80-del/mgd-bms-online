@@ -1103,7 +1103,7 @@ function renderQuarterly(){
   }
 
   // ===== BRANCH: Q2 gets full dashboard, Q1/Q3/Q4 get compact =====
-  if(q==='Q2'){
+  if(q==='Q2'||q==='Q3'){
     // Dynamic pipeline vars
     var _sc=function(b,k){var s=(b.stageContent||'').toLowerCase();return k.some(function(x){return s.indexOf(x.toLowerCase())!==-1;});};
     var _pa=function(v){if(!v||v==='-'||v==='—')return 0;var s=(''+v).replace(/,/g,'').trim();return /[bB]/.test(s)?(parseFloat(s.replace(/[^0-9.]/g,''))||0):((parseFloat(s)||0)/1e9);};
@@ -1163,8 +1163,8 @@ function renderQuarterly(){
 <!-- ===== HEADER ===== -->
 <div class="q26hdr">
   <div class="q26hdr-l">
-    <h1>MGD Q2 · 2026</h1>
-    <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 Apr–Jun 2026</span></div>
+    <h1>MGD ${q} · 2026</h1>
+    <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 ${q==='Q2'?'Apr–Jun':'Jul–Sep'} 2026</span></div>
   </div>
   <div class="q26hdr-r">Dynamic · live BMS data</div>
 </div>
@@ -1174,7 +1174,7 @@ function renderQuarterly(){
   <div class="q26card">
     <div class="q26t">🎯 Company Sales Target (FY 2026)</div>
     <div class="q26v">1,400B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="q26sub">Q2 Actual: <span class="tag tag-r">0 VND</span></div>
+    <div class="q26sub">${q} Actual: <span class="tag tag-r">0 VND</span></div>
     <div class="q26sub" style="color:var(--t3);font-size:11px">ℹ️ No quarterly actual data entered in BMS</div>
     <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
   </div>
@@ -1186,7 +1186,7 @@ function renderQuarterly(){
     <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
   </div>
   <div class="q26card" style="border-left:3px solid var(--blue)">
-    <div class="q26t">🏗️ Active Pipeline (Q2 snapshot)</div>
+    <div class="q26t">🏗️ Active Pipeline (${q} snapshot)</div>
     <div class="q26v">${_fa(_aa)} <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
     <div class="q26sub" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
       <span class="tag tag-b">Bidding ${_fa(_ba)}</span>
@@ -1201,29 +1201,29 @@ function renderQuarterly(){
   </div>
 </div>
 
-<!-- ===== ROW 2: Q2 SPECIFIC CARDS ===== -->
+<!-- ===== ROW 2: Q SPECIFIC CARDS ===== -->
 <div class="q26g3">
   <div class="q26card">
-    <div class="q26t">👥 New Contacts (Q2 · Apr–Jun)</div>
+    <div class="q26t">👥 New Contacts (${q} · ${q==='Q2'?'Apr–Jun':'Jul–Sep'})</div>
     <div class="q26flex">
-      <div class="q26v" style="color:var(--green)">180</div>
-      <div style="margin-left:auto"><span class="tag tag-g">YTD: 252</span></div>
+      <div class="q26v" style="color:var(--green)">${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</div>
+      <div style="margin-left:auto"><span class="tag tag-g">YTD: ${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()}</span></div>
     </div>
     <div class="q26sub">Annual target: 160 · 2025 total: 57</div>
     <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      <strong>Apr:</strong> 107 · <strong>May:</strong> 55 · <strong>Jun:</strong> 18
+      ${function(){var _c=data.customers||[];var _m=q==='Q2'?['Apr','May','Jun']:['Jul','Aug','Sep'];var _mp=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _m.map(function(mn,i){var cnt=_c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf(_mp[i])===0;}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
     </div>
     <div class="q26bar"><div class="q26bar-f" style="width:113%;background:var(--green)"></div></div>
-    <div class="q26data-source">369 customers in database · 252 with 2026 dates</div>
+    <div class="q26data-source">${(data.customers||[]).length} customers in database · ${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()} with 2026 dates</div>
   </div>
   <div class="q26card">
-    <div class="q26t">✅ Project Won (Q2 · Apr–Jun)</div>
+    <div class="q26t">✅ Project Won (${q} · ${q==='Q2'?'Apr–Jun':'Jul–Sep'})</div>
     <div class="q26v" style="color:var(--t3)">0</div>
-    <div class="q26sub">No project won in Apr–Jun 2026</div>
+    <div class="q26sub">No project won in ${q==='Q2'?'Apr–Jun':'Jul–Sep'} 2026</div>
     <div class="q26data-source">PROMEA-KCP (9B) — Won 2025, excluded</div>
   </div>
   <div class="q26card">
-    <div class="q26t">📋 Chambers (Q2 active)</div>
+    <div class="q26t">📋 Chambers (${q} active)</div>
     <div class="q26v">25</div>
     <div class="q26sub">Events and memberships tracked</div>
     <div class="q26sm" style="line-height:1.5;margin-top:4px">
@@ -1235,7 +1235,7 @@ function renderQuarterly(){
 <!-- ===== ROW 3: PLAN 2026 ===== -->
 <div class="q26g2">
   <div class="q26card">
-    <div class="q26t">📋 PLAN 2026 <span class="q26sm">· Q2 progress snapshot</span></div>
+    <div class="q26t">📋 PLAN 2026 <span class="q26sm">· ${q} progress snapshot</span></div>
     <div class="q26pr"><span class="q26pr-l">A. System Tender</span><div class="q26pr-b"><div class="q26pr-f" style="width:45%;background:var(--amber)"></div></div><span class="q26pr-p" style="color:var(--amber)">45%</span></div>
     <div class="q26pr"><span class="q26pr-l">B. Build Database</span><div class="q26pr-b"><div class="q26pr-f" style="width:50%;background:var(--amber)"></div></div><span class="q26pr-p" style="color:var(--amber)">50%</span></div>
     <div class="q26pr"><span class="q26pr-l">C. Training</span><div class="q26pr-b"><div class="q26pr-f" style="width:0%;background:var(--red)"></div></div><span class="q26pr-p" style="color:var(--red)">0%</span></div>
@@ -1247,25 +1247,25 @@ function renderQuarterly(){
     </div>
   </div>
   <div class="q26card">
-    <div class="q26t">📊 Q2 Key Figures</div>
+    <div class="q26t">📊 ${q} Key Figures</div>
     <table style="font-size:13px">
       <tr><td>Active Pipeline (total)</td><td class="r"><strong>${_fa(_aa)}</strong></td></tr>
       <tr><td>Bidding</td><td class="r">${_bl.length} projects · ${_fa(_ba)}</td></tr>
       <tr><td>Tracking</td><td class="r">${_tl.length} projects · ${_fa(_ta)}</td></tr>
       <tr><td>Potential</td><td class="r">${_pl.length} projects · ${_fa(_pa_amt)}</td></tr>
-      <tr><td>New Contacts (Q2)</td><td class="r">180</td></tr>
+      <tr><td>New Contacts (${q})</td><td class="r">180</td></tr>
       <tr><td>New Contacts (YTD)</td><td class="r">252</td></tr>
       <tr><td>Customers Database</td><td class="r">369</td></tr>
       <tr><td>Chambers</td><td class="r">25</td></tr>
       <tr><td>Projects Tracked</td><td class="r">10</td></tr>
-      <tr><td>Q2 Realized Sales</td><td class="r"><span class="tag tag-r">0</span></td></tr>
+      <tr><td>${q} Realized Sales</td><td class="r"><span class="tag tag-r">0</span></td></tr>
     </table>
   </div>
 </div>
 
 <!-- ===== ROW 4: PIPELINE DETAIL ===== -->
 <div class="q26card" style="margin-bottom:12px">
-  <div class="q26t" style="margin-bottom:12px">Pipeline Detail <span class="q26sm">· Q2 snapshot by stage</span></div>
+  <div class="q26t" style="margin-bottom:12px">Pipeline Detail <span class="q26sm">· ${q} snapshot by stage</span></div>
 
   <div class="q26tabs">
     <button class="tab act" onclick="q26sw('p1')">📋 Bidding<span class="tag tag-b" style="margin-left:4px">${_bl.length}</span></button>
@@ -1310,7 +1310,7 @@ function renderQuarterly(){
 <!-- ===== ROW 5: TOP CLIENTS + SUMMARY ===== -->
 <div class="q26g2">
   <div class="q26card">
-    <div class="q26t">🌍 Top Client Countries <span class="q26sm">(369 customers · Q2 snapshot)</span></div>
+    <div class="q26t">🌍 Top Client Countries <span class="q26sm">(369 customers · ${q} snapshot)</span></div>
     <div style="margin-top:6px">
       <div class="q26pr"><span class="q26pr-l" style="width:100px">🇻🇳 Vietnam</span><div class="q26pr-b"><div class="q26pr-f" style="width:100%;background:var(--blue)"></div></div><span class="q26pr-p">129</span></div>
       <div class="q26pr"><span class="q26pr-l" style="width:100px">🇨🇳 China</span><div class="q26pr-b"><div class="q26pr-f" style="width:44%;background:var(--blue)"></div></div><span class="q26pr-p">57</span></div>
