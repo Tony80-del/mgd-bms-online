@@ -1225,11 +1225,11 @@ function renderQuarterly(){
     <div class="q26data-source">PROMEA-KCP (9B) — Won 2025, excluded</div>
   </div>
   <div class="q26card">
-    <div class="q26t">📋 Chambers (${q} active)</div>
-    <div class="q26v">25</div>
+    <div class="q26t">📋 Chambers (${function(){var _ch=data.chambers||[];return _ch.filter(function(c){var d=c.attendanceDate;if(!d)return false;var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}).length;}()} active)</div>
+    <div class="q26v">${(data.chambers||[]).length}</div>
     <div class="q26sub">Events and memberships tracked</div>
     <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      HKBVC · EURO CHAM (×2) · SIN CHAM (×2) · BlueScope (×2) · CANCHAM (×2) · FDi Group · HKBAV (×2) · VPC (×3) · GBA · HKBCV · China CHAM · TAIWAN CHAM · VIETNAM CHAM · VIPF · Malaysia CHAM · SignCham · AUSCHAM · Zhang Zhu
+      ${function(){var _ch=data.chambers||[];var names=_ch.map(function(c){return c.shortName||c.ch2||c.chamberName||c.chName||c.ch1||'—';}).filter(function(n){return n&&n!=='—'&&n!=='undefined';});if(!names.length)return'(no chambers)';var freq={};names.forEach(function(n){freq[n]=(freq[n]||0)+1;});return Object.keys(freq).sort(function(a,b){return freq[b]-freq[a];}).map(function(n){return freq[n]>1?n+' (×'+freq[n]+')':n;}).join(' · ');}()}
     </div>
   </div>
 </div>
@@ -1255,12 +1255,12 @@ function renderQuarterly(){
       <tr><td>Bidding</td><td class="r">${_bl.length} projects · ${_fa(_ba)}</td></tr>
       <tr><td>Tracking</td><td class="r">${_tl.length} projects · ${_fa(_ta)}</td></tr>
       <tr><td>Potential</td><td class="r">${_pl.length} projects · ${_fa(_pa_amt)}</td></tr>
-      <tr><td>New Contacts (${q})</td><td class="r">180</td></tr>
-      <tr><td>New Contacts (YTD)</td><td class="r">252</td></tr>
-      <tr><td>Customers Database</td><td class="r">369</td></tr>
-      <tr><td>Chambers</td><td class="r">25</td></tr>
-      <tr><td>Projects Tracked</td><td class="r">10</td></tr>
-      <tr><td>${q} Realized Sales</td><td class="r"><span class="tag tag-r">0</span></td></tr>
+      <tr><td>New Contacts (${q})</td><td class="r">${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</td></tr>
+      <tr><td>New Contacts (YTD)</td><td class="r">${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()}</td></tr>
+      <tr><td>Customers Database</td><td class="r">${(data.customers||[]).length}</td></tr>
+      <tr><td>Chambers</td><td class="r">${(data.chambers||[]).length}</td></tr>
+      <tr><td>Projects Tracked</td><td class="r">${(data.projects||[]).length}</td></tr>
+      <tr><td>${q} Realized Sales</td><td class="r"><span class="tag tag-r">${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0':((a/1e9).toFixed(1))+'B';}()}</span></td></tr>
     </table>
   </div>
 </div>
@@ -1312,21 +1312,10 @@ function renderQuarterly(){
 <!-- ===== ROW 5: TOP CLIENTS + SUMMARY ===== -->
 <div class="q26g2">
   <div class="q26card">
-    <div class="q26t">🌍 Top Client Countries <span class="q26sm">(369 customers · ${q} snapshot)</span></div>
+    <div class="q26t">🌍 Top Client Countries <span class="q26sm">(${(data.customers||[]).length} customers · ${q} snapshot)</span></div>
     <div style="margin-top:6px">
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇻🇳 Vietnam</span><div class="q26pr-b"><div class="q26pr-f" style="width:100%;background:var(--blue)"></div></div><span class="q26pr-p">129</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇨🇳 China</span><div class="q26pr-b"><div class="q26pr-f" style="width:44%;background:var(--blue)"></div></div><span class="q26pr-p">57</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇹🇼 Taiwan</span><div class="q26pr-b"><div class="q26pr-f" style="width:30%;background:var(--blue)"></div></div><span class="q26pr-p">39</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇸🇬 Singapore</span><div class="q26pr-b"><div class="q26pr-f" style="width:22%;background:var(--blue)"></div></div><span class="q26pr-p">29</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇭🇰 Hong Kong</span><div class="q26pr-b"><div class="q26pr-f" style="width:17%;background:var(--blue)"></div></div><span class="q26pr-p">22</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇩🇪 Germany</span><div class="q26pr-b"><div class="q26pr-f" style="width:12%;background:var(--blue)"></div></div><span class="q26pr-p">15</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇯🇵 Japan</span><div class="q26pr-b"><div class="q26pr-f" style="width:10%;background:var(--blue)"></div></div><span class="q26pr-p">13</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇲🇾 Malaysia</span><div class="q26pr-b"><div class="q26pr-f" style="width:8%;background:var(--blue)"></div></div><span class="q26pr-p">10</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇦🇺 Australia</span><div class="q26pr-b"><div class="q26pr-f" style="width:7%;background:var(--blue)"></div></div><span class="q26pr-p">9</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇫🇷 France</span><div class="q26pr-b"><div class="q26pr-f" style="width:5%;background:var(--blue)"></div></div><span class="q26pr-p">6</span></div>
-      <div class="q26pr"><span class="q26pr-l" style="width:100px">🇨🇦 Canada</span><div class="q26pr-b"><div class="q26pr-f" style="width:5%;background:var(--blue)"></div></div><span class="q26pr-p">6</span></div>
+      ${function(){var _c=data.customers||[];var cMap={};var fl={Vietnam:'🇻🇳',China:'🇨🇳','中国':'🇨🇳',Taiwan:'🇹🇼','台湾':'🇹🇼',Singapore:'🇸🇬',HK:'🇭🇰','Hong Kong':'🇭🇰',Germany:'🇩🇪','德国':'🇩🇪',Japan:'🇯🇵','日本':'🇯🇵',Malaysia:'🇲🇾','马来西亚':'🇲🇾',Australia:'🇦🇺','澳大利亚':'🇦🇺',France:'🇫🇷','法国':'🇫🇷',Canada:'🇨🇦','加拿大':'🇨🇦',Korea:'🇰🇷','韩国':'🇰🇷',Thailand:'🇹🇭','泰国':'🇹🇭',UK:'🇬🇧','英国':'🇬🇧',US:'🇺🇸','美国':'🇺🇸',India:'🇮🇳','印度':'🇮🇳',Indonesia:'🇮🇩','印度尼西亚':'🇮🇩',Netherlands:'🇳🇱','荷兰':'🇳🇱'};var cAlias={Vietnam:['Vietnam','越南'],China:['China','中国','Chine'],Taiwan:['Taiwan','台湾','Taiwan(ROC)'],Singapore:['Singapore','新加坡'],'Hong Kong':['Hong Kong','香港','HK'],Germany:['Germany','德国'],Japan:['Japan','日本'],Malaysia:['Malaysia','马来西亚'],Australia:['Australia','澳大利亚'],France:['France','法国','Franch'],Canada:['Canada','加拿大'],UK:['UK','United Kingdom','英国','U.K.'],Korea:['Korea','韩国','South Korea'],Thailand:['Thailand','泰国'],US:['US','United States','美国','USA'],India:['India','印度'],Indonesia:['Indonesia','印度尼西亚'],Netherlands:['Netherlands','荷兰','Holland']};var cNorm={};Object.keys(cAlias).forEach(function(k){cAlias[k].forEach(function(a){cNorm[a.toLowerCase()]=k;});});var noC=0;_c.forEach(function(x){var ct=(x.country||x.f14c||x.f14b||x.f14||'').toLowerCase().trim();if(!ct||ct==='—'||ct==='-'){noC++;return;}var normalized=cNorm[ct];if(!normalized){Object.keys(cNorm).forEach(function(k){if(ct.indexOf(k)!==-1||k.indexOf(ct)!==-1)normalized=cNorm[k];});}if(!normalized){noC++;return;}cMap[normalized]=(cMap[normalized]||0)+1;});var sorted=Object.keys(cMap).sort(function(a,b){return cMap[b]-cMap[a];});var top11=sorted.slice(0,11);var maxVal=top11.length?cMap[top11[0]]:1;var rows=top11.map(function(name){var cnt=cMap[name];var pct=Math.round(cnt/maxVal*100);var emoji=fl[name]||'🌍';return'<div class="q26pr"><span class="q26pr-l" style="width:100px">'+emoji+' '+name+'</span><div class="q26pr-b"><div class="q26pr-f" style="width:'+pct+'%;background:var(--blue)"></div></div><span class="q26pr-p">'+cnt+'</span></div>';}).join('\n');var rest=sorted.slice(11);var restStr=rest.length?rest.map(function(n){return n+' '+cMap[n];}).join(' · '):'';var tail=(noC>0?'(none) '+noC:'');return rows+(restStr||tail?'<div class="sm mt-8">'+[restStr,tail].filter(Boolean).join(' · ')+'</div>':'');}()}
     </div>
-    <div class="sm mt-8">UK 5 · Korea 4 · Thailand 4 · US 3 · India 2 · Indonesia 1 · Netherlands 1 · Europe/Intl 4 · (none) 4</div>
   </div>
   <div class="q26card">
     <div class="q26t">📊 Pipeline Summary</div>
@@ -1344,8 +1333,7 @@ function renderQuarterly(){
     <div class="sm mt-8" style="line-height:1.5">
       <strong>Projects with amounts:</strong> ${_ac} active · ${_cl.length} cancelled<br>
       <strong>Pipeline coverage:</strong> ${_cv.toFixed(1)}× (Bidding+Tracking) vs 1,400B FY target<br>
-      <strong>Q2 new contacts:</strong> 180 (target 160 surpassed)<br>
-      <strong>Q2 realized sales:</strong> 0 VND
+      <strong>${q} new contacts:</strong> ${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()} (target 160) · <strong>${q} realized sales:</strong> ${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0 VND':((a/1e9).toFixed(1))+'B';}()}
     </div>
   </div>
 </div>
@@ -1360,7 +1348,7 @@ function renderQuarterly(){
   <span>·</span>
   <span>Potential <strong>${_fa(_pa_amt)}</strong></span>
   <span>·</span>
-  <span>Q2 new contacts <strong>180</strong> · 25 chambers</span>
+  <span>${q} new contacts <strong>${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</strong> · ${(data.chambers||[]).length} chambers</span>
 </div>
 
 </div>`;
