@@ -1228,9 +1228,6 @@ function renderQuarterly(){
     <div class="q26t">📋 Chambers (${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return _ch.length;}()} attended in ${q})</div>
     <div class="q26v">${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return _ch.length;}()}</div>
     <div class="q26sub" style="display:flex;gap:8px"><span>${(data.chambers||[]).length} total</span> · <span>Events and memberships tracked</span></div>
-    <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});var names=_ch.map(function(c){return c.shortName||c.ch2||c.chamberName||c.chName||c.ch1||'—';}).filter(function(n){return n&&n!=='—'&&n!=='undefined';});if(!names.length)return'(no events this quarter)';var freq={};names.forEach(function(n){freq[n]=(freq[n]||0)+1;});return Object.keys(freq).sort(function(a,b){return freq[b]-freq[a];}).map(function(n){return freq[n]>1?n+' (×'+freq[n]+')':n;}).join(' · ');}()}
-    </div>
   </div>
 </div>
 
