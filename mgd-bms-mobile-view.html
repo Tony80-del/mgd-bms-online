@@ -107,6 +107,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:-
 .p-Lost,.p-Overdue,.p-Red,.p-delay{background:rgba(248,81,73,.18);color:var(--red)}
 .p-Pending,.p-Yellow,.p-progress{background:rgba(227,179,65,.18);color:var(--yel)}
 .p-Following,.p-Purple,.p-Reviewing,.p-Data,.p-Reviewing{background:rgba(188,140,255,.18);color:var(--pur)}
+.p-Potential{background:rgba(173,216,230,.25);color:var(--blu)}
 .p-High{background:rgba(248,81,73,.18);color:var(--red)}
 .p-Medium{background:rgba(255,140,66,.18);color:var(--org)}
 .p-Low{background:rgba(110,118,129,.20);color:var(--gry)}
@@ -202,7 +203,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
     <div class="screen-head"><h2>Bid Projects</h2><span class="count" id="bidCount"></span></div>
     <div class="search">
       <input id="bidSearch" placeholder="🔍 Search...">
-      <select id="bidFilter"><option value="">All Active</option><option value="Bidding">Bidding</option><option value="Following">Following</option><option value="Overdue">Overdue</option></select>
+      <select id="bidFilter"><option value="">All Active</option><option value="Bidding">Bidding</option><option value="Following">Following</option><option value="Potential">Potential</option><option value="Overdue">Overdue</option></select>
     </div>
     <div id="summaryBids" class="summary-cards"></div>
     <div class="list" id="listBids"></div>
@@ -293,7 +294,7 @@ const daysLeft=d=>{if(!d)return 9999;const d2=new Date(d+"T00:00:00");if(isNaN(d
 const sameMonth=(d,ref)=>{if(!d)return false;const d2=new Date(d+"T00:00:00");if(isNaN(d2))return false;return ref?d2.getMonth()===ref.getMonth()&&d2.getFullYear()===ref.getFullYear():d2.getMonth()===TODAY.getMonth()&&d2.getFullYear()===TODAY.getFullYear();};
 const fmtV=n=>{if(!n||isNaN(n))return'—';const v=Number(n);if(v>=1e9)return(v/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(v>=1e6)return(v/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(v>=1e3)return(v/1e3).toFixed(1).replace(/\.0$/,'')+'K';return v.toLocaleString();};
 const pill=(cls,txt)=>'<span class="pill p-'+esc(cls)+'">'+esc(txt)+'</span>';
-const stageCls=s=>{const m={'Bidding':'Bidding','投标中':'Bidding','Following':'Following','跟踪':'Following','Reviewing':'Reviewing','评审中':'Reviewing','Won':'Won','中标':'Won','Data Collection':'Data','资格审核':'Data','PQ':'Data'};return m[s]||'Grey';};
+const stageCls=s=>{const m={'Bidding':'Bidding','投标中':'Bidding','Following':'Following','跟踪':'Following','Potential':'Potential','潜在':'Potential','潜在 / Potential':'Potential','Reviewing':'Reviewing','评审中':'Reviewing','Won':'Won','中标':'Won','Data Collection':'Data','资格审核':'Data','PQ':'Data'};return m[s]||'Grey';};
 
 function delayLabel(dl){
   if(dl<0) return {txt:Math.abs(dl)+'d overdue',cls:'ov'};
@@ -421,7 +422,7 @@ function renderAll(){
 
   // ── Alerts ──
   var urgent=[],alarms=[];
-  const activeBids=bids=>bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
+  const activeBids=bids=>bids.filter(b=>/(Bidding|Following|Potential|潜在)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
   activeBids(bids).forEach(b=>{if(!b.nextActionDate)return;const dl=daysLeft(b.nextActionDate);if(dl<0&&Math.abs(dl)>7)alarms.push({icon:'🚨',name:b.projectName||b.customerName,tag:Math.abs(dl)+'d',cls:'alarm'});});
   chambers.forEach(c=>{const dl=daysLeft(c.attendanceDate);if(dl>0&&dl<=7)urgent.push({icon:'🏛️',name:c.chamberName,tag:dl+'d',cls:''});});
   urgent.sort((a,b)=>a.cls===b.cls?0:a.cls?'a':'b').slice(0,8);
@@ -434,7 +435,7 @@ function renderAll(){
   }
 
   // ── Delay-only Cards ──
-  const activeBidsArr=bids.filter(b=>/(Bidding|Following)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
+  const activeBidsArr=bids.filter(b=>/(Bidding|Following|Potential|潜在)/i.test(b.stageContent||b.stage||'')&&!b.inactive&&!/Stopped|Cancelled/i.test(b.stage||b.stageContent||''));
   const bOver=activeBidsArr.filter(b=>{if(!b.nextActionDate)return false;const dl=daysLeft(b.nextActionDate);return dl<0;}).length;
   const bAlarmCount=activeBidsArr.filter(b=>{if(!b.nextActionDate)return false;const dl=daysLeft(b.nextActionDate);return dl<0&&Math.abs(dl)>7;}).length;
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
@@ -596,25 +597,28 @@ function renderBids(){
   const arr=APP.data.bids||[];
   const q=$('#bidSearch').value.toLowerCase().trim();
   const f=$('#bidFilter').value;
-  // Only show Following or Bidding status (exclude cancelled/stopped)
+  // Show Bidding / Following / Potential (exclude cancelled/stopped)
   let list=arr.filter(b=>{
     const sc=b.stageContent||b.stage||'';
-    const keep=/(Bidding|Following)/i.test(sc)&&!b.inactive;
+    const keep=/(Bidding|Following|Potential|潜在)/i.test(sc)&&!b.inactive;
     if(!keep)return false;
     const okQ=!q||(b.projectName||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q)||(b.location||'').toLowerCase().includes(q);
-    const cls=/(Bidding)/i.test(sc)?'Bidding':'Following';
+    const cls=/(Bidding)/i.test(sc)?'Bidding':/(Potential|潜在)/i.test(sc)?'Potential':'Following';
     let okF=true;
     if(f==='Bidding')okF=cls==='Bidding';
     else if(f==='Following')okF=cls==='Following';
+    else if(f==='Potential')okF=cls==='Potential';
     else if(f==='Overdue'){if(!b.nextActionDate)okF=false;else{const dl=daysLeft(b.nextActionDate);okF=dl<0;}}
     return okQ&&okF;
   });
   const aB=list.filter(b=>/(Bidding)/i.test(b.stageContent||b.stage||'')).length;
+  const pB=list.filter(b=>/(Potential|潜在)/i.test(b.stageContent||b.stage||'')).length;
   const oB=list.filter(b=>{if(!b.nextActionDate)return false;const dl=daysLeft(b.nextActionDate);return dl<0;}).length;
   $('#summaryBids').innerHTML=[
     '<div class="sc"><div class="sc-n">'+list.length+'</div><div class="sc-l">Active</div></div>',
     '<div class="sc"><div class="sc-n" style="color:var(--blu)">'+aB+'</div><div class="sc-l">Bidding</div></div>',
-    '<div class="sc"><div class="sc-n" style="color:var(--pur)">'+(list.length-aB)+'</div><div class="sc-l">Following</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--pur)">'+(list.length-aB-pB)+'</div><div class="sc-l">Following</div></div>',
+    '<div class="sc"><div class="sc-n" style="color:var(--gry)">'+pB+'</div><div class="sc-l">Potential</div></div>',
     '<div class="sc"><div class="sc-n" style="color:var(--acc)">'+fmtV(list.reduce((s,b)=>s+(parseFloat(b.estimatedValue)||0),0))+'</div><div class="sc-l">Est. Value</div></div>'
   ].join('');
   $('#bidCount').textContent='('+list.length+')';
