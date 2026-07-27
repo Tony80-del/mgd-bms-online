@@ -903,7 +903,8 @@ function updateSummary(){
   document.getElementById('custLegNew').textContent=t('custLegNew');
   document.getElementById('custLegInteract').textContent=t('custLegInteract');
   // 商会统计
-  document.getElementById('sumChambTotal').textContent=data.chambers.length;
+  var _cAtt=new Set();data.chambers.forEach(function(c){if(!c.attendanceDate)return;try{var _d=new Date(c.attendanceDate);if(_d.getFullYear()===2026&&_d<now)_cAtt.add(c);}catch(e){}});
+  document.getElementById('sumChambTotal').textContent=_cAtt.size;
   var juneAtt=0,juneUpc=0;
   data.chambers.forEach(function(c){
     if(!c.attendanceDate)return;
