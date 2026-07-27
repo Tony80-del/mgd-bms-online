@@ -3236,7 +3236,7 @@ function restoreAll(event){
         count++;
       }
       var codeStr = backup._sourceCode;
-      if(codeStr && confirm('已恢复 '+count+' 条数据。\n\n该备份包含系统代码(index.html)。\n是否下载代码文件？(下载后手动替换 GitHub 上的 index.html)\n\nRestored '+count+' entries.\nBackup also contains system code.\nDownload index.html to replace on GitHub?')){
+      if(codeStr){
         // 也存一份到 localStorage 供手动下载
         localStorage.setItem('_bms_backup_code', codeStr);
         var blob = new Blob([codeStr], {type: 'text/html;charset=utf-8'});
@@ -3247,7 +3247,7 @@ function restoreAll(event){
         a.click();
         setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
       }
-      if(confirm('数据已恢复。页面将刷新以生效。\nData restored. Reload to apply?')){
+      /* auto-reload */ {
         location.reload();
       }
     } catch(err) {
