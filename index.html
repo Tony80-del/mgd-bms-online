@@ -1122,7 +1122,7 @@ function renderQuarterly(){
     var _ta=_tl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
     var _pa_amt=_pl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
     var _ca=_cl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
-    var _aa=_ba+_ta+_pa_amt;var _ac=_bl.length+_tl.length+_pl.length;var _bt=_b.length;var _cv=_aa/1400;
+    var _aa=_ba+_pa_amt;var _ac=_bl.length+_pl.length;var _bt=_b.length;var _cv=_aa/1400;
     var _btr=_tr(_bl);var _ttr=_tr(_tl);var _ptr=_tr(_pl);var _ctr=_tr(_cl);
     container.innerHTML=`<style>.q26page{--bg:#eef0f4;--card:#fff;--border:#e0e2e6;--text:#141517;--t2:#656d78;--t3:#9098a3;--blue:#2266cc;--green:#1e8e3e;--red:#d93025;--amber:#e37400;--purple:#7c3aed;--radius:10px;font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
 .q26page{max-width:1280px;margin:0 auto}
@@ -1337,7 +1337,7 @@ function renderQuarterly(){
     </table>
     <div class="sm mt-8" style="line-height:1.5">
       <strong>Projects with amounts:</strong> ${_ac} active · ${_cl.length} cancelled<br>
-      <strong>Pipeline coverage:</strong> ${_cv.toFixed(1)}× (Bidding+Tracking) vs 1,400B FY target<br>
+      <strong>Pipeline coverage:</strong> ${_cv.toFixed(1)}× (Bidding+Potential) vs 1,400B FY target<br>
       <strong>${q} new contacts:</strong> ${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()} (target 160) · <strong>${q} realized sales:</strong> ${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0 VND':((a/1e9).toFixed(1))+'B';}()}
     </div>
   </div>
