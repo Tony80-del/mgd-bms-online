@@ -1228,14 +1228,14 @@ function renderQuarterly(){
     <div class="q26t">📋 ${q==='Q2'?'Apr–Jun':'Jul–Sep'} Chamber Events <span class="tag tag-a" style="margin-left:4px">${(data.chambers||[]).length} total chambers</span></div>
     <div class="q26flex">
       <div class="q26v" style="color:var(--purple)">${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return _ch.length;}()}</div>
-      <div style="margin-left:auto"><span class="tag tag-a">${(data.chambers||[]).length} total</span></div>
+      <div style="margin-left:auto"><span class="tag tag-g">${16} target</span></div>
     </div>
-    <div class="q26sub">Events with attendance records</div>
+    <div class="q26sub">Annual target: 16 events · ${q} Attended: ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return _ch.length;}()}</div>
     <div class="q26sm" style="line-height:1.5;margin-top:4px">
       ${function(){var _ch=data.chambers||[];var _m=q==='Q2'?['Apr','May','Jun']:['Jul','Aug','Sep'];var _mp=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _m.map(function(mn,i){var cnt=_ch.filter(function(c){var d=c.attendanceDate||'';return d.indexOf(_mp[i])===0;}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
     </div>
-    <div class="q26bar"><div class="q26bar-f" style="width:${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});var total=(data.chambers||[]).length;return total>0?((_ch.length/total)*100).toFixed(0):'0';}()}%;background:var(--purple)"></div></div>
-    <div class="q26data-source">${(data.chambers||[]).length} chambers tracked · ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return _ch.length;}()} with ${q} attendance dates</div>
+    <div class="q26bar"><div class="q26bar-f" style="width:${function(){var _q=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return Math.min(100,(_q.length/16*100)).toFixed(0);}()}%;background:var(--purple)"></div></div>
+    <div class="q26data-source">${(data.chambers||[]).length} chambers tracked · annual target ${16} · ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=qm.mn&&m<=qm.mx;}catch(e){return false;}});return _ch.length;}()} ${q} attended</div>
   </div>
 </div>
 
