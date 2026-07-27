@@ -3247,9 +3247,18 @@ function restoreAll(event){
         a.click();
         setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
       }
-      /* auto-reload */ {
-        location.reload();
-      }
+      // Push restored data to Firestore before reloading
+      if(typeof fdb !== 'undefined'){
+        var bmsData = localStorage.getItem('bms_data');
+        if(bmsData){
+          try {
+            var parsed = JSON.parse(bmsData);
+            fdb.collection('bms_data').doc('master').set({ data: parsed, updatedBy: 'restore', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+              .then(function(){ console.log('[Restore] Synced to Firestore OK'); location.reload(); })
+              .catch(function(e){ console.log('[Restore] Firestore push failed:', e.message); location.reload(); });
+          } catch(e){ location.reload(); }
+        } else { location.reload(); }
+      } else { location.reload(); }
     } catch(err) {
       alert('恢复失败: ' + err.message + '\nRestore failed: ' + err.message);
     }
