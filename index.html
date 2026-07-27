@@ -989,8 +989,9 @@ function renderQuarterly(){
 
   var chamberAtt=(data.chambers||[]).filter(function(ch){
     if(!ch.attendanceDate)return false;
-    var m=new Date(ch.attendanceDate).getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx;
+    var dt=new Date(ch.attendanceDate);
+    var m=dt.getMonth()+1;
+    return m>=qm.mn&&m<=qm.mx&&dt<=new Date();
   }).length;
   var chamberUpc=(data.chambers||[]).filter(function(ch){
     if(!ch.attendanceDate)return false;
