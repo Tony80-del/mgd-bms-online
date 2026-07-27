@@ -2074,20 +2074,23 @@ function exportSummaryPDF(){
   var trackingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪');});
   var potentialBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在');});
   var totalActivePages=1+(biddingBids.length>0||potentialBids.length>0?1:0)+(trackingBids.length>0?1:0);
+  // compute pipeline values for header
+  function _pv(list){return list.reduce(function(s,b){var n=parseFloat(String(b.estimatedValue||'').replace(/,/g,''))||0;return s+n;},0)/1e9;}
+  var pdfBA=_pv(biddingBids),pdfPA=_pv(potentialBids),pdfTA=_pv(trackingBids),pdfAA=pdfBA+pdfPA+pdfTA;
   var pageIdx=2;
   // ---- Page 2: Bidding + Potential merged ----
   if(biddingBids.length>0||potentialBids.length>0){
     html+='<div class="page">';
     html+='<div class="page-header">Page '+pageIdx+' / '+totalActivePages+'</div>';
     html+='<h1>MGD Business Management System</h1>';
-    html+='<h2>Active Pipeline: Bidding / 投标中</h2>';
+    html+='<h2>Active Pipeline: Bidding / 投标中 — Value: '+(pdfAA>0?(pdfAA>=100?Math.round(pdfAA):pdfAA.toFixed(1))+'B':'—')+' (Bidding: '+(pdfBA>0?(pdfBA>=100?Math.round(pdfBA):pdfBA.toFixed(1))+'B':'—')+')</h2>';
     html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Stage / 阶段</th><th>Est. Value / 金额</th></tr></thead><tbody>';
     biddingBids.forEach(function(b,i){
       html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.stage||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
     });
     html+='</tbody></table>';
     if(potentialBids.length>0){
-      html+='<h2 style="margin-top:24px;">Active Pipeline: Potential / 潜在</h2>';
+      html+='<h2 style="margin-top:24px;">Active Pipeline: Potential / 潜在 — Value: '+(pdfPA>0?(pdfPA>=100?Math.round(pdfPA):pdfPA.toFixed(1))+'B':'—')+'</h2>';
       html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Stage / 阶段</th><th>Est. Value / 金额</th></tr></thead><tbody>';
       potentialBids.forEach(function(b,i){
         html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.stage||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
@@ -2102,7 +2105,7 @@ function exportSummaryPDF(){
     html+='<div class="page">';
     html+='<div class="page-header">Page '+pageIdx+' / '+totalActivePages+'</div>';
     html+='<h1>MGD Business Management System</h1>';
-    html+='<h2>Active Pipeline: Following / 跟踪</h2>';
+    html+='<h2>Active Pipeline: Following / 跟踪 — Value: '+(pdfTA>0?(pdfTA>=100?Math.round(pdfTA):pdfTA.toFixed(1))+'B':'—')+'</h2>';
     html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Stage / 阶段</th><th>Est. Value / 金额</th></tr></thead><tbody>';
     trackingBids.forEach(function(b,i){
       html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.stage||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
