@@ -1226,7 +1226,7 @@ function renderQuarterly(){
     <div class="q26data-source">PROMEA-KCP (9B) — Won 2025, excluded</div>
   </div>
   <div class="q26card">
-    <div class="q26t">📋 ${q==='Q2'?'Apr–Jun':'Jul–Sep'} Chamber Events <span class="tag tag-a" style="margin-left:4px">${(function(){var _now=new Date();return (data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=_now;}catch(e){return false;}}).length;}())} YTD 2026</span></div>
+    <div class="q26t">📋 ${q==='Q2'?'Apr–Jun':'Jul–Sep'} Chamber Events <span class="tag tag-a" style="margin-left:4px">${function(){if(q==='Q2'){var _cnt=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=1&&m<=6;}catch(e){return false;}}).length;return _cnt+' H1 2026';}else{var _now=new Date(),_cnt=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=_now;}catch(e){return false;}}).length;return _cnt+' YTD 2026';}}()}</span></div>
     <div class="q26flex">
       <div class="q26v" style="color:var(--purple)">${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()}</div>
       <div style="margin-left:auto"><span class="tag tag-g">${16} target</span></div>
