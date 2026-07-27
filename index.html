@@ -1258,7 +1258,7 @@ function renderQuarterly(){
       ${function(){var _ch=data.chambers||[];var _now=new Date();var _m=q==='Q2'?['Apr','May','Jun']:['Jul','Aug','Sep'];var _mp=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _m.map(function(mn,i){var cnt=_ch.filter(function(c){var d=c.attendanceDate||'';try{return d.indexOf(_mp[i])===0&&new Date(d)<=_now;}catch(e){return false;}}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
     </div>
     <div class="q26bar"><div class="q26bar-f" style="width:${function(){var _ytd=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}});return Math.min(100,(_ytd.length/16*100)).toFixed(0);}()}%;background:var(--purple)"></div></div>
-    <div class="q26data-source">${(function(){return (data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}}).length;}())} chambers tracked YTD · annual target ${16} · ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()} ${q} attended</div>
+    <div class="q26data-source">${(function(){return (data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}}).length;})()} chambers tracked YTD · annual target ${16} · ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()} ${q} attended</div>
   </div>
 </div>
 
@@ -1376,7 +1376,7 @@ function renderQuarterly(){
   <span>·</span>
   <span>Potential <strong>${_fa(_pa_amt)}</strong></span>
   <span>·</span>
-  <span>${q} new contacts <strong>${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</strong> · ${(function(){var _s=new Set(),_now=new Date();(data.chambers||[]).forEach(function(c){if(!c.attendanceDate)return;try{var _d=new Date(c.attendanceDate);if(_d.getFullYear()!==2026||_d>_now)return;if(q==="Q2"){if(_d.getMonth()<6)_s.add(c);}else{_s.add(c);}}catch(e){}});return _s.size;}()) chambers tracked ${q==="Q2"?"H1":"YTD"}</span>
+  <span>${q} new contacts <strong>${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</strong> · ${(function(){var _s=new Set(),_now=new Date();(data.chambers||[]).forEach(function(c){if(!c.attendanceDate)return;try{var _d=new Date(c.attendanceDate);if(_d.getFullYear()!==2026||_d>_now)return;if(q==="Q2"){if(_d.getMonth()<6)_s.add(c);}else{_s.add(c);}}catch(e){}});return _s.size;})()} chambers tracked ${q==="Q2"?"H1":"YTD"}}</span>
 </div>
 
 </div>`;
