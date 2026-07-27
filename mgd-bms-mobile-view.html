@@ -440,7 +440,7 @@ function renderAll(){
   const bAlarmCount=activeBidsArr.filter(b=>{if(!b.nextActionDate)return false;const dl=daysLeft(b.nextActionDate);return dl<0&&Math.abs(dl)>7;}).length;
   const chUp=chambers.filter(c=>daysLeft(c.attendanceDate)>0).length;
   const custNewMonth=cust.filter(c=>sameMonth(c.createdDate)).length;
-  const interMonth=proj.filter(p=>sameMonth(p.interactionDate)).length;
+  const interMonth=proj.filter(p=>sameMonth(p.interactionDate)).reduce(function(s,p){return s+(typeof p.interactionCount==='number'?p.interactionCount:1);},0);
   var wrOverdue=collectOverdueWR(wrWeekNum);
   $('#statGrid').innerHTML=[
     '<div class="stat"><div class="h">🚨 Alarms (>7d overdue)</div><div class="big" style="color:'+(bAlarmCount>0?'var(--red)':'var(--grn)')+'">'+bAlarmCount+'</div></div>',
