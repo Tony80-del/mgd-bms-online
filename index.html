@@ -3097,7 +3097,14 @@ function sm(m){
   var wrContainer=document.getElementById('weeklyReportContainer');
   if(wrContainer)wrContainer.style.display='none';
   var dsContainer=document.getElementById('docstorageContainer');
-  if(dsContainer)dsContainer.style.display='none';
+  if(dsContainer){
+    dsContainer.style.display='none';
+    // Also close any open doc modals
+    ['addModal','secModal','locModal'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.classList.remove('open');
+    });
+  }
 
   // 隐藏表格容器
   document.querySelector('.tc').style.display='none';
@@ -3150,6 +3157,8 @@ function sm(m){
   }else if(m==='docstorage'){
     var dsC=document.getElementById('docstorageContainer');
     if(dsC)dsC.style.display='block';
+    // Close any open doc modals
+    ['addModal','secModal','locModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');});
     ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     if(typeof docRenderDashboard==='function')docRenderDashboard();
