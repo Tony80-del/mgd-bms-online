@@ -5490,6 +5490,7 @@ function docSaveSection(){
   const bgClasses = ['bg-row1','bg-row2','bg-row3','bg-row4','bg-row5','bg-row6'];
   const bgClass = bgClasses[(docSECTIONS.length) % 6];
   docSECTIONS.push({id:newId, label:newId, totalItems:1, bgClass, subs});
+  delete data.docItems;
   docRebuildAllItems();
   docBuildSectionBtns();
   docCloseSectionModal();
@@ -5503,6 +5504,7 @@ function docDeleteSection(si){
   const sec = docSECTIONS[si];
   if(!confirm('Delete section \"' + sec.label + '\" and all its documents?')) return;
   docSECTIONS.splice(si, 1);
+  delete data.docItems;
   docRebuildAllItems();
   docBuildSectionBtns();
   docRenderTable();
@@ -5514,6 +5516,7 @@ function docDeleteSubsection(si, subi){
   const sub = docSECTIONS[si].subs[subi];
   if(!confirm('Delete sub-section \"' + sub.label + '\" and all its documents?')) return;
   docSECTIONS[si].subs.splice(subi, 1);
+  delete data.docItems;
   docRebuildAllItems();
   docPersist();
   docRenderTable();
