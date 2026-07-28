@@ -168,7 +168,8 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .title-banner p {color:#a8c8e8;font-size:12px;text-align:center;margin-top:2px}
 
 /* ── Toolbar ── */
-#docstorageContainer .toolbar {display:flex;align-items:center;gap:12px;padding:14px 0 12px;flex-wrap:wrap;position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #d0d7e2;margin-bottom:4px}
+#docstorageContainer .sticky-header-wrap {position:sticky;top:0;z-index:100;background:#0D1A2A;border-bottom:1px solid rgba(255,255,255,.08)}
+#docstorageContainer .toolbar {display:flex;align-items:center;gap:12px;padding:10px 0 12px;flex-wrap:wrap;background:#fff}
 #docstorageContainer .toolbar input {background:#fff;border:1px solid #d0d7e2;border-radius:6px;padding:8px 14px;font-size:13px;width:260px}
 #docstorageContainer .toolbar input:focus {outline:none;border-color:#1E3A5F;box-shadow:0 0 0 2px rgba(30,58,95,.1)}
 #docstorageContainer .toolbar .filter-group {display:flex;gap:4px;flex-wrap:wrap}
@@ -289,10 +290,10 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .tracker-table tr.subsection-row:hover .del-cell {opacity:.6}
 
 /* ── Workflow Hint Banner ── */
-#docstorageContainer .workflow-hint {background:#fff;border:1px solid #d0d7e2;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-#docstorageContainer .workflow-hint .step {display:flex;align-items:center;gap:6px;font-size:11px;color:#555}
+#docstorageContainer .workflow-hint {background:#0D1A2A;border:none;border-bottom:1px solid rgba(255,255,255,.08);padding:8px 20px 12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+#docstorageContainer .workflow-hint .step {display:flex;align-items:center;gap:6px;font-size:11px;color:#a8c8e8}
 #docstorageContainer .workflow-hint .step-num {display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#1E3A5F;color:#fff;font-weight:700;font-size:10px;flex-shrink:0}
-#docstorageContainer .workflow-hint .step .arrow {color:#1E3A5F;font-weight:700;font-size:14px}
+#docstorageContainer .workflow-hint .step .arrow {color:#4a7a9c;font-weight:700;font-size:14px}
 
 /* ── Modal ── */
 #docstorageContainer .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
@@ -709,6 +710,8 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
 
   <!-- ── Title Banner ── -->
+  <!-- ── Sticky Header: Title + Workflow + Toolbar, frozen like Excel freeze pane ── -->
+  <div class="sticky-header-wrap">
   <div class="title-banner">
     <h1>DOCUMENTATION STORAGE</h1>
     <p>Document Storage & Registry System</p>
@@ -746,6 +749,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <button class="btn-export" onclick="docExportCSV()">📤 Export CSV</button>
       </div>
+  </div><!-- /sticky-header-wrap -->
 
   <!-- ── DASHBOARD ── -->
   <div class="dash-wrap">
