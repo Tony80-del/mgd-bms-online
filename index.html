@@ -5209,7 +5209,7 @@ function docRenderTable(){
   docRenderProgress();
   docUpdateStats();
   const pending = docAllItems.filter(i => !i.collected).length;
-  document.getElementById('sidebarBadge').textContent = pending + ' left';
+  var sbEl=document.getElementById('sidebarBadge');if(sbEl)sbEl.textContent = pending + ' left';
 }
 
 function docRenderTrackerBody(filtered){
