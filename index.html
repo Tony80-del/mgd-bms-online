@@ -157,6 +157,176 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #pwBox .pw-cancel{background:var(--bg);color:var(--text2);}
 #pwBox .pw-confirm{background:linear-gradient(135deg,#0096B4,var(--cyan));color:#fff;}
 #pwBox .pw-confirm:hover{opacity:0.9;}
+
+/* ── Documentation Storage Styles (from Demo) ── */
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fa;color:#333}
+
+/* ── BMS Sidebar ── */
+.sb{position:fixed;left:0;top:0;bottom:0;width:224px;background:linear-gradient(180deg,#071325,#040D1C);border-right:1px solid #0f2d50;z-index:100;overflow-y:auto}
+.sb .logo{padding:16px 12px;border-bottom:1px solid #0f2d50;text-align:center}
+.sb .logo .icon{width:100px;height:75px;background:white;border-radius:8px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#0b1e3d}
+.sb .logo p{color:#60a5fa;font-size:12px;letter-spacing:1px;font-weight:600}
+.sb nav{padding:12px 0}
+.sb .ni{display:flex;align-items:center;gap:10px;padding:11px 16px;margin:3px 12px;border-radius:10px;color:#7FB3D8;font-size:13px;cursor:pointer;transition:all .2s}
+.sb .ni:hover{background:rgba(0,180,216,0.08);color:#00B4D8}
+.sb .ni.active{background:rgba(0,180,216,0.1);color:#00B4D8;border:1px solid rgba(0,180,216,.25)}
+.sb .ni svg{width:18px;height:18px;flex-shrink:0}
+.sb .ni .badge{margin-left:auto;background:rgba(0,180,216,.15);color:#60a5fa;padding:1px 8px;border-radius:8px;font-size:10px}
+
+/* ── Main Content ── */
+.main{max-width:1280px;margin:0 auto;padding:24px;font-family:Arial,Helvetica,sans-serif}
+@media(min-width:1024px){.main{margin-left:224px}}
+
+/* ── Title Banner ── */
+.title-banner{background:#0D1A2A;padding:14px 24px}
+.title-banner h1{color:#fff;font-size:18px;font-weight:700;text-align:center;letter-spacing:.5px}
+.title-banner p{color:#a8c8e8;font-size:12px;text-align:center;margin-top:2px}
+
+/* ── Toolbar ── */
+.toolbar{display:flex;align-items:center;gap:12px;padding:14px 0 18px;flex-wrap:wrap}
+.toolbar input{background:#fff;border:1px solid #d0d7e2;border-radius:6px;padding:8px 14px;font-size:13px;width:260px}
+.toolbar input:focus{outline:none;border-color:#1E3A5F;box-shadow:0 0 0 2px rgba(30,58,95,.1)}
+.toolbar .filter-group{display:flex;gap:4px;flex-wrap:wrap}
+.toolbar .filter-btn{background:#f0f2f5;border:1px solid #d0d7e2;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;color:#555;font-weight:500;white-space:nowrap}
+.toolbar .filter-btn:hover{background:#e2e6ea}
+.toolbar .filter-btn.active{background:#1E3A5F;color:#fff;border-color:#1E3A5F}
+.toolbar .section-btns{display:flex;gap:4px;flex-wrap:wrap;padding:0 0 0 12px;border-left:2px solid #d0d7e2}
+.toolbar .sbtn{background:#f5f0e8;border:1px solid #d0b890;padding:7px 12px;border-radius:6px;font-size:11px;cursor:pointer;color:#7a6a50;font-weight:500;white-space:nowrap;transition:all .15s}
+.toolbar .sbtn:hover{background:#ede4d4}
+.toolbar .sbtn.active{background:#2D4A7A;color:#fff;border-color:#2D4A7A}
+.toolbar .btn-add{background:#1E3A5F;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.toolbar .btn-add:hover{background:#0f2d50}
+.toolbar .btn-sec{background:#2D4A7A;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.toolbar .btn-sec:hover{background:#1E3A5F}
+.toolbar .btn-export{background:#fff;color:#333;border:1px solid #d0d7e2;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.toolbar .btn-export:hover{background:#f0f2f5}
+
+
+/* ── Dashboard Table ── */
+.dash-wrap{background:#fff;border:1px solid #d0d7e2;margin-bottom:0;overflow:hidden}
+.dash-table{width:100%;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif}
+.dash-table th{background:#1E3A5F;color:#fff;padding:10px 12px;font-size:11px;font-weight:700;text-align:center;border-right:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.dash-table th:last-child{border-right:none}
+.dash-table th:first-child{text-align:left;padding-left:16px}
+.dash-table td{padding:8px 12px;font-size:10px;text-align:center;border-bottom:1px solid #e8ecf0;border-right:1px solid #e8ecf0}
+.dash-table td:last-child{border-right:none}
+.dash-table td.col-section{text-align:left;padding-left:16px;font-weight:700;color:#fff!important;font-size:10px}
+.dash-table td.col-total{font-weight:700;color:#fff!important;font-size:10px}
+.dash-table td.col-data{font-size:10px}
+.dash-table td.green{color:#006100!important;font-weight:700}
+.dash-table td.amber{color:#9C6500!important;font-weight:700}
+.dash-table td.bold{font-weight:700}
+.dash-table tr.total-row td{background:#2D4A7A!important;color:#fff!important;font-weight:700;font-size:11px}
+.dash-table tr.total-row td.green{color:#006100!important}
+/* ── Dashboard section color ladder (sync with tracker) ── */
+.dash-table .bg-row1 td.col-section,.dash-table .bg-row1 td.col-total{background:#4870A8}
+.dash-table .bg-row2 td.col-section,.dash-table .bg-row2 td.col-total{background:#2D4A7A}
+.dash-table .bg-row3 td.col-section,.dash-table .bg-row3 td.col-total{background:#4870A8}
+.dash-table .bg-row4 td.col-section,.dash-table .bg-row4 td.col-total{background:#2D4A7A}
+.dash-table .bg-row5 td.col-section,.dash-table .bg-row5 td.col-total{background:#4870A8}
+.dash-table .bg-row6 td.col-section,.dash-table .bg-row6 td.col-total{background:#2D4A7A}
+.dash-table .total-row td{background:#2D4A7A!important;color:#fff!important}
+
+/* ── Progress Section ── */
+.progress-section{background:#fff;border:1px solid #d0d7e2;border-top:none;padding:16px 24px 20px}
+.progress-section h3{color:#1E3A5F;font-size:13px;font-weight:700;margin-bottom:6px}
+.progress-flex{display:flex;gap:24px;align-items:flex-start;justify-content:flex-start}
+.progress-left{flex-shrink:0}
+.progress-right{flex-shrink:0;margin-left:-8px}
+.progress-right h3{text-align:center;margin-bottom:4px}
+.progress-bar-text{font-family:'Courier New',monospace;font-size:18px;font-weight:700;color:#006100;letter-spacing:1.5px;margin-bottom:8px}
+.progress-details{display:grid;grid-template-columns:auto 1fr;gap:2px 20px;max-width:420px}
+.progress-details .lbl{font-weight:700;font-size:11px;color:#000;white-space:nowrap}
+.progress-details .val{font-weight:700;font-size:11px}
+.progress-details .val.b{color:#1E3A5F}
+.progress-details .val.g{color:#006100}
+.progress-details .val.gbig{color:#006100;font-size:13px}
+.progress-details .val.ggiant{color:#006100;font-size:15px}
+
+/* ── Pie Chart ── */
+.pie-section{background:#fff;border:1px solid #d0d7e2;border-top:none;padding:16px 24px 20px}
+.pie-section h3{color:#1E3A5F;font-size:13px;font-weight:700;margin-bottom:8px}
+.pie-row{display:flex;align-items:center;gap:8px}
+.pie-canvas-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+.pie-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;font-weight:700;color:#1E3A5F}
+.pie-legend{display:flex;flex-direction:column;gap:4px}
+.pie-legend .leg-item{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600}
+.pie-legend .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── Master Tracker Table ── */
+.tracker-wrap{background:#fff;border:1px solid #d0d7e2;border-top:none;overflow:hidden}
+.tracker-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.tracker-table th{background:#1E3A5F;color:#fff;padding:9px 8px;font-size:11px;font-weight:700;text-align:center;border-right:1px solid rgba(255,255,255,.08);white-space:nowrap;position:sticky;top:0;z-index:10}
+.tracker-table th:first-child{text-align:left;padding-left:16px;width:14%}
+.tracker-table th:nth-child(2){width:30%}
+.tracker-table th:nth-child(3){width:25%}
+.tracker-table th:nth-child(4){width:12%}
+.tracker-table th:nth-child(5){width:8%}
+.tracker-table th:nth-child(6){width:8%}
+.tracker-table th:last-child{border-right:none;width:20px}
+.tracker-table td{padding:7px 8px;font-size:11px;border-bottom:1px solid #e8ecf0;border-right:1px solid #e8ecf0;vertical-align:middle}
+.tracker-table td:last-child{border-right:none}
+.tracker-table td.c{text-align:center}
+.tracker-table td:first-child{padding-left:16px;font-weight:600}
+.tracker-table tr.row-white td{background:#fff}
+.tracker-table tr.row-gray td{background:#F2F7FC}
+/* ── Section/Sub-Section header rows ── */
+.tracker-table tr.section-row td{color:#fff!important;font-size:12px;font-weight:700;border-bottom:1px solid #1E3A5F;padding:8px 16px}
+/* Section color ladder — 6 distinct deep blues */
+.tracker-table tr.section-row.s-row-0 td{background:#4870A8!important}
+.tracker-table tr.section-row.s-row-1 td{background:#2D4A7A!important}
+.tracker-table tr.section-row.s-row-2 td{background:#4870A8!important}
+.tracker-table tr.section-row.s-row-3 td{background:#2D4A7A!important}
+.tracker-table tr.section-row.s-row-4 td{background:#4870A8!important}
+.tracker-table tr.section-row.s-row-5 td{background:#2D4A7A!important}
+.tracker-table tr.subsection-row td{background:#DAE8FC!important;font-size:11px;font-weight:700;border-bottom:1px solid #c4d6f0;padding:6px 16px;color:#333}
+.tracker-table .badge-done{display:inline-block;background:#d4edda;color:#155724;padding:1px 10px;border-radius:10px;font-size:10px;font-weight:600}
+.tracker-table .badge-pending{display:inline-block;background:#fff3cd;color:#856404;padding:1px 10px;border-radius:10px;font-size:10px;font-weight:600;border:1px solid #ffc107}
+.tracker-table .loc-link{display:inline-block;background:#e8f4f8;color:#0a6e8a;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;border:1px solid #b8dce8}
+.tracker-table .loc-link:hover{background:#d0ecf4}
+.tracker-table .loc-empty{color:#adb5bd;font-style:italic;cursor:pointer}
+.tracker-table .btn-mark{cursor:pointer;background:transparent;border:none;font-size:10px;color:#006100;font-weight:600;padding:2px 6px;border-radius:4px}
+.tracker-table .btn-mark:hover{background:#e8f5e9}
+.tracker-table .btn-unmark{cursor:pointer;background:transparent;border:none;font-size:10px;color:#6c757d;font-weight:600;padding:2px 6px;border-radius:4px}
+.tracker-table .btn-unmark:hover{background:#f8f9fa}
+/* ── Delete cell icons (override section/subsection td font-size) ── */
+.tracker-table .del-cell{font-size:8px!important;cursor:pointer;opacity:.25;transition:all .15s;padding:1px!important;line-height:1;width:10px!important;min-width:10px!important;max-width:10px!important}
+.tracker-table .del-cell:hover{opacity:1}
+.tracker-table tr.section-row:hover .del-cell,
+.tracker-table tr.subsection-row:hover .del-cell{opacity:.6}
+
+/* ── Workflow Hint Banner ── */
+.workflow-hint{background:#fff;border:1px solid #d0d7e2;border-top:none;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.workflow-hint .step{display:flex;align-items:center;gap:6px;font-size:11px;color:#555}
+.workflow-hint .step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#1E3A5F;color:#fff;font-weight:700;font-size:10px;flex-shrink:0}
+.workflow-hint .step .arrow{color:#1E3A5F;font-weight:700;font-size:14px}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:10px;padding:24px;width:100%;max-width:520px;box-shadow:0 12px 48px rgba(0,0,0,.2)}
+.modal-box h3{font-size:15px;font-weight:700;margin-bottom:16px;color:#1E3A5F}
+.modal-box .field{margin-bottom:12px}
+.modal-box label{display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:3px}
+.modal-box input,.modal-box select,.modal-box textarea{width:100%;padding:8px 12px;border:1px solid #d0d7e2;border-radius:6px;font-size:13px;font-family:Arial}
+.modal-box input:focus,.modal-box select:focus,.modal-box textarea:focus{outline:none;border-color:#1E3A5F}
+.modal-box textarea{resize:vertical;min-height:40px}
+.modal-box .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-box .actions{display:flex;gap:10px;margin-top:16px}
+.modal-box .actions button{flex:1;padding:9px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none}
+.modal-box .btn-cancel{background:#f0f2f5;color:#555}
+.modal-box .btn-save{background:#1E3A5F;color:#fff}
+.modal-box .btn-save:hover{background:#0f2d50}
+.modal-box .loc-examples{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.modal-box .loc-examples button{background:#f0f4f8;border:1px solid #d0d7e2;border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;color:#1E3A5F;white-space:nowrap}
+.modal-box .loc-examples button:hover{background:#dce8f0}
+
+/* ── Toast notification ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E3A5F;color:#fff;padding:10px 24px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
@@ -222,6 +392,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div class="ni" onclick="sm('quarterly')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span id="nquarterly"></span></div>
     <div class="ni" onclick="sm('plan2026')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg><span id="nplan"></span></div>
     <div class="ni" onclick="sm('weeklyreport')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Weekly Report</span></div>
+    <div class="ni" onclick="sm('docstorage')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg><span>Documentation Storage</span></div>
 
   </nav>
 </aside>
@@ -537,6 +708,195 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
     <div class="tc ai" style="animation-delay:.6s"><table id="dt"><thead></thead><tbody id="tb"></tbody></table></div>
   </div>
+<div id="docstorageContainer" class="hidden mb-6" style="display:none;">
+
+
+  <!-- ── Title Banner ── -->
+  <div class="title-banner">
+    <h1>DOCUMENTATION STORAGE</h1>
+    <p>Document Storage & Registry System</p>
+  </div>
+
+  <!-- ── Workflow Banner ── -->
+  <div class="workflow-hint">
+    <span class="step"><span class="step-num">1</span> Receive document</span>
+    <span class="arrow">→</span>
+    <span class="step"><span class="step-num">2</span> Input storage location</span>
+    <span class="arrow">→</span>
+    <span class="step"><span class="step-num">3</span> ☑ Check 'Recorded'</span>
+    <span class="arrow">→</span>
+    <span class="step"><span class="step-num">4</span> Done ✓</span>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="Search document..." oninput="docRenderTable()">
+    <div class="filter-group">
+      <button class="filter-btn active" id="f_all" onclick="docSetFilter('all')">All</button>
+      <button class="filter-btn" id="f_collected" onclick="docSetFilter('collected')">✓ Recorded</button>
+      <button class="filter-btn" id="f_pending" onclick="docSetFilter('pending')">○ Not yet</button>
+    </div>
+    <button class="btn-sec" onclick="docOpenSectionModal()">📂 Add Section</button>
+    <button class="btn-add" onclick="docOpenModal()">➕ Add Document</button>
+    <div class="section-btns" id="sectionBtns">
+      <button class="sbtn active" data-sec="" onclick="docSetSection('')">📋 All</button>
+      <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificate</button>
+      <button class="sbtn" data-sec="2. ISO" onclick="docSetSection('2. ISO')">📄 ISO</button>
+      <button class="sbtn" data-sec="3. STAFF" onclick="docSetSection('3. STAFF')">👤 Staff</button>
+      <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance</button>
+      <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Org Chart</button>
+      <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
+    </div>
+    <button class="btn-export" onclick="docExportCSV()">📤 Export CSV</button>
+      </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="dash-wrap">
+    <table class="dash-table">
+      <thead>
+        <tr><th>Section</th><th>Total Items</th><th>Recorded</th><th>Location Set</th><th>Pending</th><th>Completion %</th></tr>
+      </thead>
+      <tbody id="dashBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ── OVERALL PROGRESS ── -->
+  <div class="progress-section">
+    <div class="progress-flex">
+      <div class="progress-left">
+        <h3>OVERALL PROGRESS</h3>
+        <div class="progress-bar-text" id="progressBarText">░░░░░░░░░░░░░░░░░░░░</div>
+        <div class="progress-details">
+          <span class="lbl">Total Documents:</span><span class="val b" id="prTotal">0</span>
+          <span class="lbl">Recorded:</span><span class="val gbig" id="prCollected">0</span>
+          <span class="lbl">Location Set:</span><span class="val b" id="prLoc">0</span>
+          <span class="lbl">Pending:</span><span class="val b" id="prPending">0</span>
+          <span class="lbl">Departments Involved:</span><span class="val b" id="prDept">0</span>
+          <span class="lbl">Completion %:</span><span class="val ggiant" id="prPct">0%</span>
+        </div>
+      </div>
+      <div class="progress-right">
+        <h3>COMPLETION OVERVIEW</h3>
+        <div class="pie-row">
+          <div class="pie-canvas-wrap">
+            <canvas id="pieChart" width="160" height="160"></canvas>
+            <div class="pie-center-text" id="pieCenterText">0%</div>
+          </div>
+          <div class="pie-legend" id="pieLegend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MASTER TRACKER TABLE ── -->
+  <div class="tracker-wrap">
+    <div style="overflow-x:auto">
+    <table class="tracker-table" id="trackerTable">
+      <thead>
+        <tr>
+          <th>Main Content</th><th>Document Description</th><th>Document Location</th>
+          <th>Relevant Dept</th><th>Recorded ✓</th><th>Status</th><th style="width:20px"></th>
+        </tr>
+      </thead>
+      <tbody id="trackerBody"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:20px;font-size:10px;color:#aaa">MGD BMS · Documentation Storage · Demo v1.0</div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Add / Edit Modal ── -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">➕ Add / Record Document</h3>
+    <div class="field">
+      <label>Section *</label>
+      <select id="f_section">
+        <option value="1. CERTIFICATE">1. CERTIFICATE</option><option value="2. ISO">2. ISO</option>
+        <option value="3. STAFF">3. STAFF</option><option value="4. FINANCE">4. FINANCE</option>
+        <option value="5. ORGANIZATION CHART">5. ORGANIZATION CHART</option>
+        <option value="6. PROJECT INFO">6. PROJECT INFO</option>
+      </select>
+    </div>
+    <div class="field"><label>Sub-Section</label>
+      <select id="f_subsection">
+        <option value="">—</option>
+        <option value="A. Company Certificate">A. Company Certificate</option>
+        <option value="A. ISO">A. ISO</option>
+        <option value="A. Staff List">A. Staff List</option>
+        <option value="A. Bank">A. Bank</option><option value="B. Insurance">B. Insurance</option>
+        <option value="A. Corporate">A. Corporate</option><option value="B. Project">B. Project</option>
+        <option value="A. Project List">A. Project List</option><option value="B. Detail">B. Detail</option>
+        <option value="C. Portfolio">C. Portfolio</option>
+      </select>
+    </div>
+    <div class="field"><label>Document Description *</label><input type="text" id="f_desc" placeholder="e.g. Company Certificate"></div>
+    <input type="hidden" id="f_start">
+    <input type="hidden" id="f_collected">
+    <div class="field">
+      <label>Document Location (folder / link / drive path)</label>
+      <input type="text" id="f_location" placeholder="e.g. \\server\docs\tender\cert\Company_Cert.pdf">
+      <div class="loc-examples">
+        <span style="font-size:10px;color:#888;margin-right:4px">Quick:</span>
+        <button onclick="docSetLoc(this,'\\server\docs\certificates\CERT_')">Server\CERT</button>
+        <button onclick="docSetLoc(this,'https://mgd.sharepoint.com/docs/tender/cert/')">SharePoint</button>
+        <button onclick="docSetLoc(this,'/Volumes/MGD_Archive/Tender_2026/Certificates/')">Local Drive</button>
+        <button onclick="docSetLoc(this,'Google Drive / Tender / Certificates /')">Google Drive</button>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Relevant Dept</label><input type="text" id="f_dept" placeholder="e.g. Local Server"></div>
+      <div class="field"><label>Remark</label><input type="text" id="f_remark" placeholder="Notes"></div>
+    </div>
+    <div class="actions"><button class="btn-cancel" onclick="docCloseModal()">Cancel</button><button class="btn-save" onclick="docSaveItem()">Save Record</button></div>
+  </div>
+</div>
+
+<!-- ── Add Section Modal ── -->
+<div class="modal-overlay" id="secModal">
+  <div class="modal-box">
+    <h3>📂 Add New Section</h3>
+    <div class="field">
+      <label>Section Name *</label>
+      <input type="text" id="f_secName" placeholder="e.g. 7. ENVIRONMENTAL">
+    </div>
+    <div class="field">
+      <label>Sub-Sections (one per line)</label>
+      <textarea id="f_secSubs" rows="4" placeholder="A. Environmental Policy&#10;B. Environmental Report&#10;(Optional — leave blank to create a default single sub-section)"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="docCloseSectionModal()">Cancel</button>
+      <button class="btn-save" onclick="docSaveSection()">Add Section</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Location Edit Modal ── -->
+<div class="modal-overlay" id="locModal">
+  <div class="modal-box" style="max-width:440px">
+    <h3>📁 Update Document Location</h3>
+    <div class="field"><label>Document</label><input type="text" id="locDocName" readonly style="background:#f5f7fa;font-weight:600"></div>
+    <div class="field">
+      <label>Storage Location</label>
+      <textarea id="locInput" rows="2" placeholder="Enter folder path, link, or drive location"></textarea>
+      <div class="loc-examples">
+        <button onclick="docSetLocQuick('\\server\archive\docs\')">Server path</button>
+        <button onclick="docSetLocQuick('https://drive.google.com/drive/folders/')">Google Drive</button>
+        <button onclick="docSetLocQuick('\\mgd-nas\documents\tender\')">NAS</button>
+        <button onclick="docSetLocQuick('SharePoint / Documents / Tender / ')">SharePoint</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="docCloseLocModal()">Cancel</button>
+      <button class="btn-save" onclick="docSaveLocation()">Save Location</button>
+    </div>
+  </div>
+
+</div>
 </main>
 
 <div class="mo" id="md">
@@ -550,7 +910,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 </div>
 
 <script>
-const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nq1:'季度1',nq2:'季度2',nquarterly:'季度报告',nq3:'季度3',nq4:'季度4',qt1:'第一季',qt2:'第二季',qt3:'第三季',qt4:'第四季',nplan:'计划2026',ptPlan:'计划2026',psPlan:'系统追踪清单 2026',ptQuarterly:'季度报告',psQuarterly:'Q1-Q4 季度销售与进度报告',ptWR:'Weekly Report',psWR:'业务部周报',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'季度1',q2Label:'季度2',q3Label:'季度3',q4Label:'季度4',qkMetric:'指标 / Metric',qkAnnual:'Q2目标\nAnnual',qkTarget:'季度目标\nQ Target',qkActual:'实际\nActual',qkNotes:'备注\nNotes',qkCompSales:'公司年营收\nCompany Sales',qkSmDept:'营销部营收\nS&M Dept',qkDirectProj:'直售项目\nDirect Projects',qkSupportProj:'支持项目\nSupporting Proj',qkNewContacts:'新联系人\nNew Contacts',qkConsultant:'顾问公司\nConsultant Firms',qkIndPark:'工业园\nIndustrial Parks',qkNewPartner:'新合作\nNew Partnerships',qkEvents:'活动参与\nEvent Participation',qkInteractions:'活跃互动\nActive Interactions',qkSystem:'系统采用\nSystem Adoption',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',s9:'潜在 / Potential',s10:'已取消 / Cancelled',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'July 已出席\nJuly Attended',sumChambAprUpcLbl:'July 即将出席\nJuly Upcoming',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollowing',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'July 新增\nJuly New',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List July',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标',ncTarget:'年度目标: 160 · 2025 总计: 57'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nq1:'Quarter 1',nq2:'Quarter 2',nquarterly:'Quarterly Report',nq3:'Quarter 3',nq4:'Quarter 4',qt1:'Quarter 1',qt2:'Quarter 2',qt3:'Quarter 3',qt4:'Quarter 4',nplan:'PLAN 2026',ptPlan:'PLAN 2026',psPlan:'System Tracking List 2026',ptQuarterly:'Quarterly Report',psQuarterly:'Q1-Q4 Quarterly Sales & Progress Report',ptWR:'Weekly Report',psWR:'Business Dept Weekly Report',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'Quarter 1',q2Label:'Quarter 2',q3Label:'Quarter 3',q4Label:'Quarter 4',qkMetric:'Metric / 指标',qkAnnual:'Annual\nTarget',qkTarget:'Q Target\n(25%)',qkActual:'Actual',qkNotes:'Notes',qkCompSales:'Company Sales\n公司年营收',qkSmDept:'S&M Dept\n营销部营收',qkDirectProj:'Direct Projects\n直售项目',qkSupportProj:'Supporting Proj\n支持项目',qkNewContacts:'New Contacts\n新联系人',qkConsultant:'Consultant Firms\n顾问公司',qkIndPark:'Industrial Parks\n工业园',qkNewPartner:'New Partnerships\n新合作',qkEvents:'Event Participation\n活动参与',qkInteractions:'Active Interactions\n活跃互动',qkSystem:'System Adoption\n系统采用',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',s9:'Potential / 潜在',s10:'Cancelled / 已取消',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'July Attended',sumChambAprUpcLbl:'July Upcoming',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Following',bidLegActive:'Bidding',bidLegWon:'Following',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'July New',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List July'
+const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nq1:'季度1',nq2:'季度2',nquarterly:'季度报告',nq3:'季度3',nq4:'季度4',qt1:'第一季',qt2:'第二季',qt3:'第三季',qt4:'第四季',nplan:'计划2026',ptPlan:'计划2026',psPlan:'系统追踪清单 2026',ptQuarterly:'季度报告',psQuarterly:'Q1-Q4 季度销售与进度报告',ptWR:'Weekly Report',psWR:'业务部周报',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'季度1',q2Label:'季度2',q3Label:'季度3',q4Label:'季度4',qkMetric:'指标 / Metric',qkAnnual:'Q2目标\nAnnual',qkTarget:'季度目标\nQ Target',qkActual:'实际\nActual',qkNotes:'备注\nNotes',qkCompSales:'公司年营收\nCompany Sales',qkSmDept:'营销部营收\nS&M Dept',qkDirectProj:'直售项目\nDirect Projects',qkSupportProj:'支持项目\nSupporting Proj',qkNewContacts:'新联系人\nNew Contacts',qkConsultant:'顾问公司\nConsultant Firms',qkIndPark:'工业园\nIndustrial Parks',qkNewPartner:'新合作\nNew Partnerships',qkEvents:'活动参与\nEvent Participation',qkInteractions:'活跃互动\nActive Interactions',qkSystem:'系统采用\nSystem Adoption',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',s9:'潜在 / Potential',s10:'已取消 / Cancelled',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'July 已出席\nJuly Attended',sumChambAprUpcLbl:'July 即将出席\nJuly Upcoming',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollowing',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'July 新增\nJuly New',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List July',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标',ncTarget:'年度目标: 160 · 2025 总计: 57'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nq1:'Quarter 1',nq2:'Quarter 2',nquarterly:'Quarterly Report',nq3:'Quarter 3',nq4:'Quarter 4',qt1:'Quarter 1',qt2:'Quarter 2',qt3:'Quarter 3',qt4:'Quarter 4',nplan:'PLAN 2026',ptPlan:'PLAN 2026',psPlan:'System Tracking List 2026',ptQuarterly:'Quarterly Report',psQuarterly:'Q1-Q4 Quarterly Sales & Progress Report',ptWR:'Weekly Report',psWR:'Business Dept Weekly Report',ptDoc:'Documentation Storage',psDoc:'Document Storage & Registry System',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'Quarter 1',q2Label:'Quarter 2',q3Label:'Quarter 3',q4Label:'Quarter 4',qkMetric:'Metric / 指标',qkAnnual:'Annual\nTarget',qkTarget:'Q Target\n(25%)',qkActual:'Actual',qkNotes:'Notes',qkCompSales:'Company Sales\n公司年营收',qkSmDept:'S&M Dept\n营销部营收',qkDirectProj:'Direct Projects\n直售项目',qkSupportProj:'Supporting Proj\n支持项目',qkNewContacts:'New Contacts\n新联系人',qkConsultant:'Consultant Firms\n顾问公司',qkIndPark:'Industrial Parks\n工业园',qkNewPartner:'New Partnerships\n新合作',qkEvents:'Event Participation\n活动参与',qkInteractions:'Active Interactions\n活跃互动',qkSystem:'System Adoption\n系统采用',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',s9:'Potential / 潜在',s10:'Cancelled / 已取消',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'July Attended',sumChambAprUpcLbl:'July Upcoming',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Following',bidLegActive:'Bidding',bidLegWon:'Following',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'July New',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List July'
 ,win1t1:'Revenue 2026',win1t1_en:'Revenue 2026',win1t2:'Sale Dept revenue',win1t2_en:'Sale Dept revenue',win1t3:'Project Est. Value',win1t4:'Actual Target',ncTarget:'Annual target: 160 · 2025 total: 57',kpiGuide:'📊 KPI指标说明',kpiGuideEn:'KPI Metrics Guide',kpiAnnual:'Q2目标',kpiQTarget:'Q1目标',kpiRateGuide:'🎯 完成率标识',kpiRateOn:'🟢 ≥100% 达标',kpiRateNear:'🟡 80-99% 接近',kpiRateOff:'🔴 <80% 需改进'}};
 
 let lang='zh',data={bids:[],customers:[],projects:[],chambers:[]},mod='summary',eid=null,custYearFilter='all',custCountryFilter='all',chamberDateFilter='all',chamberMonthFilter='all',custSearchFilter='',custDateFilter='',bidsFilter='all';
@@ -2786,6 +3146,15 @@ function sm(m){
     document.querySelector('.tc').style.display='none';
     wrUpdateDisplay();
     wrSwitchUser(wrCurrentUser);
+  }else if(m==='docstorage'){
+    var dsC=document.getElementById('docstorageContainer');
+    if(dsC)dsC.style.display='block';
+    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    document.querySelector('.tc').style.display='none';
+    if(typeof docRenderDashboard==='function')docRenderDashboard();
+    if(typeof docRenderProgress==='function')docRenderProgress();
+    if(typeof docRenderPieChart==='function')docRenderPieChart();
+    if(typeof docRebuildAllItems==='function'){docRebuildAllItems();docRenderTable();}
   }else if(m==='projects'){
     document.querySelector('.tc').style.display='block';
     ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
@@ -2806,7 +3175,8 @@ function sm(m){
     chambers:{title:'商会信息',sub:'管理商会和组织联系信息'},
     quarterly:{title:'季度报告',sub:'Quarterly Report'},
     plan2026:{title:'计划2026',sub:'PLAN 2026'},
-    weeklyreport:{title:'Weekly Report',sub:'Business Dept Weekly Report'}
+    weeklyreport:{title:'Weekly Report',sub:'Business Dept Weekly Report'},
+    docstorage:{title:'Documentation Storage',sub:'Document Storage & Registry System'}
   };
   document.getElementById('pt').textContent=titles[m]?titles[m].title:'';
   document.getElementById('ps').textContent=titles[m]?titles[m].sub:'';
@@ -4708,5 +5078,558 @@ if(fauth && fauth.onAuthStateChanged){
 }
 </script>
 
+<script>
+
+// ── DATA ──
+let docSECTIONS = [
+  {id:'1. CERTIFICATE', label:'1. CERTIFICATE', totalItems:3, bgClass:'bg-row1', subs:[
+    {label:'A. Company Certificate', items:[
+      {desc:'Company Certificate', start:'', collected:'✓', location:'\\server\docs\tender\cert\Company_Cert.pdf', dept:'Local server'},
+      {desc:'Design Certificate', start:'', collected:'', location:'', dept:'Local server'},
+      {desc:'Constrcution Certificate', start:'', collected:'', location:'', dept:'Local server'}
+    ]}
+  ]},
+  {id:'2. ISO', label:'2. ISO', totalItems:4, bgClass:'bg-row2', subs:[
+    {label:'A. ISO', items:[
+      {desc:'HSSE ISO', start:'', collected:'', location:'', dept:''},
+      {desc:'ENVIRONMETAL ISO', start:'', collected:'', location:'', dept:''},
+      {desc:'QC/QA ISO', start:'', collected:'', location:'', dept:''},
+      {desc:'MGD Safety policy', start:'', collected:'', location:'', dept:''}
+    ]}
+  ]},
+  {id:'3. STAFF', label:'3. STAFF', totalItems:4, bgClass:'bg-row3', subs:[
+    {label:'A. Staff List', items:[
+      {desc:'PM Ceritficate', start:'', collected:'', location:'', dept:''},
+      {desc:'SM Certificate', start:'', collected:'', location:'', dept:''},
+      {desc:'CM Certificate', start:'', collected:'', location:'', dept:''},
+      {desc:'HSSE Certificate', start:'', collected:'', location:'', dept:''}
+    ]}
+  ]},
+  {id:'4. FINANCE', label:'4. FINANCE', totalItems:12, bgClass:'bg-row4', subs:[
+    {label:'A. Bank', items:[
+      {desc:'Bank Guarantee', start:'', collected:'', location:'', dept:''},
+      {desc:'Bank Statement', start:'', collected:'', location:'', dept:''},
+      {desc:'Credit Reference', start:'', collected:'', location:'', dept:''},
+      {desc:'Financial Statement', start:'', collected:'', location:'', dept:''},
+      {desc:'Tax Registration', start:'', collected:'', location:'', dept:''},
+      {desc:'Business License', start:'', collected:'', location:'', dept:''},
+      {desc:'Audit Report', start:'', collected:'', location:'', dept:''}
+    ]},
+    {label:'B. Insurance', items:[
+      {desc:'Contractor All Risk Insurance', start:'', collected:'', location:'', dept:''},
+      {desc:'Third Party Liability', start:'', collected:'', location:'', dept:''},
+      {desc:'Workmen Compensation', start:'', collected:'', location:'', dept:''},
+      {desc:'Professional Indemnity', start:'', collected:'', location:'', dept:''},
+      {desc:'Public Liability', start:'', collected:'', location:'', dept:''}
+    ]}
+  ]},
+  {id:'5. ORGANIZATION CHART', label:'5. ORGANIZATION CHART', totalItems:12, bgClass:'bg-row5', subs:[
+    {label:'A. Corporate', items:[
+      {desc:'Board of Directors Chart', start:'', collected:'', location:'', dept:''},
+      {desc:'Management Structure', start:'', collected:'', location:'', dept:''},
+      {desc:'Company Profile', start:'', collected:'', location:'', dept:''},
+      {desc:'Shareholder Structure', start:'', collected:'', location:'', dept:''},
+      {desc:'Subsidiaries List', start:'', collected:'', location:'', dept:''},
+      {desc:'JV Agreements', start:'', collected:'', location:'', dept:''},
+      {desc:'Legal Registration', start:'', collected:'', location:'', dept:''}
+    ]},
+    {label:'B. Project', items:[
+      {desc:'Project Org Chart (Current)', start:'', collected:'', location:'', dept:''},
+      {desc:'Key Personnel CV', start:'', collected:'', location:'', dept:''},
+      {desc:'Project Manager Profile', start:'', collected:'', location:'', dept:''},
+      {desc:'Site Team List', start:'', collected:'', location:'', dept:''},
+      {desc:'Safety Officer List', start:'', collected:'', location:'', dept:''}
+    ]}
+  ]},
+  {id:'6. PROJECT INFO', label:'6. PROJECT INFO', totalItems:15, bgClass:'bg-row6', subs:[
+    {label:'A. Project List', items:[
+      {desc:'Project A - Completion Certificate', start:'', collected:'', location:'', dept:''},
+      {desc:'Project A - Handover Document', start:'', collected:'', location:'', dept:''},
+      {desc:'Project A - Testimonial', start:'', collected:'', location:'', dept:''},
+      {desc:'Project B - Completion Certificate', start:'', collected:'', location:'', dept:''},
+      {desc:'Project B - Handover Document', start:'', collected:'', location:'', dept:''}
+    ]},
+    {label:'B. Detail', items:[
+      {desc:'Project Summary Sheet', start:'', collected:'', location:'', dept:''},
+      {desc:'Photo Documentation', start:'', collected:'', location:'', dept:''},
+      {desc:'Client Feedback', start:'', collected:'', location:'', dept:''},
+      {desc:'Award Recognition', start:'', collected:'', location:'', dept:''},
+      {desc:'Press Release', start:'', collected:'', location:'', dept:''}
+    ]},
+    {label:'C. Portfolio', items:[
+      {desc:'Company Brochure', start:'', collected:'', location:'', dept:''},
+      {desc:'Project Portfolio PDF', start:'', collected:'', location:'', dept:''},
+      {desc:'Reference Letters', start:'', collected:'', location:'', dept:''},
+      {desc:'Case Studies', start:'', collected:'', location:'', dept:''},
+      {desc:'Capability Statement', start:'', collected:'', location:'', dept:''}
+    ]}
+  ]}
+];
+
+let docAllItems = [];
+let docCounter = 1;
+
+function docRebuildAllItems(){
+  docAllItems = [];
+  docCounter = 1;
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      sub.items.forEach(it => {
+        docAllItems.push({
+          id: docCounter++, sectionId: sec.id, sectionLabel: sec.label, bgClass: sec.bgClass,
+          subsection: sub.label, desc: it.desc, start: it.start, collected: it.collected,
+          location: it.location || '', dept: it.dept, remark: ''
+        });
+      });
+    });
+  });
+}
+docRebuildAllItems();
+
+let docCurrentFilter = 'all';
+let docCurrentSection = '';
+let docEditingLocId = null;
+
+function docToast(msg){
+  const t = document.getElementById('docToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function docRenderTable(){
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = docAllItems;
+  if(q) filtered = filtered.filter(i => i.desc.toLowerCase().includes(q) || i.sectionId.toLowerCase().includes(q));
+  if(docCurrentSection) filtered = filtered.filter(i => i.sectionId === docCurrentSection);
+  if(docCurrentFilter === 'collected') filtered = filtered.filter(i => i.collected);
+  if(docCurrentFilter === 'pending') filtered = filtered.filter(i => !i.collected);
+
+  docRenderTrackerBody(filtered);
+  docRenderDashboard();
+  docRenderProgress();
+  docUpdateStats();
+  const pending = docAllItems.filter(i => !i.collected).length;
+  document.getElementById('sidebarBadge').textContent = pending + ' left';
+}
+
+function docRenderTrackerBody(filtered){
+  const tbody = document.getElementById('trackerBody');
+  let html = '';
+  let rowAlt = false;
+
+  docSECTIONS.forEach((sec, si) => {
+    const secItems = filtered.filter(i => i.sectionId === sec.id);
+    if(secItems.length === 0) return;
+    html += `<tr class="section-row s-row-${si % 6}"><td colspan="6">${sec.label}</td><td class="c del-cell" onclick="docDeleteSection(${si})" title="Delete this section">🗑</td></tr>`;
+    sec.subs.forEach((sub, subi) => {
+      const subItems = secItems.filter(i => i.subsection === sub.label);
+      if(subItems.length === 0) return;
+      html += `<tr class="subsection-row"><td colspan="6">▸ ${sub.label}</td><td class="c del-cell" onclick="docDeleteSubsection(${si},${subi})" title="Delete this sub-section">🗑</td></tr>`;
+      subItems.forEach(it => {
+        const rc = rowAlt ? 'row-white' : 'row-gray';
+        rowAlt = !rowAlt;
+        const done = !!it.collected;
+        const hasLoc = !!it.location;
+        const sHTML = done ? '<span class="badge-done">✓</span>' : '<span class="badge-pending">○</span>';
+        const aHTML = done
+          ? `<button class="btn-docUnmark" onclick="docUnmark(${it.id})" title="Unmark">☐ Unmark</button>`
+          : `<button class="btn-docMark" onclick="docMark(${it.id})" title="Mark as recorded">☑ Record</button>`;
+        const locHTML = hasLoc
+          ? `<span class="loc-link" onclick="docOpenLocation(${it.id})" title="${it.location}">📁 ${it.location}</span>`
+          : `<span class="loc-empty" onclick="docOpenLocation(${it.id})">+ Set location</span>`;
+
+        html += `<tr class="${rc}"><td></td><td>${it.desc}</td>
+          <td>${locHTML}</td>
+          <td class="c">${it.dept || '—'}</td>
+          <td class="c">${sHTML}</td>
+          <td class="c">${aHTML}</td><td class="c del-cell" onclick="docDeleteDoc(${it.id})" title="Delete this document">🗑</td></tr>`;
+      });
+    });
+  });
+  if(!html) html = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#999">No matching items.</td></tr>';
+  tbody.innerHTML = html;
+}
+
+function docRenderDashboard(){
+  const tbody = document.getElementById('dashBody');
+  const shortLbls = {'1. CERTIFICATE':'1. Certificate','2. ISO':'2. ISO','3. STAFF':'3. Staff',
+    '4. FINANCE':'4. Finance','5. ORGANIZATION CHART':'5. Organization Chart','6. PROJECT INFO':'6. PROJECT INFO'};
+
+  let html = '';
+  docSECTIONS.forEach(sec => {
+    const items = docAllItems.filter(i => i.sectionId === sec.id);
+    const total = items.length;
+    const done = items.filter(i => i.collected).length;
+    const located = items.filter(i => i.location).length;
+    const pending = total - done;
+    const pct = total > 0 ? (done/total*100).toFixed(0) + '%' : '0%';
+
+    html += `<tr class="${sec.bgClass}">
+      <td class="col-section">${shortLbls[sec.id]}</td>
+      <td class="col-total">${total}</td>
+      <td class="col-data green bold">${done}</td>
+      <td class="col-data bold" style="color:#0a6e8a">${located}</td>
+      <td class="col-data">${pending}</td>
+      <td class="col-data green bold">${pct}</td>
+    </tr>`;
+  });
+
+  const all = docAllItems;
+  const rec = all.filter(i => i.collected).length;
+  const l = all.filter(i => i.location).length;
+  const p = all.length - rec;
+  const tPct = all.length > 0 ? (rec/all.length*100).toFixed(0) + '%' : '0%';
+  html += `<tr class="total-row">
+    <td class="col-section" style="text-align:center;padding-left:12px">TOTAL</td>
+    <td class="col-total">${all.length}</td>
+    <td class="col-data green bold">${rec}</td>
+    <td class="col-data bold" style="color:#0a6e8a">${l}</td>
+    <td class="col-data">${p}</td>
+    <td class="col-data green bold">${tPct}</td>
+  </tr>`;
+
+  tbody.innerHTML = html;
+  docRenderPieChart();
+}
+
+function docRenderPieChart(){
+  const canvas = document.getElementById('pieChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 160, H = 160, cx = 80, cy = 80, R = 68;
+  const all = docAllItems;
+  const rec = all.filter(i => i.collected).length;
+  const pen = all.length - rec;
+  const pct = all.length > 0 ? (rec/all.length*100).toFixed(1) : '0.0';
+
+  ctx.clearRect(0, 0, W, H);
+
+  if(all.length === 0){
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = '#e8e8e8';
+    ctx.fill();
+    document.getElementById('pieCenterText').textContent = '0%';
+    document.getElementById('pieLegend').innerHTML = '<span style="font-size:11px;color:#999">No documents yet</span>';
+    return;
+  }
+
+  // Recorded slice (green)
+  if(rec > 0){
+    const sweep = (rec / all.length) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, -Math.PI/2, -Math.PI/2 + sweep);
+    ctx.closePath();
+    ctx.fillStyle = '#28a745';
+    ctx.fill();
+  }
+  // Pending slice (light gray)
+  if(pen > 0){
+    const startA = -Math.PI/2 + (rec/all.length) * Math.PI * 2;
+    const sweep = (pen / all.length) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, startA, startA + sweep);
+    ctx.closePath();
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fill();
+  }
+
+  // Donut hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+
+  document.getElementById('pieCenterText').textContent = pct + '%';
+  document.getElementById('pieLegend').innerHTML = `
+    <div class="leg-item"><span class="leg-dot" style="background:#28a745"></span> Recorded: <strong>${rec}</strong></div>
+    <div class="leg-item"><span class="leg-dot" style="background:#e0e0e0"></span> Pending: <strong>${pen}</strong></div>
+  `;
+}
+function docRenderProgress(){
+  const all = docAllItems;
+  const collected = all.filter(i => i.collected).length;
+  const located = all.filter(i => i.location).length;
+  const total = all.length;
+  const pct = total > 0 ? collected/total : 0;
+  const blocks = Math.round(pct * 20);
+  const bar = '█'.repeat(blocks) + '░'.repeat(20 - blocks);
+  const depts = new Set(all.filter(i => i.dept).map(i => i.dept));
+  document.getElementById('progressBarText').textContent = bar + '  ' + (pct*100).toFixed(0) + '%';
+  document.getElementById('prTotal').textContent = total;
+  document.getElementById('prCollected').textContent = collected;
+  document.getElementById('prLoc').textContent = located;
+  document.getElementById('prPending').textContent = total - collected;
+  document.getElementById('prDept').textContent = depts.size;
+  document.getElementById('prPct').textContent = (pct*100).toFixed(1) + '%';
+}
+
+function docUpdateStats(){
+  const total = docAllItems.length;
+  const collected = docAllItems.filter(i => i.collected).length;
+  const located = docAllItems.filter(i => i.location).length;
+}
+
+function docMark(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item) return;
+  item.collected = item.collected ? '' : '✓';
+  if(item.collected && !item.location) {
+    setTimeout(() => docOpenLocation(id), 100);
+    docToast('✓ Recorded! Now set the document location.');
+  } else if(item.collected) {
+    docToast('✓ Document recorded');
+  } else {
+    docToast('↩ Unmarked');
+  }
+  docRenderTable();
+}
+
+function docUnmark(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item) return;
+  item.collected = '';
+  docRenderTable();
+}
+
+function docOpenLocation(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item) return;
+  docEditingLocId = id;
+  document.getElementById('locDocName').value = item.desc;
+  document.getElementById('locInput').value = item.location || '';
+  document.getElementById('locModal').classList.add('open');
+}
+
+function docCloseLocModal(){
+  document.getElementById('locModal').classList.remove('open');
+  docEditingLocId = null;
+}
+
+function docSetLocQuick(val){
+  const input = document.getElementById('locInput');
+  input.value = input.value + val;
+  input.focus();
+}
+
+function docSaveLocation(){
+  if(!docEditingLocId) return;
+  const item = docAllItems.find(i => i.id === docEditingLocId);
+  if(!item) return;
+  const loc = document.getElementById('locInput').value.trim();
+  item.location = loc;
+  if(loc && !item.collected) {
+    item.collected = '✓';
+    docToast('📁 Location saved & auto-recorded ✓');
+  } else if(loc) {
+    docToast('📁 Location saved');
+  } else {
+    docToast('Location cleared');
+  }
+  docCloseLocModal();
+  docRenderTable();
+}
+
+function docSetFilter(f){
+  docCurrentFilter = f;
+  ['all','collected','pending'].forEach(ff => document.getElementById('f_'+ff).className = 'filter-btn' + (ff===f?' active':''));
+  docRenderTable();
+}
+function docBuildSectionBtns(){
+  const container = document.getElementById('sectionBtns');
+  const icons = {'1. CERTIFICATE':'📜','2. ISO':'📄','3. STAFF':'👤','4. FINANCE':'💰','5. ORGANIZATION CHART':'🏢','6. PROJECT INFO':'📁'};
+  let html = `<button class="sbtn${!docCurrentSection?' active':''}" data-sec="" onclick="docSetSection('')">📋 All</button>`;
+  docSECTIONS.forEach(sec => {
+    const icon = icons[sec.id] || '📋';
+    const short = sec.label.replace(/^\d+\. /,'').substring(0,18);
+    html += `<button class="sbtn${docCurrentSection===sec.id?' active':''}" data-sec="${sec.id}" onclick="docSetSection('${sec.id}')">${icon} ${short}</button>`;
+  });
+  container.innerHTML = html;
+}
+
+function docSetSection(s){
+  docCurrentSection = s;
+  docBuildSectionBtns();
+  docRenderTable();
+}
+
+// ── Add Section ──
+function docOpenSectionModal(){
+  document.getElementById('secModal').classList.add('open');
+  document.getElementById('f_secName').value = '';
+  document.getElementById('f_secSubs').value = '';
+}
+function docCloseSectionModal(){ document.getElementById('secModal').classList.remove('open'); }
+
+function docSaveSection(){
+  const name = document.getElementById('f_secName').value.trim();
+  if(!name){ alert('Please enter section name.'); return; }
+  const subsRaw = document.getElementById('f_secSubs').value.trim();
+  let subs;
+  if(subsRaw){
+    subs = subsRaw.split('\n').filter(s=>s.trim()).map(s => ({label:s.trim(), items:[{desc:'New document', start:'', collected:'', location:'', dept:''}]}));
+  } else {
+    subs = [{label:'A. Default', items:[{desc:'New document', start:'', collected:'', location:'', dept:''}]}];
+  }
+  const secNum = docSECTIONS.length + 1;
+  const newId = secNum + '. ' + removeAccents(name).toUpperCase();
+  const bgClasses = ['bg-row1','bg-row2','bg-row3','bg-row4','bg-row5','bg-row6'];
+  const bgClass = bgClasses[(docSECTIONS.length) % 6];
+  docSECTIONS.push({id:newId, label:newId, totalItems:1, bgClass, subs});
+  docRebuildAllItems();
+  docBuildSectionBtns();
+  docCloseSectionModal();
+  docRenderTable();
+  docToast('📂 New section added: ' + newId);
+}
+
+// ── Delete Section / Sub-Section ──
+function docDeleteSection(si){
+  const sec = docSECTIONS[si];
+  if(!confirm('Delete section \"' + sec.label + '\" and all its documents?')) return;
+  docSECTIONS.splice(si, 1);
+  docRebuildAllItems();
+  docBuildSectionBtns();
+  docRenderTable();
+  docToast('🗑 Deleted section: ' + sec.label);
+}
+
+function docDeleteSubsection(si, subi){
+  const sub = docSECTIONS[si].subs[subi];
+  if(!confirm('Delete sub-section \"' + sub.label + '\" and all its documents?')) return;
+  docSECTIONS[si].subs.splice(subi, 1);
+  docRebuildAllItems();
+  docRenderTable();
+  docToast('🗑 Deleted: ' + sub.label);
+}
+
+function docDeleteDoc(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item || !confirm('Delete document \"' + item.desc + '\"?')) return;
+  // Remove from docSECTIONS data
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      const idx = sub.items.findIndex(d => d.desc === item.desc && d.location === item.location);
+      if(idx > -1) sub.items.splice(idx, 1);
+    });
+  });
+  docRebuildAllItems();
+  docRenderTable();
+  docToast('🗑 Deleted: ' + item.desc);
+}
+
+function docDeleteDoc(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item) return;
+  if(!confirm('Delete document \"' + item.desc + '\"?')) return;
+  const sec = docSECTIONS.find(s => s.id === item.sectionId);
+  if(sec){
+    const sub = sec.subs.find(s => s.label === item.subsection);
+    if(sub){
+      const idx = sub.items.findIndex(d => d.desc === item.desc && d.location === item.location);
+      if(idx > -1) sub.items.splice(idx, 1);
+    }
+  }
+  docRebuildAllItems();
+  docRenderTable();
+  docToast('🗑 Deleted: ' + item.desc);
+}
+
+function docDeleteDoc(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item || !confirm('Delete document \"' + item.desc + '\"?')) return;
+  // Remove from docAllItems
+  const idx = docAllItems.findIndex(i => i.id === id);
+  if(idx > -1) docAllItems.splice(idx, 1);
+  // Also remove from docSECTIONS structure
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      const ditem = sub.items.findIndex(d => d.desc === item.desc && d.location === item.location);
+      if(ditem > -1) sub.items.splice(ditem, 1);
+    });
+  });
+  docRenderTable();
+  docToast('🗑 Deleted: ' + item.desc);
+}
+
+// ── Delete single document ──
+function docDeleteDoc(id){
+  const item = docAllItems.find(i => i.id === id);
+  if(!item) return;
+  if(!confirm('Delete document \"' + item.desc + '\"?')) return;
+  // Remove from docSECTIONS data structure
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      const idx = sub.items.findIndex(it => it.desc === item.desc && it.location === item.location);
+      if(idx !== -1) sub.items.splice(idx, 1);
+    });
+  });
+  docRebuildAllItems();
+  docRenderTable();
+  docToast('🗑 Deleted: ' + item.desc);
+}
+
+function docSetLoc(btn, val){
+  document.getElementById('f_location').value = val;
+  document.getElementById('f_location').focus();
+}
+
+function docOpenModal(){
+  document.getElementById('modalTitle').textContent = '➕ Add / Record Document';
+  // Rebuild section dropdown from current docSECTIONS
+  const secSel = document.getElementById('f_section');
+  secSel.innerHTML = docSECTIONS.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+  ['f_subsection','f_desc','f_start','f_collected','f_location','f_pic','f_dept','f_remark'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.tagName === 'SELECT') el.selectedIndex = 0;
+    else if(el) el.value = '';
+  });
+  document.getElementById('addModal').classList.add('open');
+}
+function docCloseModal(){ document.getElementById('addModal').classList.remove('open'); }
+
+function docSaveItem(){
+  const desc = document.getElementById('f_desc').value.trim();
+  if(!desc){ alert('Please enter a document description.'); return; }
+  const sec = document.getElementById('f_section').value;
+  const bg = docSECTIONS.find(s => s.id === sec)?.bgClass || 'bg-row1';
+  docAllItems.push({
+    id: ++docCounter, sectionId: sec, sectionLabel: sec, bgClass: bg,
+    subsection: document.getElementById('f_subsection').value || '',
+    desc: desc, start: document.getElementById('f_start').value || '',
+    collected: document.getElementById('f_collected').value || '',
+    location: document.getElementById('f_location').value || '',
+    dept: document.getElementById('f_dept').value || '',
+    remark: document.getElementById('f_remark').value || ''
+  });
+  docCloseModal();
+  docToast('Document record added');
+  docRenderTable();
+}
+
+function docExportCSV(){
+  let csv = '\uFEFFSection,Sub-Section,Document Description,Document Location,Relevant Dept,Remark\n';
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      docAllItems.filter(i => i.sectionId === sec.id && i.subsection === sub.label).forEach(it => {
+        csv += `"${sec.label}","${sub.label}","${it.desc}","${it.start}","${it.collected}","${it.location}","${it.dept}","${it.remark}"\n`;
+      });
+    });
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Documentation_Storage_Registry.csv';
+  a.click();
+  docToast('CSV exported');
+}
+
+docBuildSectionBtns();
+docRenderTable();
+
+</script>
 </body>
 </html>
