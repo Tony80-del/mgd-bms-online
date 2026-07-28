@@ -3145,11 +3145,16 @@ function sm(m){
     document.getElementById('docstorageContainer').style.display='block';
     document.querySelector('.tc').style.display='none';
     ['btnAdd','exportMainBtn','btnCsv','btnImport','expInteractBtn','exportCustTplBtn'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    // docstorage has its own title-banner, hide unified header
+    var mt=document.getElementById('mt');if(mt)mt.style.display='none';
+    var mst=document.getElementById('mst');if(mst)mst.style.display='none';
     docRebuildAllItems();
     docRenderTable();
-  }else{
-    document.querySelector('.tc').style.display='block';
   }
+
+  // docstorage 有自己的 title-banner, 隐藏统一标题
+  var mt=document.getElementById('mt');if(mt)mt.style.display=m==='docstorage'?'none':'';
+  var mst=document.getElementById('mst');if(mst)mst.style.display=m==='docstorage'?'none':'';
 
   // 显示工具齿轮菜单
   var gear=document.getElementById('toolGearWrap');
