@@ -3115,6 +3115,11 @@ function sm(m){
     var mst=document.getElementById('mst');if(mst)mst.style.display='none';
     docRebuildAllItems();
     docRenderTable();
+    // 确保所有弹窗关闭
+    ['addModal','secModal','locModal'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.classList.remove('open');
+    });
   }
 
   // docstorage 有自己的 title-banner, 隐藏统一标题
