@@ -3177,20 +3177,10 @@ function sm(m){
   var gear=document.getElementById('toolGearWrap');
   if(gear)gear.style.display='inline-flex';
 
-  // 更新标题
-  const titles={
-    summary:{title:'综合统计',sub:'汇总三大模块的关键数据'},
-    bids:{title:'投标项目追踪',sub:'管理和追踪所有投标项目进度'},
-    customers:{title:'客户管理',sub:'管理客户信息和跟进记录'},
-    projects:{title:'客户互动',sub:'记录客户沟通和互动历史'},
-    chambers:{title:'商会信息',sub:'管理商会和组织联系信息'},
-    quarterly:{title:'季度报告',sub:'Quarterly Report'},
-    plan2026:{title:'计划2026',sub:'PLAN 2026'},
-    weeklyreport:{title:'Weekly Report',sub:'Business Dept Weekly Report'},
-    docstorage:{title:'Documentation Storage',sub:'Document Storage & Registry System'}
-  };
-  document.getElementById('pt').textContent=titles[m]?titles[m].title:'';
-  document.getElementById('ps').textContent=titles[m]?titles[m].sub:'';
+  // 更新标题（全局 i18n）
+  const TITLES={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc']};
+  document.getElementById('pt').textContent=TITLES[m]?t(TITLES[m][0]):'';
+  document.getElementById('ps').textContent=TITLES[m]?t(TITLES[m][1]):'';
   // 显示/隐藏互动计数徽章
   var badge=document.getElementById('projInteractBadge');
   var q3badge=document.getElementById('q3InteractBadge');
