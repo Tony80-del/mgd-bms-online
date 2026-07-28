@@ -712,8 +712,8 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
   <!-- ── Title Banner ── -->
   <div class="title-banner">
-    <h1>DOCUMENTATION STORAGE</h1>
-    <p>Document Storage & Registry System</p>
+    <h1 id="dsTitle">DOCUMENTATION STORAGE</h1>
+    <p id="dsSub">Document Storage & Registry System</p>
   </div>
 
   <!-- ── Workflow Banner ── -->
@@ -3160,6 +3160,8 @@ function sm(m){
     ['addModal','secModal','locModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');});
     ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
+    document.getElementById('dsTitle').textContent=t('ptDoc');
+    document.getElementById('dsSub').textContent=t('psDoc');
     if(typeof docRenderDashboard==='function')docRenderDashboard();
     if(typeof docRenderProgress==='function')docRenderProgress();
     if(typeof docRenderPieChart==='function')docRenderPieChart();
