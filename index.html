@@ -3149,6 +3149,8 @@ function sm(m){
     document.getElementById('docstorageContainer').style.display='block';
     document.querySelector('.tc').style.display='none';
     ['btnAdd','exportMainBtn','btnCsv','btnImport','expInteractBtn','exportCustTplBtn'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    docRebuildAllItems();
+    docRenderTable();
   }else{
     document.querySelector('.tc').style.display='block';
   }
