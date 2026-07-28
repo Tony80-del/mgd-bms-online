@@ -297,6 +297,8 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 /* ── Modal ── */
 #docstorageContainer .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 #docstorageContainer .modal-overlay.open {display:flex}
+#addModal.modal-overlay, #secModal.modal-overlay, #locModal.modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+#addModal.modal-overlay.open, #secModal.modal-overlay.open, #locModal.modal-overlay.open {display:flex}
 #docstorageContainer .modal-box {background:#fff;border-radius:10px;padding:24px;width:100%;max-width:520px;box-shadow:0 12px 48px rgba(0,0,0,.2)}
 #docstorageContainer .modal-box h3 {font-size:15px;font-weight:700;margin-bottom:16px;color:#1E3A5F}
 #docstorageContainer .modal-box .field {margin-bottom:12px}
