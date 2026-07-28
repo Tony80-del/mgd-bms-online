@@ -841,7 +841,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <label>Document Location (folder / link / drive path)</label>
       <input type="text" id="f_location" placeholder="e.g. \\server\docs\tender\cert\Company_Cert.pdf">
       <div class="loc-examples">
-        <span style="font-size:10px;color:#888;margin-right:4px">Quick:</span>
+        <span style="font-size:10px;color:#000;margin-right:4px">Quick:</span>
         <button onclick="docSetLoc(this,'\\server\docs\certificates\CERT_')">Server\CERT</button>
         <button onclick="docSetLoc(this,'https://mgd.sharepoint.com/docs/tender/cert/')">SharePoint</button>
         <button onclick="docSetLoc(this,'/Volumes/MGD_Archive/Tender_2026/Certificates/')">Local Drive</button>
@@ -879,7 +879,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 <div class="modal-overlay" id="locModal">
   <div class="modal-box" style="max-width:440px">
     <h3>📁 Update Document Location</h3>
-    <div class="field"><label>Document</label><input type="text" id="locDocName" readonly style="background:#f5f7fa;font-weight:600"></div>
+    <div class="field"><label>Document</label><input type="text" id="locDocName" readonly style="background:#f5f7fa;font-weight:600;color:#000"></div>
     <div class="field">
       <label>Storage Location</label>
       <textarea id="locInput" rows="2" placeholder="Enter folder path, link, or drive location"></textarea>
