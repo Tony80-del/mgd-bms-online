@@ -172,11 +172,11 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .toolbar input {background:#fff;border:1px solid #d0d7e2;border-radius:6px;padding:8px 14px;font-size:13px;width:260px}
 #docstorageContainer .toolbar input:focus {outline:none;border-color:#1E3A5F;box-shadow:0 0 0 2px rgba(30,58,95,.1)}
 #docstorageContainer .toolbar .filter-group {display:flex;gap:4px;flex-wrap:wrap}
-#docstorageContainer .toolbar .filter-btn {background:#f0f2f5;border:1px solid #d0d7e2;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;color:#333;font-weight:500;white-space:nowrap}
+#docstorageContainer .toolbar .filter-btn {background:#f0f2f5;border:1px solid #d0d7e2;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;color:#222;font-weight:500;white-space:nowrap}
 #docstorageContainer .toolbar .filter-btn:hover {background:#e2e6ea}
 #docstorageContainer .toolbar .filter-btn.active {background:#1E3A5F;color:#fff;border-color:#1E3A5F}
 #docstorageContainer .toolbar .section-btns {display:flex;gap:4px;flex-wrap:wrap;padding:0 0 0 12px;border-left:2px solid #d0d7e2}
-#docstorageContainer .toolbar .sbtn {background:#f5f0e8;border:1px solid #d0b890;padding:7px 12px;border-radius:6px;font-size:11px;cursor:pointer;color:#4a3a20;font-weight:500;white-space:nowrap;transition:all .15s}
+#docstorageContainer .toolbar .sbtn {background:#f5f0e8;border:1px solid #d0b890;padding:7px 12px;border-radius:6px;font-size:11px;cursor:pointer;color:#5a4a30;font-weight:500;white-space:nowrap;transition:all .15s}
 #docstorageContainer .toolbar .sbtn:hover {background:#ede4d4}
 #docstorageContainer .toolbar .sbtn.active {background:#2D4A7A;color:#fff;border-color:#2D4A7A}
 #docstorageContainer .toolbar .btn-add {background:#1E3A5F;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
@@ -275,7 +275,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .tracker-table .badge-pending {display:inline-block;background:#fff3cd;color:#856404;padding:1px 10px;border-radius:10px;font-size:10px;font-weight:600;border:1px solid #ffc107}
 #docstorageContainer .tracker-table .loc-link {display:inline-block;background:#e8f4f8;color:#0a6e8a;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;border:1px solid #b8dce8}
 #docstorageContainer .tracker-table .loc-link:hover {background:#d0ecf4}
-#docstorageContainer .tracker-table .loc-empty {color:#7a7f85;font-style:italic;cursor:pointer}
+#docstorageContainer .tracker-table .loc-empty {color:#868e96;font-style:italic;cursor:pointer}
 #docstorageContainer .tracker-table .btn-mark {cursor:pointer;background:transparent;border:none;font-size:10px;color:#006100;font-weight:600;padding:2px 6px;border-radius:4px}
 #docstorageContainer .tracker-table .btn-mark:hover {background:#e8f5e9}
 #docstorageContainer .tracker-table .btn-unmark {cursor:pointer;background:transparent;border:none;font-size:10px;color:#6c757d;font-weight:600;padding:2px 6px;border-radius:4px}
@@ -702,7 +702,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
   <!-- ── Toolbar ── -->
   <div class="toolbar">
-    <input type="text" id="searchInput" placeholder="Search document..." oninput="docRenderTable()">
+    <input type="text" id="searchInput" placeholder="Search document..." oninput="docRenderTable()" style="color:#222;" />
     <div class="filter-group">
       <button class="filter-btn active" id="f_all" onclick="docSetFilter('all')">All</button>
       <button class="filter-btn" id="f_collected" onclick="docSetFilter('collected')">✓ Recorded</button>
@@ -2201,7 +2201,7 @@ function exportWeeklyReportPDF(){
     if(tasks.length>0) userSections.push({key:key,tasks:tasks});
   });
   if(userSections.length===0){wrShowToast('No data to export!','error');return;}
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:7mm 8mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:11px}h1{color:#1a5f7a;text-align:center;font-size:17px;margin:2px 0;letter-spacing:1px}.user-header{color:#1a5f7a;font-size:12px;font-weight:700;margin:8px 0 2px 0;padding-bottom:1px;border-bottom:1px solid #88b7d0}table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:9px}th{background:#1a5f7a;color:#fff;padding:3px 2px;text-align:center;font-size:8px;white-space:nowrap}td{padding:2px 2px;border-bottom:1px solid #eee;text-align:center;font-size:8px;white-space:nowrap}.status{padding:1px 3px;border-radius:2px;font-size:7px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:12px;color:#888;font-size:8px}</style></head><body>';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Weekly Report - Week '+wrCurrentWeek+'</title><style>@page{size:A4 portrait;margin:7mm 8mm;}body{font-family:Arial,sans-serif;padding:0;margin:0;color:#333;font-size:11px}h1{color:#1565C0;text-align:center;font-size:17px;margin:2px 0;letter-spacing:1px}.user-header{color:#1a5f7a;font-size:12px;font-weight:700;margin:8px 0 2px 0;padding-bottom:1px;border-bottom:1px solid #88b7d0}table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:9px}th{background:#1a5f7a;color:#fff;padding:3px 2px;text-align:center;font-size:8px;white-space:nowrap}td{padding:2px 2px;border-bottom:1px solid #eee;text-align:center;font-size:8px;white-space:nowrap}.status{padding:1px 3px;border-radius:2px;font-size:7px;font-weight:bold;white-space:nowrap}.ontime{background:#c8e6c9;color:#2e7d32}.delayed{background:#ffcdd2;color:#c62828}.progress{background:#fff9c4;color:#f57f17}.footer{text-align:center;margin-top:12px;color:#888;font-size:8px}</style></head><body>';
   html+='<h1>Weekly Report</h1>';
   html+='<p style="text-align:center;color:#666;margin:1px 0 6px 0;font-size:10px;">Week '+wrCurrentWeek+' | '+dates.start+' - '+dates.end+'</p>';
   userSections.forEach(function(sec){
@@ -2384,7 +2384,7 @@ function exportSummaryPDF(){
   html+='.page{page-break-after:always;}';
   html+='.page:last-child{page-break-after:avoid;}';
   html+='.page-header{font-size:11px;color:#999;text-align:right;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;}';
-  html+='h1{color:#1a5f7a;text-align:center;margin:0 0 3px 0;font-size:22px;}';
+  html+='h1{color:#1565C0;text-align:center;margin:0 0 3px 0;font-size:22px;}';
   html+='.subtitle{text-align:center;color:#666;margin:0 0 16px 0;font-size:12px;}';
   html+='h2{color:#555;border-bottom:2px solid #1a5f7a;padding-bottom:6px;margin:22px 0 14px 0;font-size:16px;}';
   html+='.table{width:100%;border-collapse:collapse;margin-top:10px;}';
