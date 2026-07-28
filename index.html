@@ -784,7 +784,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
 <div id="docToast" class="toast"></div>
 
-<div class="docstorage-hidden-modals" style="display:none">
+
 <div class="modal-overlay" id="addModal">
   <div class="modal-box">
     <h3 id="modalTitle">➕ Add / Record Document</h3>
@@ -872,7 +872,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
   </div>
 
 </div>
-</div><!--/docstorage-hidden-modals-->
+
 </main>
 
 <div class="mo" id="md">
@@ -5366,7 +5366,6 @@ function docOpenLocation(id){
   document.getElementById('locDocName').value = item.desc;
   document.getElementById('locInput').value = item.location || '';
   document.getElementById('locModal').classList.add('open');
-  document.querySelector('.docstorage-hidden-modals').style.display='block';
 }
 
 function docCloseLocModal(){
@@ -5423,7 +5422,6 @@ function docSetSection(s){
 
 // ── Add Section ──
 function docOpenSectionModal(){
-  document.querySelector('.docstorage-hidden-modals').style.display='block';
   document.getElementById('secModal').classList.add('open');
   document.getElementById('f_secName').value = '';
   document.getElementById('f_secSubs').value = '';
@@ -5554,7 +5552,6 @@ function docOpenModal(){
     else if(el) el.value = '';
   });
   document.getElementById('addModal').classList.add('open');
-  document.querySelector('.docstorage-hidden-modals').style.display='block';
 }
 function docCloseModal(){ document.getElementById('addModal').classList.remove('open'); }
 
