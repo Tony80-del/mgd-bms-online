@@ -183,6 +183,9 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .toolbar .btn-add {background:#1E3A5F;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
 #docstorageContainer .toolbar .btn-add:hover {background:#0f2d50}
 #docstorageContainer .toolbar .btn-sec {background:#2D4A7A;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+#docstorageContainer .toolbar .btn-save {background:#1B5E20;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;margin-left:auto}
+#docstorageContainer .toolbar .btn-save:hover {background:#144a18}
+#docstorageContainer .toolbar .btn-save.saved {background:#388E3C}
 #docstorageContainer .toolbar .btn-sec:hover {background:#1E3A5F}
 #docstorageContainer .toolbar .btn-export {background:#fff;color:#333;border:1px solid #d0d7e2;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
 #docstorageContainer .toolbar .btn-export:hover {background:#f0f2f5}
@@ -747,7 +750,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Org Chart</button>
       <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
     </div>
-    <button class="btn-export" onclick="docExportCSV()">📤 Export CSV</button>
+    <button class="btn-save" onclick="docManualSave()">💾 Save</button>
       </div>
   </div><!-- /sticky-header-wrap -->
 
@@ -5190,8 +5193,47 @@ function docRebuildAllItems(){
 function docPersist(){
   data.docItems = docAllItems.map(it => ({...it}));
   data.docCounter = docCounter;
+  data.docSections = docSECTIONS.map(sec => ({
+    id: sec.id,
+    label: sec.label,
+    bgClass: sec.bgClass,
+    subs: sec.subs.map(sub => ({label: sub.label, items: []}))
+  }));
   saveData();
 }
+
+function docManualSave(){
+  docPersist();
+  var btn = document.querySelector('.btn-save');
+  if(btn){btn.textContent = '✅ Saved!'; btn.classList.add('saved');
+    setTimeout(function(){btn.textContent='💾 Save'; btn.classList.remove('saved');}, 2000);}
+  docToast('✅ All data saved to cloud');
+}
+
+// Restore saved section structure if available (custom sections added via UI)
+function docLoadSections(){
+  if(data.docSections && data.docSections.length > 0){
+    // Merge saved section labels/layout into docSECTIONS, preserving default items
+    var saved = data.docSections;
+    saved.forEach(function(ssec){
+      var existing = null;
+      for(var i=0;i<docSECTIONS.length;i++){
+        if(docSECTIONS[i].id === ssec.id || docSECTIONS[i].label === ssec.label){existing = docSECTIONS[i]; break;}
+      }
+      if(existing){
+        // Merge any new subs from saved
+        ssec.subs.forEach(function(sub){
+          var has = existing.subs.some(function(es){return es.label === sub.label;});
+          if(!has) existing.subs.push({label: sub.label, items: []});
+        });
+      }else{
+        // Custom section — push it
+        docSECTIONS.push({id: ssec.id, label: ssec.label, totalItems: 0, bgClass: ssec.bgClass || 'bg-row1', subs: ssec.subs.map(function(sub){return {label: sub.label, items: []};})});
+      }
+    });
+  }
+}
+if(typeof data !== 'undefined' && data) docLoadSections();
 docRebuildAllItems();
 
 let docCurrentFilter = 'all';
