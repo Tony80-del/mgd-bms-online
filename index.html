@@ -935,11 +935,11 @@ function toggleWin1Lang(){
 
 function updateUI(){
   // 安全防护: 确保 mod 是有效值
-  const validMods=['summary','bids','customers','projects','chambers','quarterly','plan2026','weeklyreport'];
+  const validMods=['summary','bids','customers','projects','chambers','quarterly','plan2026','weeklyreport','docstorage'];
   const safeMod=validMods.includes(mod)?mod:'summary';
   ['ttl','sub','nd','nb','nc','ni','nch','nquarterly','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s3','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
   document.getElementById('si').placeholder=t('sp');
-  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR']};
+  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc']};
   document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
   document.getElementById('ps').textContent=t(titles[safeMod]?titles[safeMod][1]:'ps5');
 }
