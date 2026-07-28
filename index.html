@@ -299,6 +299,27 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .modal-overlay.open {display:flex}
 #addModal.modal-overlay, #secModal.modal-overlay, #locModal.modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 #addModal.modal-overlay.open, #secModal.modal-overlay.open, #locModal.modal-overlay.open {display:flex}
+/* ── Global modal box styles (for Add/Record/Section/Location modals outside docstorageContainer) ── */
+#addModal .modal-box, #secModal .modal-box, #locModal .modal-box {background:#fff;border-radius:10px;padding:24px;width:100%;max-width:520px;box-shadow:0 12px 48px rgba(0,0,0,.2)}
+#addModal .modal-box h3, #secModal .modal-box h3, #locModal .modal-box h3 {font-size:15px;font-weight:700;margin-bottom:16px;color:#1E3A5F}
+#addModal .modal-box .field, #secModal .modal-box .field, #locModal .modal-box .field {margin-bottom:12px}
+#addModal .modal-box label, #secModal .modal-box label, #locModal .modal-box label {display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:3px}
+#addModal .modal-box input, #addModal .modal-box select, #addModal .modal-box textarea,
+#secModal .modal-box input, #secModal .modal-box select, #secModal .modal-box textarea,
+#locModal .modal-box input, #locModal .modal-box select {width:100%;padding:8px 12px;border:1px solid #d0d7e2;border-radius:6px;font-size:13px;font-family:Arial;box-sizing:border-box}
+#addModal .modal-box input:focus, #addModal .modal-box select:focus, #addModal .modal-box textarea:focus,
+#secModal .modal-box input:focus, #secModal .modal-box select:focus, #secModal .modal-box textarea:focus,
+#locModal .modal-box input:focus, #locModal .modal-box select:focus {outline:none;border-color:#1E3A5F;box-shadow:0 0 0 2px rgba(30,58,95,.1)}
+#addModal .modal-box textarea, #secModal .modal-box textarea {resize:vertical;min-height:60px}
+#addModal .modal-box .actions, #secModal .modal-box .actions, #locModal .modal-box .actions {display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+#addModal .modal-box .btn-cancel, #secModal .modal-box .btn-cancel, #locModal .modal-box .btn-cancel {padding:8px 20px;border-radius:6px;border:1px solid #d0d7e2;background:#fff;color:#555;font-size:12px;cursor:pointer;font-weight:500}
+#addModal .modal-box .btn-cancel:hover, #secModal .modal-box .btn-cancel:hover, #locModal .modal-box .btn-cancel:hover {background:#f0f2f5}
+#addModal .modal-box .btn-save, #secModal .modal-box .btn-save, #locModal .modal-box .btn-save {padding:8px 20px;border-radius:6px;border:none;background:#1E3A5F;color:#fff;font-size:12px;cursor:pointer;font-weight:600}
+#addModal .modal-box .btn-save:hover, #secModal .modal-box .btn-save:hover, #locModal .modal-box .btn-save:hover {background:#0f2d50}
+#addModal .modal-box .loc-examples, #secModal .modal-box .loc-examples, #locModal .modal-box .loc-examples {display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+#addModal .modal-box .row2, #secModal .modal-box .row2 {display:flex;gap:12px}
+#addModal .modal-box .row2 .field, #secModal .modal-box .row2 .field {flex:1}
+/* ── End global modal box styles ── */
 #docstorageContainer .modal-box {background:#fff;border-radius:10px;padding:24px;width:100%;max-width:520px;box-shadow:0 12px 48px rgba(0,0,0,.2)}
 #docstorageContainer .modal-box h3 {font-size:15px;font-weight:700;margin-bottom:16px;color:#1E3A5F}
 #docstorageContainer .modal-box .field {margin-bottom:12px}
