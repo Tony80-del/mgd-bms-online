@@ -813,7 +813,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 <!-- ── Add / Edit Modal ── -->
 <div class="modal-overlay" id="addModal">
   <div class="modal-box">
-    <h3 id="modalTitle">➕ Add / Record Document</h3>
+    <h3 id="modalTitle" style="display:inline-block">➕ Add / Record Document</h3><span onclick="docCloseModal()" style="float:right;cursor:pointer;font-size:22px;color:#888;line-height:1">✕</span>
     <div class="field">
       <label>Section *</label>
       <select id="f_section">
@@ -831,7 +831,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <div class="field">
       <label>Document Location</label>
-      <input type="text" id="f_location" placeholder="Folder / link / drive path" onkeydown="if(event.key==='Enter'){event.preventDefault();docSaveItem()}">
+      <input type="text" id="f_location" placeholder="Folder / link / drive path" onkeydown="if(event.key==='Enter'){event.preventDefault();docSaveItem(true)}">
       <div class="loc-examples">
         <span style="font-size:10px;color:#888;margin-right:4px">Quick:</span>
         <button onclick="docSetLoc(this,'\\server\docs\certificates\CERT_')">Server\CERT</button>
@@ -842,8 +842,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <div class="actions">
       <button class="btn-cancel" onclick="docCloseModal()">Cancel</button>
-      <button class="btn-save" id="docSaveBtn" onclick="docSaveItem()">➕ Save</button>
-      <button class="btn-save" id="docSaveNextBtn" onclick="docSaveItem(true)" style="background:#4870A8;color:#fff">➕ Save & Add Next</button>
+      <button class="btn-save" onclick="docSaveItem()">➕ Save</button>
     </div>
   </div>
 </div>
@@ -5584,9 +5583,18 @@ function docOpenModal(){
   setTimeout(() => document.getElementById('f_desc').focus(), 100);
 }
 
-function docCloseModal(){ document.getElementById('addModal').classList.remove('open'); }
+function docCloseModal(){
+  document.getElementById('addModal').classList.remove('open');
+  document.getElementById('addSectionModal').classList.remove('open');
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    document.getElementById('addModal').classList.remove('open');
+    document.getElementById('addSectionModal').classList.remove('open');
+  }
+});
 
-function docSaveItem(keepOpen){
+function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   const desc = document.getElementById('f_desc').value.trim();
   if(!desc){ alert('Please enter a document description.'); return; }
   const secId = document.getElementById('f_section').value;
