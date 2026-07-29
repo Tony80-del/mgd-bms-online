@@ -207,8 +207,8 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .dash-table td.green {color:#006100!important;font-weight:700}
 #docstorageContainer .dash-table td.amber {color:#9C6500!important;font-weight:700}
 #docstorageContainer .dash-table td.bold {font-weight:700}
-#docstorageContainer .dash-table tr.total-row td {background:#2D4A7A!important;color:#000!important;font-weight:700;font-size:11px}
-#docstorageContainer .dash-table tr.total-row td.green {color:#000!important}
+#docstorageContainer .dash-table tr.total-row td {background:#2D4A7A!important;color:#fff!important;font-weight:700;font-size:11px}
+#docstorageContainer .dash-table tr.total-row td.green {color:#fff!important}
 /* ── Dashboard section color ladder (sync with tracker) ── */
 #docstorageContainer .dash-table .bg-row1 td.col-section,
 #docstorageContainer .dash-table .bg-row1 td.col-total {background:#4870A8}
@@ -222,7 +222,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .dash-table .bg-row5 td.col-total {background:#4870A8}
 #docstorageContainer .dash-table .bg-row6 td.col-section,
 #docstorageContainer .dash-table .bg-row6 td.col-total {background:#2D4A7A}
-#docstorageContainer .dash-table .total-row td {background:#2D4A7A!important;color:#000!important}
+#docstorageContainer .dash-table .total-row td {background:#2D4A7A!important;color:#fff!important}
 
 /* ── Progress Section ── */
 #docstorageContainer .progress-section {background:#fff;border:1px solid #d0d7e2;border-top:none;padding:16px 24px 20px}
@@ -5293,7 +5293,7 @@ function docRenderDashboard(){
     <td class="col-section" style="text-align:center;padding-left:12px">TOTAL</td>
     <td class="col-total">${all.length}</td>
     <td class="col-data green bold">${rec}</td>
-    <td class="col-data bold" style="color:#000">${l}</td>
+    <td class="col-data bold" style="color:#fff">${l}</td>
     <td class="col-data">${p}</td>
     <td class="col-data green bold">${tPct}</td>
   </tr>`;
