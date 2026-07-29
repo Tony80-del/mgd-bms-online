@@ -816,7 +816,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <h3 id="modalTitle">➕ Add / Record Document</h3>
     <div class="field">
       <label>Section *</label>
-      <select id="f_section" onchange="docOnSectionChange()">
+      <select id="f_section">
         <option value="1. CERTIFICATE">1. CERTIFICATE</option><option value="2. ISO">2. ISO</option>
         <option value="3. STAFF">3. STAFF</option><option value="4. FINANCE">4. FINANCE</option>
         <option value="5. ORGANIZATION CHART">5. ORGANIZATION CHART</option>
@@ -824,7 +824,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </select>
     </div>
     <div class="field"><label>Sub-Section</label>
-      <select id="f_subsection"><option value="">—</option></select>
+      <input type="text" id="f_subsection" placeholder="e.g. A. Company Certificate">
     </div>
     <div class="field"><label>Document Description *</label>
       <input type="text" id="f_desc" placeholder="e.g. Company Certificate" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('f_location').focus()}">
@@ -5561,31 +5561,17 @@ function docSetLoc(btn, val){
   document.getElementById('f_location').focus();
 }
 
-function docRebuildSubsList(secId){
-  const subSel = document.getElementById('f_subsection');
-  const sec = docSECTIONS.find(s => s.id === secId);
-  subSel.innerHTML = (sec && sec.subs && sec.subs.length)
-    ? '<option value="">—</option>' + sec.subs.map(s => `<option value="${s.label}">${s.label}</option>`).join('')
-    : '<option value="">—</option>';
-}
-
 function docOpenModal(){
   document.getElementById('modalTitle').textContent = '➕ Add / Record Document';
   const secSel = document.getElementById('f_section');
   secSel.innerHTML = docSECTIONS.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
-  // Populate subs for first section
-  docRebuildSubsList(secSel.value);
   // Clear inputs
+  document.getElementById('f_subsection').value = '';
   document.getElementById('f_desc').value = '';
   document.getElementById('f_location').value = '';
-  document.getElementById('f_subsection').selectedIndex = 0;
   document.getElementById('addModal').classList.add('open');
   // Auto-focus description
   setTimeout(() => document.getElementById('f_desc').focus(), 100);
-}
-
-function docOnSectionChange(){
-  docRebuildSubsList(document.getElementById('f_section').value);
 }
 
 function docCloseModal(){ document.getElementById('addModal').classList.remove('open'); }
