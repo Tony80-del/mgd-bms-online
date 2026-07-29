@@ -168,6 +168,12 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .main {max-width:1280px;margin:0 auto;padding:24px;font-family:Arial,Helvetica,sans-serif}
 @media(min-width:1024px){#docstorageContainer .main{margin-left:224px}}
 
+/* ── Freeze pane: header zone fixed, table scrolls ── */
+#docstorageContainer.freeze-pane {display:flex;flex-direction:column}
+#docstorageContainer.freeze-pane .doc-sticky-header {flex-shrink:0;background:#fff}
+#docstorageContainer.freeze-pane .tracker-wrap {flex:1;overflow-y:auto;overflow-x:hidden;background:#fff;border:1px solid #d0d7e2;border-top:none}
+#docstorageContainer.freeze-pane .tracker-wrap > div {overflow-x:auto}
+
 /* ── Title Banner ── */
 #docstorageContainer .title-banner {background:#0D1A2A;padding:14px 24px}
 #docstorageContainer .title-banner h1 {color:#fff;font-size:18px;font-weight:700;text-align:center;letter-spacing:.5px}
@@ -189,8 +195,6 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .toolbar .btn-add:hover {background:#0f2d50}
 #docstorageContainer .toolbar .btn-sec {background:#2D4A7A;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
 #docstorageContainer .toolbar .btn-sec:hover {background:#1E3A5F}
-#docstorageContainer .toolbar .btn-export {background:#fff;color:#333;border:1px solid #d0d7e2;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
-#docstorageContainer .toolbar .btn-export:hover {background:#f0f2f5}
 
 
 /* ── Dashboard Table ── */
@@ -251,7 +255,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .pie-legend .leg-dot {width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
 /* ── Master Tracker Table ── */
-#docstorageContainer .tracker-wrap {background:#fff;border:1px solid #d0d7e2;border-top:none;overflow:hidden}
+
 #docstorageContainer .tracker-table {width:100%;border-collapse:collapse;table-layout:fixed}
 #docstorageContainer .tracker-table th {background:#1E3A5F;color:#fff;padding:9px 8px;font-size:11px;font-weight:700;text-align:center;border-right:1px solid rgba(255,255,255,.08);white-space:nowrap;position:sticky;top:0;z-index:10}
 #docstorageContainer .tracker-table th:first-child {text-align:left;padding-left:16px;width:14%}
@@ -710,8 +714,9 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
     <div class="tc ai" style="animation-delay:.6s"><table id="dt"><thead></thead><tbody id="tb"></tbody></table></div>
   </div>
-<div id="docstorageContainer" class="hidden mb-6" style="display:none;">
+<div id="docstorageContainer" class="mb-6" style="display:none;">
 
+<div class="doc-sticky-header">
 
   <!-- ── Title Banner ── -->
   <div class="title-banner">
@@ -749,7 +754,6 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Org Chart</button>
       <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
     </div>
-    <button class="btn-export" onclick="docExportCSV()">📤 Export CSV</button>
       </div>
 
   <!-- ── DASHBOARD ── -->
@@ -790,9 +794,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
   </div>
 
+</div><!-- /doc-sticky-header -->
+
   <!-- ── MASTER TRACKER TABLE ── -->
   <div class="tracker-wrap">
-    <div style="overflow-x:auto">
+    <div>
     <table class="tracker-table" id="trackerTable">
       <thead>
         <tr>
@@ -3151,7 +3157,15 @@ function sm(m){
     wrSwitchUser(wrCurrentUser);
   }else if(m==='docstorage'){
     var dsC=document.getElementById('docstorageContainer');
-    if(dsC)dsC.style.display='block';
+    if(dsC){
+      dsC.style.display='flex';
+      dsC.classList.add('freeze-pane');
+      // Set height to fill remaining viewport (after layout settles)
+      setTimeout(function(){
+        var r=dsC.getBoundingClientRect();
+        dsC.style.maxHeight='calc(100vh - '+(r.top + 16)+'px)';
+      },0);
+    }
     // Close any open doc modals
     ['addModal','secModal','locModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');});
     ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
@@ -5744,22 +5758,6 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }
 }
 
-function docExportCSV(){
-  let csv = '\uFEFFSection,Sub-Section,Document Description,Document Location,Relevant Dept,Remark\n';
-  docSECTIONS.forEach(sec => {
-    sec.subs.forEach(sub => {
-      docAllItems.filter(i => i.sectionId === sec.id && i.subsection === sub.label).forEach(it => {
-        csv += `"${sec.label}","${sub.label}","${it.desc}","${it.start}","${it.collected}","${it.location}","${it.dept}","${it.remark}"\n`;
-      });
-    });
-  });
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Documentation_Storage_Registry.csv';
-  a.click();
-  docToast('CSV exported');
-}
 
 </script>
 </body>
