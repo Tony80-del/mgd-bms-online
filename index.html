@@ -4640,9 +4640,13 @@ function addNewCategory(){
 // That code was removed because it caused periodic data loss on page refresh
 document.addEventListener('DOMContentLoaded',function(){
   loadData();
-  // Restore saved docSECTIONS from data, then render
-  if(data.docSECTIONS && data.docSECTIONS.length > 0){
-    docSECTIONS = data.docSECTIONS;
+  // Restore saved docSECTIONS from independent localStorage (not Firestore-synced)
+  var saved = localStorage.getItem('bms_doc_data');
+  if(saved){
+    var parsed = JSON.parse(saved);
+    if(Array.isArray(parsed) && parsed.length > 0){
+      docSECTIONS = parsed;
+    }
   }
   docRebuildAllItems();
   docBuildSectionBtns();
@@ -4708,7 +4712,6 @@ var lastSyncFrom = null;
 
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
-var _skipFirstSnapshot = true; // Skip initial subscription snapshot on page load
 window.saveData = function(){
   _origSave();
   // Check if logged in via Firebase Auth or simple password
@@ -4770,13 +4773,6 @@ function listenToCloud(){
       console.log('[Firebase] onSnapshot fired, exists:', doc.exists);
       if(!doc.exists || !doc.data().data) return;
       
-      // Skip initial snapshot on page load (localStorage already has authoritative state)
-      if(_skipFirstSnapshot){
-        _skipFirstSnapshot = false;
-        console.log('[Firebase] Skipping initial snapshot, localStorage is authoritative');
-        return;
-      }
-      
       // Skip if this change was triggered by our own save
       if(_isSyncingFromOwnSave){
         _isSyncingFromOwnSave = false;
@@ -4801,12 +4797,6 @@ function listenToCloud(){
       if(JSON.stringify(dataClean) !== JSON.stringify(fbClean)){
         data = fbData;
         _origSave(); // Save to localStorage
-        // Re-sync docSECTIONS from restored data
-        if(data.docSECTIONS && data.docSECTIONS.length > 0){
-          docSECTIONS = data.docSECTIONS;
-          docRebuildAllItems();
-          if(mod === 'docs') docRenderTable();
-        }
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
 
         // Show brief notification
@@ -4908,17 +4898,6 @@ function testFirebase(){
       listenToCloud();
       // Also do a test
       if(typeof testFirebase === 'function') testFirebase();
-      // Push authoritative local state to Firestore (in case last save didn't finish)
-      if(typeof fdb !== 'undefined' && data && Object.keys(data).length > 2){
-        console.log('[Firebase] Pushing authoritative local state to cloud...');
-        fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
-          .then(function(){
-            console.log('[Firebase] Authoritative local state pushed to cloud OK');
-          })
-          .catch(function(e){
-            console.log('[Firebase] Push authoritative state failed:', e.message);
-          });
-      }
     }
   }, 2000); // Wait 2s for Firebase SDK to fully load
 })();
@@ -5672,8 +5651,8 @@ document.addEventListener('keydown',function(e){
 });
 
 function docPersist(){
-  data.docSECTIONS = JSON.parse(JSON.stringify(docSECTIONS));
-  saveData();
+  // Save to independent key — NOT synced to Firestore, so deletes survive reload
+  localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
 }
 
 function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
