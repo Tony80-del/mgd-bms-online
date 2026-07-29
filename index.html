@@ -3600,6 +3600,10 @@ function authThenRestore(e){e.stopPropagation();closeToolMenu();requirePassword(
 // 完整系统备份 / 恢复
 // ============================================================
 function backupAll(){
+  // ⚡ Flush all in-memory data to localStorage first
+  if(typeof saveData === 'function') saveData();
+  if(typeof docPersist === 'function') docPersist();
+
   var backup = {};
   // 保存所有 localStorage 中的数据
   for (var i = 0; i < localStorage.length; i++) {
@@ -3617,12 +3621,11 @@ function backupAll(){
   a.download = 'BMS_Full_Backup_' + date + '.json';
   document.body.appendChild(a);
   a.click();
-  // don't revoke immediately - browser needs time to start download
   setTimeout(function(){
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
   }, 1000);
-  alert(t('es'));
+  wrShowToast ? wrShowToast('✅ Full backup complete') : alert(t('es'));
 }
 
 function restoreAll(event){
