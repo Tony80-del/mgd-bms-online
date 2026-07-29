@@ -873,7 +873,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 <div class="modal-overlay" id="locModal">
   <div class="modal-box" style="max-width:440px">
     <h3>📁 Update Document Location</h3>
-    <div class="field"><label>Document</label><input type="text" id="locDocName" readonly style="background:#f5f7fa;font-weight:600"></div>
+    <div class="field"><label>Document</label><input type="text" id="locDocName" style="font-weight:600"></div>
     <div class="field">
       <label>Storage Location</label>
       <textarea id="locInput" rows="2" placeholder="Enter folder path, link, or drive location"></textarea>
@@ -5476,6 +5476,8 @@ function docSaveLocation(){
   const item = docAllItems.find(i => i.id === docEditingLocId);
   if(!item) return;
   const loc = document.getElementById('locInput').value.trim();
+  const newDesc = document.getElementById('locDocName').value.trim();
+  if(newDesc) item.desc = newDesc;
   item.location = loc;
   if(loc && !item.collected) {
     item.collected = '✓';
