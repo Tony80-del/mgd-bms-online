@@ -5259,7 +5259,8 @@ function docRenderTable(){
   docRenderProgress();
   docUpdateStats();
   const pending = docAllItems.filter(i => !i.collected).length;
-  document.getElementById('sidebarBadge').textContent = pending + ' left';
+  const badge = document.getElementById('sidebarBadge');
+  if(badge) badge.textContent = pending + ' left';
 }
 
 function docRenderTrackerBody(filtered){
