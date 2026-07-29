@@ -4708,6 +4708,7 @@ var lastSyncFrom = null;
 
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
+var _skipFirstSnapshot = true; // Skip initial subscription snapshot on page load
 window.saveData = function(){
   _origSave();
   // Check if logged in via Firebase Auth or simple password
@@ -4769,6 +4770,13 @@ function listenToCloud(){
       console.log('[Firebase] onSnapshot fired, exists:', doc.exists);
       if(!doc.exists || !doc.data().data) return;
       
+      // Skip initial snapshot on page load (localStorage already has authoritative state)
+      if(_skipFirstSnapshot){
+        _skipFirstSnapshot = false;
+        console.log('[Firebase] Skipping initial snapshot, localStorage is authoritative');
+        return;
+      }
+      
       // Skip if this change was triggered by our own save
       if(_isSyncingFromOwnSave){
         _isSyncingFromOwnSave = false;
@@ -4793,6 +4801,12 @@ function listenToCloud(){
       if(JSON.stringify(dataClean) !== JSON.stringify(fbClean)){
         data = fbData;
         _origSave(); // Save to localStorage
+        // Re-sync docSECTIONS from restored data
+        if(data.docSECTIONS && data.docSECTIONS.length > 0){
+          docSECTIONS = data.docSECTIONS;
+          docRebuildAllItems();
+          if(mod === 'docs') docRenderTable();
+        }
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
 
         // Show brief notification
@@ -4894,6 +4908,17 @@ function testFirebase(){
       listenToCloud();
       // Also do a test
       if(typeof testFirebase === 'function') testFirebase();
+      // Push authoritative local state to Firestore (in case last save didn't finish)
+      if(typeof fdb !== 'undefined' && data && Object.keys(data).length > 2){
+        console.log('[Firebase] Pushing authoritative local state to cloud...');
+        fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+          .then(function(){
+            console.log('[Firebase] Authoritative local state pushed to cloud OK');
+          })
+          .catch(function(e){
+            console.log('[Firebase] Push authoritative state failed:', e.message);
+          });
+      }
     }
   }, 2000); // Wait 2s for Firebase SDK to fully load
 })();
