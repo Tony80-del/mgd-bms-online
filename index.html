@@ -5677,8 +5677,19 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     document.getElementById('f_desc').value = '';
     document.getElementById('f_location').value = '';
     document.getElementById('f_desc').focus();
-    // Refresh Sub-Section dropdown
+    // Refresh Sub-Section dropdown, re-select the one just used
     docPopulateSubs();
+    if(subLabel){
+      const subSel = document.getElementById('f_subsection');
+      if([...subSel.options].some(o => o.value === subLabel)){
+        subSel.value = subLabel;
+      } else {
+        // Custom sub-section: show custom input
+        document.getElementById('f_subsection').style.display = 'none';
+        document.getElementById('f_subsection_new').style.display = 'block';
+        document.getElementById('f_subsection_new').value = subLabel;
+      }
+    }
     docRenderTable();
   } else {
     docCloseModal();
