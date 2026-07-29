@@ -169,10 +169,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 @media(min-width:1024px){#docstorageContainer .main{margin-left:224px}}
 
 /* ── Freeze pane: header zone fixed, table scrolls ── */
-#docstorageContainer.freeze-pane {display:flex;flex-direction:column}
-#docstorageContainer.freeze-pane .doc-sticky-header {flex-shrink:0;background:#fff}
-#docstorageContainer.freeze-pane .tracker-wrap {flex:1;overflow-y:auto;overflow-x:hidden;background:#fff;border:1px solid #d0d7e2;border-top:none}
-#docstorageContainer.freeze-pane .tracker-wrap > div {overflow-x:auto}
+
 
 /* ── Title Banner ── */
 #docstorageContainer .title-banner {background:#0D1A2A;padding:14px 24px}
@@ -187,7 +184,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .toolbar .filter-btn {background:#f0f2f5;border:1px solid #d0d7e2;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;color:#555;font-weight:500;white-space:nowrap}
 #docstorageContainer .toolbar .filter-btn:hover {background:#e2e6ea}
 #docstorageContainer .toolbar .filter-btn.active {background:#1E3A5F;color:#fff;border-color:#1E3A5F}
-#docstorageContainer .toolbar .section-btns {display:flex;gap:4px;flex-wrap:wrap;padding:0 0 0 12px;border-left:2px solid #d0d7e2}
+#docstorageContainer .section-btns {display:flex;gap:4px;flex-wrap:wrap;border-left:2px solid #d0d7e2;position:sticky;top:0;z-index:15;background:#f4f6f9;padding:8px 0 8px 12px}
 #docstorageContainer .toolbar .sbtn {background:#f5f0e8;border:1px solid #d0b890;padding:7px 12px;border-radius:6px;font-size:11px;cursor:pointer;color:#7a6a50;font-weight:500;white-space:nowrap;transition:all .15s}
 #docstorageContainer .toolbar .sbtn:hover {background:#ede4d4}
 #docstorageContainer .toolbar .sbtn.active {background:#2D4A7A;color:#fff;border-color:#2D4A7A}
@@ -745,6 +742,9 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <button class="btn-sec" onclick="docOpenSectionModal()">📂 Add Section</button>
     <button class="btn-add" onclick="docOpenModal()">➕ Add Document</button>
+    </div>
+
+    <!-- Section filter buttons: sticky row -->
     <div class="section-btns" id="sectionBtns">
       <button class="sbtn active" data-sec="" onclick="docSetSection('')">📋 All</button>
       <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificate</button>
@@ -3159,13 +3159,7 @@ function sm(m){
   }else if(m==='docstorage'){
     var dsC=document.getElementById('docstorageContainer');
     if(dsC){
-      dsC.style.display='flex';
-      dsC.classList.add('freeze-pane');
-      // Set fixed height to fill remaining viewport
-      setTimeout(function(){
-        var r=dsC.getBoundingClientRect();
-        dsC.style.height='calc(100vh - '+(r.top)+'px)';
-      },0);
+      dsC.style.display='block';
     }
     // Close any open doc modals
     ['addModal','secModal','locModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('open');});
