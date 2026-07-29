@@ -824,7 +824,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </select>
     </div>
     <div class="field"><label>Sub-Section *</label>
-      <select id="f_subsection">
+      <select id="f_subsection" onchange="docOnSubSelect()">
         <option value="">-- Select or type new --</option>
       </select>
       <input type="text" id="f_subsection_new" placeholder="e.g. A. Company Certificate" style="display:none;margin-top:6px">
@@ -5677,6 +5677,8 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     document.getElementById('f_desc').value = '';
     document.getElementById('f_location').value = '';
     document.getElementById('f_desc').focus();
+    // Refresh Sub-Section dropdown
+    docPopulateSubs();
     docRenderTable();
   } else {
     docCloseModal();
