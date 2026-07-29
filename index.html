@@ -742,9 +742,6 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <button class="btn-sec" onclick="docOpenSectionModal()">📂 Add Section</button>
     <button class="btn-add" onclick="docOpenModal()">➕ Add Document</button>
-    </div>
-
-    <!-- Section filter buttons: sticky row -->
     <div class="section-btns" id="sectionBtns">
       <button class="sbtn active" data-sec="" onclick="docSetSection('')">📋 All</button>
       <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificate</button>
@@ -753,6 +750,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance</button>
       <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Org Chart</button>
       <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
+    </div>
     </div>
 
   <!-- ── DASHBOARD ── -->
