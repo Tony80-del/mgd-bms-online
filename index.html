@@ -5487,6 +5487,7 @@ function docSaveLocation(){
   } else {
     docToast('Location cleared');
   }
+  docPersist();
   docCloseLocModal();
   docRenderTable();
 }
