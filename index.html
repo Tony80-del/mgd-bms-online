@@ -4640,6 +4640,13 @@ function addNewCategory(){
 // That code was removed because it caused periodic data loss on page refresh
 document.addEventListener('DOMContentLoaded',function(){
   loadData();
+  // Migration: copy old data.docSECTIONS to independent key if not yet migrated
+  var migrated = localStorage.getItem('bms_doc_migrated');
+  if(!migrated && data.docSECTIONS && data.docSECTIONS.length > 0){
+    localStorage.setItem('bms_doc_data', JSON.stringify(data.docSECTIONS));
+    localStorage.setItem('bms_doc_migrated', '1');
+    console.log('[DocStorage] Migrated existing docSECTIONS to independent storage');
+  }
   // Restore saved docSECTIONS from independent localStorage (not Firestore-synced)
   var saved = localStorage.getItem('bms_doc_data');
   if(saved){
