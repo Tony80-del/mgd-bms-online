@@ -4637,6 +4637,13 @@ function addNewCategory(){
 // That code was removed because it caused periodic data loss on page refresh
 document.addEventListener('DOMContentLoaded',function(){
   loadData();
+  // Restore saved docSECTIONS from data, then render
+  if(data.docSECTIONS && data.docSECTIONS.length > 0){
+    docSECTIONS = data.docSECTIONS;
+  }
+  docRebuildAllItems();
+  docBuildSectionBtns();
+  docRenderTable();
 });
 </script>
 <script>
@@ -5187,13 +5194,7 @@ function docRebuildAllItems(){
   });
 }
 
-// ── On load: restore saved docSECTIONS, then bootstrap ──
-if(data.docSECTIONS && data.docSECTIONS.length > 0){
-  docSECTIONS = data.docSECTIONS;
-}
-docRebuildAllItems();
-docBuildSectionBtns();
-docRenderTable();
+//  doc bootstrap moved to loadData()
 
 let docCurrentFilter = 'all';
 let docCurrentSection = '';
