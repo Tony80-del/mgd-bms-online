@@ -5250,10 +5250,16 @@ function docRenderTrackerBody(filtered){
     const secItems = filtered.filter(i => i.sectionId === sec.id);
     if(secItems.length === 0) return;
     html += `<tr class="section-row s-row-${si % 6}"><td colspan="6">${sec.label}</td><td class="c del-cell" onclick="docDeleteSection(${si})" title="Delete this section">🗑</td></tr>`;
-    sec.subs.forEach((sub, subi) => {
-      const subItems = secItems.filter(i => i.subsection === sub.label);
+    // Collect all sub-section labels from data + predefined (preserve order)
+    const allSubLabels = [...new Set([
+      ...sec.subs.map(s => s.label),
+      ...secItems.map(i => i.subsection).filter(Boolean)
+    ])];
+    allSubLabels.forEach(subLabel => {
+      const sub = sec.subs.find(s => s.label === subLabel);
+      const subItems = secItems.filter(i => i.subsection === subLabel);
       if(subItems.length === 0) return;
-      html += `<tr class="subsection-row"><td colspan="6">▸ ${sub.label}</td><td class="c del-cell" onclick="docDeleteSubsection(${si},${subi})" title="Delete this sub-section">🗑</td></tr>`;
+      html += `<tr class="subsection-row"><td colspan="6">▸ ${subLabel}</td><td class="c del-cell" onclick="docDeleteSubsection(${si},'${subLabel.replace(/'/g,"\\'")}')" title="Delete this sub-section">🗑</td></tr>`;
       subItems.forEach(it => {
         const rc = rowAlt ? 'row-white' : 'row-gray';
         rowAlt = !rowAlt;
@@ -5527,10 +5533,14 @@ function docDeleteSection(si){
   docToast('🗑 Deleted section: ' + sec.label);
 }
 
-function docDeleteSubsection(si, subi){
-  const sub = docSECTIONS[si].subs[subi];
-  if(!confirm('Delete sub-section "' + sub.label + '" and all its documents?')) return;
-  docSECTIONS[si].subs.splice(subi, 1);
+function docDeleteSubsection(si, subKey){
+  const sec = docSECTIONS[si];
+  // subKey is now a label string, find it in predefined subs
+  const subIdx = sec.subs.findIndex(s => s.label === subKey);
+  const sub = subIdx >= 0 ? sec.subs[subIdx] : {label: subKey};
+  if(!confirm('Delete sub-section "' + subKey + '" and all its documents?')) return;
+  // Remove from predefined subs if it exists there
+  if(subIdx >= 0) sec.subs.splice(subIdx, 1);
   delete data.docItems;
   docRebuildAllItems();
   docRenderTable();
@@ -5583,16 +5593,22 @@ function docSaveItem(keepOpen){
   const sec = docSECTIONS.find(s => s.id === secId);
   const bg = sec?.bgClass || 'bg-row1';
   const subLabel = document.getElementById('f_subsection').value || '';
-  docAllItems.push({
-    id: ++docCounter, sectionId: secId, sectionLabel: secId, bgClass: bg,
-    subsection: subLabel,
-    desc: desc, start: '', collected: '',
-    location: document.getElementById('f_location').value || '',
-    dept: '', remark: ''
-  });
+  const loc = document.getElementById('f_location').value || '';
+  const id = ++docCounter;
+  // Ensure sub-section exists in docSECTIONS tree (for rebuild + delete)
+  if(sec && subLabel){
+    let sub = sec.subs.find(s => s.label === subLabel);
+    if(!sub){
+      sub = {label: subLabel, items: []};
+      sec.subs.push(sub);
+    }
+    sub.items.push({id, desc, start:'', collected:'', location:loc, dept:'', remark:''});
+  }
+  docAllItems.push({id, sectionId:secId, sectionLabel:secId, bgClass:bg,
+    subsection:subLabel, desc, start:'', collected:'', location:loc, dept:'', remark:''});
   docToast('✅ ' + desc + ' added');
+  docPersist();
   if(keepOpen){
-    // Clear fields but keep section/sub-section selection
     document.getElementById('f_desc').value = '';
     document.getElementById('f_location').value = '';
     document.getElementById('f_desc').focus();
