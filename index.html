@@ -816,15 +816,18 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <h3 id="modalTitle" style="display:inline-block">➕ Add / Record Document</h3><span onclick="docCloseModal()" style="float:right;cursor:pointer;font-size:22px;color:#888;line-height:1">✕</span>
     <div class="field">
       <label>Section *</label>
-      <select id="f_section">
+      <select id="f_section" onchange="docPopulateSubs()">
         <option value="1. CERTIFICATE">1. CERTIFICATE</option><option value="2. ISO">2. ISO</option>
         <option value="3. STAFF">3. STAFF</option><option value="4. FINANCE">4. FINANCE</option>
         <option value="5. ORGANIZATION CHART">5. ORGANIZATION CHART</option>
         <option value="6. PROJECT INFO">6. PROJECT INFO</option>
       </select>
     </div>
-    <div class="field"><label>Sub-Section</label>
-      <input type="text" id="f_subsection" placeholder="e.g. A. Company Certificate">
+    <div class="field"><label>Sub-Section *</label>
+      <select id="f_subsection">
+        <option value="">-- Select or type new --</option>
+      </select>
+      <input type="text" id="f_subsection_new" placeholder="e.g. A. Company Certificate" style="display:none;margin-top:6px">
     </div>
     <div class="field"><label>Document Description *</label>
       <input type="text" id="f_desc" placeholder="e.g. Company Certificate" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('f_location').focus()}">
@@ -5578,14 +5581,55 @@ function docSetLoc(btn, val){
   document.getElementById('f_location').focus();
 }
 
+function docPopulateSubs(){
+  const secId = document.getElementById('f_section').value;
+  const subSel = document.getElementById('f_subsection');
+  const subNew = document.getElementById('f_subsection_new');
+  // Hide the custom input, show the dropdown
+  subNew.style.display = 'none';
+  subNew.value = '';
+  subSel.style.display = 'block';
+  const sec = docSECTIONS.find(s => s.id === secId);
+  subSel.innerHTML = '<option value="">-- Select or type new --</option>';
+  if(sec){
+    sec.subs.forEach(sub => {
+      subSel.innerHTML += `<option value="${sub.label}">${sub.label}</option>`;
+    });
+  }
+  subSel.innerHTML += '<option value="__new__">➕ Type a new Sub-Section…</option>';
+}
+
+function docOnSubSelect(){
+  const val = document.getElementById('f_subsection').value;
+  if(val === '__new__'){
+    document.getElementById('f_subsection').style.display = 'none';
+    document.getElementById('f_subsection_new').style.display = 'block';
+    document.getElementById('f_subsection_new').focus();
+  }
+}
+
+function docGetSubSectionValue(){
+  const sel = document.getElementById('f_subsection');
+  const inp = document.getElementById('f_subsection_new');
+  if(sel.style.display === 'none' || sel.style.display === ''){
+    return inp.value.trim();
+  }
+  const v = sel.value;
+  return (v === '__new__' || v === '') ? '' : v;
+}
+
 function docOpenModal(){
   document.getElementById('modalTitle').textContent = '➕ Add / Record Document';
   const secSel = document.getElementById('f_section');
   secSel.innerHTML = docSECTIONS.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
   // Clear inputs
-  document.getElementById('f_subsection').value = '';
+  document.getElementById('f_subsection_new').value = '';
+  document.getElementById('f_subsection_new').style.display = 'none';
+  document.getElementById('f_subsection').style.display = 'block';
   document.getElementById('f_desc').value = '';
   document.getElementById('f_location').value = '';
+  // Populate Sub-Section dropdown
+  docPopulateSubs();
   document.getElementById('addModal').classList.add('open');
   // Auto-focus description
   setTimeout(() => document.getElementById('f_desc').focus(), 100);
@@ -5613,7 +5657,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   const secId = document.getElementById('f_section').value;
   const sec = docSECTIONS.find(s => s.id === secId);
   const bg = sec?.bgClass || 'bg-row1';
-  const subLabel = document.getElementById('f_subsection').value || '';
+  const subLabel = docGetSubSectionValue();
   const loc = document.getElementById('f_location').value || '';
   const id = ++docCounter;
   // Ensure sub-section exists in docSECTIONS tree (for rebuild + delete)
