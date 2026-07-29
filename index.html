@@ -288,6 +288,9 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .tracker-table .btn-unmark:hover {background:#f8f9fa}
 /* ── Delete cell icons (override section/subsection td font-size) ── */
 #docstorageContainer .tracker-table .del-cell {font-size:8px!important;cursor:pointer;opacity:.5;transition:all .15s;padding:1px!important;line-height:1;width:10px!important;min-width:10px!important;max-width:10px!important}
+#docstorageContainer .tracker-table .doc-inline-dept {cursor:pointer;display:inline-block;min-width:20px;border-bottom:1px dashed #ccc}
+#docstorageContainer .tracker-table .doc-inline-dept:hover {background:#f0f4f8;border-radius:3px}
+#docstorageContainer .tracker-table .doc-inline-input {padding:2px 4px;font-size:11px;border:1px solid #1E3A5F;border-radius:4px;font-weight:600;text-align:center}
 #docstorageContainer .tracker-table .del-cell:hover,
 .tracker-table tr.section-row:hover .del-cell,
 #docstorageContainer .tracker-table tr.subsection-row:hover .del-cell {opacity:1}
@@ -813,7 +816,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <h3 id="modalTitle">➕ Add / Record Document</h3>
     <div class="field">
       <label>Section *</label>
-      <select id="f_section">
+      <select id="f_section" onchange="docOnSectionChange()">
         <option value="1. CERTIFICATE">1. CERTIFICATE</option><option value="2. ISO">2. ISO</option>
         <option value="3. STAFF">3. STAFF</option><option value="4. FINANCE">4. FINANCE</option>
         <option value="5. ORGANIZATION CHART">5. ORGANIZATION CHART</option>
@@ -821,23 +824,14 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </select>
     </div>
     <div class="field"><label>Sub-Section</label>
-      <select id="f_subsection">
-        <option value="">—</option>
-        <option value="A. Company Certificate">A. Company Certificate</option>
-        <option value="A. ISO">A. ISO</option>
-        <option value="A. Staff List">A. Staff List</option>
-        <option value="A. Bank">A. Bank</option><option value="B. Insurance">B. Insurance</option>
-        <option value="A. Corporate">A. Corporate</option><option value="B. Project">B. Project</option>
-        <option value="A. Project List">A. Project List</option><option value="B. Detail">B. Detail</option>
-        <option value="C. Portfolio">C. Portfolio</option>
-      </select>
+      <select id="f_subsection"><option value="">—</option></select>
     </div>
-    <div class="field"><label>Document Description *</label><input type="text" id="f_desc" placeholder="e.g. Company Certificate"></div>
-    <input type="hidden" id="f_start">
-    <input type="hidden" id="f_collected">
+    <div class="field"><label>Document Description *</label>
+      <input type="text" id="f_desc" placeholder="e.g. Company Certificate" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('f_location').focus()}">
+    </div>
     <div class="field">
-      <label>Document Location (folder / link / drive path)</label>
-      <input type="text" id="f_location" placeholder="e.g. \\server\docs\tender\cert\Company_Cert.pdf">
+      <label>Document Location</label>
+      <input type="text" id="f_location" placeholder="Folder / link / drive path" onkeydown="if(event.key==='Enter'){event.preventDefault();docSaveItem()}">
       <div class="loc-examples">
         <span style="font-size:10px;color:#888;margin-right:4px">Quick:</span>
         <button onclick="docSetLoc(this,'\\server\docs\certificates\CERT_')">Server\CERT</button>
@@ -846,11 +840,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
         <button onclick="docSetLoc(this,'Google Drive / Tender / Certificates /')">Google Drive</button>
       </div>
     </div>
-    <div class="row2">
-      <div class="field"><label>Relevant Dept</label><input type="text" id="f_dept" placeholder="e.g. Local Server"></div>
-      <div class="field"><label>Remark</label><input type="text" id="f_remark" placeholder="Notes"></div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="docCloseModal()">Cancel</button>
+      <button class="btn-save" id="docSaveBtn" onclick="docSaveItem()">➕ Save</button>
+      <button class="btn-save" id="docSaveNextBtn" onclick="docSaveItem(true)" style="background:#4870A8;color:#fff">➕ Save & Add Next</button>
     </div>
-    <div class="actions"><button class="btn-cancel" onclick="docCloseModal()">Cancel</button><button class="btn-save" onclick="docSaveItem()">Save Record</button></div>
   </div>
 </div>
 
@@ -5199,6 +5193,31 @@ let docCurrentFilter = 'all';
 let docCurrentSection = '';
 let docEditingLocId = null;
 
+// ── Inline edit: Dept ──
+function docEditDept(id, el){
+  const cur = el.textContent === '—' ? '' : el.textContent;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = cur;
+  input.style.width = Math.max(70, cur.length * 7) + 'px';
+  el.textContent = '';
+  el.appendChild(input);
+  input.focus();
+  input.select();
+  const done = () => {
+    const val = input.value.trim();
+    const item = docAllItems.find(i => i.id === id);
+    if(item){ item.dept = val; }
+    el.textContent = val || '—';
+    docPersist();
+  };
+  input.onblur = done;
+  input.onkeydown = (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); input.blur(); }
+    if(e.key === 'Escape'){ input.value = cur; input.blur(); }
+  };
+}
+
 function docToast(msg){
   const t = document.getElementById('docToast');
   t.textContent = msg;
@@ -5250,7 +5269,7 @@ function docRenderTrackerBody(filtered){
 
         html += `<tr class="${rc}"><td></td><td>${it.desc}</td>
           <td>${locHTML}</td>
-          <td class="c">${it.dept || '—'}</td>
+          <td class="c"><span class="doc-inline-dept" data-id="${it.id}" onclick="docEditDept(${it.id},this)">${it.dept || '—'}</span></td>
           <td class="c">${sHTML}</td>
           <td class="c">${aHTML}</td><td class="c del-cell" onclick="docDeleteDoc(${it.id})" title="Delete this document">🗑</td></tr>`;
       });
@@ -5542,37 +5561,60 @@ function docSetLoc(btn, val){
   document.getElementById('f_location').focus();
 }
 
+function docRebuildSubsList(secId){
+  const subSel = document.getElementById('f_subsection');
+  const sec = docSECTIONS.find(s => s.id === secId);
+  subSel.innerHTML = (sec && sec.subs && sec.subs.length)
+    ? '<option value="">—</option>' + sec.subs.map(s => `<option value="${s.label}">${s.label}</option>`).join('')
+    : '<option value="">—</option>';
+}
+
 function docOpenModal(){
   document.getElementById('modalTitle').textContent = '➕ Add / Record Document';
-  // Rebuild section dropdown from current docSECTIONS
   const secSel = document.getElementById('f_section');
   secSel.innerHTML = docSECTIONS.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
-  ['f_subsection','f_desc','f_start','f_collected','f_location','f_pic','f_dept','f_remark'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el && el.tagName === 'SELECT') el.selectedIndex = 0;
-    else if(el) el.value = '';
-  });
+  // Populate subs for first section
+  docRebuildSubsList(secSel.value);
+  // Clear inputs
+  document.getElementById('f_desc').value = '';
+  document.getElementById('f_location').value = '';
+  document.getElementById('f_subsection').selectedIndex = 0;
   document.getElementById('addModal').classList.add('open');
+  // Auto-focus description
+  setTimeout(() => document.getElementById('f_desc').focus(), 100);
 }
+
+function docOnSectionChange(){
+  docRebuildSubsList(document.getElementById('f_section').value);
+}
+
 function docCloseModal(){ document.getElementById('addModal').classList.remove('open'); }
 
-function docSaveItem(){
+function docSaveItem(keepOpen){
   const desc = document.getElementById('f_desc').value.trim();
   if(!desc){ alert('Please enter a document description.'); return; }
-  const sec = document.getElementById('f_section').value;
-  const bg = docSECTIONS.find(s => s.id === sec)?.bgClass || 'bg-row1';
+  const secId = document.getElementById('f_section').value;
+  const sec = docSECTIONS.find(s => s.id === secId);
+  const bg = sec?.bgClass || 'bg-row1';
+  const subLabel = document.getElementById('f_subsection').value || '';
   docAllItems.push({
-    id: ++docCounter, sectionId: sec, sectionLabel: sec, bgClass: bg,
-    subsection: document.getElementById('f_subsection').value || '',
-    desc: desc, start: document.getElementById('f_start').value || '',
-    collected: document.getElementById('f_collected').value || '',
+    id: ++docCounter, sectionId: secId, sectionLabel: secId, bgClass: bg,
+    subsection: subLabel,
+    desc: desc, start: '', collected: '',
     location: document.getElementById('f_location').value || '',
-    dept: document.getElementById('f_dept').value || '',
-    remark: document.getElementById('f_remark').value || ''
+    dept: '', remark: ''
   });
-  docCloseModal();
-  docToast('Document record added');
-  docRenderTable();
+  docToast('✅ ' + desc + ' added');
+  if(keepOpen){
+    // Clear fields but keep section/sub-section selection
+    document.getElementById('f_desc').value = '';
+    document.getElementById('f_location').value = '';
+    document.getElementById('f_desc').focus();
+    docRenderTable();
+  } else {
+    docCloseModal();
+    docRenderTable();
+  }
 }
 
 function docExportCSV(){
