@@ -5186,7 +5186,14 @@ function docRebuildAllItems(){
     });
   });
 }
+
+// ── On load: restore saved docSECTIONS, then bootstrap ──
+if(data.docSECTIONS && data.docSECTIONS.length > 0){
+  docSECTIONS = data.docSECTIONS;
+}
 docRebuildAllItems();
+docBuildSectionBtns();
+docRenderTable();
 
 let docCurrentFilter = 'all';
 let docCurrentSection = '';
@@ -5594,6 +5601,11 @@ document.addEventListener('keydown',function(e){
   }
 });
 
+function docPersist(){
+  data.docSECTIONS = JSON.parse(JSON.stringify(docSECTIONS));
+  saveData();
+}
+
 function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   const desc = document.getElementById('f_desc').value.trim();
   if(!desc){ alert('Please enter a document description.'); return; }
@@ -5643,9 +5655,6 @@ function docExportCSV(){
   a.click();
   docToast('CSV exported');
 }
-
-docBuildSectionBtns();
-docRenderTable();
 
 </script>
 </body>
