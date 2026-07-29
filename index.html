@@ -3077,6 +3077,8 @@ function renderRow(item,rowIdx){
 function sm(m){
   if(!m||typeof m!=='string'){console.error('[sm] invalid m:',m);return;}
   mod=m;
+  // Restore body scroll when leaving docstorage
+  document.body.style.overflow='';
   // 更新菜单激活状态
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
   try{if(event&&event.currentTarget)event.currentTarget.classList.add('active');}catch(e){}
@@ -3157,13 +3159,15 @@ function sm(m){
     wrSwitchUser(wrCurrentUser);
   }else if(m==='docstorage'){
     var dsC=document.getElementById('docstorageContainer');
+    // Lock body: no page scroll, only tracker-table scrolls
+    document.body.style.overflow='hidden';
     if(dsC){
       dsC.style.display='flex';
       dsC.classList.add('freeze-pane');
-      // Set height to fill remaining viewport (after layout settles)
+      // Set fixed height to fill remaining viewport
       setTimeout(function(){
         var r=dsC.getBoundingClientRect();
-        dsC.style.maxHeight='calc(100vh - '+(r.top + 16)+'px)';
+        dsC.style.height='calc(100vh - '+(r.top)+'px)';
       },0);
     }
     // Close any open doc modals
