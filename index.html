@@ -5198,8 +5198,10 @@ function docRebuildAllItems(){
   docSECTIONS.forEach(sec => {
     sec.subs.forEach(sub => {
       sub.items.forEach(it => {
+        const id = docCounter++;
+        it._id = id; // Tag source tree for SaveLocation back-mapping
         docAllItems.push({
-          id: docCounter++, sectionId: sec.id, sectionLabel: sec.label, bgClass: sec.bgClass,
+          id, sectionId: sec.id, sectionLabel: sec.label, bgClass: sec.bgClass,
           subsection: sub.label, desc: it.desc, start: it.start, collected: it.collected,
           location: it.location || '', dept: it.dept, remark: ''
         });
@@ -5215,6 +5217,19 @@ let docCurrentSection = '';
 let docEditingLocId = null;
 
 // ── Inline edit: Dept ──
+// Sync a docAllItems field back to the docSECTIONS source tree
+function docSyncSource(id, field, value){
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      sub.items.forEach(src => {
+        if(src._id === id || src.id === id){
+          src[field] = value;
+        }
+      });
+    });
+  });
+}
+
 function docEditDept(id, el){
   const cur = el.textContent === '—' ? '' : el.textContent;
   const input = document.createElement('input');
@@ -5229,6 +5244,7 @@ function docEditDept(id, el){
     const val = input.value.trim();
     const item = docAllItems.find(i => i.id === id);
     if(item){ item.dept = val; }
+    docSyncSource(id, 'dept', val);
     el.textContent = val || '—';
     docPersist();
   };
@@ -5237,7 +5253,7 @@ function docEditDept(id, el){
     if(e.key === 'Enter'){ e.preventDefault(); input.blur(); }
     if(e.key === 'Escape'){ input.value = cur; input.blur(); }
   };
-}
+};
 
 function docToast(msg){
   const t = document.getElementById('toast');
@@ -5432,11 +5448,13 @@ function docUpdateStats(){
 function docMark(id){
   const item = docAllItems.find(i => i.id === id);
   if(!item) return;
-  item.collected = item.collected ? '' : '✓';
-  if(item.collected && !item.location) {
+  const newVal = item.collected ? '' : '✓';
+  item.collected = newVal;
+  docSyncSource(id, 'collected', newVal);
+  if(newVal && !item.location) {
     setTimeout(() => docOpenLocation(id), 100);
     docToast('✓ Recorded! Now set the document location.');
-  } else if(item.collected) {
+  } else if(newVal) {
     docToast('✓ Document recorded');
   } else {
     docToast('↩ Unmarked');
@@ -5448,6 +5466,8 @@ function docUnmark(id){
   const item = docAllItems.find(i => i.id === id);
   if(!item) return;
   item.collected = '';
+  docSyncSource(id, 'collected', '');
+  docPersist();
   docRenderTable();
 }
 
@@ -5479,6 +5499,18 @@ function docSaveLocation(){
   const newDesc = document.getElementById('locDocName').value.trim();
   if(newDesc) item.desc = newDesc;
   item.location = loc;
+  // Also update the source tree (docSECTIONS) so docPersist() writes correct data
+  docSECTIONS.forEach(sec => {
+    sec.subs.forEach(sub => {
+      sub.items.forEach(src => {
+        if(src._id === item.id || src.id === item.id){
+          if(newDesc) src.desc = newDesc;
+          src.location = loc;
+          if(loc && !src.collected) src.collected = '\u2713';
+        }
+      });
+    });
+  });
   if(loc && !item.collected) {
     item.collected = '✓';
     docToast('📁 Location saved & auto-recorded ✓');
