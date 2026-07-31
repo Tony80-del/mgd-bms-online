@@ -4495,6 +4495,25 @@ function savePlanTracking(){
       it.cumulative = it.cumulative.replace(/%/g,'');
     }
   });
+  // Spell check before saving
+  var issues = checkPlanSpelling(items);
+  if(issues.length > 0){
+    var isZh = lang==='zh';
+    var msg = isZh
+      ? '检测到以下拼写可能错误：\n\n'
+      : 'Possible spelling issues detected:\n\n';
+    issues.forEach(function(iss){
+      msg += '[' + iss.no + '] "' + iss.bad + '" → "' + iss.good + '"\n';
+    });
+    msg += '\n' + (isZh ? '是否自动修正这些拼写？' : 'Auto-correct these spellings?');
+    if(confirm(msg)){
+      items.forEach(function(it){
+        issues.forEach(function(iss){
+          if(iss.bad && it.content === iss.bad) it.content = iss.good;
+        });
+      });
+    }
+  }
   data.planTracking = items;
   saveData();
   // flash save indicator (match Q2 Result style)
@@ -4507,6 +4526,50 @@ function savePlanTracking(){
       btn.style.background = '';
     }, 1500);
   }
+}
+
+// PLAN 2026 spell check: common business words with frequent typos
+var PLAN_SPELL_MAP = {
+  'Standar': 'Standard', 'Standars': 'Standards', 'standar': 'standard',
+  'Procuduce': 'Procedure', 'Procuudre': 'Procedure', 'Proceduce': 'Procedure', 'Procudure': 'Procedure', 'procdure': 'procedure', 'procudure': 'procedure',
+  'Brochur': 'Brochure', 'brochur': 'brochure', 'Brochers': 'Brochures',
+  'Managment': 'Management', 'managment': 'management', 'Managment': 'Management',
+  'Tragets': 'Targets', 'tragets': 'targets', 'Target': 'Targets', 'Targe': 'Target',
+  'Over view': 'Overview', 'over view': 'overview', 'Over View': 'Overview',
+  'Comtacts': 'Contacts', 'comtacts': 'contacts', 'Contacs': 'Contacts',
+  'Industiral': 'Industrial', 'industiral': 'industrial',
+  'Reports': 'Reports',
+  'Mangement': 'Management', 'mangement': 'management',
+  'Templete': 'Template', 'templete': 'template', 'Templates': 'Templates',
+  'Form': 'Forms', 'Forms': 'Forms', 'form': 'form',
+  'Databse': 'Database', 'databse': 'database', 'Data Base': 'Database',
+  'Certifcate': 'Certificate', 'certifcate': 'certificate',
+  'Material': 'Materials', 'Materials': 'Materials',
+  'Sytem': 'System', 'sytem': 'system', 'System': 'System',
+  'Tender': 'Tender', 'Tendor': 'Tender', 'tendor': 'tender',
+  'Requirement': 'Requirements', 'Requirements': 'Requirements',
+  'Documentation': 'Documentation',
+  'Update': 'Update', 'updat': 'Update',
+  'Price': 'Price', 'Pric': 'Price',
+  'Mangement': 'Management'
+};
+
+function checkPlanSpelling(items){
+  var issues = [];
+  items.forEach(function(it){
+    var c = (it.content||'').trim();
+    if(!c) return;
+    var words = c.split(/[^A-Za-z]+/).filter(function(w){ return w.length > 0; });
+    words.forEach(function(w){
+      var good = PLAN_SPELL_MAP[w];
+      if(good && good !== w){
+        var idx = c.indexOf(w);
+        var bad = c.substring(idx, idx + w.length);
+        issues.push({no: it.no, bad: bad, good: good, full: c});
+      }
+    });
+  });
+  return issues;
 }
 
 // Add child row under a parent/sub node
