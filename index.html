@@ -120,7 +120,7 @@
     /* 英文拼写检查 - 底部红点 */
     .fi-t[contenteditable]{min-height:38px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box}
     .fi-ta[contenteditable]{min-height:80px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box;resize:vertical}
-    @media(max-width:768px){.sb{position:fixed;left:-280px;top:0;bottom:0;width:280px;z-index:50;transition:left .3s}.sb.open{left:0}.mcnt{margin-left:0!important}.mmb{display:flex!important}}
+    @media(max-width:768px){.sb{position:fixed;left:-240px;top:0;bottom:0;width:240px;z-index:50;transition:left .3s}.sb.open{left:0}.mcnt{margin-left:0!important}.mmb{display:flex!important}}
   
 /* ===== Login Overlay ===== */
 body.logged-out>*:not(#login-overlay){display:none!important;}
@@ -382,7 +382,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 </div>
 
 
-<aside class="sb fixed left-0 top-0 bottom-0 w-64 z-40" id="sb">
+<aside class="sb fixed left-0 top-0 bottom-0 w-52 z-40" id="sb">
   <div class="p-3 border-b border-[var(--border)] text-center">
     <a href="https://tony80-del.github.io/mgd-bms-online/" class="block bg-white/90 rounded-lg p-[1px] shadow-lg mx-12"><img src="mgd-logo.png" alt="MGD Logo" class="w-full aspect-[4/3] object-contain mx-auto"></a>
     <p class="text-sm text-blue-300 mt-2.5 tracking-wider font-semibold">Business Management System</p>
@@ -401,7 +401,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
   </nav>
 </aside>
 
-<main class="mcnt ml-64 min-h-screen">
+<main class="mcnt ml-52 min-h-screen">
   <header class="sticky top-0 z-30 bg-[var(--bg1)]/70 backdrop-blur-xl border-b border-[var(--border)] px-8 py-4">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
