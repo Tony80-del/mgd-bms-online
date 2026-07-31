@@ -6024,7 +6024,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .pin-input:focus{ border-color: #f59e0b; }#dcApp .pin-err{ color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }#dcApp .modal-btns{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .modal-btns .btn{
     flex: 1; padding: 11px; border-radius: 9px; border: 0; font-size: 14px; font-weight: 600;
     cursor: pointer; transition: .15s;
-  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .admin-notice{
+  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .admin-notice{
     background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fbbf24;
     font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
   }#dcApp .mem-row{
@@ -6158,6 +6158,18 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="dcCloseModal('pinModal')">Cancel</button>
       <button class="btn btn-primary" onclick="dcConfirmPin()">Verify</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT CONFIRM MODAL -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal checkout-modal">
+    <h2><span>📦 Confirm Checkout</span><button class="close" onclick="dcCancelCheckout()">✕</button></h2>
+    <div class="checkout-scroll" id="checkoutModalBody"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="dcCancelCheckout()">Cancel</button>
+      <button class="btn btn-primary" onclick="dcConfirmCheckout()">Confirm</button>
     </div>
   </div>
 </div>
@@ -6313,7 +6325,7 @@ getDocs().forEach(d => collapsed[d.theme] = true);
 function openModal(id){ document.getElementById(id).classList.add('show'); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); }
+  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); closeModal('checkoutModal'); }
   if(e.key==='Enter' && document.getElementById('pinModal').classList.contains('show')) confirmPin();
   if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminFirstPin').style.display!=='none') setAdminFirstPin();
   if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminAuth').style.display!=='none') adminUnlock();
@@ -6666,14 +6678,40 @@ function doCheckout(){
     if(sel.value) promptPin(sel.value);
     return;
   }
+  openCheckoutModal();
+}
+
+function openCheckoutModal(){
+  const who = verifiedUser;
+  const today = new Date().toISOString().slice(0,10);
+  const groups={};
+  cart.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); });
+  let h = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>
+    <div class="result-hint">⬇️ Click any document below to download it from its location.</div>
+    <h3>📡 DOWNLOAD LIST · by source</h3>`;
+  Object.keys(groups).forEach(src=>{
+    h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
+    groups[src].forEach(d=> h += `<div class="src-item"><span class="dl-icon">⬇️</span><span class="dl-desc">${d.desc}</span><a class="dl-link" href="${d.link}" target="_blank" rel="noopener" title="Download: ${d.desc}">${d.link}</a></div>`);
+    h += `</div>`;
+  });
+  document.getElementById('checkoutModalBody').innerHTML = h;
+  document.getElementById('checkoutModal').classList.add('show');
+}
+
+function confirmCheckout(){
   const who = verifiedUser;
   const now = new Date();
   const ds = now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5);
   pickHistory.unshift({date:ds, who, docs: cart.map(c=>c.desc).join(', ')});
-  showResult(who); renderHistory(); renderStats();
+  renderHistory(); renderStats();
+  closeModal('checkoutModal');
   showToast({ title:'📦 Checkout complete', body: `${cart.length} items · collected by ${who}`, cls:'' });
-  setTimeout(()=>{ cart=[]; renderList(); renderCart(); renderStats(); saveState(); }, 300);
-  saveState();
+  cart=[]; renderList(); renderCart(); renderStats(); saveState();
+}
+
+function cancelCheckout(){
+  closeModal('checkoutModal');
+  showToast({ title:'✕ Checkout cancelled', body:'Cart kept — you can still edit.', cls:'warn' });
 }
 
 function showResult(who){
@@ -6800,6 +6838,8 @@ window.dcStartResetPin = startResetPin;
 window.dcAdminUnlock = adminUnlock;
 window.dcOnOperatorChange = onOperatorChange;
 window.dcCancelResult = cancelResult;
+window.dcConfirmCheckout = confirmCheckout;
+window.dcCancelCheckout = cancelCheckout;
 })();
 </script>
 </div>
