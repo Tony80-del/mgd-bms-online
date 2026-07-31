@@ -6024,7 +6024,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .pin-input:focus{ border-color: #f59e0b; }#dcApp .pin-err{ color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }#dcApp .modal-btns{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .modal-btns .btn{
     flex: 1; padding: 11px; border-radius: 9px; border: 0; font-size: 14px; font-weight: 600;
     cursor: pointer; transition: .15s;
-  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .btn-accent{ background: linear-gradient(135deg, #22c55e, #16a34a); color: #0b1220; }#dcApp .btn-accent:hover{ filter: brightness(1.1); }#dcApp .admin-notice{
+  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .admin-notice{
     background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fbbf24;
     font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
   }#dcApp .mem-row{
@@ -6690,45 +6690,13 @@ function doCheckout(){
   openCheckoutModal();
 }
 
-function toDlUrl(url){
-  // Convert a Google Drive share-page link to a direct-download link.
-  // e.g. https://drive.google.com/file/d/<ID>/view?usp=drive_link
-  //   ->  https://drive.google.com/uc?export=download&id=<ID>
-  if(!url) return url;
-  const m = url.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
-  if(m) return 'https://drive.google.com/uc?export=download&id='+m[1];
-  return url;
-}
-
-function autoDownload(){
-  if(!cart.length){ showToast({title:'🛒 Cart empty', body:'Nothing to download.', cls:'warn'}); return; }
-  // Sequential hidden-iframe downloads. The FIRST is triggered synchronously
-  // inside the user click gesture (so Chrome treats it as a user-authorized
-  // download), then the remaining links follow at 1200ms spacing within the
-  // resulting multi-download window. If Chrome prompts "allow multiple
-  // downloads", the user clicks Allow once and the rest finish automatically.
-  const files = cart.map(c=>({desc:c.desc, url:toDlUrl(c.link || c.loc || '')})).filter(f=>f.url);
-  if(!files.length){ showToast({title:'🔗 No links', body:'None of the items have a downloadable link.', cls:'warn'}); return; }
-  let frame = document.createElement('iframe');
-  frame.style.cssText = 'position:fixed;width:0;height:0;border:0;visibility:hidden;';
-  frame.src = 'about:blank';
-  document.body.appendChild(frame);
-  const total = files.length;
-  // First download fires synchronously in the click gesture.
-  frame.src = files[0].url;
-  for(let i=1;i<total;i++){
-    setTimeout(()=>{ frame.src = files[i].url; }, i*1200);
-  }
-  showToast({title:'📥 Downloading', body: 'Triggering '+total+' file(s)· if Chrome asks, click Allow to get all of them.', cls:''});
-}
-
 function openCheckoutModal(){
   const who = verifiedUser;
   const today = new Date().toISOString().slice(0,10);
   const groups={};
   cart.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); });
   document.getElementById('checkoutModalTitle').textContent = '📦 Confirm Checkout';
-  document.getElementById('checkoutModalBtns').innerHTML = '<button class="btn btn-accent" onclick="dcAutoDownload()">📥 Auto-Download</button><button class="btn btn-ghost" onclick="dcCancelCheckout()">Cancel</button><button class="btn btn-primary" onclick="dcConfirmCheckout()">Confirm</button>';
+  document.getElementById('checkoutModalBtns').innerHTML = '<button class="btn btn-ghost" onclick="dcCancelCheckout()">Cancel</button><button class="btn btn-primary" onclick="dcConfirmCheckout()">Confirm</button>';
   let h = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>
     <div class="result-hint">⬇️ Click any document below to download it from its location.</div>
     <h3>📡 DOWNLOAD LIST · by source</h3>`;
@@ -6914,7 +6882,6 @@ window.dcOnOperatorChange = onOperatorChange;
 window.dcCancelResult = cancelResult;
 window.dcConfirmCheckout = confirmCheckout;
 window.dcCancelCheckout = cancelCheckout;
-window.dcAutoDownload = autoDownload;
 window.dcShowHistoryDetail = showHistoryDetail;
 })();
 </script>
