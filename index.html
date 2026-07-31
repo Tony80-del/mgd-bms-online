@@ -5907,6 +5907,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 #dcApp *{ box-sizing: border-box; margin: 0; padding: 0; }#dcApp{
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #0b1220; color: #e6edf7; min-height: 100vh;
+    position: fixed; inset: 0; z-index: 40; overflow-y: auto;
   }#dcApp .topbar{
     background: #0d1526; border-bottom: 1px solid #1e2c47;
     padding: 16px 28px; display: flex; align-items: center; gap: 16px;
