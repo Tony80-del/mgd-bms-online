@@ -6024,7 +6024,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .pin-input:focus{ border-color: #f59e0b; }#dcApp .pin-err{ color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }#dcApp .modal-btns{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .modal-btns .btn{
     flex: 1; padding: 11px; border-radius: 9px; border: 0; font-size: 14px; font-weight: 600;
     cursor: pointer; transition: .15s;
-  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .btn-accent{ background: linear-gradient(135deg, #10b981, #059669); color: #0b1220; }#dcApp .btn-accent:hover{ filter: brightness(1.08); }#dcApp .admin-notice{
+  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .btn-accent{ background: linear-gradient(135deg, #10b981, #059669); color: #0b1220; }#dcApp .btn-accent:hover{ filter: brightness(1.08); }#dcApp .btn-secondary{ background: #0f1b30; border: 1px solid #f59e0b !important; color: #fbbf24; }#dcApp .btn-secondary:hover{ background: #16263f; }#dcApp .admin-notice{
     background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fbbf24;
     font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
   }#dcApp .mem-row{
@@ -6740,7 +6740,7 @@ function openDownloadModal(items){
     h += `</div>`;
   });
   body.innerHTML = h;
-  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-accent" onclick="dcConfirmDownload()">⬇️ Confirm · Auto-Download All</button>';
+  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button><button class="btn btn-accent" onclick="dcConfirmDownload()">⬇️ Confirm · Auto-Download All</button>';
   document.getElementById('downloadModal').classList.add('show');
 }
 
@@ -6778,6 +6778,11 @@ function cancelDownload(){
   dlItems = [];
   dlAutoDownloading = false;
   closeModal('downloadModal');
+}
+
+function manualDownload(){
+  // Keep the modal open so the user can click each link individually.
+  showToast({ title:'⬇️ Manual download', body:'Click any document link above to download it individually.', cls:'' });
 }
 
 function cancelCheckout(){
@@ -6897,6 +6902,7 @@ window.dcConfirmCheckout = confirmCheckout;
 window.dcCancelCheckout = cancelCheckout;
 window.dcConfirmDownload = confirmDownload;
 window.dcCancelDownload = cancelDownload;
+window.dcManualDownload = manualDownload;
 window.dcShowHistoryDetail = showHistoryDetail;
 })();
 </script>
