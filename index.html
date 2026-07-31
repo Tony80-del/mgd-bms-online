@@ -6024,7 +6024,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .pin-input:focus{ border-color: #f59e0b; }#dcApp .pin-err{ color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }#dcApp .modal-btns{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .modal-btns .btn{
     flex: 1; padding: 11px; border-radius: 9px; border: 0; font-size: 14px; font-weight: 600;
     cursor: pointer; transition: .15s;
-  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .admin-notice{
+  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .btn-accent{ background: linear-gradient(135deg, #10b981, #059669); color: #0b1220; }#dcApp .btn-accent:hover{ filter: brightness(1.08); }#dcApp .admin-notice{
     background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fbbf24;
     font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
   }#dcApp .mem-row{
@@ -6185,7 +6185,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 <!-- DOWNLOAD LIST MODAL (shown after checkout is confirmed) -->
 <div class="modal-overlay" id="downloadModal">
   <div class="modal checkout-modal">
-    <h2><span id="downloadModalTitle">📥 Download Files</span><button class="close" onclick="dcCloseModal('downloadModal')">✕</button></h2>
+    <h2><span id="downloadModalTitle">📥 Download Files</span><button class="close" onclick="dcCancelDownload()">✕</button></h2>
     <div class="checkout-scroll" id="downloadModalBody"></div>
     <div class="modal-btns" id="downloadModalBtns">
       <button class="btn btn-ghost" onclick="dcCloseModal('downloadModal')">✕ Close</button>
@@ -6343,7 +6343,7 @@ getDocs().forEach(d => collapsed[d.theme] = true);
 function openModal(id){ document.getElementById(id).classList.add('show'); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); closeModal('checkoutModal'); closeModal('downloadModal'); closeModal('historyDetailModal'); }
+  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); closeModal('checkoutModal'); cancelDownload(); closeModal('historyDetailModal'); }
   if(e.key==='Enter' && document.getElementById('pinModal').classList.contains('show')) confirmPin();
   if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminFirstPin').style.display!=='none') setAdminFirstPin();
   if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminAuth').style.display!=='none') adminUnlock();
@@ -6720,14 +6720,19 @@ function confirmCheckout(){
   openDownloadModal(snapshot);
 }
 
+let dlItems = [];                       // current download-list items (from this checkout)
+let dlAutoDownloading = false;          // true while auto-download is running
+
 function openDownloadModal(items){
+  dlItems = items.slice();
+  dlAutoDownloading = false;
   const groups={};
   items.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); });
   const title = document.getElementById('downloadModalTitle');
   const body = document.getElementById('downloadModalBody');
   const btns = document.getElementById('downloadModalBtns');
   title.textContent = '📥 Download Files';
-  let h = `<div class="result-hint">⬇️ Click any document below to download it from its location.</div>`;
+  let h = `<div class="result-hint">⬇️ Click any document below to download it manually, or Confirm to auto-download all.</div>`;
   h += `<h3>📡 DOWNLOAD LIST · by source</h3>`;
   Object.keys(groups).forEach(src=>{
     h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
@@ -6735,8 +6740,44 @@ function openDownloadModal(items){
     h += `</div>`;
   });
   body.innerHTML = h;
-  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCloseModal(\'downloadModal\')">✕ Close</button>';
+  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-accent" onclick="dcConfirmDownload()">⬇️ Confirm · Auto-Download All</button>';
   document.getElementById('downloadModal').classList.add('show');
+}
+
+function toDlUrl(u){
+  // Convert a Google Drive share link to a direct download URL if possible.
+  const m = u && u.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
+  if(m) return 'https://drive.google.com/uc?export=download&id='+m[1];
+  return u;
+}
+
+function confirmDownload(){
+  if(dlAutoDownloading || !dlItems.length) return;
+  dlAutoDownloading = true;
+  const urls = dlItems.map(d=>toDlUrl(d.link));
+  // Fire the first download synchronously inside this click gesture (browser
+  // treats it as user-initiated), then continue the rest via hidden iframes
+  // with a delay to be gentle and avoid popup blocking.
+  let i = 0;
+  const go = () => {
+    if(i >= urls.length){ dlAutoDownloading = false; return; }
+    const u = urls[i++];
+    if(!u) return;
+    // use a hidden iframe to trigger the download(s) without opening tabs
+    const ifr = document.createElement('iframe');
+    ifr.style.display='none';
+    ifr.src = u;
+    document.body.appendChild(ifr);
+    setTimeout(()=>{ ifr.remove(); go(); }, 1200);
+  };
+  go();
+  showToast({ title:'📥 Download started', body:`Auto-downloading ${urls.length} file(s). If Chrome asks, click Allow.`, cls:'' });
+}
+
+function cancelDownload(){
+  dlItems = [];
+  dlAutoDownloading = false;
+  closeModal('downloadModal');
 }
 
 function cancelCheckout(){
@@ -6854,6 +6895,8 @@ window.dcAdminUnlock = adminUnlock;
 window.dcOnOperatorChange = onOperatorChange;
 window.dcConfirmCheckout = confirmCheckout;
 window.dcCancelCheckout = cancelCheckout;
+window.dcConfirmDownload = confirmDownload;
+window.dcCancelDownload = cancelDownload;
 window.dcShowHistoryDetail = showHistoryDetail;
 })();
 </script>
