@@ -5657,6 +5657,7 @@ function removeAccents(str){
 function docSaveSection(){
   const name = document.getElementById('f_secName').value.trim();
   if(!name){ alert('Please enter section name.'); return; }
+  const cleanName = name.replace(/^\s*\d+\.?\s*/, '').trim();
   const subsRaw = document.getElementById('f_secSubs').value.trim();
   let subs;
   if(subsRaw){
@@ -5665,7 +5666,7 @@ function docSaveSection(){
     subs = [{label:'A. Default', items:[{desc:'New document', start:'', collected:'', location:'', dept:''}]}];
   }
   const secNum = docSECTIONS.length + 1;
-  const newId = secNum + '. ' + removeAccents(name).toUpperCase();
+  const newId = secNum + '. ' + removeAccents(cleanName).toUpperCase();
   const bgClasses = ['bg-row1','bg-row2','bg-row3','bg-row4','bg-row5','bg-row6'];
   const bgClass = bgClasses[(docSECTIONS.length) % 6];
   docSECTIONS.push({id:newId, label:newId, totalItems:1, bgClass, subs});
