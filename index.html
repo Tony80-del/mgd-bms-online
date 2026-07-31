@@ -120,7 +120,7 @@
     /* 英文拼写检查 - 底部红点 */
     .fi-t[contenteditable]{min-height:38px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box}
     .fi-ta[contenteditable]{min-height:80px;overflow-wrap:break-word;white-space:pre-wrap;line-height:1.5;box-sizing:border-box;resize:vertical}
-    @media(max-width:768px){.sb{position:fixed;left:-240px;top:0;bottom:0;width:240px;z-index:50;transition:left .3s}.sb.open{left:0}.mcnt{margin-left:0!important}.mmb{display:flex!important}}
+    @media(max-width:768px){.sb{position:fixed;left:-240px;top:0;bottom:0;width:240px;z-index:50;transition:left .3s}.sb.open{left:0}.mcnt{margin-left:0!important}.mmb{display:flex!important}#si{width:120px!important}}
   
 /* ===== Login Overlay ===== */
 body.logged-out>*:not(#login-overlay){display:none!important;}
@@ -167,6 +167,7 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 /* ── Main Content ── */
 #docstorageContainer .main {max-width:1280px;margin:0 auto;padding:24px;font-family:Arial,Helvetica,sans-serif}
 @media(min-width:1024px){#docstorageContainer .main{margin-left:224px}}
+    @media(min-width:769px) and (max-width:1100px){#si{width:140px!important}}
 
 /* ── Freeze pane: header zone fixed, table scrolls ── */
 
@@ -404,7 +405,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 <main class="mcnt ml-52 min-h-screen">
   <header class="sticky top-0 z-30 bg-[var(--bg1)]/70 backdrop-blur-xl border-b border-[var(--border)] px-8 py-4">
     <div class="flex items-center justify-between">
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 shrink-0 min-w-fit">
         <button class="mmb hidden p-2 rounded-lg bg-[var(--card)] border border-[var(--border)]" onclick="ts()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <div><h2 class="fd text-xl font-semibold" id="pt">投标项目追踪</h2><p class="text-sm text-[var(--muted)]" id="ps">管理和追踪所有投标项目进度</p><span id="projInteractBadge" class="hidden text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full mt-1 inline-block">互动: 0</span><span id="q3InteractBadge" class="hidden text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full mt-1 inline-block ml-2">Q3: 0</span></div>
       </div>
