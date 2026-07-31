@@ -2277,9 +2277,9 @@ function wrShowToast(msg,type){
   if(existing)existing.remove();
   var toast=document.createElement('div');
   toast.className='wr-toast';
-  var bg=type==='success'?'#22c55e':'#ef4444';
+  var bg=type==='success'?'#22c55e':(type==='error'?'#ef4444':'#3b82f6');
   toast.style.cssText='position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;animation:slideInWR .3s ease;z-index:9999;background:'+bg+';color:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
-  toast.innerHTML='<span>'+(type==='success'?'OK':'Error')+'</span> '+msg;
+  toast.innerHTML='<span>'+(type==='success'?'OK':(type==='error'?'Error':'Info'))+'</span> '+msg;
   document.body.appendChild(toast);
   setTimeout(function(){toast.style.animation='slideOutWR .3s ease forwards';setTimeout(function(){toast.remove();},300);},2500);
 }
