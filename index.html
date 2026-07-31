@@ -6702,20 +6702,24 @@ function toDlUrl(url){
 
 function autoDownload(){
   if(!cart.length){ showToast({title:'🛒 Cart empty', body:'Nothing to download.', cls:'warn'}); return; }
-  // Sequential hidden-iframe downloads. Each iframe navigates to the download
-  // URL within the ongoing gesture window; spacing avoids Chrome's popup and
-  // multi-download blocking while giving each download a moment to begin.
+  // Sequential hidden-iframe downloads. The FIRST is triggered synchronously
+  // inside the user click gesture (so Chrome treats it as a user-authorized
+  // download), then the remaining links follow at 1200ms spacing within the
+  // resulting multi-download window. If Chrome prompts "allow multiple
+  // downloads", the user clicks Allow once and the rest finish automatically.
   const files = cart.map(c=>({desc:c.desc, url:toDlUrl(c.link || c.loc || '')})).filter(f=>f.url);
   if(!files.length){ showToast({title:'🔗 No links', body:'None of the items have a downloadable link.', cls:'warn'}); return; }
   let frame = document.createElement('iframe');
   frame.style.cssText = 'position:fixed;width:0;height:0;border:0;visibility:hidden;';
+  frame.src = 'about:blank';
   document.body.appendChild(frame);
   const total = files.length;
-  let done = 0;
-  files.forEach((f,i)=>{
-    setTimeout(()=>{ frame.src = f.url; }, i*1200);
-  });
-  showToast({title:'📥 Downloading', body: 'Triggering '+total+' file(s)· check browser downloads', cls:''});
+  // First download fires synchronously in the click gesture.
+  frame.src = files[0].url;
+  for(let i=1;i<total;i++){
+    setTimeout(()=>{ frame.src = files[i].url; }, i*1200);
+  }
+  showToast({title:'📥 Downloading', body: 'Triggering '+total+' file(s)· if Chrome asks, click Allow to get all of them.', cls:''});
 }
 
 function openCheckoutModal(){
