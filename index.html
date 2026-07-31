@@ -648,7 +648,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
         <h3 class="fd text-lg font-semibold" style="color:var(--blue)" id="plan2026Title">System Tracking List 2026</h3>
         <button onclick="savePlanTracking()" id="planSaveBtn" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;gap:6px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">💾 <span>保存 / Save</span></button>
       </div>
-      <div id="planTrackingContainer" style="max-height:none;overflow:visible"></div>
+      <div id="planTrackingContainer" style="max-height:70vh;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:8px"></div>
     </div>
 
     <!-- Quarterly Report Page -->
@@ -941,7 +941,12 @@ function updateUI(){
   document.getElementById('si').placeholder=t('sp');
   const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc']};
   document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
-  document.getElementById('ps').textContent=t(titles[safeMod]?titles[safeMod][1]:'ps5');
+  // Freeze PLAN 2026 subtitle as English "System Tracking List 2026" (per user request)
+  if(safeMod==='plan2026'){
+    document.getElementById('ps').textContent='System Tracking List 2026';
+  }else{
+    document.getElementById('ps').textContent=t(titles[safeMod]?titles[safeMod][1]:'ps5');
+  }
 }
 
 function getActiveCustomers(){
@@ -4277,8 +4282,7 @@ function renderPlanTracking(){
   var headers = [
     isZh?'编号':'No.',
     isZh?'内容':'Content',
-    isZh?'年度计划':'Annual Plan',
-    isZh?'累计':'Cumulative',
+    'Annual Plan Cumulative',
     isZh?'负责人':'Person in Charge',
     isZh?'开始':'Date Start',
     isZh?'截止':'Date End',
@@ -4287,7 +4291,7 @@ function renderPlanTracking(){
     '' // Action column
   ];
 
-  var widths = ['60px','250px','80px','80px','150px','120px','120px','120px','150px','50px'];
+  var widths = ['60px','250px','160px','150px','120px','120px','120px','150px','80px'];
   var html = '<table style="width:100%;border-collapse:collapse;table-layout:fixed">';
   html += '<colgroup>';
   widths.forEach(function(w,i){
@@ -4296,7 +4300,7 @@ function renderPlanTracking(){
   html += '</colgroup>';
   html += '<thead><tr>';
   headers.forEach(function(h,i){
-    html += '<th style="padding:10px 12px;text-align:left;font-weight:600;color:var(--blue);font-size:12px;border-bottom:2px solid rgba(0,180,216,0.4);width:'+widths[i]+'">'+h+'</th>';
+    html += '<th style="position:sticky;top:0;z-index:5;background:var(--card);padding:10px 12px;text-align:left;font-weight:600;color:var(--blue);font-size:12px;border-bottom:2px solid rgba(0,180,216,0.4);width:'+widths[i]+'">'+h+'</th>';
   });
   html += '</tr></thead><tbody>';
 
@@ -4382,14 +4386,13 @@ function renderPlanTracking(){
     if(isParent){
       // Parent rows: empty cells except action (column 3 shows pct)
       var parentDisplay = parentPctMap[item.no] !== undefined ? parentPctMap[item.no]+'%' : (item.pct?item.pct:'-');
-      html += '<td style="padding:8px 6px;text-align:center;font-size:12px;font-weight:600;color:'+parentPctColor+'">'+parentDisplay+'</td><td></td><td></td><td></td><td></td><td></td><td></td><td style="padding:8px 6px;text-align:center"><button onclick="addChildRow(\''+item.no+'\',\''+item.no.split('.')[0]+'\')" style="background:rgba(0,180,216,0.1);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(0,180,216,0.2)\'" onmouseout="this.style.background=\'rgba(0,180,216,0.1)\'" title="'+(isZh?'添加子项':'Add child')+'">+</button></td>';
+      html += '<td style="padding:8px 6px;text-align:center;font-size:12px;font-weight:600;color:'+parentPctColor+'">'+parentDisplay+'</td><td></td><td></td><td></td><td></td><td style="padding:8px 6px;text-align:center"><button onclick="addChildRow(\''+item.no+'\',\''+item.no.split('.')[0]+'\')" style="background:rgba(0,180,216,0.1);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(0,180,216,0.2)\'" onmouseout="this.style.background=\'rgba(0,180,216,0.1)\'" title="'+(isZh?'添加子项':'Add child')+'">+</button></td>';
     } else if(isSub){
       // Sub rows: show Column 3 (auto-calc'd pct), rest empty except action
-      html += '<td style="padding:8px 6px;text-align:center;font-size:11px;color:'+pctColor+';font-weight:'+fontWeight+'">'+(pctDisplay || '-')+'</td><td></td><td></td><td></td><td></td><td></td><td style="padding:8px 6px;text-align:center"><button onclick="addChildRow(\''+item.no+'\',\''+item.no.split('.')[0]+'\')" style="background:rgba(0,180,216,0.1);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(0,180,216,0.2)\'" onmouseout="this.style.background=\'rgba(0,180,216,0.1)\'" title="'+(isZh?'添加子项':'Add child')+'">+</button> <button onclick="deletePlanRow('+idx+',this)" title="'+(isZh?'删除':'Delete')+'" style="background:rgba(239,68,68,0.1);border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:11px;color:#ef4444;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:2px" onmouseover="this.style.background=\'rgba(239,68,68,0.2)\'" onmouseout="this.style.background=\'rgba(239,68,68,0.1)\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a1,1 0 0,1,1-1h4a1,1 0 0,1,1,1v2"></path></svg><span style="font-size:11px">Del</span></button></td>';
+      html += '<td style="padding:8px 6px;text-align:center;font-size:11px;color:'+pctColor+';font-weight:'+fontWeight+'">'+(pctDisplay || '-')+'</td><td></td><td></td><td></td><td></td><td style="padding:8px 6px;text-align:center"><button onclick="addChildRow(\''+item.no+'\',\''+item.no.split('.')[0]+'\')" style="background:rgba(0,180,216,0.1);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--blue);cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'rgba(0,180,216,0.2)\'" onmouseout="this.style.background=\'rgba(0,180,216,0.1)\'" title="'+(isZh?'添加子项':'Add child')+'">+</button> <button onclick="deletePlanRow('+idx+',this)" title="'+(isZh?'删除':'Delete')+'" style="background:rgba(239,68,68,0.1);border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:11px;color:#ef4444;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:2px" onmouseover="this.style.background=\'rgba(239,68,68,0.2)\'" onmouseout="this.style.background=\'rgba(239,68,68,0.1)\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"></polyline><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a1,1 0 0,1,1-1h4a1,1 0 0,1,1,1v2"></path></svg><span style="font-size:11px">Del</span></button></td>';
     } else {
       // Leaf rows: all inputs + delete
-    html += '<td style="padding:8px 6px;text-align:center;font-size:11px;color:var(--text1);font-weight:'+fontWeight+'">'+(item.annualPlan||'')+'</td>';
-    html += '<td style="padding:8px 6px;text-align:center"><input type="text" value="'+escHtml((item.cumulative||'').replace(/%/g,''))+(item.cumulative?'%':'')+'" placeholder="%" data-idx="'+idx+'" data-k="cumulative" class="plan-input plan-num" style="width:80px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:'+pctColor+';outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');this.value=v+(v?\'%\':\'\');updatePctRowDisplay()"/></td>';
+    html += '<td style="padding:8px 6px"><div style="display:flex;align-items:center;gap:6px;justify-content:center"><input type="text" value="'+escHtml(item.annualPlan)+'" placeholder="Plan" data-idx="'+idx+'" data-k="annualPlan" class="plan-input" style="width:70px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'"/><input type="text" value="'+escHtml((item.cumulative||'').replace(/%/g,''))+(item.cumulative?'%':'')+'" placeholder="%" data-idx="'+idx+'" data-k="cumulative" class="plan-input plan-num" style="width:60px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:'+pctColor+';outline:none" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');this.value=v+(v?\'%\':\'\');updatePctRowDisplay()"/></div></td>';
 
     // Person in Charge dropdown
     html += '<td style="padding:8px 6px;text-align:center"><select data-idx="'+idx+'" data-k="pic" class="plan-input" style="width:130px;padding:4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none;cursor:pointer" onfocus="this.style.borderColor=\'var(--blue)\'" onblur="this.style.borderColor=\'var(--border)\'">';
@@ -4416,7 +4419,7 @@ function renderPlanTracking(){
 
   // Update title
   var titleEl = document.getElementById('plan2026Title');
-  if(titleEl) titleEl.textContent = isZh ? '系统追踪清单 2026' : 'System Tracking List 2026';
+  if(titleEl) titleEl.textContent = 'System Tracking List 2026';
   var saveBtn = document.getElementById('planSaveBtn');
   if(saveBtn) saveBtn.innerHTML = '💾 <span>保存 / Save</span>';
 }
