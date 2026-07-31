@@ -6032,13 +6032,13 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .mem-row input:focus{ border-color: #f59e0b; }#dcApp .mem-row .mini:hover{ border-color: #f59e0b; color: #fbbf24; }#dcApp .mem-row .mini.del:hover{ border-color: #f87171; color: #f87171; }#dcApp .add-mem{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .add-mem input{
     padding: 8px 10px; background: #0f1b30; border: 1px solid #2e4064; border-radius: 8px;
     color: #e6edf7; font-size: 13px; outline: none; flex: 1; min-width: 0;
-  }#dcApp .add-mem input:focus{ border-color: #f59e0b; }#dcApp .add-mem .btn{ flex: 0 0 auto; }#toast{
+  }#dcApp .add-mem input:focus{ border-color: #f59e0b; }#dcApp .add-mem .btn{ flex: 0 0 auto; }#dcApp #dcToast{
     position: fixed; bottom: 26px; right: 26px; z-index: 999;
     background: #0f1b30; border: 1px solid #2e4064; border-left: 4px solid #10b981;
     color: #dbe6f5; padding: 12px 18px; border-radius: 10px; font-size: 13px;
     box-shadow: 0 8px 30px rgba(0,0,0,.5); opacity: 0; transform: translateY(12px);
     transition: all .25s ease; pointer-events: none; max-width: 320px;
-  }#toast.show{ opacity: 1; transform: translateY(0); }#toast .t-title{ font-weight: 700; color: #34d399; margin-bottom: 2px; }#toast.remove{ border-left-color: #f87171; }#toast.remove .t-title{ color: #f87171; }#toast.clear{ border-left-color: #fbbf24; }#toast.clear .t-title{ color: #fbbf24; }#toast.warn{ border-left-color: #f59e0b; }#toast.warn .t-title{ color: #fbbf24; }#printArea{ display: none; }#dcApp @media print{
+  }#dcApp #dcToast.show{ opacity: 1; transform: translateY(0); }#dcApp #dcToast .t-title{ font-weight: 700; color: #34d399; margin-bottom: 2px; }#dcApp #dcToast.remove{ border-left-color: #f87171; }#dcApp #dcToast.remove .t-title{ color: #f87171; }#dcApp #dcToast.clear{ border-left-color: #fbbf24; }#dcApp #dcToast.clear .t-title{ color: #fbbf24; }#dcApp #dcToast.warn{ border-left-color: #f59e0b; }#dcApp #dcToast.warn .t-title{ color: #fbbf24; }#printArea{ display: none; }#dcApp @media print{
     #dcApp * { visibility: hidden; }#printArea,#printArea *{ visibility: visible; }#printArea{
       display: block; position: absolute; left: 0; top: 0; width: 100%;
       background: #fff; color: #111; padding: 28px; font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -6057,7 +6057,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   </div>
   <div class="right">
     <div class="status"><span class="dot"></span> Registry Synced · Ready to Pick</div>
-    <button class="gear-btn" title="Settings · Member & PIN management" onclick="dcOpenAdmin">⚙️</button>
+    <button class="gear-btn" title="Settings · Member & PIN management" onclick="dcOpenAdmin()">⚙️</button>
   </div>
 </div>
 
@@ -6092,8 +6092,8 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   <div class="main">
     <div class="search-wrap">
       <span class="s-icon">🔍</span>
-      <input id="searchInput" type="text" placeholder="Search by document name, location, source, sub-section..." oninput="setQuery(this.value)">
-      <button class="s-clear" id="searchClear" onclick="dcClearQuery">✕</button>
+      <input id="searchInput" type="text" placeholder="Search by document name, location, source, sub-section..." oninput="dcSetQuery(this.value)">
+      <button class="s-clear" id="searchClear" onclick="dcClearQuery()">✕</button>
     </div>
     <div class="panel">
       <div class="panel-h">
@@ -6118,13 +6118,13 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       <div class="panel-b">
         <div class="op-row">
           <span>👤</span>
-          <select id="operator" onchange="onOperatorChange(this.value)"><option value="">— Select —</option></select>
+          <select id="operator" onchange="dcOnOperatorChange(this.value)"><option value="">— Select —</option></select>
         </div>
         <div class="op-status" id="opStatus"></div>
         <div id="cartList"></div>
         <div class="cart-actions">
-          <button class="clear-cart" id="clearBtn" disabled onclick="dcClearCart">🗑</button>
-          <button class="checkout" id="checkoutBtn" disabled onclick="dcDoCheckout">📦 CHECKOUT</button>
+          <button class="clear-cart" id="clearBtn" disabled onclick="dcClearCart()">🗑</button>
+          <button class="checkout" id="checkoutBtn" disabled onclick="dcDoCheckout()">📦 CHECKOUT</button>
         </div>
         <div class="progress-wrap">
           <div class="lab"><span>Pick progress</span><span id="pct">0%</span></div>
@@ -6134,7 +6134,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     </div>
 
     <div class="panel">
-      <div class="panel-h" onclick="dcToggleHistory" style="cursor:pointer;user-select:none;"><span id="historyArrow">▶</span>&nbsp;📋 CHECK OUT RECORDED <span id="historyCount" style="margin-left:auto;font-weight:400;font-size:11px;color:#5f7296;"></span></div>
+      <div class="panel-h" onclick="dcToggleHistory()" style="cursor:pointer;user-select:none;"><span id="historyArrow">▶</span>&nbsp;📋 CHECK OUT RECORDED <span id="historyCount" style="margin-left:auto;font-weight:400;font-size:11px;color:#5f7296;"></span></div>
       <div class="panel-b" id="historyList" style="display:none;"></div>
     </div>
   </div>
@@ -6142,18 +6142,18 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 </div>
 
 <!-- TOAST -->
-<div id="toast"><div class="t-title"></div><div class="t-body"></div></div>
+<div id="dcToast"><div class="t-title"></div><div class="t-body"></div></div>
 
 <!-- PIN VERIFY MODAL -->
 <div class="modal-overlay" id="pinModal">
   <div class="modal">
-    <h2><span id="pinTitle">🔐 Enter PIN</span><button class="close" onclick="dcCloseModal'pinModal'">✕</button></h2>
+    <h2><span id="pinTitle">🔐 Enter PIN</span><button class="close" onclick="dcCloseModal('pinModal')">✕</button></h2>
     <div class="hint">Enter your personal PIN to operate. Every pick will be recorded under your name.</div>
     <input class="pin-input" id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
     <div class="pin-err" id="pinErr"></div>
     <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="dcCloseModal'pinModal'">Cancel</button>
-      <button class="btn btn-primary" onclick="dcConfirmPin">Verify</button>
+      <button class="btn btn-ghost" onclick="dcCloseModal('pinModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="dcConfirmPin()">Verify</button>
     </div>
   </div>
 </div>
@@ -6161,7 +6161,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 <!-- ADMIN SETTINGS MODAL -->
 <div class="modal-overlay" id="adminModal">
   <div class="modal" style="width:460px;">
-    <h2><span id="adminModalTitle">⚙️ Settings</span><button class="close" onclick="dcCloseModal'adminModal'">✕</button></h2>
+    <h2><span id="adminModalTitle">⚙️ Settings</span><button class="close" onclick="dcCloseModal('adminModal')">✕</button></h2>
 
     <!-- first-run: force admin PIN setup -->
     <div id="adminFirstPin">
@@ -6169,11 +6169,11 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       <div style="font-size:12px;color:#8fa3c0;margin:14px 0 6px;">Enter a 4-digit admin PIN</div>
       <input class="pin-input" id="adminFirstPinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter'){document.getElementById('adminFirstPinInput2').focus();}">
       <div style="font-size:12px;color:#8fa3c0;margin:12px 0 6px;">Confirm admin PIN</div>
-      <input class="pin-input" id="adminFirstPinInput2" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')setAdminFirstPin()">
+      <input class="pin-input" id="adminFirstPinInput2" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')dcSetAdminFirstPin()">
       <div class="pin-err" id="adminFirstPinErr"></div>
       <div class="modal-btns">
-        <button class="btn btn-ghost" onclick="dcCloseModal'adminModal'">Cancel</button>
-        <button class="btn btn-primary" onclick="dcSetAdminFirstPin">Set Admin PIN</button>
+        <button class="btn btn-ghost" onclick="dcCloseModal('adminModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="dcSetAdminFirstPin()">Set Admin PIN</button>
       </div>
     </div>
 
@@ -6183,8 +6183,8 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       <input class="pin-input" id="adminPinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
       <div class="pin-err" id="adminPinErr"></div>
       <div class="modal-btns">
-        <button class="btn btn-ghost" onclick="dcCloseModal'adminModal'">Cancel</button>
-        <button class="btn btn-primary" onclick="dcAdminUnlock">Unlock</button>
+        <button class="btn btn-ghost" onclick="dcCloseModal('adminModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="dcAdminUnlock()">Unlock</button>
       </div>
     </div>
 
@@ -6195,7 +6195,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       <div class="add-mem">
         <input id="newMemName" placeholder="Name" maxlength="20">
         <input id="newMemPin" placeholder="PIN · 4 digits" maxlength="4" inputmode="numeric" style="width:110px;">
-        <button class="btn btn-primary" style="padding:8px 14px;" onclick="dcAddMember">＋ Add</button>
+        <button class="btn btn-primary" style="padding:8px 14px;" onclick="dcAddMember()">＋ Add</button>
       </div>
     </div>
   </div>
@@ -6327,7 +6327,7 @@ function renderOperator(){
     members.map(m=>`<option ${m.name===verifiedUser?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
   sel.disabled = !!verifiedUser;
   status.innerHTML = verifiedUser
-    ? `<span class="ok">🔓 Verified as <b>${escapeHtml(verifiedUser)}</b></span><button class="mini" onclick="releaseUser()">✕ release</button>`
+    ? `<span class="ok">🔓 Verified as <b>${escapeHtml(verifiedUser)}</b></span><button class="mini" onclick="dcReleaseUser()">✕ release</button>`
     : `<span class="lock">🔒 Not verified — pick your name & enter PIN</span>`;
 }
 
@@ -6433,19 +6433,19 @@ function renderAdminManage(){
   document.getElementById('adminList').innerHTML = members.map(m=>{
     let pinCell;
     if(resettingName === m.name){
-      pinCell = `<input id="pin_${m.name}" maxlength="4" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter')setMemberPin('${m.name}')">
-        <button class="mini" onclick="setMemberPin('${m.name}')">Save</button>`;
+      pinCell = `<input id="pin_${m.name}" maxlength="4" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter')dcSetMemberPin('${m.name}')">
+        <button class="mini" onclick="dcSetMemberPin('${m.name}')">Save</button>`;
     } else if(m.pin){
-      pinCell = `<span class="ms">PIN set</span><button class="mini" onclick="startResetPin('${m.name}')">Reset</button>`;
+      pinCell = `<span class="ms">PIN set</span><button class="mini" onclick="dcStartResetPin('${m.name}')">Reset</button>`;
     } else {
-      pinCell = `<span class="ms" style="color:#f87171;">no PIN</span><button class="mini" onclick="startResetPin('${m.name}')">Set</button>`;
+      pinCell = `<span class="ms" style="color:#f87171;">no PIN</span><button class="mini" onclick="dcStartResetPin('${m.name}')">Set</button>`;
     }
     return `<div class="mem-row">
       <span class="mn">${escapeHtml(m.name)}</span>
       ${m.role==='admin'?'<span class="role">ADMIN</span>':''}
       <span style="flex:1"></span>
       ${pinCell}
-      ${m.role!=='admin'?`<button class="mini del" onclick="removeMember('${m.name}')">✕</button>`:''}
+      ${m.role!=='admin'?`<button class="mini del" onclick="dcRemoveMember('${m.name}')">✕</button>`:''}
     </div>`;
   }).join('');
 }
@@ -6567,7 +6567,7 @@ function renderList(){
     const themeVisible = tdocs.some(matchesQuery);
     if(!themeVisible) return;
 
-    html += `<div class="theme-row" onclick="toggleTheme('${theme}')">
+    html += `<div class="theme-row" onclick="dcToggleTheme('${theme}')">
       <span class="arrow ${open?'open':''}">▶</span><span>📂 ${theme}</span>
       <span class="tc">${tdocs.length} docs</span></div>`;
     if(!open) return;
@@ -6581,7 +6581,7 @@ function renderList(){
         const inCart = cart.some(c=>c.id===d.id);
         const wasPicked = pickHistory.some(h=>h.docs.includes(d.desc));
         html += `<div class="doc-row">
-          <button class="add ${inCart?'added':''}" onclick="toggleCart('${d.id}')">${inCart?'✓':'+'}</button>
+          <button class="add ${inCart?'added':''}" onclick="dcToggleCart('${d.id}')">${inCart?'✓':'+'}</button>
           <span class="dd">${d.desc}</span><span class="dl">📍 ${d.loc}</span><span class="ds">${d.source}</span>
           ${wasPicked?'<span class="tag">picked before</span>':''}
         </div>`;
@@ -6646,7 +6646,7 @@ function renderCart(){
   document.getElementById('barFill').style.width = pct+'%';
   if(!cart.length){ el.innerHTML='<div class="cart-empty">🛒 Cart is empty</div>'; return; }
   el.innerHTML = cart.map(c=>`<div class="cart-item">
-    <button class="rm" onclick="removeFromCart('${c.id}')">✕</button>
+    <button class="rm" onclick="dcRemoveFromCart('${c.id}')">✕</button>
     <span class="cd">${c.desc}</span><span class="cl">📍 ${c.loc}</span><span class="cs">${c.source}</span>
   </div>`).join('');
 }
@@ -6752,7 +6752,7 @@ function renderStats(){
 // ═══════════════════════════════════════════════════════
 let toastTimer = null;
 function showToast({title, body, cls}){
-  const t = document.getElementById('toast');
+  const t = document.getElementById('dcToast');
   t.className = cls || '';
   t.querySelector('.t-title').textContent = title;
   t.querySelector('.t-body').textContent = body;
@@ -6794,6 +6794,7 @@ window.dcSetMemberPin = setMemberPin;
 window.dcSetAdminFirstPin = setAdminFirstPin;
 window.dcStartResetPin = startResetPin;
 window.dcAdminUnlock = adminUnlock;
+window.dcOnOperatorChange = onOperatorChange;
 })();
 </script>
 </div>
