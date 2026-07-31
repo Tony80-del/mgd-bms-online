@@ -3080,9 +3080,10 @@ function renderRow(item,rowIdx){
 
 function sm(m){
   if(!m||typeof m!=='string'){console.error('[sm] invalid m:',m);return;}
-  // Record previous module for Documents Collection Back button
-  if(m!=='docscollect' && typeof mod==='string' && mod && mod!=='docscollect'){
-    window.dcPrevModule = mod;
+  // Record previous module for Documents Collection Back button:
+  // capture the module we are leaving when entering docscollect
+  if(m==='docscollect'){
+    window.dcPrevModule = (typeof mod==='string' && mod) ? mod : 'summary';
   }
   mod=m;
 
@@ -5930,7 +5931,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .stats-bar .stat{
     display: flex; align-items: baseline; gap: 8px; padding: 0 24px;
     border-right: 1px solid #1e2c47; font-size: 12px; color: #5f7296; letter-spacing: .5px;
-  }#dcApp .stats-bar .stat:first-child{ padding-left: 0; }#dcApp .stats-bar .stat:last-child{ border-right: 0; }#dcApp .stats-bar .stat .val{ font-size: 20px; font-weight: 700; color: #e6edf7; }#dcApp .stats-bar .stat:nth-child(2) .val{ color: #fbbf24; }#dcApp .stats-bar .stat:nth-child(3) .val{ color: #34d399; }#dcApp .layout{ display: flex; gap: 18px; padding: 18px 24px; align-items: flex-start; }#dcApp .side{ width: 220px; flex-shrink: 0; position: sticky; top: 90px; }#dcApp .main{ flex: 1; min-width: 0; }#dcApp .cart-col{ width: 350px; flex-shrink: 0; position: sticky; top: 90px; }#dcApp .panel{
+  }#dcApp .stats-bar .stat:first-child{ padding-left: 0; }#dcApp .stats-bar .stat:last-child{ border-right: 0; }#dcApp .stats-bar .stat .val{ font-size: 20px; font-weight: 700; color: #e6edf7; }#dcApp .stats-bar .stat:nth-child(2) .val{ color: #fbbf24; }#dcApp .stats-bar .stat:nth-child(3) .val{ color: #34d399; }#dcApp .layout{ display: flex; gap: 18px; padding: 18px 24px; align-items: flex-start; }#dcApp .side{ width: 220px; flex-shrink: 0; }#dcApp .main{ flex: 1; min-width: 0; }#dcApp .cart-col{ width: 350px; flex-shrink: 0; }#dcApp .panel{
     background: #131f33; border: 1px solid #1e2c47; border-radius: 12px;
     margin-bottom: 16px; overflow: hidden;
   }#dcApp .panel-h{
@@ -6038,7 +6039,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 
 </style>
 <div class="topbar">
-  <button class="back-btn" title="Back to BMS Main" onclick="dcGoBackMain()">← <span>Back</span></button>
+  <button class="back-btn" title="Back to BMS Main" onclick="dcGoBackMain">← <span>Back</span></button>
   <div class="logo"><span>🛒</span></div>
   <div>
     <h1>DOCUMENTS COLLECTION</h1>
@@ -6485,8 +6486,15 @@ function addMember(){
 // Return button: in standalone demo it's a no-op (or hides sim bar);
 // when embedded into BMS this is replaced by: sm(prevModule) + restore sidebar
 function goBackMain(){
-  var sim=document.getElementById('bmsSimBar');
-  if(sim) sim.style.display = sim.style.display==='none' ? 'flex' : 'none';
+  // BMS real return: restore sidebar + content margin, hide dcApp, go back to previous module
+  var sbEl=document.getElementById('sb');
+  if(sbEl) sbEl.style.display='';
+  var mcntEl=document.querySelector('.mcnt');
+  if(mcntEl) mcntEl.classList.remove('ml-0');
+  var dcE=document.getElementById('dcApp');
+  if(dcE) dcE.style.display='none';
+  var prev=window.dcPrevModule || 'summary';
+  if(typeof sm==='function') sm(prev);
 }
 
 function init(){
