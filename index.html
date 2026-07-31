@@ -3192,6 +3192,12 @@ function sm(m){
     ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     if(typeof window.dcInit==='function' && !window.dcInited){ window.dcInit(); window.dcInited=true; }
+    // Scroll back to top when entering Documents Collection (title starts the page)
+    window.scrollTo(0,0);
+    var sc=document.querySelector('.mcnt'); if(sc&&sc.scrollTop) sc.scrollTop=0;
+    var db=document.body; if(db) db.scrollTop=0;
+    // Double-safety: re-scroll after render/layout settles
+    setTimeout(function(){ window.scrollTo(0,0); }, 100);
   }else if(m==='projects'){
     document.querySelector('.tc').style.display='block';
     ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
