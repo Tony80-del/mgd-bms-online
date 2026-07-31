@@ -398,6 +398,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div class="ni" onclick="sm('plan2026')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg><span id="nplan"></span></div>
     <div class="ni" onclick="sm('weeklyreport')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Weekly Report</span></div>
     <div class="ni" onclick="sm('docstorage')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg><span>Documentation Storage</span></div>
+    <div class="ni" onclick="sm('docscollect')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Documents Collection</span></div>
 
   </nav>
 </aside>
@@ -3079,6 +3080,10 @@ function renderRow(item,rowIdx){
 
 function sm(m){
   if(!m||typeof m!=='string'){console.error('[sm] invalid m:',m);return;}
+  // Record previous module for Documents Collection Back button
+  if(m!=='docscollect' && typeof mod==='string' && mod && mod!=='docscollect'){
+    window.dcPrevModule = mod;
+  }
   mod=m;
 
   // 更新菜单激活状态
@@ -3101,6 +3106,8 @@ function sm(m){
   document.getElementById('quarterlyContainer').style.display='none';
   var wrContainer=document.getElementById('weeklyReportContainer');
   if(wrContainer)wrContainer.style.display='none';
+  var dcAppEl=document.getElementById('dcApp');
+  if(dcAppEl)dcAppEl.style.display='none';
   var dsContainer=document.getElementById('docstorageContainer');
   if(dsContainer){
     dsContainer.style.display='none';
@@ -3172,6 +3179,18 @@ function sm(m){
     if(typeof docRenderProgress==='function')docRenderProgress();
     if(typeof docRenderPieChart==='function')docRenderPieChart();
     if(typeof docRebuildAllItems==='function'){docRebuildAllItems();docRenderTable();}
+  }else if(m==='docscollect'){
+    if(!window.dcPrevModule) window.dcPrevModule='summary';
+    var dcE=document.getElementById('dcApp');
+    if(dcE){ dcE.style.display='block'; }
+    // Hide sidebar & clear content margin -> fullscreen
+    var sbEl=document.getElementById('sb');
+    if(sbEl) sbEl.style.display='none';
+    var mcntEl=document.querySelector('.mcnt');
+    if(mcntEl) mcntEl.classList.add('ml-0');
+    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    document.querySelector('.tc').style.display='none';
+    if(typeof window.dcInit==='function' && !window.dcInited){ window.dcInit(); window.dcInited=true; }
   }else if(m==='projects'){
     document.querySelector('.tc').style.display='block';
     ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
@@ -5874,5 +5893,892 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 
 
 </script>
+<!-- ═══ DOCUMENTS COLLECTION (Phase 2) — embedded fullscreen module ═══ -->
+<div id="dcApp" style="display:none;">
+<style>
+#dcApp *{ box-sizing: border-box; margin: 0; padding: 0; }#dcApp{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0b1220; color: #e6edf7; min-height: 100vh;
+  }#dcApp .topbar{
+    background: #0d1526; border-bottom: 1px solid #1e2c47;
+    padding: 16px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 50;
+  }#dcApp .topbar .back-btn{
+    display: flex; align-items: center; gap: 6px;
+    background: transparent; border: 1px solid #2e4064; color: #e6edf7;
+    border-radius: 10px; padding: 8px 14px; font-size: 14px; font-weight: 600;
+    cursor: pointer; flex-shrink: 0; transition: all .2s;
+  }#dcApp .topbar .back-btn:hover{ background: rgba(245,158,11,.12); border-color: #f59e0b; color: #fbbf24; }#dcApp .topbar .logo{
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    box-shadow: 0 0 18px rgba(245,158,11,.35);
+    position: relative;
+  }#dcApp .topbar .logo::before{
+    content: ''; position: absolute; width: 27px; height: 27px; border-radius: 50%;
+    background: #fff; opacity: .96;
+  }#dcApp .topbar .logo span{ position: relative; z-index: 1; line-height: 1; }#dcApp .topbar h1{ font-size: 19px; font-weight: 700; letter-spacing: .5px; }#dcApp .topbar .sub{ font-size: 12px; color: #8fa3c0; margin-top: 2px; }#dcApp .topbar .right{ margin-left: auto; display: flex; align-items: center; gap: 10px; }#dcApp .topbar .status{
+    display: flex; align-items: center; gap: 8px;
+    background: #131f38; border: 1px solid #223452; padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #a8b9d4;
+  }#dcApp .topbar .status .dot{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }#dcApp .gear-btn{
+    width: 36px; height: 36px; border-radius: 10px; border: 1px solid #223452;
+    background: #131f38; color: #8fa3c0; font-size: 17px; cursor: pointer; transition: .15s;
+    display: flex; align-items: center; justify-content: center;
+  }#dcApp .gear-btn:hover{ border-color: #f59e0b; color: #fbbf24; }#dcApp .stats-bar{
+    display: flex; gap: 0; background: #0d1526; border-bottom: 1px solid #1e2c47;
+    padding: 10px 28px;
+  }#dcApp .stats-bar .stat{
+    display: flex; align-items: baseline; gap: 8px; padding: 0 24px;
+    border-right: 1px solid #1e2c47; font-size: 12px; color: #5f7296; letter-spacing: .5px;
+  }#dcApp .stats-bar .stat:first-child{ padding-left: 0; }#dcApp .stats-bar .stat:last-child{ border-right: 0; }#dcApp .stats-bar .stat .val{ font-size: 20px; font-weight: 700; color: #e6edf7; }#dcApp .stats-bar .stat:nth-child(2) .val{ color: #fbbf24; }#dcApp .stats-bar .stat:nth-child(3) .val{ color: #34d399; }#dcApp .layout{ display: flex; gap: 18px; padding: 18px 24px; align-items: flex-start; }#dcApp .side{ width: 220px; flex-shrink: 0; position: sticky; top: 90px; }#dcApp .main{ flex: 1; min-width: 0; }#dcApp .cart-col{ width: 350px; flex-shrink: 0; position: sticky; top: 90px; }#dcApp .panel{
+    background: #131f33; border: 1px solid #1e2c47; border-radius: 12px;
+    margin-bottom: 16px; overflow: hidden;
+  }#dcApp .panel-h{
+    padding: 12px 16px; font-size: 13px; font-weight: 600; color: #b8c7e0;
+    border-bottom: 1px solid #1c2a44; display: flex; align-items: center; gap: 8px;
+  }#dcApp .panel-b{ padding: 14px 16px; }#dcApp .side .panel-h{ border: 0; padding-bottom: 10px; }#dcApp .side button{
+    display: block; width: 100%; text-align: left; padding: 9px 14px;
+    background: transparent; border: 0; border-radius: 8px; cursor: pointer;
+    color: #93a7c6; font-size: 13px; margin-bottom: 4px; transition: .15s;
+  }#dcApp .side button:hover{ background: #182642; color: #dbe6f5; }#dcApp .side button.active{ background: rgba(245,158,11,.14); color: #fbbf24; font-weight: 600; }#dcApp .side button .n{ float: right; font-size: 11px; color: #5f7296; }#dcApp .side button.active .n{ color: #f59e0b; }#dcApp .search-wrap{ margin-bottom: 16px; position: relative; }#dcApp .search-wrap input{
+    width: 100%; padding: 12px 16px 12px 42px; border-radius: 10px;
+    background: #131f33; border: 1px solid #1e2c47; color: #e6edf7; font-size: 14px;
+    outline: none; transition: border-color .2s;
+  }#dcApp .search-wrap input::placeholder{ color: #5f7296; }#dcApp .search-wrap input:focus{ border-color: #f59e0b; }#dcApp .search-wrap .s-icon{
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #5f7296; font-size: 15px; pointer-events: none;
+  }#dcApp .search-wrap .s-clear{
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: 0; color: #5f7296; cursor: pointer; font-size: 15px;
+    display: none; padding: 4px;
+  }#dcApp .search-wrap .s-clear.show{ display: block; }#dcApp .theme-row{
+    padding: 11px 16px; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none;
+    display: flex; align-items: center; gap: 10px; color: #e6edf7;
+    border-bottom: 1px solid #16223a;
+  }#dcApp .theme-row:hover{ background: #16233c; }#dcApp .theme-row .arrow{ transition: transform .2s; color: #f59e0b; font-size: 11px; }#dcApp .theme-row .arrow.open{ transform: rotate(90deg); }#dcApp .theme-row .tc{ margin-left: auto; font-weight: 400; font-size: 11px; color: #5f7296; background: #0f1b30; padding: 2px 10px; border-radius: 10px; }#dcApp .subsec-title{
+    padding: 8px 16px 4px 32px; font-size: 12px; font-weight: 500; color: #6d81a3;
+    letter-spacing: .4px; text-transform: uppercase;
+  }#dcApp .doc-row{
+    display: flex; align-items: center; gap: 10px; padding: 7px 16px 7px 32px;
+    font-size: 13px; border-radius: 6px; transition: background .15s; margin: 0 8px;
+  }#dcApp .doc-row:hover{ background: #182642; }#dcApp .doc-row .dd{ flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }#dcApp .doc-row .dl{ color: #5f7296; font-size: 12px; width: 120px; }#dcApp .doc-row .ds{ color: #f59e0b; font-size: 11px; width: 90px; opacity: .85; }#dcApp .doc-row .add{
+    width: 26px; height: 26px; border-radius: 8px; border: 1px solid #2e4064;
+    background: #0f1b30; color: #f59e0b; cursor: pointer; font-size: 15px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: .15s;
+  }#dcApp .doc-row .add:hover{ border-color: #f59e0b; background: rgba(245,158,11,.15); }#dcApp .doc-row .add.added{ background: #f59e0b; color: #0b1220; border-color: #f59e0b; }#dcApp .doc-row .add.pop{ animation: pop .3s ease; }#dcApp @keyframes pop{ 0%{transform:scale(1)}#dcApp 45%{transform:scale(1.4)}#dcApp 100%{transform:scale(1)} }#dcApp .doc-row .tag{
+    font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(16,185,129,.12);
+    color: #34d399; border: 1px solid rgba(16,185,129,.25); white-space: nowrap;
+  }#dcApp .empty{ text-align: center; color: #5f7296; padding: 50px 0; font-size: 14px; }#dcApp .cart-h{ display: flex; justify-content: space-between; align-items: center; }#dcApp .cart-h .cnt{ font-weight: 700; color: #fbbf24; font-size: 16px; }#dcApp .op-row{ display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 8px; }#dcApp .op-row select{
+    padding: 8px 10px; background: #0f1b30; color: #dbe6f5; border: 1px solid #2e4064;
+    border-radius: 8px; font-size: 13px; flex: 1; outline: none;
+  }#dcApp .op-row select:focus{ border-color: #f59e0b; }#dcApp .op-row select:disabled{ opacity: .55; }#dcApp .op-status{ font-size: 11.5px; margin-bottom: 12px; min-height: 18px; }#dcApp .op-status .ok{ color: #34d399; }#dcApp .op-status .lock{ color: #f87171; }#dcApp .op-status .mini,#dcApp .mem-row .mini{
+    background: none; border: 1px solid #2e4064; color: #8fa3c0; border-radius: 6px;
+    font-size: 10.5px; padding: 2px 8px; cursor: pointer; margin-left: 6px;
+  }#dcApp .op-status .mini:hover{ border-color: #f87171; color: #f87171; }#dcApp .cart-item{
+    display: flex; align-items: center; gap: 8px; padding: 9px 0;
+    border-bottom: 1px solid #1c2a44; font-size: 13px;
+  }#dcApp .cart-item:last-child{ border: 0; }#dcApp .cart-item .rm{ background: none; border: 0; color: #f87171; cursor: pointer; font-size: 15px; }#dcApp .cart-item .cd{ flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }#dcApp .cart-item .cl{ color: #5f7296; font-size: 11px; }#dcApp .cart-item .cs{ font-size: 10px; color: #f59e0b; background: rgba(245,158,11,.1); padding: 1px 7px; border-radius: 8px; }#dcApp .cart-empty{ text-align: center; color: #46597c; padding: 22px 0; font-size: 13px; }#dcApp .cart-actions{ display: flex; gap: 8px; margin-top: 12px; }#dcApp .checkout{
+    flex: 1; padding: 13px; border: 0; border-radius: 10px;
+    background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220;
+    font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: .5px;
+    box-shadow: 0 4px 20px rgba(245,158,11,.3); transition: .2s;
+  }#dcApp .checkout:hover{ filter: brightness(1.08); }#dcApp .checkout:disabled{ opacity: .35; cursor: not-allowed; box-shadow: none; }#dcApp .clear-cart{
+    padding: 13px 16px; border: 1px solid #3d2f3f; border-radius: 10px;
+    background: rgba(248,113,113,.08); color: #f87171; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: .2s; flex-shrink: 0;
+  }#dcApp .clear-cart:hover{ background: rgba(248,113,113,.18); border-color: #f87171; }#dcApp .clear-cart:disabled{ opacity: .3; cursor: not-allowed; }#dcApp .progress-wrap{ margin-top: 14px; }#dcApp .progress-wrap .lab{ font-size: 11px; color: #5f7296; margin-bottom: 6px; display: flex; justify-content: space-between; }#dcApp .bar{ height: 6px; background: #0f1b30; border-radius: 4px; overflow: hidden; }#dcApp .bar > i{ display: block; height: 100%; background: linear-gradient(90deg, #f59e0b, #f97316); border-radius: 4px; transition: width .3s; }#dcApp .his{ display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #1c2a44; font-size: 12.5px; }#dcApp .his:last-child{ border: 0; }#dcApp .his .hd{ color: #5f7296; width: 112px; flex-shrink: 0; font-size: 11.5px; }#dcApp .his .hw{ color: #fbbf24; width: 48px; flex-shrink: 0; font-weight: 600; }#dcApp .his .hx{ color: #93a7c6; flex: 1; }#dcApp .result h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .result h3:first-child{ margin-top: 0; }#dcApp .src-g{ margin-bottom: 12px; }#dcApp .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .src-item a{ color: #60a5fa; text-decoration: none; word-break: break-all; }#dcApp .route-g{ background: #0f1b30; border: 1px solid #1e2c47; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }#dcApp .route-g .rt{ font-weight: 600; font-size: 12.5px; color: #f59e0b; margin-bottom: 3px; }#dcApp .route-g .ri{ font-size: 12px; padding: 2px 0 2px 12px; color: #b8c7e0; }#dcApp .print-btn{
+    padding: 9px 18px; margin-top: 10px; background: transparent; color: #fbbf24;
+    border: 1px solid #f59e0b; border-radius: 8px; cursor: pointer; font-size: 13px; transition: .15s;
+  }#dcApp .print-btn:hover{ background: rgba(245,158,11,.12); }#dcApp .ok-banner{
+    background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3);
+    color: #34d399; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 4px;
+  }#dcApp .modal-overlay{
+    position: fixed; inset: 0; background: rgba(4,9,18,.75); backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center; z-index: 200;
+  }#dcApp .modal-overlay.show{ display: flex; }#dcApp .modal{
+    background: #131f33; border: 1px solid #2e4064; border-radius: 14px;
+    width: 400px; max-width: 92vw; padding: 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  }#dcApp .modal h2{
+    font-size: 15px; font-weight: 700; color: #e6edf7; margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }#dcApp .modal .close{ background: none; border: 0; color: #5f7296; font-size: 18px; cursor: pointer; }#dcApp .modal .close:hover{ color: #f87171; }#dcApp .modal .hint{ font-size: 12px; color: #8fa3c0; margin-bottom: 12px; }#dcApp .pin-input{
+    width: 100%; padding: 12px; background: #0f1b30; border: 1px solid #2e4064;
+    border-radius: 10px; color: #e6edf7; font-size: 22px; letter-spacing: 10px; text-align: center;
+    outline: none;
+  }#dcApp .pin-input:focus{ border-color: #f59e0b; }#dcApp .pin-err{ color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }#dcApp .modal-btns{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .modal-btns .btn{
+    flex: 1; padding: 11px; border-radius: 9px; border: 0; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: .15s;
+  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .admin-notice{
+    background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fbbf24;
+    font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
+  }#dcApp .mem-row{
+    display: flex; align-items: center; gap: 8px; padding: 9px 0;
+    border-bottom: 1px solid #1c2a44; font-size: 13px;
+  }#dcApp .mem-row:last-child{ border: 0; }#dcApp .mem-row .mn{ font-weight: 600; width: 64px; }#dcApp .mem-row .role{ font-size: 9.5px; color: #f59e0b; background: rgba(245,158,11,.1); padding: 1px 7px; border-radius: 8px; letter-spacing: .5px; }#dcApp .mem-row .ms{ color: #5f7296; font-size: 11px; }#dcApp .mem-row input{
+    width: 84px; padding: 5px 6px; background: #0f1b30; border: 1px solid #2e4064;
+    border-radius: 6px; color: #e6edf7; text-align: center; letter-spacing: 3px; outline: none;
+  }#dcApp .mem-row input:focus{ border-color: #f59e0b; }#dcApp .mem-row .mini:hover{ border-color: #f59e0b; color: #fbbf24; }#dcApp .mem-row .mini.del:hover{ border-color: #f87171; color: #f87171; }#dcApp .add-mem{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .add-mem input{
+    padding: 8px 10px; background: #0f1b30; border: 1px solid #2e4064; border-radius: 8px;
+    color: #e6edf7; font-size: 13px; outline: none; flex: 1; min-width: 0;
+  }#dcApp .add-mem input:focus{ border-color: #f59e0b; }#dcApp .add-mem .btn{ flex: 0 0 auto; }#toast{
+    position: fixed; bottom: 26px; right: 26px; z-index: 999;
+    background: #0f1b30; border: 1px solid #2e4064; border-left: 4px solid #10b981;
+    color: #dbe6f5; padding: 12px 18px; border-radius: 10px; font-size: 13px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.5); opacity: 0; transform: translateY(12px);
+    transition: all .25s ease; pointer-events: none; max-width: 320px;
+  }#toast.show{ opacity: 1; transform: translateY(0); }#toast .t-title{ font-weight: 700; color: #34d399; margin-bottom: 2px; }#toast.remove{ border-left-color: #f87171; }#toast.remove .t-title{ color: #f87171; }#toast.clear{ border-left-color: #fbbf24; }#toast.clear .t-title{ color: #fbbf24; }#toast.warn{ border-left-color: #f59e0b; }#toast.warn .t-title{ color: #fbbf24; }#printArea{ display: none; }#dcApp @media print{
+    #dcApp * { visibility: hidden; }#printArea,#printArea *{ visibility: visible; }#printArea{
+      display: block; position: absolute; left: 0; top: 0; width: 100%;
+      background: #fff; color: #111; padding: 28px; font-family: 'Helvetica Neue', Arial, sans-serif;
+    }#printArea .pa-head{ border-bottom: 3px solid #111; padding-bottom: 10px; margin-bottom: 14px; }#printArea .pa-head h1{ font-size: 22px; letter-spacing: 1px; margin: 0 0 4px; }#printArea .pa-head .pa-meta{ font-size: 12px; color: #444; }#printArea h2{ font-size: 14px; margin: 16px 0 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }#printArea .pa-src{ margin-bottom: 10px; }#printArea .pa-src .ps-name{ font-weight: 700; font-size: 13px; margin-bottom: 3px; }#printArea .pa-item{ font-size: 12.5px; padding: 2px 0 2px 14px; }#printArea .pa-loc{ margin-bottom: 12px; break-inside: avoid; }#printArea .pa-loc .pl-name{ font-weight: 700; font-size: 13px; margin-bottom: 3px; }#printArea .pa-loc .pl-item{ font-size: 12.5px; padding: 2px 0; }#printArea .pa-footer{ margin-top: 24px; font-size: 11px; color: #888; border-top: 1px solid #ddd; padding-top: 8px; }
+  }#dcApp @media (max-width: 1000px){
+    #dcApp .layout { flex-direction: column; }#dcApp .side,#dcApp .cart-col{ width: 100%; position: static; }
+  }
+
+</style>
+<div class="topbar">
+  <button class="back-btn" title="Back to BMS Main" onclick="dcGoBackMain()">← <span>Back</span></button>
+  <div class="logo"><span>🛒</span></div>
+  <div>
+    <h1>DOCUMENTS COLLECTION</h1>
+    <div class="sub">Pick · Checkout · Route Guide — Phase 2</div>
+  </div>
+  <div class="right">
+    <div class="status"><span class="dot"></span> Registry Synced · Ready to Pick</div>
+    <button class="gear-btn" title="Settings · Member & PIN management" onclick="dcOpenAdmin">⚙️</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><span class="lab">AVAILABLE</span><span class="val" id="statAvail">0</span></div>
+  <div class="stat"><span class="lab">IN CART</span><span class="val" id="statCart">0</span></div>
+  <div class="stat"><span class="lab">PICKED · ALL TIME</span><span class="val" id="statPicked">0</span></div>
+</div>
+
+<div class="layout">
+
+  <!-- FILTER SIDEBAR -->
+  <div class="side">
+    <div class="panel">
+      <div class="panel-h">🔍 THEMES</div>
+      <div class="panel-b" id="filterBar"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-h">📊 STATUS</div>
+      <div class="panel-b" style="font-size:12px;color:#93a7c6;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>Available</span><span id="totalCount" style="color:#fbbf24;font-weight:600;">0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>Picked now</span><span id="sidePicked" style="color:#34d399;font-weight:600;">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input id="searchInput" type="text" placeholder="Search by document name, location, source, sub-section..." oninput="setQuery(this.value)">
+      <button class="s-clear" id="searchClear" onclick="dcClearQuery">✕</button>
+    </div>
+    <div class="panel">
+      <div class="panel-h">
+        📋 DOCUMENT LIST
+        <span style="font-weight:400;font-size:11px;color:#5f7296;margin-left:6px;">only fully registered items</span>
+        <span style="margin-left:auto;font-weight:400;font-size:11px;color:#5f7296;" id="matchCount"></span>
+      </div>
+      <div id="docList"></div>
+    </div>
+    <div id="resultPanel"></div>
+  </div>
+
+  <!-- CART -->
+  <div class="cart-col">
+    <div class="panel">
+      <div class="panel-h">
+        <div class="cart-h" style="width:100%;">
+          <span>🛒 CART</span>
+          <span class="cnt" id="cartCount">0</span>
+        </div>
+      </div>
+      <div class="panel-b">
+        <div class="op-row">
+          <span>👤</span>
+          <select id="operator" onchange="onOperatorChange(this.value)"><option value="">— Select —</option></select>
+        </div>
+        <div class="op-status" id="opStatus"></div>
+        <div id="cartList"></div>
+        <div class="cart-actions">
+          <button class="clear-cart" id="clearBtn" disabled onclick="dcClearCart">🗑</button>
+          <button class="checkout" id="checkoutBtn" disabled onclick="dcDoCheckout">📦 CHECKOUT</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="lab"><span>Pick progress</span><span id="pct">0%</span></div>
+          <div class="bar"><i id="barFill" style="width:0%"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h" onclick="dcToggleHistory" style="cursor:pointer;user-select:none;"><span id="historyArrow">▶</span>&nbsp;📋 CHECK OUT RECORDED <span id="historyCount" style="margin-left:auto;font-weight:400;font-size:11px;color:#5f7296;"></span></div>
+      <div class="panel-b" id="historyList" style="display:none;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="t-title"></div><div class="t-body"></div></div>
+
+<!-- PIN VERIFY MODAL -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal">
+    <h2><span id="pinTitle">🔐 Enter PIN</span><button class="close" onclick="dcCloseModal'pinModal'">✕</button></h2>
+    <div class="hint">Enter your personal PIN to operate. Every pick will be recorded under your name.</div>
+    <input class="pin-input" id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+    <div class="pin-err" id="pinErr"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="dcCloseModal'pinModal'">Cancel</button>
+      <button class="btn btn-primary" onclick="dcConfirmPin">Verify</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN SETTINGS MODAL -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal" style="width:460px;">
+    <h2><span id="adminModalTitle">⚙️ Settings</span><button class="close" onclick="dcCloseModal'adminModal'">✕</button></h2>
+
+    <!-- first-run: force admin PIN setup -->
+    <div id="adminFirstPin">
+      <div class="hint" style="color:#fbbf24;font-weight:600;">🔒 You must set an administrator PIN before you can manage members. Only the admin (Tony) can set PINs or add members.</div>
+      <div style="font-size:12px;color:#8fa3c0;margin:14px 0 6px;">Enter a 4-digit admin PIN</div>
+      <input class="pin-input" id="adminFirstPinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter'){document.getElementById('adminFirstPinInput2').focus();}">
+      <div style="font-size:12px;color:#8fa3c0;margin:12px 0 6px;">Confirm admin PIN</div>
+      <input class="pin-input" id="adminFirstPinInput2" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')setAdminFirstPin()">
+      <div class="pin-err" id="adminFirstPinErr"></div>
+      <div class="modal-btns">
+        <button class="btn btn-ghost" onclick="dcCloseModal'adminModal'">Cancel</button>
+        <button class="btn btn-primary" onclick="dcSetAdminFirstPin">Set Admin PIN</button>
+      </div>
+    </div>
+
+    <!-- auth phase -->
+    <div id="adminAuth">
+      <div class="hint">Admin only. Enter the administrator PIN to manage members.</div>
+      <input class="pin-input" id="adminPinInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+      <div class="pin-err" id="adminPinErr"></div>
+      <div class="modal-btns">
+        <button class="btn btn-ghost" onclick="dcCloseModal'adminModal'">Cancel</button>
+        <button class="btn btn-primary" onclick="dcAdminUnlock">Unlock</button>
+      </div>
+    </div>
+
+    <!-- manage phase -->
+    <div id="adminManage" style="display:none;">
+      <div class="admin-notice" id="adminNotice"></div>
+      <div id="adminList"></div>
+      <div class="add-mem">
+        <input id="newMemName" placeholder="Name" maxlength="20">
+        <input id="newMemPin" placeholder="PIN · 4 digits" maxlength="4" inputmode="numeric" style="width:110px;">
+        <button class="btn btn-primary" style="padding:8px 14px;" onclick="dcAddMember">＋ Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT ONLY AREA -->
+<div id="printArea"></div>
+<script>
+(function(){
+"use strict";
+
+// ═══════════════════════════════════════════════════════
+//  DATA — Simulates Phase 1 fully-registered documents
+// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  DATA — reads REAL registry from BMS (localStorage bms_doc_data)
+//  Only documents that are FULLY confirmed (collected ✓ + location set)
+//  are available for picking.
+// ═══════════════════════════════════════════════════════
+function getDocs(){
+  var out = [];
+  try{
+    var raw = localStorage.getItem('bms_doc_data');
+    var tree = raw ? JSON.parse(raw) : null;
+    if(tree && tree.length){
+      var cid = 0;
+      tree.forEach(function(sec){
+        if(!sec || !sec.subs) return;
+        sec.subs.forEach(function(sub){
+          if(!sub || !sub.items) return;
+          sub.items.forEach(function(it){
+            if(!it) return;
+            // Filter: only fully confirmed docs (collected ✓ + location set)
+            if(!it.collected || !it.location) return;
+            cid++;
+            out.push({
+              id: 'r' + cid,
+              theme: sec.label || sec.id || 'OTHER',
+              subSection: sub.label || 'General',
+              desc: it.desc || '',
+              loc: it.location || '',
+              source: it.dept || (it.location ? 'Local' : ''),
+              link: it.location || ''
+            });
+          });
+        });
+      });
+    }
+  }catch(e){ console.warn('[dc] getDocs failed:', e); }
+  if(!out.length){
+    // Fallback: empty state message handled by renderList
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MEMBERS & PIN (admin-managed, persisted)
+// ═══════════════════════════════════════════════════════
+const MEMBERS_KEY = 'shopping_mode_v2_members';
+let members = loadMembers();
+let verifiedUser = null;      // name verified this session
+let resettingName = null;     // which member is in "reset PIN" mode
+
+function defaultMembers(){
+  return [
+    { name:'Tony',  pin:'', role:'admin'  },
+    { name:'Quoc',  pin:'', role:'member' },
+    { name:'Huong', pin:'', role:'member' }
+  ];
+}
+function loadMembers(){
+  try {
+    const m = JSON.parse(localStorage.getItem(MEMBERS_KEY));
+    if (Array.isArray(m) && m.length) return m;
+  } catch(e){}
+  return defaultMembers();
+}
+function saveMembers(){ try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch(e){} }
+
+// ═══════════════════════════════════════════════════════
+//  STATE (persisted to localStorage)
+// ═══════════════════════════════════════════════════════
+const LS_KEY = 'shopping_mode_v2_state';
+let cart = [];
+let pickHistory = [
+  { date:'2026-07-25 09:30', who:'Tony', docs:'ISO 9001, ISO 14001' },
+  { date:'2026-07-28 14:00', who:'Mike', docs:'Fire Cert, Water Discharge Permit' },
+];
+
+function loadState(){
+  try {
+    const s = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    if (Array.isArray(s.cart)) cart = s.cart;
+    if (Array.isArray(s.pickHistory) && s.pickHistory.length) pickHistory = s.pickHistory;
+  } catch(e){}
+}
+function saveState(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ cart, pickHistory }));
+  } catch(e){}
+}
+
+let filterTheme = 'all';
+let query = '';
+const collapsed = {};
+getDocs().forEach(d => collapsed[d.theme] = true);
+
+// ═══════════════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════════════
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); }
+  if(e.key==='Enter' && document.getElementById('pinModal').classList.contains('show')) confirmPin();
+  if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminFirstPin').style.display!=='none') setAdminFirstPin();
+  if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminAuth').style.display!=='none') adminUnlock();
+});
+
+// ═══════════════════════════════════════════════════════
+//  OPERATOR / PIN VERIFICATION
+// ═══════════════════════════════════════════════════════
+let pinTargetName = null;
+
+function renderOperator(){
+  const sel = document.getElementById('operator');
+  const status = document.getElementById('opStatus');
+  sel.innerHTML = '<option value="">— Select —</option>' +
+    members.map(m=>`<option ${m.name===verifiedUser?'selected':''}>${escapeHtml(m.name)}</option>`).join('');
+  sel.disabled = !!verifiedUser;
+  status.innerHTML = verifiedUser
+    ? `<span class="ok">🔓 Verified as <b>${escapeHtml(verifiedUser)}</b></span><button class="mini" onclick="releaseUser()">✕ release</button>`
+    : `<span class="lock">🔒 Not verified — pick your name & enter PIN</span>`;
+}
+
+function onOperatorChange(v){
+  if(!v) return;
+  verifiedUser = null;
+  renderOperator();
+  promptPin(v);
+}
+
+function promptPin(name){
+  pinTargetName = name;
+  document.getElementById('pinTitle').textContent = '🔐 Enter PIN — ' + name;
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinErr').textContent = '';
+  openModal('pinModal');
+  setTimeout(()=> document.getElementById('pinInput').focus(), 50);
+}
+
+function confirmPin(){
+  const m = members.find(x=>x.name===pinTargetName);
+  const val = document.getElementById('pinInput').value;
+  if(m && m.pin && val === m.pin){
+    verifiedUser = m.name;
+    closeModal('pinModal');
+    renderOperator(); renderCart();
+    showToast({ title:'✓ Verified as '+m.name, body:'All picks will be recorded under your name.', cls:'' });
+  } else {
+    const err = document.getElementById('pinErr');
+    err.textContent = m && !m.pin ? '⚠ No PIN set for this member yet — ask admin (Tony) to set it in ⚙️ Settings.' : '✕ Wrong PIN. Try again.';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+function releaseUser(){
+  verifiedUser = null;
+  renderOperator();
+  showToast({ title:'🔓 Identity released', body:'Select your name again to operate.', cls:'warn' });
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN SETTINGS (gear)
+// ═══════════════════════════════════════════════════════
+function openAdmin(){
+  const tony = members.find(m=>m.role==='admin');
+  document.getElementById('adminPinInput').value='';
+  document.getElementById('adminPinErr').textContent='';
+  document.getElementById('adminFirstPinInput').value='';
+  document.getElementById('adminFirstPinInput2').value='';
+  document.getElementById('adminFirstPinErr').textContent='';
+  document.getElementById('adminFirstPin').style.display='none';
+  document.getElementById('adminAuth').style.display='none';
+  document.getElementById('adminManage').style.display='none';
+  // Phase 1 — first run: admin PIN not set yet → FORCE setup
+  if(!tony || !tony.pin){
+    document.getElementById('adminModalTitle').textContent = '⚙️ Set Admin PIN (Required)';
+    document.getElementById('adminFirstPin').style.display='block';
+    openModal('adminModal');
+    setTimeout(()=> document.getElementById('adminFirstPinInput').focus(), 60);
+    return;
+  }
+  // Phase 2 — admin PIN exists → unlock screen
+  document.getElementById('adminModalTitle').textContent = '⚙️ Admin Login';
+  document.getElementById('adminAuth').style.display='block';
+  openModal('adminModal');
+  setTimeout(()=> document.getElementById('adminPinInput').focus(), 60);
+}
+
+function adminUnlock(){
+  const tony = members.find(m=>m.role==='admin');
+  if(document.getElementById('adminPinInput').value === tony.pin){
+    document.getElementById('adminModalTitle').textContent = '⚙️ Members & PIN';
+    document.getElementById('adminAuth').style.display='none';
+    document.getElementById('adminManage').style.display='block';
+    renderAdminManage();
+  } else {
+    document.getElementById('adminPinErr').textContent = '✕ Wrong admin PIN.';
+    document.getElementById('adminPinInput').value='';
+    document.getElementById('adminPinInput').focus();
+  }
+}
+
+function setAdminFirstPin(){
+  const tony = members.find(m=>m.role==='admin');
+  const p1 = document.getElementById('adminFirstPinInput').value;
+  const p2 = document.getElementById('adminFirstPinInput2').value;
+  const err = document.getElementById('adminFirstPinErr');
+  if(!/^\d{4}$/.test(p1)){ err.textContent='✕ Use exactly 4 digits (0-9).'; document.getElementById('adminFirstPinInput').focus(); return; }
+  if(p1 !== p2){ err.textContent='✕ PINs do not match. Try again.'; document.getElementById('adminFirstPinInput2').value=''; document.getElementById('adminFirstPinInput2').focus(); return; }
+  tony.pin = p1;
+  saveMembers();
+  document.getElementById('adminModalTitle').textContent = '⚙️ Members & PIN';
+  document.getElementById('adminFirstPin').style.display='none';
+  document.getElementById('adminManage').style.display='block';
+  renderAdminManage();
+  showToast({ title:'✓ Admin PIN set', body:'You can now manage members & their PINs.', cls:'' });
+}
+
+function renderAdminManage(){
+  const tony = members.find(m=>m.role==='admin');
+  document.getElementById('adminNotice').textContent = '🔒 Admin only — only the admin can set or reset PINs and add members. Each person must have their own 4-digit PIN to operate.';
+  document.getElementById('adminList').innerHTML = members.map(m=>{
+    let pinCell;
+    if(resettingName === m.name){
+      pinCell = `<input id="pin_${m.name}" maxlength="4" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter')setMemberPin('${m.name}')">
+        <button class="mini" onclick="setMemberPin('${m.name}')">Save</button>`;
+    } else if(m.pin){
+      pinCell = `<span class="ms">PIN set</span><button class="mini" onclick="startResetPin('${m.name}')">Reset</button>`;
+    } else {
+      pinCell = `<span class="ms" style="color:#f87171;">no PIN</span><button class="mini" onclick="startResetPin('${m.name}')">Set</button>`;
+    }
+    return `<div class="mem-row">
+      <span class="mn">${escapeHtml(m.name)}</span>
+      ${m.role==='admin'?'<span class="role">ADMIN</span>':''}
+      <span style="flex:1"></span>
+      ${pinCell}
+      ${m.role!=='admin'?`<button class="mini del" onclick="removeMember('${m.name}')">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function startResetPin(name){ resettingName = name; renderAdminManage(); const i=document.getElementById('pin_'+name); if(i) setTimeout(()=>i.focus(),50); }
+
+function setMemberPin(name){
+  const m = members.find(x=>x.name===name);
+  const inp = document.getElementById('pin_'+name);
+  if(!inp) return;
+  const val = inp.value.trim();
+  if(!/^\d{4}$/.test(val)){
+    showToast({ title:'✕ Invalid PIN', body:'Use exactly 4 digits (0-9).', cls:'remove' });
+    inp.focus(); return;
+  }
+  m.pin = val;
+  resettingName = null;
+  saveMembers();
+  renderAdminManage();
+  showToast({ title:'✓ PIN saved', body: name + ' now has a personal PIN.', cls:'' });
+}
+
+function removeMember(name){
+  if(members.find(m=>m.name===name).role==='admin') return;
+  members = members.filter(m=>m.name!==name);
+  if(verifiedUser===name) verifiedUser=null;
+  saveMembers(); renderAdminManage(); renderOperator();
+  showToast({ title:'Removed '+name, body:'Member deleted from the list.', cls:'warn' });
+}
+
+function addMember(){
+  const name = document.getElementById('newMemName').value.trim();
+  const pin  = document.getElementById('newMemPin').value.trim();
+  if(!name){ showToast({title:'✕ Name required', body:'Type the member name.', cls:'remove'}); return; }
+  if(members.some(m=>m.name.toLowerCase()===name.toLowerCase())){ showToast({title:'✕ Already exists', body:name+' is already in the list.', cls:'remove'}); return; }
+  if(!/^\d{4}$/.test(pin)){ showToast({title:'✕ Invalid PIN', body:'Use exactly 4 digits (0-9).', cls:'remove'}); return; }
+  members.push({ name, pin, role:'member' });
+  resettingName = null;
+  document.getElementById('newMemName').value='';
+  document.getElementById('newMemPin').value='';
+  saveMembers(); renderAdminManage(); renderOperator();
+  showToast({ title:'✓ Member added', body: name + ' added with a personal PIN.', cls:'' });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+// Return button: in standalone demo it's a no-op (or hides sim bar);
+// when embedded into BMS this is replaced by: sm(prevModule) + restore sidebar
+function goBackMain(){
+  var sim=document.getElementById('bmsSimBar');
+  if(sim) sim.style.display = sim.style.display==='none' ? 'flex' : 'none';
+}
+
+function init(){
+  loadState();
+  renderFilter(); renderList(); renderCart(); renderHistory(); renderStats(); renderOperator();
+  document.getElementById('totalCount').textContent = getDocs().length;
+}
+
+function renderFilter(){
+  const themes = [...new Set(getDocs().map(d=>d.theme))];
+  const bar = document.getElementById('filterBar');
+  themes.forEach(t=>{
+    const b = document.createElement('button');
+    const n = getDocs().filter(d=>d.theme===t).length;
+    b.innerHTML = `${t} <span class="n">${n}</span>`;
+    b.onclick = ()=>setFilter(t);
+    bar.appendChild(b);
+  });
+}
+
+function setFilter(t){
+  filterTheme = t;
+  document.querySelectorAll('#filterBar button').forEach(b=>{
+    b.classList.toggle('active', b.textContent.replace(/\d+$/,'').trim()===t || (t==='all'&&b.textContent.includes('All')));
+  });
+  renderList();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════
+function setQuery(v){
+  query = v.trim().toLowerCase();
+  document.getElementById('searchClear').classList.toggle('show', query.length>0);
+  renderList();
+}
+function clearQuery(){
+  document.getElementById('searchInput').value = '';
+  setQuery('');
+}
+function matchesQuery(d){
+  if(!query) return true;
+  const hay = (d.desc+' '+d.loc+' '+d.source+' '+d.subSection+' '+d.theme).toLowerCase();
+  return hay.includes(query);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER DOC LIST
+// ═══════════════════════════════════════════════════════
+function renderList(){
+  const el = document.getElementById('docList');
+  const themes = [...new Set(getDocs().map(d=>d.theme))].filter(t=> (filterTheme==='all' || t===filterTheme));
+  if(!themes.length){ el.innerHTML = '<div class="empty">📭 No documents</div>'; document.getElementById('matchCount').textContent=''; return; }
+
+  let html='', matched=0;
+  themes.forEach(theme=>{
+    const tdocs = getDocs().filter(d=>d.theme===theme);
+    const subs = [...new Set(tdocs.map(d=>d.subSection))];
+    const open = collapsed[theme]!==false;
+    const themeVisible = tdocs.some(matchesQuery);
+    if(!themeVisible) return;
+
+    html += `<div class="theme-row" onclick="toggleTheme('${theme}')">
+      <span class="arrow ${open?'open':''}">▶</span><span>📂 ${theme}</span>
+      <span class="tc">${tdocs.length} docs</span></div>`;
+    if(!open) return;
+
+    subs.forEach(sub=>{
+      const subDocs = tdocs.filter(d=>d.subSection===sub && matchesQuery(d));
+      if(!subDocs.length) return;
+      html += `<div class="subsec-title">📁 ${sub}</div>`;
+      subDocs.forEach(d=>{
+        matched++;
+        const inCart = cart.some(c=>c.id===d.id);
+        const wasPicked = pickHistory.some(h=>h.docs.includes(d.desc));
+        html += `<div class="doc-row">
+          <button class="add ${inCart?'added':''}" onclick="toggleCart('${d.id}')">${inCart?'✓':'+'}</button>
+          <span class="dd">${d.desc}</span><span class="dl">📍 ${d.loc}</span><span class="ds">${d.source}</span>
+          ${wasPicked?'<span class="tag">picked before</span>':''}
+        </div>`;
+      });
+    });
+  });
+  el.innerHTML = html || '<div class="empty">🔍 No results for your search</div>';
+  document.getElementById('matchCount').textContent = matched ? `${matched} shown` : '';
+}
+
+function toggleTheme(t){ collapsed[t] = collapsed[t]===false ? true : false; renderList(); }
+
+// ═══════════════════════════════════════════════════════
+//  CART  (gated by PIN verification)
+// ═══════════════════════════════════════════════════════
+function toggleCart(id){
+  if(!verifiedUser){
+    showToast({ title:'🔒 PIN required', body:'Select your name & enter your PIN first — every pick is recorded.', cls:'remove' });
+    const sel = document.getElementById('operator');
+    if(sel.value){ promptPin(sel.value); } else { sel.focus(); }
+    return;
+  }
+  const i = cart.findIndex(c=>c.id===id);
+  let added = false;
+  if(i>=0){ cart.splice(i,1); }
+  else {
+    const d = getDocs().find(x=>x.id===id);
+    if(d){ cart.push({...d}); added = true; }
+  }
+  const btn = event && event.target && event.target.classList ? event.target : null;
+  if(btn && btn.classList){
+    btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+  }
+  const d = getDocs().find(x=>x.id===id);
+  showToast(added
+    ? { title:'✓ Added to cart', body: d ? d.desc : '', cls:'' }
+    : { title:'Removed from cart', body: d ? d.desc : '', cls:'remove' }
+  );
+  renderList(); renderCart(); renderStats(); saveState();
+}
+
+function removeFromCart(id){
+  cart = cart.filter(c=>c.id!==id);
+  renderList(); renderCart(); renderStats(); saveState();
+}
+
+function clearCart(){
+  if(!cart.length) return;
+  cart = [];
+  showToast({ title:'🗑 Cart cleared', body:'All items removed', cls:'clear' });
+  renderList(); renderCart(); renderStats(); saveState();
+}
+
+function renderCart(){
+  const el = document.getElementById('cartList');
+  document.getElementById('cartCount').textContent = cart.length;
+  document.getElementById('sidePicked').textContent = cart.length;
+  document.getElementById('checkoutBtn').disabled = cart.length===0 || !verifiedUser;
+  document.getElementById('clearBtn').disabled = cart.length===0;
+  const pct = Math.round(cart.length/getDocs().length*100);
+  document.getElementById('pct').textContent = pct+'%';
+  document.getElementById('barFill').style.width = pct+'%';
+  if(!cart.length){ el.innerHTML='<div class="cart-empty">🛒 Cart is empty</div>'; return; }
+  el.innerHTML = cart.map(c=>`<div class="cart-item">
+    <button class="rm" onclick="removeFromCart('${c.id}')">✕</button>
+    <span class="cd">${c.desc}</span><span class="cl">📍 ${c.loc}</span><span class="cs">${c.source}</span>
+  </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CHECKOUT
+// ═══════════════════════════════════════════════════════
+function doCheckout(){
+  if(!cart.length) return;
+  if(!verifiedUser){
+    showToast({ title:'🔒 PIN required', body:'Verify your identity before checkout.', cls:'remove' });
+    const sel = document.getElementById('operator');
+    if(sel.value) promptPin(sel.value);
+    return;
+  }
+  const who = verifiedUser;
+  const now = new Date();
+  const ds = now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5);
+  pickHistory.unshift({date:ds, who, docs: cart.map(c=>c.desc).join(', ')});
+  showResult(who); renderHistory(); renderStats();
+  showToast({ title:'📦 Checkout complete', body: `${cart.length} items · collected by ${who}`, cls:'' });
+  setTimeout(()=>{ cart=[]; renderList(); renderCart(); renderStats(); saveState(); }, 300);
+  saveState();
+}
+
+function showResult(who){
+  const el = document.getElementById('resultPanel');
+  const groups={}, locs={};
+  cart.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); (locs[c.loc]=locs[c.loc]||[]).push(c); });
+  const today = new Date().toISOString().slice(0,10);
+  let h = `<div class="panel result"><div class="panel-b">
+    <div class="ok-banner">✅ CHECKOUT COMPLETE — ${today} · Collector: ${who} · ${cart.length} items</div>
+    <h3>📡 DOWNLOAD ROUTE GUIDE · by source</h3>`;
+  Object.keys(groups).forEach(src=>{
+    h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
+    groups[src].forEach(d=> h += `<div class="src-item">📄 ${d.desc} → <a href="${d.link}" target="_blank">${d.link}</a></div>`);
+    h += `</div>`;
+  });
+  h += `<h3>📍 PICKING ROUTE · by location</h3>`;
+  Object.keys(locs).forEach(loc=>{
+    h += `<div class="route-g"><div class="rt">📌 ${loc}</div>`;
+    locs[loc].forEach(d=> h += `<div class="ri">☐ ${d.desc}</div>`);
+    h += `</div>`;
+  });
+  h += `<button class="print-btn" onclick="window.print()">🖨️ PRINT PICKING LIST</button></div></div>`;
+  el.innerHTML = h;
+  buildPrintArea(groups, locs, who, today);
+}
+
+function buildPrintArea(groups, locs, who, today){
+  let h = `<div class="pa-head">
+    <h1>🛒 PICKING LIST — DOCUMENTS COLLECTION</h1>
+    <div class="pa-meta">Date: ${today} &nbsp;·&nbsp; Collector: ${who} &nbsp;·&nbsp; Total: ${cart.length} item(s)</div>
+  </div>`;
+  h += `<h2>📍 By Location (physical picking route)</h2>`;
+  Object.keys(locs).forEach(loc=>{
+    h += `<div class="pa-loc"><div class="pl-name">📌 ${loc}</div>`;
+    locs[loc].forEach(d=> h += `<div class="pl-item">☐ ${d.desc} <span style="color:#666;font-size:11px;">(${d.source})</span></div>`);
+    h += `</div>`;
+  });
+  h += `<h2>📡 Download Route — by Source</h2>`;
+  Object.keys(groups).forEach(src=>{
+    h += `<div class="pa-src"><div class="ps-name">📂 ${src}</div>`;
+    groups[src].forEach(d=> h += `<div class="pa-item">📄 ${d.desc} — ${d.link}</div>`);
+    h += `</div>`;
+  });
+  h += `<div class="pa-footer">Generated by MGD BMS · Documents Collection · ${new Date().toLocaleString()}</div>`;
+  document.getElementById('printArea').innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════
+//  HISTORY & STATS
+// ═══════════════════════════════════════════════════════
+let historyOpen = false;
+
+function toggleHistory(){
+  historyOpen = !historyOpen;
+  renderHistory();
+}
+
+function renderHistory(){
+  const el = document.getElementById('historyList');
+  const arrow = document.getElementById('historyArrow');
+  const cnt = document.getElementById('historyCount');
+  cnt.textContent = pickHistory.length ? pickHistory.length + ' records' : '';
+  el.style.display = historyOpen ? 'block' : 'none';
+  arrow.textContent = historyOpen ? '▼' : '▶';
+  if(!historyOpen) return;
+  if(!pickHistory.length){ el.innerHTML='<div class="cart-empty">No records yet</div>'; return; }
+  el.innerHTML = pickHistory.map(h=>`<div class="his">
+    <span class="hd">${h.date}</span><span class="hw">${h.who}</span><span class="hx">${h.docs}</span>
+  </div>`).join('');
+}
+
+function renderStats(){
+  document.getElementById('statAvail').textContent = getDocs().length;
+  document.getElementById('statCart').textContent = cart.length;
+  document.getElementById('statPicked').textContent = pickHistory.reduce((sum,h)=> sum + h.docs.split(',').length, 0);
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST & HELPERS
+// ═══════════════════════════════════════════════════════
+let toastTimer = null;
+function showToast({title, body, cls}){
+  const t = document.getElementById('toast');
+  t.className = cls || '';
+  t.querySelector('.t-title').textContent = title;
+  t.querySelector('.t-body').textContent = body;
+  requestAnimationFrame(()=> t.classList.add('show'));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ═══════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════
+// init() moved to dcInit() called on embed
+
+
+// ═══════════════════════════════════════════════════════
+//  EXPOSE to window with dc prefix (onclick handlers)
+// ═══════════════════════════════════════════════════════
+window.dcInit = init;
+window.dcGoBackMain = goBackMain;
+window.dcToggleCart = toggleCart;
+window.dcRemoveFromCart = removeFromCart;
+window.dcDoCheckout = doCheckout;
+window.dcToggleHistory = toggleHistory;
+window.dcOpenAdmin = openAdmin;
+window.dcCloseModal = closeModal;
+window.dcConfirmPin = confirmPin;
+window.dcReleaseUser = releaseUser;
+window.dcSetFilter = setFilter;
+window.dcClearQuery = clearQuery;
+window.dcSetQuery = setQuery;
+window.dcToggleTheme = toggleTheme;
+window.dcAddMember = addMember;
+window.dcRemoveMember = removeMember;
+window.dcSetMemberPin = setMemberPin;
+window.dcSetAdminFirstPin = setAdminFirstPin;
+window.dcStartResetPin = startResetPin;
+window.dcAdminUnlock = adminUnlock;
+})();
+</script>
+</div>
+<!-- ═══ END DOCUMENTS COLLECTION ═══ -->
 </body>
 </html>
