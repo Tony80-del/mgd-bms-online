@@ -821,12 +821,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <h3 id="modalTitle" style="display:inline-block">➕ Add / Record Document</h3><span onclick="docCloseModal()" style="float:right;cursor:pointer;font-size:22px;color:#888;line-height:1">✕</span>
     <div class="field">
       <label>Section *</label>
-      <select id="f_section" onchange="docPopulateSubs()">
-        <option value="1. CERTIFICATE">1. CERTIFICATE</option><option value="2. ISO">2. ISO</option>
-        <option value="3. STAFF">3. STAFF</option><option value="4. FINANCE">4. FINANCE</option>
-        <option value="5. ORGANIZATION CHART">5. ORGANIZATION CHART</option>
-        <option value="6. PROJECT INFO">6. PROJECT INFO</option>
-      </select>
+      <div style="display:flex;gap:6px;align-items:center">
+        <select id="f_section" onchange="docPopulateSubs()" style="flex:1">
+        </select>
+        <button type="button" class="btn-cancel" onclick="docDeleteSelectedSection()" title="Delete the selected section" style="padding:6px 10px;font-size:12px">🗑 Del</button>
+      </div>
     </div>
     <div class="field"><label>Sub-Section *</label>
       <select id="f_subsection" onchange="docOnSubSelect()">
@@ -5381,8 +5380,8 @@ function docRenderTrackerBody(filtered){
 
   docSECTIONS.forEach((sec, si) => {
     const secItems = filtered.filter(i => i.sectionId === sec.id);
-    if(secItems.length === 0) return;
     html += `<tr class="section-row s-row-${si % 6}"><td colspan="6">${sec.label}</td><td class="c del-cell" onclick="docDeleteSection(${si})" title="Delete this section">🗑</td></tr>`;
+    if(secItems.length === 0) return;
     // Collect all sub-section labels from data + predefined (preserve order)
     const allSubLabels = [...new Set([
       ...sec.subs.map(s => s.label),
@@ -5678,6 +5677,27 @@ function docSaveSection(){
   docToast('📂 New section added: ' + newId);
 }
 
+// Delete the section currently selected in the Add Document modal
+function docDeleteSelectedSection(){
+  const secId = document.getElementById('f_section').value;
+  if(!secId){ alert('Please select a section first.'); return; }
+  const si = docSECTIONS.findIndex(s => s.id === secId);
+  if(si < 0){ alert('Section not found.'); return; }
+  const sec = docSECTIONS[si];
+  const itemCount = sec.subs ? sec.subs.reduce((n,sub)=>n+(sub.items?sub.items.length:0),0) : 0;
+  if(!confirm('Delete section "' + sec.label + '"' + (itemCount>0 ? ' and its '+itemCount+' document(s)' : '') + '?')) return;
+  docSECTIONS.splice(si, 1);
+  delete data.docItems;
+  docRebuildAllItems();
+  docBuildSectionBtns();
+  docRenderTable();
+  // Re-populate the dropdown + close modal if it becomes empty
+  docPopulateSubs();
+  docCloseModal();
+  docPersist();
+  docToast('🗑 Deleted section: ' + sec.label);
+}
+
 // ── Delete Section / Sub-Section / Document ──
 function docDeleteSection(si){
   const sec = docSECTIONS[si];
@@ -5785,12 +5805,14 @@ function docOpenModal(){
 
 function docCloseModal(){
   document.getElementById('addModal').classList.remove('open');
-  document.getElementById('addSectionModal').classList.remove('open');
+  var m2 = document.getElementById('addSectionModal');
+  if(m2) m2.classList.remove('open');
 }
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     document.getElementById('addModal').classList.remove('open');
-    document.getElementById('addSectionModal').classList.remove('open');
+    var m2 = document.getElementById('addSectionModal');
+    if(m2) m2.classList.remove('open');
   }
 });
 
