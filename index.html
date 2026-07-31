@@ -3630,7 +3630,7 @@ function backupAll(){
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
   }, 1000);
-  wrShowToast ? wrShowToast('✅ Full backup complete') : alert(t('es'));
+  wrShowToast ? wrShowToast('✅ Full backup complete','success') : alert(t('es'));
 }
 
 function restoreAll(event){
@@ -3730,7 +3730,7 @@ function restoreFromCloud(ts){
       return fdb.collection('bms_data').doc('master').set({ data: snapData, updatedBy: 'restore('+ts+')', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     })
     .then(function(){
-      wrShowToast('✅ Restored snapshot '+ts.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6'));
+      wrShowToast('✅ Restored snapshot '+ts.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6'),'success');
       // Close modal
       var ov = document.querySelector('div[style*="z-index:99998"]');
       if(ov) ov.remove();
