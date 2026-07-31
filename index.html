@@ -6604,11 +6604,9 @@ function renderList(){
       subDocs.forEach(d=>{
         matched++;
         const inCart = cart.some(c=>c.id===d.id);
-        const wasPicked = pickHistory.some(h=>h.docs.includes(d.desc));
         html += `<div class="doc-row">
           <button class="add ${inCart?'added':''}" onclick="dcToggleCart('${d.id}')">${inCart?'✓':'+'}</button>
           <span class="dd">${d.desc}</span><span class="dl">📍 ${d.loc}</span><span class="ds">${d.source}</span>
-          ${wasPicked?'<span class="tag">picked before</span>':''}
         </div>`;
       });
     });
