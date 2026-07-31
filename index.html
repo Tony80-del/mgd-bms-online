@@ -4717,6 +4717,7 @@ function addNewCategory(){
 // That code was removed because it caused periodic data loss on page refresh
 document.addEventListener('DOMContentLoaded',function(){
   loadData();
+  sm(mod);
   // Migration: copy old data.docSECTIONS to independent key if not yet migrated
   var migrated = localStorage.getItem('bms_doc_migrated');
   if(!migrated && data.docSECTIONS && data.docSECTIONS.length > 0){
