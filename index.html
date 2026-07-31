@@ -4725,13 +4725,19 @@ document.addEventListener('DOMContentLoaded',function(){
     localStorage.setItem('bms_doc_migrated', '1');
     console.log('[DocStorage] Migrated existing docSECTIONS to independent storage');
   }
-  // Restore saved docSECTIONS from independent localStorage (not Firestore-synced)
+  // Restore saved docSECTIONS: prefer localStorage (recent local edits), fall back to cloud data
   var saved = localStorage.getItem('bms_doc_data');
+  var restored = false;
   if(saved){
     var parsed = JSON.parse(saved);
     if(Array.isArray(parsed) && parsed.length > 0){
       docSECTIONS = parsed;
+      restored = true;
     }
+  }
+  if(!restored && Array.isArray(data.docSECTIONS) && data.docSECTIONS.length > 0){
+    docSECTIONS = JSON.parse(JSON.stringify(data.docSECTIONS));
+    localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
   }
   docRebuildAllItems();
   docBuildSectionBtns();
@@ -4882,6 +4888,17 @@ function listenToCloud(){
       if(JSON.stringify(dataClean) !== JSON.stringify(fbClean)){
         data = fbData;
         _origSave(); // Save to localStorage
+        // NEW: sync docSECTIONS from cloud (if present & valid) so Doc Storage stays in sync across browsers
+        try{
+          if(Array.isArray(data.docSECTIONS) && data.docSECTIONS.length > 0){
+            var fsChanged = JSON.stringify(docSECTIONS) !== JSON.stringify(data.docSECTIONS);
+            if(fsChanged){
+              docSECTIONS = JSON.parse(JSON.stringify(data.docSECTIONS));
+              localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
+              if(mod==='docstorage'){ docRebuildAllItems(); docBuildSectionBtns(); docRenderTable(); }
+            }
+          }
+        }catch(e){ console.log('[DocStorage] cloud->local sync error:', e.message); }
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
 
         // Show brief notification
@@ -5772,8 +5789,13 @@ document.addEventListener('keydown',function(e){
 });
 
 function docPersist(){
-  // Save to independent key — NOT synced to Firestore, so deletes survive reload
+  // Save to independent key (local)
   localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
+  // NEW: also sync docSECTIONS to Firestore via data.docSECTIONS (reuses saveData cloud pipeline)
+  try{
+    data.docSECTIONS = JSON.parse(JSON.stringify(docSECTIONS));
+    if(typeof saveData === 'function') saveData();
+  }catch(e){ console.log('[DocStorage] cloud sync error:', e.message); }
 }
 
 function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
