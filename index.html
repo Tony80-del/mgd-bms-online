@@ -6107,7 +6107,6 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       </div>
       <div id="docList"></div>
     </div>
-    <div id="resultPanel"></div>
   </div>
 
   <!-- CART -->
@@ -6183,6 +6182,17 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   </div>
 </div>
 
+<!-- DOWNLOAD LIST MODAL (shown after checkout is confirmed) -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal checkout-modal">
+    <h2><span id="downloadModalTitle">📥 Download Files</span><button class="close" onclick="dcCloseModal('downloadModal')">✕</button></h2>
+    <div class="checkout-scroll" id="downloadModalBody"></div>
+    <div class="modal-btns" id="downloadModalBtns">
+      <button class="btn btn-ghost" onclick="dcCloseModal('downloadModal')">✕ Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADMIN SETTINGS MODAL -->
 <div class="modal-overlay" id="adminModal">
   <div class="modal" style="width:460px;">
@@ -6227,7 +6237,6 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 </div>
 
 <!-- PRINT ONLY AREA -->
-<div id="printArea"></div>
 <script>
 (function(){
 "use strict";
@@ -6334,7 +6343,7 @@ getDocs().forEach(d => collapsed[d.theme] = true);
 function openModal(id){ document.getElementById(id).classList.add('show'); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); closeModal('checkoutModal'); closeModal('historyDetailModal'); }
+  if(e.key==='Escape'){ closeModal('pinModal'); closeModal('adminModal'); closeModal('checkoutModal'); closeModal('downloadModal'); closeModal('historyDetailModal'); }
   if(e.key==='Enter' && document.getElementById('pinModal').classList.contains('show')) confirmPin();
   if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminFirstPin').style.display!=='none') setAdminFirstPin();
   if(e.key==='Enter' && document.getElementById('adminModal').classList.contains('show') && document.getElementById('adminAuth').style.display!=='none') adminUnlock();
@@ -6691,19 +6700,9 @@ function doCheckout(){
 function openCheckoutModal(){
   const who = verifiedUser;
   const today = new Date().toISOString().slice(0,10);
-  const groups={};
-  cart.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); });
   document.getElementById('checkoutModalTitle').textContent = '📦 Confirm Checkout';
   document.getElementById('checkoutModalBtns').innerHTML = '<button class="btn btn-ghost" onclick="dcCancelCheckout()">Cancel</button><button class="btn btn-primary" onclick="dcConfirmCheckout()">Confirm</button>';
-  let h = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>
-    <div class="result-hint">⬇️ Click any document below to download it from its location.</div>
-    <h3>📡 DOWNLOAD LIST · by source</h3>`;
-  Object.keys(groups).forEach(src=>{
-    h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
-    groups[src].forEach(d=> h += `<div class="src-item"><span class="dl-icon">⬇️</span><span class="dl-desc">${d.desc}</span><a class="dl-link" href="${d.link}" target="_blank" rel="noopener" title="Download: ${d.desc}">${d.link}</a></div>`);
-    h += `</div>`;
-  });
-  document.getElementById('checkoutModalBody').innerHTML = h;
+  document.getElementById('checkoutModalBody').innerHTML = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>`;
   document.getElementById('checkoutModal').classList.add('show');
 }
 
@@ -6715,58 +6714,34 @@ function confirmCheckout(){
   pickHistory.unshift({date:ds, who, docs: snapshot.map(c=>c.desc).join(', '), items: snapshot.map(c=>({desc:c.desc, source:c.source, link:c.link, loc:c.loc}))});
   renderHistory(); renderStats();
   closeModal('checkoutModal');
-  showToast({ title:'📦 Checkout complete', body: `${snapshot.length} items · collected by ${who}`, cls:'' });
   cart=[]; renderList(); renderCart(); renderStats(); saveState();
+  showToast({ title:'📦 Checkout complete', body: `${snapshot.length} items · collected by ${who}`, cls:'' });
+  // After confirming checkout, offer a separate download list modal.
+  openDownloadModal(snapshot);
 }
 
-function cancelCheckout(){
-  closeModal('checkoutModal');
-  showToast({ title:'✕ Checkout cancelled', body:'Cart kept — you can still edit.', cls:'warn' });
-}
-
-function showResult(who){
-  const el = document.getElementById('resultPanel');
-  const groups={}, locs={};
-  cart.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); (locs[c.loc]=locs[c.loc]||[]).push(c); });
-  const today = new Date().toISOString().slice(0,10);
-  let h = `<div class="panel result"><div class="panel-b">
-    <div class="ok-banner">✅ CHECKOUT COMPLETE — ${today} · Collector: ${who} · ${cart.length} items</div>
-    <div class="result-hint">⬇️ Click any document below to download it directly from its location.</div>
-    <h3>📡 DOWNLOAD LIST · by source</h3>`;
+function openDownloadModal(items){
+  const groups={};
+  items.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); });
+  const title = document.getElementById('downloadModalTitle');
+  const body = document.getElementById('downloadModalBody');
+  const btns = document.getElementById('downloadModalBtns');
+  title.textContent = '📥 Download Files';
+  let h = `<div class="result-hint">⬇️ Click any document below to download it from its location.</div>`;
+  h += `<h3>📡 DOWNLOAD LIST · by source</h3>`;
   Object.keys(groups).forEach(src=>{
     h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
     groups[src].forEach(d=> h += `<div class="src-item"><span class="dl-icon">⬇️</span><span class="dl-desc">${d.desc}</span><a class="dl-link" href="${d.link}" target="_blank" rel="noopener" title="Download: ${d.desc}">${d.link}</a></div>`);
     h += `</div>`;
   });
-  h += `<button class="cancel-btn" onclick="dcCancelResult()">✕ Cancel</button></div></div>`;
-  el.innerHTML = h;
+  body.innerHTML = h;
+  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCloseModal(\'downloadModal\')">✕ Close</button>';
+  document.getElementById('downloadModal').classList.add('show');
 }
 
-function cancelResult(){
-  const el = document.getElementById('resultPanel');
-  if(el) el.innerHTML = '';
-  renderList(); renderCart(); renderStats();
-}
-
-function buildPrintArea(groups, locs, who, today){
-  let h = `<div class="pa-head">
-    <h1>🛒 PICKING LIST — DOCUMENTS COLLECTION</h1>
-    <div class="pa-meta">Date: ${today} &nbsp;·&nbsp; Collector: ${who} &nbsp;·&nbsp; Total: ${cart.length} item(s)</div>
-  </div>`;
-  h += `<h2>📍 By Location (physical picking route)</h2>`;
-  Object.keys(locs).forEach(loc=>{
-    h += `<div class="pa-loc"><div class="pl-name">📌 ${loc}</div>`;
-    locs[loc].forEach(d=> h += `<div class="pl-item">☐ ${d.desc} <span style="color:#666;font-size:11px;">(${d.source})</span></div>`);
-    h += `</div>`;
-  });
-  h += `<h2>📡 Download Route — by Source</h2>`;
-  Object.keys(groups).forEach(src=>{
-    h += `<div class="pa-src"><div class="ps-name">📂 ${src}</div>`;
-    groups[src].forEach(d=> h += `<div class="pa-item">📄 ${d.desc} — ${d.link}</div>`);
-    h += `</div>`;
-  });
-  h += `<div class="pa-footer">Generated by MGD BMS · Documents Collection · ${new Date().toLocaleString()}</div>`;
-  document.getElementById('printArea').innerHTML = h;
+function cancelCheckout(){
+  closeModal('checkoutModal');
+  showToast({ title:'✕ Checkout cancelled', body:'Cart kept — you can still edit.', cls:'warn' });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -6877,7 +6852,6 @@ window.dcSetAdminFirstPin = setAdminFirstPin;
 window.dcStartResetPin = startResetPin;
 window.dcAdminUnlock = adminUnlock;
 window.dcOnOperatorChange = onOperatorChange;
-window.dcCancelResult = cancelResult;
 window.dcConfirmCheckout = confirmCheckout;
 window.dcCancelCheckout = cancelCheckout;
 window.dcShowHistoryDetail = showHistoryDetail;
