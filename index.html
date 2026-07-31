@@ -6755,31 +6755,26 @@ function confirmDownload(){
   if(dlAutoDownloading || !dlItems.length) return;
   dlAutoDownloading = true;
   const urls = dlItems.map(d=>toDlUrl(d.link));
-  // window.open inside the click gesture is treated as a user-initiated
-  // popup/download and is almost always allowed. Fire the first one
-  // synchronously, then open the rest with a short delay. If Chrome blocks
-  // the later ones, the toast tells the user to allow popups for this site.
-  let i = 0;
-  const openNext = () => {
-    if(i >= urls.length){ dlAutoDownloading = false; return; }
-    const u = urls[i++];
+  // Fire ALL downloads synchronously inside the SAME click gesture. When
+  // window.open is called multiple times within one user gesture, Chrome shows
+  // a single "Allow this site to open multiple popups/downloads" prompt; once
+  // the user clicks Allow, every one opens. (The number of cascading popups is
+  // capped by Chrome but a single Allow grants them all.) Any window.open that
+  // is individually blocked falls back to a hidden iframe.
+  let ok = 0;
+  urls.forEach(u=>{
     if(!u) return;
-    // Use window.open so the browser treats each as a real download tab.
     const w = window.open(u, '_blank');
-    if(!w){
-      // Window.open was blocked → fall back to a hidden iframe.
-      const ifr = document.createElement('iframe');
-      ifr.style.display='none';
-      ifr.src = u;
-      document.body.appendChild(ifr);
-      setTimeout(()=>{ ifr.remove(); openNext(); }, 1200);
-    } else {
-      // Slight delay between tabs to avoid mass-popup blocking.
-      setTimeout(openNext, 700);
-    }
-  };
-  openNext();
-  showToast({ title:'📥 Download started', body:`Auto-downloading ${urls.length} file(s). If Chrome blocks a tab, allow popups for this site.`, cls:'' });
+    if(w){ ok++; return; }
+    // window.open blocked for this url → fall back to hidden iframe.
+    const ifr = document.createElement('iframe');
+    ifr.style.display='none';
+    ifr.src = u;
+    document.body.appendChild(ifr);
+    setTimeout(()=>{ ifr.remove(); }, 1500);
+  });
+  dlAutoDownloading = false;
+  showToast({ title:'📥 Download started', body:`Opening ${urls.length} download(s). If Chrome asks, click Allow to get them all.`, cls:'' });
 }
 
 function cancelDownload(){
