@@ -6702,13 +6702,20 @@ function toDlUrl(url){
 
 function autoDownload(){
   if(!cart.length){ showToast({title:'🛒 Cart empty', body:'Nothing to download.', cls:'warn'}); return; }
-  // Trigger downloads/opens one by one (browsers throttle multiple popups).
-  cart.forEach((c,i)=>{
-    const url = toDlUrl(c.link || c.loc || '');
-    if(!url) return;
-    setTimeout(()=>{ window.open(url, '_blank', 'noopener'); }, i*600);
+  // Sequential hidden-iframe downloads. Each iframe navigates to the download
+  // URL within the ongoing gesture window; spacing avoids Chrome's popup and
+  // multi-download blocking while giving each download a moment to begin.
+  const files = cart.map(c=>({desc:c.desc, url:toDlUrl(c.link || c.loc || '')})).filter(f=>f.url);
+  if(!files.length){ showToast({title:'🔗 No links', body:'None of the items have a downloadable link.', cls:'warn'}); return; }
+  let frame = document.createElement('iframe');
+  frame.style.cssText = 'position:fixed;width:0;height:0;border:0;visibility:hidden;';
+  document.body.appendChild(frame);
+  const total = files.length;
+  let done = 0;
+  files.forEach((f,i)=>{
+    setTimeout(()=>{ frame.src = f.url; }, i*1200);
   });
-  showToast({title:'📥 Download started', body: cart.length+' file(s) · check browser downloads/popups', cls:''});
+  showToast({title:'📥 Downloading', body: 'Triggering '+total+' file(s)· check browser downloads', cls:''});
 }
 
 function openCheckoutModal(){
