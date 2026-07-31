@@ -5936,10 +5936,11 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .gear-btn:hover{ border-color: #f59e0b; color: #fbbf24; }#dcApp .stats-bar{
     display: flex; gap: 0; background: #0d1526; border-bottom: 1px solid #1e2c47;
     padding: 10px 28px;
+    position: sticky; top: 81.5px; z-index: 49;
   }#dcApp .stats-bar .stat{
     display: flex; align-items: baseline; gap: 8px; padding: 0 24px;
     border-right: 1px solid #1e2c47; font-size: 12px; color: #5f7296; letter-spacing: .5px;
-  }#dcApp .stats-bar .stat:first-child{ padding-left: 0; }#dcApp .stats-bar .stat:last-child{ border-right: 0; }#dcApp .stats-bar .stat .val{ font-size: 20px; font-weight: 700; color: #e6edf7; }#dcApp .stats-bar .stat:nth-child(2) .val{ color: #fbbf24; }#dcApp .stats-bar .stat:nth-child(3) .val{ color: #34d399; }#dcApp .layout{ display: flex; gap: 18px; padding: 18px 24px; align-items: flex-start; }#dcApp .side{ width: 220px; flex-shrink: 0; }#dcApp .main{ flex: 1; min-width: 0; }#dcApp .cart-col{ width: 350px; flex-shrink: 0; }#dcApp .panel{
+  }#dcApp .stats-bar .stat:first-child{ padding-left: 0; }#dcApp .stats-bar .stat:last-child{ border-right: 0; }#dcApp .stats-bar .stat .val{ font-size: 20px; font-weight: 700; color: #e6edf7; }#dcApp .stats-bar .stat:nth-child(2) .val{ color: #fbbf24; }#dcApp .stats-bar .stat:nth-child(3) .val{ color: #34d399; }#dcApp .layout{ display: flex; gap: 18px; padding: 18px 24px; align-items: flex-start; }#dcApp .side{ width: 220px; flex-shrink: 0; position: sticky; top: 133px; align-self: flex-start; max-height: calc(100vh - 140px); overflow-y: auto; }#dcApp .main{ flex: 1; min-width: 0; }#dcApp .cart-col{ width: 350px; flex-shrink: 0; position: sticky; top: 133px; align-self: flex-start; max-height: calc(100vh - 140px); overflow-y: auto; }#dcApp .panel{
     background: #131f33; border: 1px solid #1e2c47; border-radius: 12px;
     margin-bottom: 16px; overflow: hidden;
   }#dcApp .panel-h{
@@ -5949,7 +5950,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     display: block; width: 100%; text-align: left; padding: 9px 14px;
     background: transparent; border: 0; border-radius: 8px; cursor: pointer;
     color: #93a7c6; font-size: 13px; margin-bottom: 4px; transition: .15s;
-  }#dcApp .side button:hover{ background: #182642; color: #dbe6f5; }#dcApp .side button.active{ background: rgba(245,158,11,.14); color: #fbbf24; font-weight: 600; }#dcApp .side button .n{ float: right; font-size: 11px; color: #5f7296; }#dcApp .side button.active .n{ color: #f59e0b; }#dcApp .search-wrap{ margin-bottom: 16px; position: relative; }#dcApp .search-wrap input{
+  }#dcApp .side button:hover{ background: #182642; color: #dbe6f5; }#dcApp .side button.active{ background: rgba(245,158,11,.14); color: #fbbf24; font-weight: 600; }#dcApp .side button .n{ float: right; font-size: 11px; color: #5f7296; }#dcApp .side button.active .n{ color: #f59e0b; }#dcApp .search-wrap{ margin-bottom: 16px; position: sticky; top: 0; z-index: 5; background: #0b1220; }#dcApp .search-wrap input{
     width: 100%; padding: 12px 16px 12px 42px; border-radius: 10px;
     background: #131f33; border: 1px solid #1e2c47; color: #e6edf7; font-size: 14px;
     outline: none; transition: border-color .2s;
@@ -5970,7 +5971,8 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .doc-row{
     display: flex; align-items: center; gap: 10px; padding: 7px 16px 7px 32px;
     font-size: 13px; border-radius: 6px; transition: background .15s; margin: 0 8px;
-  }#dcApp .doc-row:hover{ background: #182642; }#dcApp .doc-row .dd{ flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }#dcApp .doc-row .dl{ color: #5f7296; font-size: 12px; width: 120px; }#dcApp .doc-row .ds{ color: #f59e0b; font-size: 11px; width: 90px; opacity: .85; }#dcApp .doc-row .add{
+    min-width: 0; overflow: hidden;
+  }#dcApp .doc-row:hover{ background: #182642; }#dcApp .doc-row .dd{ flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }#dcApp .doc-row .dl{ color: #5f7296; font-size: 12px; width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }#dcApp .doc-row .ds{ color: #f59e0b; font-size: 11px; width: 90px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }#dcApp .doc-row .add{
     width: 26px; height: 26px; border-radius: 8px; border: 1px solid #2e4064;
     background: #0f1b30; color: #f59e0b; cursor: pointer; font-size: 15px; line-height: 1;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: .15s;
