@@ -15,7 +15,8 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -6027,7 +6028,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .pin-input:focus{ border-color: #f59e0b; }#dcApp .pin-err{ color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }#dcApp .modal-btns{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .modal-btns .btn{
     flex: 1; padding: 11px; border-radius: 9px; border: 0; font-size: 14px; font-weight: 600;
     cursor: pointer; transition: .15s;
-  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .btn-accent{ background: linear-gradient(135deg, #10b981, #059669); color: #0b1220; }#dcApp .btn-accent:hover{ filter: brightness(1.08); }#dcApp .btn-secondary{ background: #0f1b30; border: 1px solid #f59e0b !important; color: #fbbf24; }#dcApp .btn-secondary:hover{ background: #16263f; }#dcApp .admin-notice{
+  }#dcApp .btn-primary{ background: linear-gradient(135deg, #f59e0b, #f97316); color: #0b1220; }#dcApp .btn-primary:hover{ filter: brightness(1.08); }#dcApp .modal.checkout-modal{ width: 560px; max-width: 92vw; }#dcApp .checkout-scroll{ max-height: 46vh; overflow-y: auto; padding-right: 4px; }#dcApp .checkout-scroll h3{ font-size: 13px; font-weight: 600; color: #fbbf24; margin: 14px 0 8px; display: flex; align-items: center; gap: 6px; }#dcApp .checkout-scroll h3:first-child{ margin-top: 0; }#dcApp .checkout-scroll .src-g{ margin-bottom: 12px; }#dcApp .checkout-scroll .src-label{ font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 4px; }#dcApp .checkout-scroll .src-item{ padding: 3px 0 3px 10px; font-size: 12px; color: #b8c7e0; display: flex; gap: 8px; align-items: center; }#dcApp .co-fname-hint{ font-size: 12px; color: #93a7c6; margin: 8px 0 4px; padding: 8px 12px; background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.2); border-radius: 8px; }#dcApp .co-row{ display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: #0f1b30; border: 1px solid #1e2c47; border-radius: 8px; margin-bottom: 6px; }#dcApp .co-row .co-desc{ font-size: 12.5px; color: #e6edf7; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }#dcApp .co-row .co-src{ font-size: 10.5px; color: #5f7296; flex-shrink: 0; }#dcApp .co-row .co-fname{ flex: 1.2; min-width: 120px; padding: 6px 8px; background: #0b1220; border: 1px solid #2e4064; border-radius: 6px; color: #e6edf7; font-size: 12px; outline: none; }#dcApp .co-row .co-fname:focus{ border-color: #f59e0b; }#dcApp .btn-ghost{ background: #0f1b30; border: 1px solid #2e4064 !important; color: #93a7c6; }#dcApp .btn-ghost:hover{ border-color: #f59e0b !important; color: #fbbf24; }#dcApp .btn-accent{ background: linear-gradient(135deg, #10b981, #059669); color: #0b1220; }#dcApp .btn-accent:hover{ filter: brightness(1.08); }#dcApp .btn-secondary{ background: #0f1b30; border: 1px solid #f59e0b !important; color: #fbbf24; }#dcApp .btn-secondary:hover{ background: #16263f; }#dcApp .admin-notice{
     background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); color: #fbbf24;
     font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px;
   }#dcApp .mem-row{
@@ -6800,16 +6801,34 @@ function openCheckoutModal(){
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('checkoutModalTitle').textContent = '📦 Confirm Checkout';
   document.getElementById('checkoutModalBtns').innerHTML = '<button class="btn btn-ghost" onclick="dcCancelCheckout()">Cancel</button><button class="btn btn-primary" onclick="dcConfirmCheckout()">Confirm</button>';
-  document.getElementById('checkoutModalBody').innerHTML = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>`;
+  // List every cart item with an editable file-name field (used for the ZIP later).
+  let rows = cart.map((c,i)=>`
+    <div class="co-row">
+      <span class="co-desc">${c.desc}</span>
+      <span class="co-src">${c.source||''}</span>
+      <input class="co-fname" data-idx="${i}" value="${(c.desc||'file').replace(/"/g,'&quot;')}" placeholder="File name" maxlength="80">
+    </div>`).join('');
+  document.getElementById('checkoutModalBody').innerHTML =
+    `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>
+     <div class="co-fname-hint">✏️ Set file name for each document — used inside the ZIP (use <b>/</b> to make folders, e.g. MGD/Project 1)</div>
+     ${rows}`;
   document.getElementById('checkoutModal').classList.add('show');
 }
 
 function confirmCheckout(){
   const who = verifiedUser;
   const snapshot = cart.slice();
+  // Collect the file names typed in the checkout modal (fall back to desc).
+  document.querySelectorAll('#checkoutModal .co-fname').forEach(inp=>{
+    const idx = parseInt(inp.getAttribute('data-idx'),10);
+    if(!isNaN(idx) && snapshot[idx]){
+      const v = (inp.value||'').trim();
+      if(v) snapshot[idx].fname = v;
+    }
+  });
   const now = new Date();
   const ds = now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5);
-  pickHistory.unshift({date:ds, who, docs: snapshot.map(c=>c.desc).join(', '), items: snapshot.map(c=>({desc:c.desc, source:c.source, link:c.link, loc:c.loc}))});
+  pickHistory.unshift({date:ds, who, docs: snapshot.map(c=>c.desc).join(', '), items: snapshot.map(c=>({desc:c.desc, source:c.source, link:c.link, loc:c.loc, fname:c.fname||c.desc}))});
   renderHistory(); renderStats();
   closeModal('checkoutModal');
   cart=[]; renderList(); renderCart(); renderStats(); saveState();
@@ -6830,7 +6849,7 @@ function openDownloadModal(items){
   const body = document.getElementById('downloadModalBody');
   const btns = document.getElementById('downloadModalBtns');
   title.textContent = '📥 Download Files';
-  let h = `<div class="result-hint">⬇️ Click any document below to download it manually, or Confirm to auto-download all.</div>`;
+  let h = `<div class="result-hint">📦 <b>Download ZIP</b> packages everything into one file (no permission needed). You can also click any link to download it individually.</div>`;
   h += `<h3>📡 DOWNLOAD LIST · by source</h3>`;
   Object.keys(groups).forEach(src=>{
     h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
@@ -6838,7 +6857,7 @@ function openDownloadModal(items){
     h += `</div>`;
   });
   body.innerHTML = h;
-  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button><button class="btn btn-accent" onclick="dcConfirmDownload()">⬇️ Confirm · Auto-Download All</button>';
+  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button><button class="btn btn-accent" onclick="dcDownloadZip()">📦 Download ZIP</button>';
   document.getElementById('downloadModal').classList.add('show');
 }
 
@@ -6908,6 +6927,68 @@ function cancelDownload(){
   closeModal('downloadModal');
 }
 
+function sanitizeZipName(s){
+  // Keep letters/numbers/space/./-/_; the / is the folder separator.
+  return (s||'').replace(/[\\:*?"<>|]/g,'_').replace(/\s+/g,' ').trim() || 'file';
+}
+
+function downloadZip(){
+  if(dlAutoDownloading || !dlItems.length) return;
+  if(typeof JSZip === 'undefined'){
+    showToast({ title:'✕ ZIP library not loaded', body:'Check your internet connection and refresh.', cls:'remove' });
+    return;
+  }
+  dlAutoDownloading = true;
+  const items = dlItems.slice();
+  const zip = new JSZip();
+  let done = 0, failed = 0;
+  showToast({ title:'📦 Building ZIP…', body:`Fetching ${items.length} file(s)…`, cls:'' });
+  const tasks = items.map(d=> (async()=>{
+    const u = toDlUrl(d.link);
+    let ext = '';
+    try{
+      const resp = await fetch(u);
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      const blob = await resp.blob();
+      ext = (blob.type||'').split('/')[1] || extFromUrl(d.link) || 'pdf';
+      if(!/^[a-z0-9]+$/i.test(ext)) ext = 'pdf';
+      // File name: user-typed fname (folder separators kept), plus extension.
+      const base = sanitizeZipName(d.fname || d.desc);
+      let path = base + '.' + ext;
+      // Make sure it doesn't collide with an existing entry.
+      let n = 2;
+      while(zip.file(path)){ path = base + '_' + (n++) + '.' + ext; }
+      zip.file(path, blob);
+    }catch(e){
+      failed++;
+      console.warn('[dc] zip fetch failed for', d.desc, e);
+      // Add a placeholder note so the user knows this one didn't make it.
+      const base = sanitizeZipName(d.fname || d.desc);
+      zip.file(base + '.txt', 'Download failed for: '+d.desc+'\nURL: '+(d.link||'')+'\n\nOpen the link manually in a new tab.');
+    }finally{
+      done++;
+    }
+  })());
+  Promise.all(tasks).then(async ()=>{
+    try{
+      const blob = await zip.generateAsync({ type:'blob' });
+      const urlBlob = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = urlBlob;
+      a.download = 'MGD_Documents_' + new Date().toISOString().slice(0,10) + '.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=> URL.revokeObjectURL(urlBlob), 5000);
+      showToast({ title:'📦 ZIP saved', body: (failed? items.length-failed+' file(s) + '+failed+' failed (see .txt notes).' : items.length+' file(s) packaged.') , cls:'' });
+    }catch(e){
+      console.error('[dc] zip generate failed:', e);
+      showToast({ title:'✕ ZIP failed', body:'Could not build the ZIP. Use individual links instead.', cls:'remove' });
+    }finally{
+      dlAutoDownloading = false;
+    }
+  });
+}
 function manualDownload(){
   // Keep the modal open so the user can click each link individually.
   showToast({ title:'⬇️ Manual download', body:'Click any document link above to download it individually.', cls:'' });
@@ -7032,6 +7113,7 @@ window.dcCancelCheckout = cancelCheckout;
 window.dcConfirmDownload = confirmDownload;
 window.dcCancelDownload = cancelDownload;
 window.dcManualDownload = manualDownload;
+window.dcDownloadZip = downloadZip;
 window.dcShowHistoryDetail = showHistoryDetail;
 })();
 </script>
