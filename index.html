@@ -16,7 +16,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -6844,21 +6843,26 @@ let dlAutoDownloading = false;          // true while auto-download is running
 function openDownloadModal(items){
   dlItems = items.slice();
   dlAutoDownloading = false;
+  // Group by THEME so same-topic documents sit together (e.g. all Certificate docs).
   const groups={};
-  items.forEach(c=>{ (groups[c.source]=groups[c.source]||[]).push(c); });
+  items.forEach(c=>{ const k = c.theme || c.source || 'Other'; (groups[k]=groups[k]||[]).push(c); });
   const title = document.getElementById('downloadModalTitle');
   const body = document.getElementById('downloadModalBody');
   const btns = document.getElementById('downloadModalBtns');
   title.textContent = '📥 Download Files';
-  let h = `<div class="result-hint">📦 <b>Download ZIP</b> packages everything into one file (no permission needed). You can also click any link to download it individually.</div>`;
-  h += `<h3>📡 DOWNLOAD LIST · by source</h3>`;
-  Object.keys(groups).forEach(src=>{
-    h += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
-    groups[src].forEach(d=> h += `<div class="src-item"><span class="dl-icon">⬇️</span><span class="dl-desc">${d.desc}</span><a class="dl-link" href="${d.link}" target="_blank" rel="noopener" title="Download: ${d.desc}">${d.link}</a></div>`);
+  let h = `<div class="result-hint">🔗 Click a link to download the file directly. Same-topic documents are grouped together.</div>`;
+  h += `<h3>📡 DOWNLOAD LIST · by theme</h3>`;
+  Object.keys(groups).forEach(k=>{
+    h += `<div class="src-g"><div class="src-label">📂 ${k}</div>`;
+    groups[k].forEach(d=>{
+      const name = d.fname || d.desc;
+      const dl = toDlUrl(d.link);
+      h += `<div class="src-item"><span class="dl-icon">⬇️</span><span class="dl-desc">${name}</span><a class="dl-link" href="${dl}" target="_blank" rel="noopener" title="Download: ${name}">${dl}</a></div>`;
+    });
     h += `</div>`;
   });
   body.innerHTML = h;
-  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button><button class="btn btn-accent" onclick="dcDownloadZip()">📦 Download ZIP</button>';
+  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button>';
   document.getElementById('downloadModal').classList.add('show');
 }
 
@@ -6874,122 +6878,12 @@ function extFromUrl(u){
   return m ? m[1].toLowerCase() : '';
 }
 
-function confirmDownload(){
-  if(dlAutoDownloading || !dlItems.length) return;
-  dlAutoDownloading = true;
-  const items = dlItems.slice();
-  let done = 0;
-  showToast({ title:'📥 Download started', body:`Downloading ${items.length} file(s)...`, cls:'' });
-  items.forEach(d=>{
-    const u = toDlUrl(d.link);
-    (async()=>{
-      try{
-        // fetch the file into a Blob (Google Drive allows CORS) so the saved
-        // download is same-origin. Same-origin Blob downloads are NOT subject
-        // to Chrome/Firefox multi-file or popup blocking — every one saves.
-        const resp = await fetch(u);
-        if(!resp.ok) throw new Error('HTTP '+resp.status);
-        const blob = await resp.blob();
-        // pick an extension: from content-type or the link path
-        let ext = (blob.type||'').split('/')[1] || extFromUrl(d.link) || 'pdf';
-        if(!/^[a-z0-9]+$/i.test(ext)) ext = 'pdf';
-        const fname = (d.desc||'document').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_') + '.' + ext;
-        const urlBlob = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = urlBlob;
-        a.download = fname;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(()=> URL.revokeObjectURL(urlBlob), 4000);
-      }catch(e){
-        // CORS/fetch failed → fall back to opening the direct url in a new tab.
-        const w = window.open(u, '_blank');
-        if(!w){
-          const ifr = document.createElement('iframe');
-          ifr.style.display='none'; ifr.src = u;
-          document.body.appendChild(ifr);
-          setTimeout(()=>{ ifr.remove(); }, 4000);
-        }
-      }finally{
-        done++;
-        if(done === items.length){
-          dlAutoDownloading = false;
-          showToast({ title:'✅ Done', body:`Saved ${items.length} file(s) to your downloads.`, cls:'' });
-        }
-      }
-    })();
-  });
-}
-
 function cancelDownload(){
   dlItems = [];
   dlAutoDownloading = false;
   closeModal('downloadModal');
 }
 
-function sanitizeZipName(s){
-  // Keep letters/numbers/space/./-/_; the / is the folder separator.
-  return (s||'').replace(/[\\:*?"<>|]/g,'_').replace(/\s+/g,' ').trim() || 'file';
-}
-
-function downloadZip(){
-  if(dlAutoDownloading || !dlItems.length) return;
-  if(typeof JSZip === 'undefined'){
-    showToast({ title:'✕ ZIP library not loaded', body:'Check your internet connection and refresh.', cls:'remove' });
-    return;
-  }
-  dlAutoDownloading = true;
-  const items = dlItems.slice();
-  const zip = new JSZip();
-  let done = 0, failed = 0;
-  showToast({ title:'📦 Building ZIP…', body:`Fetching ${items.length} file(s)…`, cls:'' });
-  const tasks = items.map(d=> (async()=>{
-    const u = toDlUrl(d.link);
-    let ext = '';
-    try{
-      const resp = await fetch(u);
-      if(!resp.ok) throw new Error('HTTP '+resp.status);
-      const blob = await resp.blob();
-      ext = (blob.type||'').split('/')[1] || extFromUrl(d.link) || 'pdf';
-      if(!/^[a-z0-9]+$/i.test(ext)) ext = 'pdf';
-      // File name: user-typed fname (folder separators kept), plus extension.
-      const base = sanitizeZipName(d.fname || d.desc);
-      let path = base + '.' + ext;
-      // Make sure it doesn't collide with an existing entry.
-      let n = 2;
-      while(zip.file(path)){ path = base + '_' + (n++) + '.' + ext; }
-      zip.file(path, blob);
-    }catch(e){
-      failed++;
-      console.warn('[dc] zip fetch failed for', d.desc, e);
-      // Add a placeholder note so the user knows this one didn't make it.
-      const base = sanitizeZipName(d.fname || d.desc);
-      zip.file(base + '.txt', 'Download failed for: '+d.desc+'\nURL: '+(d.link||'')+'\n\nOpen the link manually in a new tab.');
-    }finally{
-      done++;
-    }
-  })());
-  Promise.all(tasks).then(async ()=>{
-    try{
-      const blob = await zip.generateAsync({ type:'blob' });
-      const urlBlob = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = urlBlob;
-      a.download = 'MGD_Documents_' + new Date().toISOString().slice(0,10) + '.zip';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(()=> URL.revokeObjectURL(urlBlob), 5000);
-      showToast({ title:'📦 ZIP saved', body: (failed? items.length-failed+' file(s) + '+failed+' failed (see .txt notes).' : items.length+' file(s) packaged.') , cls:'' });
-    }catch(e){
-      console.error('[dc] zip generate failed:', e);
-      showToast({ title:'✕ ZIP failed', body:'Could not build the ZIP. Use individual links instead.', cls:'remove' });
-    }finally{
-      dlAutoDownloading = false;
-    }
-  });
-}
 function manualDownload(){
   // Keep the modal open so the user can click each link individually.
   showToast({ title:'⬇️ Manual download', body:'Click any document link above to download it individually.', cls:'' });
@@ -7111,10 +7005,9 @@ window.dcAdminUnlock = adminUnlock;
 window.dcOnOperatorChange = onOperatorChange;
 window.dcConfirmCheckout = confirmCheckout;
 window.dcCancelCheckout = cancelCheckout;
-window.dcConfirmDownload = confirmDownload;
 window.dcCancelDownload = cancelDownload;
 window.dcManualDownload = manualDownload;
-window.dcDownloadZip = downloadZip;
+window.dcOpenDownloadModal = openDownloadModal;
 window.dcShowHistoryDetail = showHistoryDetail;
 })();
 </script>
