@@ -6804,9 +6804,9 @@ function openCheckoutModal(){
   const groups={};
   cart.forEach((c,i)=>{ const k=c.theme||'Other'; (groups[k]=groups[k]||[]).push({c,i}); });
   let html = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>
-     <div class="co-fname-hint">✏️ <b>Folder name</b>: type a name per theme (e.g. <b>ISO_ABC Project Folder name</b>). Leave blank to use the theme name. All links of that theme go inside this folder.</div>`;
-  Object.keys(groups).forEach(k=>{
-    html += `<div class="co-group"><div class="co-group-head"><span class="co-theme">${k}</span><input class="co-fname" data-theme="${k}" value="" placeholder="Folder name (blank = ${k})" maxlength="80"></div>`;
+     <div class="co-fname-hint">✏️ <b>Type file name</b> per theme (use <b>/</b> for folders, e.g. <b>ISO_ABC Project Folder name</b>). Leave blank to use the theme name. All links of that theme go inside this folder.</div>`;
+  Object.keys(groups).forEach((k,gi)=>{
+    html += `<div class="co-group"><div class="co-group-head"><span class="co-theme">${gi+1}. ${k}</span><input class="co-fname" data-theme="${k}" value="" placeholder="Type file name (use / for folders)" maxlength="80"></div>`;
     groups[k].forEach(({c,i})=>{
       html += `<div class="co-row"><span class="co-src">${c.source||''}</span><span class="co-desc">${c.desc||''}</span></div>`;
     });
