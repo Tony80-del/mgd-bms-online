@@ -6865,7 +6865,7 @@ function openDownloadModal(items){
     h += `</div>`;
   });
   body.innerHTML = h;
-  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button>';
+  btns.innerHTML = '<button class="btn btn-ghost" onclick="dcCancelDownload()">Cancel</button><button class="btn btn-secondary" onclick="dcManualDownload()">⬇️ 逐条手动点</button><button class="btn btn-accent" onclick="dcConfirmDownload()">📥 Auto Download All</button>';
   document.getElementById('downloadModal').classList.add('show');
 }
 
@@ -6874,6 +6874,54 @@ function toDlUrl(u){
   const m = u && u.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
   if(m) return 'https://drive.google.com/uc?export=download&id='+m[1];
   return u;
+}
+
+function confirmDownload(){
+  if(dlAutoDownloading || !dlItems.length) return;
+  dlAutoDownloading = true;
+  const items = dlItems.slice();
+  let done = 0;
+  showToast({ title:'📥 Download started', body:`Downloading ${items.length} file(s)...`, cls:'' });
+  items.forEach(d=>{
+    const u = toDlUrl(d.link);
+    (async()=>{
+      try{
+        // fetch the file into a Blob (Google Drive allows CORS) so the saved
+        // download is same-origin. Same-origin Blob downloads are NOT subject
+        // to Chrome/Firefox multi-file or popup blocking — every one saves.
+        const resp = await fetch(u);
+        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        const blob = await resp.blob();
+        // pick an extension: from content-type or the link path
+        let ext = (blob.type||'').split('/')[1] || extFromUrl(d.link) || 'pdf';
+        if(!/^[a-z0-9]+$/i.test(ext)) ext = 'pdf';
+        const fname = (d.desc||'document').replace(/[\\\/:*?"<>|]/g,'_').replace(/\s+/g,'_') + '.' + ext;
+        const urlBlob = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = urlBlob;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(()=> URL.revokeObjectURL(urlBlob), 4000);
+      }catch(e){
+        // CORS/fetch failed → fall back to opening the direct url in a new tab.
+        const w = window.open(u, '_blank');
+        if(!w){
+          const ifr = document.createElement('iframe');
+          ifr.style.display='none'; ifr.src = u;
+          document.body.appendChild(ifr);
+          setTimeout(()=>{ ifr.remove(); }, 4000);
+        }
+      }finally{
+        done++;
+        if(done === items.length){
+          dlAutoDownloading = false;
+          showToast({ title:'✅ Done', body:`Saved ${items.length} file(s) to your downloads.`, cls:'' });
+        }
+      }
+    })();
+  });
 }
 
 function extFromUrl(u){
@@ -7010,6 +7058,7 @@ window.dcConfirmCheckout = confirmCheckout;
 window.dcCancelCheckout = cancelCheckout;
 window.dcCancelDownload = cancelDownload;
 window.dcManualDownload = manualDownload;
+window.dcConfirmDownload = confirmDownload;
 window.dcOpenDownloadModal = openDownloadModal;
 window.dcShowHistoryDetail = showHistoryDetail;
 })();
