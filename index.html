@@ -6036,7 +6036,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   }#dcApp .mem-row:last-child{ border: 0; }#dcApp .mem-row .mn{ font-weight: 600; width: 64px; }#dcApp .mem-row .role{ font-size: 9.5px; color: #f59e0b; background: rgba(245,158,11,.1); padding: 1px 7px; border-radius: 8px; letter-spacing: .5px; }#dcApp .mem-row .ms{ color: #5f7296; font-size: 11px; }#dcApp .mem-row input{
     width: 84px; padding: 5px 6px; background: #0f1b30; border: 1px solid #2e4064;
     border-radius: 6px; color: #e6edf7; text-align: center; letter-spacing: 3px; outline: none;
-  }#dcApp .mem-row input:focus{ border-color: #f59e0b; }#dcApp .mem-row .mini:hover{ border-color: #f59e0b; color: #fbbf24; }#dcApp .mem-row .mini.del:hover{ border-color: #f87171; color: #f87171; }#dcApp .add-mem{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .add-mem input{
+  }#dcApp .mem-row input:focus{ border-color: #f59e0b; }#dcApp .mem-row .mini:hover{ border-color: #f59e0b; color: #fbbf24; }#dcApp .mem-row .mini.del:hover{ border-color: #f87171; color: #f87171; }#dcApp .add-mem{ display: flex; gap: 8px; margin-top: 14px; }#dcApp .add-mem-btn{ margin-top: 10px; }#dcApp .add-mem-btn .btn{ width: 100%; padding: 10px; }#dcApp .add-mem input{
     padding: 8px 10px; background: #0f1b30; border: 1px solid #2e4064; border-radius: 8px;
     color: #e6edf7; font-size: 13px; outline: none; flex: 1; min-width: 0;
   }#dcApp .add-mem input:focus{ border-color: #f59e0b; }#dcApp .add-mem .btn{ flex: 0 0 auto; }#dcApp #dcToast{
@@ -6233,7 +6233,9 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       <div class="add-mem">
         <input id="newMemName" placeholder="Name" maxlength="20">
         <input id="newMemPin" placeholder="PIN · 4 digits" maxlength="4" inputmode="numeric" style="width:110px;">
-        <button class="btn btn-primary" style="padding:8px 14px;" onclick="dcAddMember()">＋ Add</button>
+      </div>
+      <div class="add-mem-btn">
+        <button class="btn btn-primary" onclick="dcAddMember()">＋ Add</button>
       </div>
     </div>
   </div>
