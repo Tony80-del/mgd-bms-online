@@ -4749,6 +4749,7 @@ document.addEventListener('DOMContentLoaded',function(){
   if(!migrated && data.docSECTIONS && data.docSECTIONS.length > 0){
     localStorage.setItem('bms_doc_data', JSON.stringify(data.docSECTIONS));
     localStorage.setItem('bms_doc_migrated', '1');
+    if(typeof window.dcCloudPush==='function') window.dcCloudPush();
     console.log('[DocStorage] Migrated existing docSECTIONS to independent storage');
   }
   // Restore saved docSECTIONS: prefer localStorage (recent local edits), fall back to cloud data
@@ -4921,6 +4922,7 @@ function listenToCloud(){
             if(fsChanged){
               docSECTIONS = JSON.parse(JSON.stringify(data.docSECTIONS));
               localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
+              if(typeof window.dcCloudPush==='function') window.dcCloudPush();
               if(mod==='docstorage'){ docRebuildAllItems(); docBuildSectionBtns(); docRenderTable(); }
             }
           }
@@ -5846,6 +5848,7 @@ document.addEventListener('keydown',function(e){
 function docPersist(){
   // Save to independent key (local)
   localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
+  if(typeof window.dcCloudPush==='function') window.dcCloudPush();
   // NEW: also sync docSECTIONS to Firestore via data.docSECTIONS (reuses saveData cloud pipeline)
   try{
     data.docSECTIONS = JSON.parse(JSON.stringify(docSECTIONS));
@@ -6286,6 +6289,97 @@ function getDocs(){
 }
 
 // ═══════════════════════════════════════════════════════
+//  CLOUD SYNC — Documents Collection data lives in Firestore so it
+//  is shared across browsers (Firefox/Chrome/mobile). localStorage is
+//  kept as a cache/offline fallback.
+// ═══════════════════════════════════════════════════════
+const DC_CLOUD_DOC = 'doc_dc';
+let _dcCloudLoaded = false;
+let _dcCloudTimer = null;
+let _dcCloudUnsub = null;
+
+// Upload local data to the cloud (debounced). Called whenever
+// members/state changes on this browser.
+function dcCloudPush(){
+  if(!_dcCloudLoaded || typeof fdb === 'undefined') return;
+  clearTimeout(_dcCloudTimer);
+  _dcCloudTimer = setTimeout(function(){
+    var payload = {
+      members: (typeof members!=='undefined') ? members : [],
+      state: { cart: cart||[], pickHistory: pickHistory||[] },
+      docData: (function(){
+        try{ return JSON.parse(localStorage.getItem('bms_doc_data')||'null'); }
+        catch(e){ return null; }
+      })(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: (typeof verifiedUser!=='undefined'&&verifiedUser) ? verifiedUser : 'browser'
+    };
+    fdb.collection('bms_data').doc(DC_CLOUD_DOC).set(payload)
+      .then(function(){ console.log('[dc] cloud push ok'); })
+      .catch(function(e){ console.warn('[dc] cloud push failed:', e); });
+  }, 400);
+}
+
+// Pull cloud data → merge into local state (cloud wins when present).
+function dcCloudLoad(){
+  if(typeof fdb === 'undefined') return;
+  fdb.collection('bms_data').doc(DC_CLOUD_DOC).get().then(function(docSnap){
+    if(!docSnap.exists){ _dcCloudLoaded = true; dcCloudPush(); return; }
+    var d = docSnap.data() || {};
+    _dcCloudLoaded = true;
+    // Members (cloud wins)
+    if(Array.isArray(d.members) && d.members.length){
+      members = d.members;
+      try{ localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); }catch(e){}
+    }
+    // Cart & history (cloud wins)
+    if(d.state){
+      if(Array.isArray(d.state.cart)) cart = d.state.cart;
+      if(Array.isArray(d.state.pickHistory) && d.state.pickHistory.length) pickHistory = d.state.pickHistory;
+      try{ localStorage.setItem(LS_KEY, JSON.stringify({ cart: cart, pickHistory: pickHistory })); }catch(e){}
+    }
+    // Doc registry (cloud wins)
+    if(Array.isArray(d.docData)){
+      try{ localStorage.setItem('bms_doc_data', JSON.stringify(d.docData)); }catch(e){}
+    }
+    // Re-render everything now that cloud data is in
+    try{
+      if(typeof renderFilter==='function') renderFilter();
+      if(typeof renderList==='function') renderList();
+      if(typeof renderCart==='function') renderCart();
+      if(typeof renderStats==='function') renderStats();
+      if(typeof renderOperator==='function') renderOperator();
+    }catch(e){ console.warn('[dc] re-render after cloud load:', e); }
+    console.log('[dc] cloud loaded:', JSON.stringify({m:d.members&&d.members.length, c:cart.length, h:pickHistory.length, doc:Array.isArray(d.docData)?d.docData.length:0}));
+  }).catch(function(e){ console.warn('[dc] cloud load failed (offline?):', e); _dcCloudLoaded = true; });
+
+  // Also live-listen so another browser's change appears here automatically.
+  if(_dcCloudUnsub) _dcCloudUnsub();
+  _dcCloudUnsub = fdb.collection('bms_data').doc(DC_CLOUD_DOC)
+    .onSnapshot(function(doc){
+      if(!_dcCloudLoaded || !doc.exists) return;
+      var d = doc.data() || {};
+      if(Array.isArray(d.members)){
+        members = d.members;
+        try{ localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); }catch(e){}
+        if(typeof renderOperator==='function') renderOperator();
+        if(typeof renderAdminManage==='function') renderAdminManage();
+      }
+      if(d.state){
+        if(Array.isArray(d.state.cart)) cart = d.state.cart;
+        if(Array.isArray(d.state.pickHistory) && d.state.pickHistory.length) pickHistory = d.state.pickHistory;
+        try{ localStorage.setItem(LS_KEY, JSON.stringify({ cart: cart, pickHistory: pickHistory })); }catch(e){}
+        if(typeof renderCart==='function') renderCart();
+        if(typeof renderHistory==='function') renderHistory();
+        if(typeof renderStats==='function') renderStats();
+      }
+      if(Array.isArray(d.docData)){
+        try{ localStorage.setItem('bms_doc_data', JSON.stringify(d.docData)); }catch(e){}
+      }
+    });
+}
+
+// ═══════════════════════════════════════════════════════
 //  MEMBERS & PIN (admin-managed, persisted)
 // ═══════════════════════════════════════════════════════
 const MEMBERS_KEY = 'shopping_mode_v2_members';
@@ -6307,7 +6401,7 @@ function loadMembers(){
   } catch(e){}
   return defaultMembers();
 }
-function saveMembers(){ try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch(e){} }
+function saveMembers(){ try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch(e){} dcCloudPush(); }
 
 // ═══════════════════════════════════════════════════════
 //  STATE (persisted to localStorage)
@@ -6330,6 +6424,7 @@ function saveState(){
   try {
     localStorage.setItem(LS_KEY, JSON.stringify({ cart, pickHistory }));
   } catch(e){}
+  dcCloudPush();
 }
 
 let filterTheme = 'all';
@@ -6543,6 +6638,7 @@ function goBackMain(){
 
 function init(){
   loadState();
+  dcCloudLoad();   // pull cloud data (members/state/docs) if available
   renderFilter(); renderList(); renderCart(); renderHistory(); renderStats(); renderOperator();
   document.getElementById('totalCount').textContent = getDocs().length;
 }
@@ -6908,6 +7004,7 @@ function escapeHtml(s){
 //  EXPOSE to window with dc prefix (onclick handlers)
 // ═══════════════════════════════════════════════════════
 window.dcInit = init;
+window.dcCloudPush = dcCloudPush;
 window.dcGoBackMain = goBackMain;
 window.dcToggleCart = toggleCart;
 window.dcRemoveFromCart = removeFromCart;
