@@ -753,6 +753,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance</button>
       <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Org Chart</button>
       <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
+      <button class="sbtn" data-sec="7. FORMS" onclick="docSetSection('7. FORMS')">📋 Forms</button>
     </div>
     </div>
 
@@ -5505,7 +5506,8 @@ function docRenderTrackerBody(filtered){
 function docRenderDashboard(){
   const tbody = document.getElementById('dashBody');
   const shortLbls = {'1. CERTIFICATE':'1. Certificate','2. ISO':'2. ISO','3. STAFF':'3. Staff',
-    '4. FINANCE':'4. Finance','5. ORGANIZATION CHART':'5. Organization Chart','6. PROJECT INFO':'6. PROJECT INFO'};
+    '4. FINANCE':'4. Finance','5. ORGANIZATION CHART':'5. Organization Chart','6. PROJECT INFO':'6. PROJECT INFO',
+    '7. FORMS':'7. Forms'};
 
   let html = '';
   docSECTIONS.forEach(sec => {
@@ -5515,9 +5517,10 @@ function docRenderDashboard(){
     const located = items.filter(i => i.location).length;
     const pending = total - done;
     const pct = total > 0 ? (done/total*100).toFixed(0) + '%' : '0%';
+    const secName = shortLbls[sec.id] || sec.label || sec.id;
 
     html += `<tr class="${sec.bgClass}">
-      <td class="col-section">${shortLbls[sec.id]}</td>
+      <td class="col-section">${secName}</td>
       <td class="col-total">${total}</td>
       <td class="col-data green bold">${done}</td>
       <td class="col-data bold" style="color:#0a6e8a">${located}</td>
@@ -5710,7 +5713,7 @@ function docSetFilter(f){
 }
 function docBuildSectionBtns(){
   const container = document.getElementById('sectionBtns');
-  const icons = {'1. CERTIFICATE':'📜','2. ISO':'📄','3. STAFF':'👤','4. FINANCE':'💰','5. ORGANIZATION CHART':'🏢','6. PROJECT INFO':'📁'};
+  const icons = {'1. CERTIFICATE':'📜','2. ISO':'📄','3. STAFF':'👤','4. FINANCE':'💰','5. ORGANIZATION CHART':'🏢','6. PROJECT INFO':'📁','7. FORMS':'📋'};
   let html = `<button class="sbtn${!docCurrentSection?' active':''}" data-sec="" onclick="docSetSection('')">📋 All</button>`;
   docSECTIONS.forEach(sec => {
     const icon = icons[sec.id] || '📋';
