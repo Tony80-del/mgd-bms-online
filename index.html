@@ -5465,6 +5465,8 @@ function docRenderTrackerBody(filtered){
   let rowAlt = false;
 
   docSECTIONS.forEach((sec, si) => {
+    // When a specific section is selected (via top buttons), only render that section's rows
+    if(docCurrentSection && sec.id !== docCurrentSection) return;
     const secItems = filtered.filter(i => i.sectionId === sec.id);
     html += `<tr class="section-row s-row-${si % 6}"><td colspan="6">${sec.label}</td><td class="c del-cell" onclick="docDeleteSection(${si})" title="Delete this section">🗑</td></tr>`;
     if(secItems.length === 0) return;
