@@ -829,9 +829,12 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </div>
     </div>
     <div class="field"><label>Sub-Section *</label>
-      <select id="f_subsection" onchange="docOnSubSelect()">
-        <option value="">-- Select or type new --</option>
-      </select>
+      <div style="display:flex;gap:6px;align-items:center">
+        <select id="f_subsection" onchange="docOnSubSelect()" style="flex:1">
+          <option value="">-- Select or type new --</option>
+        </select>
+        <button type="button" class="btn-cancel" onclick="docEditSelectedSub()" title="Rename the selected sub-section" style="padding:6px 10px;font-size:12px">✏️ Edit</button>
+      </div>
       <input type="text" id="f_subsection_new" placeholder="e.g. A. Company Certificate" style="display:none;margin-top:6px">
     </div>
     <div class="field"><label>Document Description *</label>
@@ -870,6 +873,19 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div class="actions">
       <button class="btn-cancel" onclick="docCloseSectionModal()">Cancel</button>
       <button class="btn-save" onclick="docSaveSection()">Add Section</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit Sub-Section Modal ── -->
+<div class="modal-overlay" id="subEditModal">
+  <div class="modal-box" style="max-width:440px">
+    <h3>✏️ Edit Sub-Section</h3>
+    <div class="field"><label>Section</label><input type="text" id="subEditSec" style="font-weight:600;background:#f4f6f8" readonly></div>
+    <div class="field"><label>Sub-Section Name *</label><input type="text" id="subEditName" placeholder="e.g. A. Bank"></div>
+    <div class="actions">
+      <button class="btn-cancel" onclick="docCloseSubEditModal()">Cancel</button>
+      <button class="btn-save" onclick="docSaveSubEdit()">Save</button>
     </div>
   </div>
 </div>
@@ -5727,6 +5743,62 @@ function docSaveSection(){
   docToast('📂 New section added: ' + newId);
 }
 
+// ── Edit Sub-Section (rename) ──
+function docEditSelectedSub(){
+  const secId = document.getElementById('f_section').value;
+  const sel = document.getElementById('f_subsection');
+  const curVal = sel.value;
+  if(!secId){ alert('Please select a section first.'); return; }
+  const sec = docSECTIONS.find(s => s.id === secId);
+  if(!sec){ alert('Section not found.'); return; }
+  // Determine which sub-section to edit: selected option, or custom input value
+  let subLabel = curVal;
+  if(!subLabel || subLabel === '__new__'){
+    const inp = document.getElementById('f_subsection_new');
+    subLabel = inp.value.trim();
+  }
+  if(!subLabel){ alert('Please select or type a sub-section first.'); return; }
+  const sub = sec.subs.find(s => s.label === subLabel);
+  if(!sub){ alert('Sub-section "' + subLabel + '" not found in this section.'); return; }
+  document.getElementById('subEditSec').value = sec.label;
+  document.getElementById('subEditSec').dataset.oldLabel = subLabel;
+  document.getElementById('subEditName').value = subLabel;
+  document.getElementById('subEditModal').classList.add('open');
+  setTimeout(() => document.getElementById('subEditName').select(), 100);
+}
+
+function docCloseSubEditModal(){
+  document.getElementById('subEditModal').classList.remove('open');
+}
+
+function docSaveSubEdit(){
+  const secId = document.getElementById('f_section').value;
+  const newLabel = document.getElementById('subEditName').value.trim();
+  const oldLabel = document.getElementById('subEditSec').dataset.oldLabel || '';
+  if(!newLabel){ alert('Please enter a sub-section name.'); return; }
+  if(!oldLabel){ alert('Missing original sub-section name.'); return; }
+  const sec = docSECTIONS.find(s => s.id === secId);
+  if(!sec){ alert('Section not found.'); return; }
+  const sub = sec.subs.find(s => s.label === oldLabel);
+  if(!sub){ alert('Sub-section not found.'); return; }
+  if(newLabel !== oldLabel && sec.subs.some(s => s.label === newLabel)){
+    alert('Sub-section "' + newLabel + '" already exists in this section.');
+    return;
+  }
+  sub.label = newLabel;
+  docCloseSubEditModal();
+  docRebuildAllItems();
+  docRenderTable();
+  docPersist();
+  docToast('✏️ Sub-section renamed: ' + oldLabel + ' → ' + newLabel);
+  // Refresh the dropdown, re-select the renamed sub
+  docPopulateSubs();
+  const subSel = document.getElementById('f_subsection');
+  if([...subSel.options].some(o => o.value === newLabel)){
+    subSel.value = newLabel;
+  }
+}
+
 // Delete the section currently selected in the Add Document modal
 function docDeleteSelectedSection(){
   const secId = document.getElementById('f_section').value;
@@ -5863,6 +5935,8 @@ document.addEventListener('keydown',function(e){
     document.getElementById('addModal').classList.remove('open');
     var m2 = document.getElementById('addSectionModal');
     if(m2) m2.classList.remove('open');
+    var m3 = document.getElementById('subEditModal');
+    if(m3) m3.classList.remove('open');
   }
 });
 
