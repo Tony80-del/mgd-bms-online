@@ -4803,6 +4803,7 @@ document.addEventListener('DOMContentLoaded',function(){
     docSECTIONS = JSON.parse(JSON.stringify(data.docSECTIONS));
     localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
   }
+  docNormalizeSections();
   docRebuildAllItems();
   docBuildSectionBtns();
   docRenderTable();
@@ -4958,6 +4959,7 @@ function listenToCloud(){
             var fsChanged = JSON.stringify(docSECTIONS) !== JSON.stringify(data.docSECTIONS);
             if(fsChanged){
               docSECTIONS = JSON.parse(JSON.stringify(data.docSECTIONS));
+              docNormalizeSections();
               localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS));
               if(typeof window.dcCloudPush==='function') window.dcCloudPush();
               if(mod==='docstorage'){ docRebuildAllItems(); docBuildSectionBtns(); docRenderTable(); }
@@ -5351,6 +5353,23 @@ let docSECTIONS = [
 
 let docAllItems = [];
 let docCounter = 1;
+
+// Normalize section objects loaded from localStorage/cloud: ensure every
+// section has a label (fall back to id) and a valid subs array, so no
+// "undefined" ever shows in the table/dashboard.
+function docNormalizeSections(){
+  if(!Array.isArray(docSECTIONS)) return;
+  docSECTIONS.forEach(sec => {
+    if(!sec || typeof sec !== 'object') return;
+    if(!sec.label) sec.label = sec.id || 'OTHER';
+    if(!Array.isArray(sec.subs)) sec.subs = [];
+    sec.subs.forEach(sub => {
+      if(!sub || typeof sub !== 'object') return;
+      if(!sub.label) sub.label = sub.id || 'General';
+      if(!Array.isArray(sub.items)) sub.items = [];
+    });
+  });
+}
 
 function docRebuildAllItems(){
   docAllItems = [];
