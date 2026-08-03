@@ -5787,16 +5787,11 @@ function docSaveSubEdit(){
   }
   sub.label = newLabel;
   docCloseSubEditModal();
+  docCloseModal();
   docRebuildAllItems();
   docRenderTable();
   docPersist();
   docToast('✏️ Sub-section renamed: ' + oldLabel + ' → ' + newLabel);
-  // Refresh the dropdown, re-select the renamed sub
-  docPopulateSubs();
-  const subSel = document.getElementById('f_subsection');
-  if([...subSel.options].some(o => o.value === newLabel)){
-    subSel.value = newLabel;
-  }
 }
 
 // Delete the section currently selected in the Add Document modal
