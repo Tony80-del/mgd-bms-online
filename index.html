@@ -6380,6 +6380,30 @@ function getDocs(){
   return out;
 }
 
+// All sections registered in Documentation Storage (regardless of confirmed
+// status) — THEMES sidebar must mirror the full section list.
+// count = total registered items under that section (live count).
+function getAllSections(){
+  var secs = [];
+  try{
+    var raw = localStorage.getItem('bms_doc_data');
+    var tree = raw ? JSON.parse(raw) : null;
+    if(tree && tree.length){
+      tree.forEach(function(sec){
+        if(!sec) return;
+        var n = 0;
+        if(sec.subs){
+          sec.subs.forEach(function(sub){
+            if(sub && sub.items) n += sub.items.length;
+          });
+        }
+        secs.push({ label: sec.label || sec.id || 'OTHER', count: n });
+      });
+    }
+  }catch(e){ console.warn('[dc] getAllSections failed:', e); }
+  return secs;
+}
+
 // ═══════════════════════════════════════════════════════
 //  CLOUD SYNC — Documents Collection data lives in Firestore so it
 //  is shared across browsers (Firefox/Chrome/mobile). localStorage is
@@ -6736,14 +6760,15 @@ function init(){
 }
 
 function renderFilter(){
-  const themes = [...new Set(getDocs().map(d=>d.theme))];
+  const secs = getAllSections();   // full section list from Documentation Storage
   const bar = document.getElementById('filterBar');
   bar.innerHTML = '';   // Clear first — avoid duplicate buttons on re-render (cloud re-render / onSnapshot)
-  themes.forEach(t=>{
+  secs.forEach(t=>{
     const b = document.createElement('button');
-    const n = getDocs().filter(d=>d.theme===t).length;
-    b.innerHTML = `${t} <span class="n">${n}</span>`;
-    b.onclick = ()=>setFilter(t);
+    const n = t.count;
+    b.setAttribute('data-sec', t.label);
+    b.innerHTML = `${t.label} <span class="n">${n}</span>`;
+    b.onclick = ()=>setFilter(t.label);
     bar.appendChild(b);
   });
 }
@@ -6751,7 +6776,7 @@ function renderFilter(){
 function setFilter(t){
   filterTheme = t;
   document.querySelectorAll('#filterBar button').forEach(b=>{
-    b.classList.toggle('active', b.textContent.replace(/\d+$/,'').trim()===t || (t==='all'&&b.textContent.includes('All')));
+    b.classList.toggle('active', (b.getAttribute('data-sec')||'')===t);
   });
   renderList();
 }
@@ -6779,12 +6804,29 @@ function matchesQuery(d){
 // ═══════════════════════════════════════════════════════
 function renderList(){
   const el = document.getElementById('docList');
-  const themes = [...new Set(getDocs().map(d=>d.theme))].filter(t=> (filterTheme==='all' || t===filterTheme));
-  if(!themes.length){ el.innerHTML = '<div class="empty">📭 No documents</div>'; document.getElementById('matchCount').textContent=''; return; }
+  const allDocs = getDocs();
+  const themes = [...new Set(allDocs.map(d=>d.theme))].filter(t=> (filterTheme==='all' || t===filterTheme));
+
+  // If a section is registered in Doc Storage but has no confirmed docs yet,
+  // show it as an empty state so the sidebar always stays in sync.
+  if(filterTheme!=='all' && !themes.includes(filterTheme)){
+    const secs = getAllSections();
+    const sec = secs.find(s=>s.label===filterTheme);
+    if(sec){
+      el.innerHTML = `<div class="theme-row">
+        <span class="arrow open">▼</span><span>📂 ${sec.label}</span>
+        <span class="tc">${sec.count} registered</span></div>
+        <div class="empty">📭 No confirmed documents yet — ${sec.count} registered in Documentation Storage</div>`;
+      document.getElementById('matchCount').textContent='';
+      return;
+    }
+  }
+
+  if(!themes.length && filterTheme!=='all'){ el.innerHTML = '<div class="empty">📭 No documents</div>'; document.getElementById('matchCount').textContent=''; return; }
 
   let html='', matched=0;
   themes.forEach(theme=>{
-    const tdocs = getDocs().filter(d=>d.theme===theme);
+    const tdocs = allDocs.filter(d=>d.theme===theme);
     const subs = [...new Set(tdocs.map(d=>d.subSection))];
     const open = collapsed[theme]!==false;
     const themeVisible = tdocs.some(matchesQuery);
@@ -6809,6 +6851,24 @@ function renderList(){
       });
     });
   });
+
+  // When showing "all" sections, also render any registered sections that have
+  // zero confirmed docs so the full section list stays visible in the main list.
+  if(filterTheme==='all'){
+    const confirmedLabels = new Set(allDocs.map(d=>d.theme));
+    const secs = getAllSections();
+    secs.forEach(sec=>{
+      if(confirmedLabels.has(sec.label)) return;   // already rendered above
+      const open = collapsed[sec.label]!==false;
+      html += `<div class="theme-row" onclick="dcToggleTheme('${sec.label}')">
+        <span class="arrow ${open?'open':''}">▶</span><span>📂 ${sec.label}</span>
+        <span class="tc">${sec.count} registered</span></div>`;
+      if(open){
+        html += `<div class="empty">📭 No confirmed documents yet — ${sec.count} registered in Documentation Storage</div>`;
+      }
+    });
+  }
+
   el.innerHTML = html || '<div class="empty">🔍 No results for your search</div>';
   document.getElementById('matchCount').textContent = matched ? `${matched} shown` : '';
 }
