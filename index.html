@@ -6738,6 +6738,7 @@ function init(){
 function renderFilter(){
   const themes = [...new Set(getDocs().map(d=>d.theme))];
   const bar = document.getElementById('filterBar');
+  bar.innerHTML = '';   // Clear first — avoid duplicate buttons on re-render (cloud re-render / onSnapshot)
   themes.forEach(t=>{
     const b = document.createElement('button');
     const n = getDocs().filter(d=>d.theme===t).length;
