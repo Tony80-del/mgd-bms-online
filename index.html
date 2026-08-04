@@ -7188,11 +7188,7 @@ function showHistoryDetail(idx){
   Object.keys(groups).forEach(src=>{
     html += `<div class="src-g"><div class="src-label">📂 ${src}</div>`;
     groups[src].forEach(d=>{
-      if(d.link){
-        html += `<div class="src-item"><span class="dl-icon">⬇️</span><span class="dl-desc">${d.desc}</span><a class="dl-link" href="${d.link}" target="_blank" rel="noopener" title="Download: ${d.desc}">${d.link}</a></div>`;
-      } else {
-        html += `<div class="src-item"><span class="dl-icon">📄</span><span class="dl-desc">${d.desc}</span><span class="dl-link"></span></div>`;
-      }
+      html += `<div class="src-item"><span class="dl-icon">📄</span><span class="dl-desc">${d.desc}</span></div>`;
     });
     html += `</div>`;
   });
