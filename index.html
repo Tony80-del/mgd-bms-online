@@ -6270,7 +6270,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     </div>
 
     <div class="panel">
-      <div class="panel-h" onclick="dcToggleHistory()" style="cursor:pointer;user-select:none;"><span id="historyArrow">▶</span>&nbsp;📋 CHECK OUT RECORDED <span id="historyCount" style="margin-left:auto;font-weight:400;font-size:11px;color:#5f7296;"></span></div>
+      <div class="panel-h" onclick="dcToggleHistory()" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;"><span id="historyArrow">▶</span><span>📋 CHECK OUT RECORDED</span><span id="historyCount" style="margin-left:auto;font-weight:400;font-size:11px;color:#5f7296;flex-shrink:0;"></span><button onclick="event.stopPropagation();dcClearHistory()" style="background:none;border:0;color:#5f7296;cursor:pointer;font-size:13px;padding:0 2px;line-height:1;" title="Clear history">🗑</button></div>
       <div class="panel-b" id="historyList" style="display:none;"></div>
     </div>
   </div>
@@ -6939,6 +6939,14 @@ function clearCart(){
   renderList(); renderCart(); renderStats(); saveState();
 }
 
+function clearHistory(){
+  if(!pickHistory.length) return;
+  if(!confirm('Clear all CHECK OUT RECORDED history?')) return;
+  pickHistory = [];
+  showToast({ title:'🗑 History cleared', body:'All checkout records removed', cls:'clear' });
+  renderHistory(); renderStats(); saveState();
+}
+
 function renderCart(){
   const el = document.getElementById('cartList');
   document.getElementById('cartCount').textContent = cart.length;
@@ -7206,6 +7214,7 @@ window.dcDoCheckout = doCheckout;
 window.dcToggleHistory = toggleHistory;
 window.dcOpenAdmin = openAdmin;
 window.dcCloseModal = closeModal;
+window.dcClearHistory = clearHistory;
 window.dcConfirmPin = confirmPin;
 window.dcReleaseUser = releaseUser;
 window.dcSetFilter = setFilter;
