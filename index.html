@@ -6386,34 +6386,43 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
 // ═══════════════════════════════════════════════════════
 function getDocs(){
   var out = [];
+  // Prefer in-memory docSECTIONS (real-time, includes latest Document link/dept changes)
+  var tree = null;
   try{
-    var raw = localStorage.getItem('bms_doc_data');
-    var tree = raw ? JSON.parse(raw) : null;
-    if(tree && tree.length){
-      var cid = 0;
-      tree.forEach(function(sec){
-        if(!sec || !sec.subs) return;
-        sec.subs.forEach(function(sub){
-          if(!sub || !sub.items) return;
-          sub.items.forEach(function(it){
-            if(!it) return;
-            // Filter: only fully confirmed docs (collected ✓ + location set)
-            if(!it.collected || !it.location) return;
-            cid++;
-            out.push({
-              id: 'r' + cid,
-              theme: sec.label || sec.id || 'OTHER',
-              subSection: sub.label || 'General',
-              desc: it.desc || '',
-              loc: it.location || '',
-              source: it.dept || (it.location ? 'Local' : ''),
-              link: it.location || ''
-            });
+    if(typeof docSECTIONS !== 'undefined' && docSECTIONS && docSECTIONS.length){
+      tree = docSECTIONS;
+    }
+  }catch(e){}
+  if(!tree){
+    try{
+      var raw = localStorage.getItem('bms_doc_data');
+      tree = raw ? JSON.parse(raw) : null;
+    }catch(e){}
+  }
+  if(tree && tree.length){
+    var cid = 0;
+    tree.forEach(function(sec){
+      if(!sec || !sec.subs) return;
+      sec.subs.forEach(function(sub){
+        if(!sub || !sub.items) return;
+        sub.items.forEach(function(it){
+          if(!it) return;
+          // Filter: only fully confirmed docs (collected ✓ + location set)
+          if(!it.collected || !it.location) return;
+          cid++;
+          out.push({
+            id: 'r' + cid,
+            theme: sec.label || sec.id || 'OTHER',
+            subSection: sub.label || 'General',
+            desc: it.desc || '',
+            loc: it.location || '',
+            source: it.dept || (it.location ? 'Local' : ''),
+            link: it.location || ''
           });
         });
       });
-    }
-  }catch(e){ console.warn('[dc] getDocs failed:', e); }
+    });
+  }
   if(!out.length){
     // Fallback: empty state message handled by renderList
   }
