@@ -5396,7 +5396,9 @@ let docCurrentFilter = 'all';
 let docCurrentSection = '';
 let docEditingLocId = null;
 
-// ── Inline edit: Dept ──
+// ── Inline edit: Document link (4 fixed options) ──
+const DOC_LINK_OPTIONS = ['Google Link','One Drive','Drop Box','Local Server'];
+
 // Sync a docAllItems field back to the docSECTIONS source tree
 function docSyncSource(id, field, value){
   docSECTIONS.forEach(sec => {
@@ -5412,26 +5414,35 @@ function docSyncSource(id, field, value){
 
 function docEditDept(id, el){
   const cur = el.textContent === '—' ? '' : el.textContent;
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.value = cur;
-  input.style.width = Math.max(70, cur.length * 7) + 'px';
+  // Build a small dropdown in place
+  const sel = document.createElement('select');
+  sel.style.width = '150px';
+  sel.style.fontSize = '12px';
+  sel.style.padding = '2px 4px';
+  // Keep current value as first option if it's not in the fixed list
+  const opts = DOC_LINK_OPTIONS.slice();
+  if(cur && !opts.includes(cur)) opts.unshift(cur);
+  opts.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o;
+    opt.textContent = o;
+    if(o === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
   el.textContent = '';
-  el.appendChild(input);
-  input.focus();
-  input.select();
-  const done = () => {
-    const val = input.value.trim();
+  el.appendChild(sel);
+  sel.focus();
+  const done = (val) => {
     const item = docAllItems.find(i => i.id === id);
     if(item){ item.dept = val; }
     docSyncSource(id, 'dept', val);
     el.textContent = val || '—';
     docPersist();
   };
-  input.onblur = done;
-  input.onkeydown = (e) => {
-    if(e.key === 'Enter'){ e.preventDefault(); input.blur(); }
-    if(e.key === 'Escape'){ input.value = cur; input.blur(); }
+  sel.onchange = () => { const v = sel.value; done(v); };
+  sel.onblur = () => { if(el.querySelector('select')){ const v = sel.value; done(v); } };
+  sel.onkeydown = (e) => {
+    if(e.key === 'Escape'){ el.textContent = cur || '—'; }
   };
 };
 
