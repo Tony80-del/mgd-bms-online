@@ -6682,6 +6682,8 @@ function openAdmin(){
   document.getElementById('adminFirstPin').style.display='none';
   document.getElementById('adminAuth').style.display='none';
   document.getElementById('adminManage').style.display='none';
+  // Restore default admin auth buttons (in case clearHistory changed them)
+  document.querySelector('#adminAuth .modal-btns').innerHTML = '<button class="btn btn-ghost" onclick="dcCloseModal(\'adminModal\')">Cancel</button><button class="btn btn-primary" onclick="dcAdminUnlock()">Unlock</button>';
   // Phase 1 — first run: admin PIN not set yet → FORCE setup
   if(!tony || !tony.pin){
     document.getElementById('adminModalTitle').textContent = '⚙️ Set Admin PIN (Required)';
@@ -6940,11 +6942,37 @@ function clearCart(){
 }
 
 function clearHistory(){
-  if(!pickHistory.length) return;
-  if(!confirm('Clear all CHECK OUT RECORDED history?')) return;
-  pickHistory = [];
-  showToast({ title:'🗑 History cleared', body:'All checkout records removed', cls:'clear' });
-  renderHistory(); renderStats(); saveState();
+  // Require admin PIN verification first
+  const tony = members.find(m=>m.role==='admin');
+  if(!tony || !tony.pin){
+    showToast({ title:'⚠️ No admin PIN set', body:'Set admin PIN in ⚙️ Settings first.', cls:'warn' });
+    return;
+  }
+  // Show admin PIN auth modal (reuse adminAuth panel with custom title/buttons)
+  document.getElementById('adminPinInput').value='';
+  document.getElementById('adminPinErr').textContent='';
+  document.getElementById('adminFirstPin').style.display='none';
+  document.getElementById('adminManage').style.display='none';
+  document.getElementById('adminAuth').style.display='block';
+  document.getElementById('adminModalTitle').textContent = '🗑 Clear CHECK OUT RECORDED';
+  document.querySelector('#adminAuth .modal-btns').innerHTML = '<button class="btn btn-ghost" onclick="dcCloseModal(\'adminModal\')">Cancel</button><button class="btn btn-primary" onclick="dcAuthClearHistory()">Clear History</button>';
+  openModal('adminModal');
+  setTimeout(()=> document.getElementById('adminPinInput').focus(), 60);
+}
+
+function authClearHistory(){
+  const tony = members.find(m=>m.role==='admin');
+  if(document.getElementById('adminPinInput').value === tony.pin){
+    closeModal('adminModal');
+    // PIN verified — execute actual clear
+    pickHistory = [];
+    showToast({ title:'🗑 History cleared', body:'All checkout records removed', cls:'clear' });
+    renderHistory(); renderStats(); saveState();
+  } else {
+    document.getElementById('adminPinErr').textContent = '✕ Wrong admin PIN.';
+    document.getElementById('adminPinInput').value='';
+    document.getElementById('adminPinInput').focus();
+  }
 }
 
 function renderCart(){
@@ -7214,6 +7242,7 @@ window.dcDoCheckout = doCheckout;
 window.dcToggleHistory = toggleHistory;
 window.dcOpenAdmin = openAdmin;
 window.dcCloseModal = closeModal;
+window.dcAuthClearHistory = authClearHistory;
 window.dcClearHistory = clearHistory;
 window.dcConfirmPin = confirmPin;
 window.dcReleaseUser = releaseUser;
