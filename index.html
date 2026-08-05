@@ -7169,13 +7169,14 @@ function openCheckoutModal(){
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('checkoutModalTitle').textContent = '📦 Confirm Checkout';
   document.getElementById('checkoutModalBtns').innerHTML = '<button class="btn btn-ghost" onclick="dcCancelCheckout()">Cancel</button><button class="btn btn-primary" onclick="dcConfirmCheckout()">Confirm</button>';
-  // Group cart items by THEME. Each theme gets ONE folder-name input (hand-written).
+  // Group cart items by THEME for display (all files go into ONE global folder).
   const groups={};
   cart.forEach((c,i)=>{ const k=c.theme||'Other'; (groups[k]=groups[k]||[]).push({c,i}); });
   let html = `<div class="ok-banner">✅ CHECKOUT CONFIRM — ${today} · Collector: ${who} · ${cart.length} items</div>
-     <div class="co-fname-hint">✏️ <b>Type file name</b> per theme (use <b>/</b> for folders, e.g. <b>ISO_ABC Project Folder name</b>). Leave blank to use the theme name. All links of that theme go inside this folder.</div>`;
+     <div class="co-fname-hint">✏️ <b>Type ONE folder name</b> — all ${cart.length} files (Google Drive + OneDrive) will be combined into this folder, e.g. <b>abc</b>. Leave blank to keep each theme's name.</div>
+     <div class="co-group"><div class="co-group-head"><span class="co-theme">📂 FOLDER</span><input class="co-fname" id="globalFolderName" value="" placeholder="Type folder name for all files (e.g. abc)" maxlength="80"></div></div>`;
   Object.keys(groups).forEach((k,gi)=>{
-    html += `<div class="co-group"><div class="co-group-head"><span class="co-theme">${gi+1}. ${k}</span><input class="co-fname" data-theme="${k}" value="" placeholder="Type file name (use / for folders)" maxlength="80"></div>`;
+    html += `<div class="co-group"><div class="co-group-head"><span class="co-theme">${gi+1}. ${k}</span></div>`;
     groups[k].forEach(({c,i})=>{
       html += `<div class="co-row"><span class="co-src">${c.source||''}</span><span class="co-desc">${c.desc||''}</span></div>`;
     });
@@ -7188,16 +7189,9 @@ function openCheckoutModal(){
 function confirmCheckout(){
   const who = verifiedUser;
   const snapshot = cart.slice();
-  // Collect the hand-written FOLDER name per theme (blank → keep theme name).
-  const folderNames={};
-  document.querySelectorAll('#checkoutModal .co-fname').forEach(inp=>{
-    const t = inp.getAttribute('data-theme');
-    if(t){
-      const v = (inp.value||'').trim();
-      if(v) folderNames[t] = v;
-    }
-  });
-  snapshot.forEach(c=>{ c.fname = folderNames[c.theme||'Other'] || ''; });
+  // ONE global folder name applies to ALL files (blank → each keeps its theme name).
+  const globalName = (document.getElementById('globalFolderName') ? document.getElementById('globalFolderName').value : '').trim();
+  snapshot.forEach(c=>{ c.fname = globalName || ''; });
   const now = new Date();
   const ds = now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5);
   pickHistory.unshift({date:ds, who, docs: snapshot.map(c=>c.desc).join(', '), items: snapshot.map(c=>({desc:c.desc, source:c.source, link:c.link, loc:c.loc, fname:c.fname || c.theme || 'Other'}))});
@@ -7215,15 +7209,15 @@ let dlAutoDownloading = false;          // true while auto-download is running
 function openDownloadModal(items){
   dlItems = items.slice();
   dlAutoDownloading = false;
-  // Group by THEME; each theme is ONE folder. Folder label = hand-written folder name (or theme).
+  // Group by FOLDER: if user typed a global folder name (abc), all files go under it; otherwise group by theme.
   const groups={};
-  items.forEach(c=>{ const k = c.theme || 'Other'; (groups[k]=groups[k]||[]).push(c); });
+  items.forEach(c=>{ const k = c.fname || c.theme || 'Other'; (groups[k]=groups[k]||[]).push(c); });
   const title = document.getElementById('downloadModalTitle');
   const body = document.getElementById('downloadModalBody');
   const btns = document.getElementById('downloadModalBtns');
   title.textContent = '📥 Download Files';
-  let h = `<div class="result-hint">🔗 Click a link to download the file directly. Each theme is a folder — all its links are listed inside.</div>`;
-  h += `<h3>📡 DOWNLOAD LIST · by theme</h3>`;
+  let h = `<div class="result-hint">🔗 Click a link to download the file directly. All files share ONE folder name if you typed it (e.g. abc); otherwise they are grouped by theme.</div>`;
+  h += `<h3>📡 DOWNLOAD LIST · by folder</h3>`;
   Object.keys(groups).forEach(k=>{
     const folder = groups[k][0].fname || k;
     h += `<div class="src-g"><div class="src-label">📂 ${folder}</div>`;
@@ -7242,6 +7236,13 @@ function toDlUrl(u){
   // Convert a Google Drive share link to a direct download URL if possible.
   const m = u && u.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
   if(m) return 'https://drive.google.com/uc?export=download&id='+m[1];
+  // OneDrive: append download=1 so the share page triggers a download instead of opening the viewer.
+  if(u && /1drv\.ms|onedrive\.live\.com|onedrive\.com/.test(u)){
+    const sep = u.indexOf('?') > -1 ? '&' : '?';
+    // Strip any existing download param, then add our own.
+    let base = u.replace(/[?&]download=1/g, '');
+    return base + sep + 'download=1';
+  }
   return u;
 }
 
@@ -7250,7 +7251,7 @@ function confirmDownload(){
   dlAutoDownloading = true;
   const items = dlItems.slice();
   let idx = 0;
-  showToast({ title:'📥 Download started', body:`Downloading ${items.length} file(s)...`, cls:'' });
+  showToast({ title:'📥 Download started', body:`Downloading ${items.length} file(s)... Google Drive downloads automatically; OneDrive links may open a page — click Download there if needed.`, cls:'' });
   function next(){
     if(idx >= items.length){
       dlAutoDownloading = false;
