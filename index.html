@@ -6893,7 +6893,7 @@ function renderList(){
         matched++;
         const inCart = cart.some(c=>c.id===d.id);
         html += `<div class="doc-row">
-          <button class="add ${inCart?'added':''}" onclick="dcToggleCart('${d.id}')'>${inCart?'✓':'+'}</button>
+          <button class="add ${inCart?'added':''}" onclick="dcToggleCart('${d.id}')">${inCart?'✓':'+'}</button>
           <span class="dd">${d.desc}</span><span class="dl">📍 ${d.loc}</span><span class="ds">${d.source}</span>
         </div>`;
       });
