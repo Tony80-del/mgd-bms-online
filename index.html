@@ -2416,12 +2416,15 @@ function exportSummaryPDF(){
 
   // ===== Card 4: 营收目标 / Revenue Target (progress bars) =====
   var TARGET=1400, BUSINESS=250, ACTUAL=0, projectTotal=0;
+  // 活跃管道口径: 仅 Bidding + Potential (与 Card 6 / 季度 Active Pipeline 一致, 排除 Tracking/Cancelled/Won/inactive)
+  var ACTIVE_STAGE_KEYWORDS=[['Bidding','投标中'],['Potential','潜在']];
   (data.bids||[]).forEach(function(b){
     if(b.inactive) return;
     var num=parseFloat(String(b.estimatedValue||'').replace(/,/g,''))||0;
-    projectTotal+=num;
-    var sc=b.stageContent||'';
-    if(sc.indexOf('中标')>-1||sc.indexOf('Won')>-1) ACTUAL+=num;
+    var sc=String(b.stageContent||'').toLowerCase();
+    var inActive=ACTIVE_STAGE_KEYWORDS.some(function(kw){return kw.some(function(x){return sc.indexOf(x.toLowerCase())!==-1;});});
+    if(inActive) projectTotal+=num;
+    if(sc.indexOf('中标')>-1||sc.indexOf('won')>-1) ACTUAL+=num;
   });
   ACTUAL=ACTUAL/1e9; projectTotal=projectTotal/1e9;
   var maxVal=Math.max(TARGET,BUSINESS,projectTotal,ACTUAL);
