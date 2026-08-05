@@ -2749,10 +2749,14 @@ function renderWin1Chart(){
   });
   ACTUAL=ACTUAL/1e9; // VND → B
 
-  // 汇总所有投标项目的预估金额(排除已取消),与 updateStats 逻辑一致
+  // 汇总活跃管道项目预估金额(仅 Bidding + Potential, 排除 Tracking/Cancelled/Won 及其他), 与 Card 6 / 季度 Active Pipeline 口径一致
   var projectTotal=0;
+  var ACTIVE_STAGE_KEYWORDS=[['Bidding','投标中'],['Potential','潜在']];
   data.bids.forEach(function(b){
     if(b.inactive) return; // 已取消项目不计入
+    var sc=String(b.stageContent||'').toLowerCase();
+    var inActive=ACTIVE_STAGE_KEYWORDS.some(function(kw){return kw.some(function(x){return sc.indexOf(x.toLowerCase())!==-1;});});
+    if(!inActive) return; // 仅统计 Bidding + Potential 活跃管道
     var num=parseFloat(String(b.estimatedValue).replace(/,/g,''));
     if(!isNaN(num)) projectTotal+=num;
   });
