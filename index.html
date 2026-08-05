@@ -247,9 +247,9 @@ body.logged-out>*:not(#login-overlay){display:none!important;}
 #docstorageContainer .pie-section h3 {color:#1E3A5F;font-size:13px;font-weight:700;margin-bottom:8px}
 #docstorageContainer .pie-row {display:flex;align-items:center;gap:8px}
 #docstorageContainer .pie-canvas-wrap {position:relative;width:160px;height:160px;flex-shrink:0}
-#docstorageContainer .pie-center-text {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:19px;font-weight:700;color:#1E3A5F;white-space:nowrap}
+#docstorageContainer .pie-center-text {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:19px;font-weight:700;color:#0a1628;white-space:nowrap}
 #docstorageContainer .pie-legend {display:flex;flex-direction:column;gap:4px}
-#docstorageContainer .pie-legend .leg-item {display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600}
+#docstorageContainer .pie-legend .leg-item {display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:#111}
 #docstorageContainer .pie-legend .leg-dot {width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
 /* ── Master Tracker Table ── */
@@ -5760,7 +5760,7 @@ function docRenderPieChart(){
   document.getElementById('pieLegend').innerHTML = `
     <div class="leg-item"><span class="leg-dot" style="background:#28a745"></span> Recorded: <strong>${rec}</strong></div>
     <div class="leg-item"><span class="leg-dot" style="background:#e0e0e0"></span> Pending: <strong>${pen}</strong></div>
-    <div class="leg-item" style="color:#888">Completion: <strong>${pct}%</strong></div>
+    <div class="leg-item" style="color:#555">Completion: <strong>${pct}%</strong></div>
   `;
 }
 function docRenderProgress(){
