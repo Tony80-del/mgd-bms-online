@@ -2888,8 +2888,8 @@ function updateStats(){
     const el=document.getElementById(k);
     if(el) el.textContent=c[k];
   });
-  // 计算预估工程金额总额(仅统计活跃管道: Bidding + Tracking + Potential,排除已取消及其他阶段)
-  const ACTIVE_STAGE_KEYWORDS = [['Bidding','投标中'],['Following','跟踪'],['Potential','潜在']];
+  // 计算预估工程金额总额(仅统计活跃管道: Bidding + Potential,排除 Tracking/Cancelled 及其他阶段)
+  const ACTIVE_STAGE_KEYWORDS = [['Bidding','投标中'],['Potential','潜在']];
   let totalVal = 0;
   data.bids.forEach(b=>{
     if(b.inactive) return; // 已取消项目不计入
