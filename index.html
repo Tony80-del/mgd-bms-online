@@ -2766,24 +2766,38 @@ function renderWin1Chart(){
   var container=document.getElementById('win1Chart');
   if(!container)return;
 
-  // 双语标签函数
-  function getWin1Label(key, zhVal, enVal){
-    var currentVal=lang==='en'?enVal:zhVal;
-    return '<span onclick="toggleWin1Lang()" style="cursor:pointer;text-decoration:underline dotted;" title="点击切换语言">'+currentVal+'</span>';
+  // RPM 风格仪表盘: 量程 0 → TARGET(1400B), 指针指向 ACTUAL(已中标金额)
+  function rpmGauge(value,maxVal){
+    var cx=130,cy=132,r=102;
+    function pt(a,rr){var ra=a*Math.PI/180;return [cx+rr*Math.cos(ra),cy-rr*Math.sin(ra)];}
+    function arc(a1,a2){var p1=pt(a1,r),p2=pt(a2,r);return 'M'+p1[0].toFixed(1)+','+p1[1].toFixed(1)+' A'+r+','+r+' 0 0 1 '+p2[0].toFixed(1)+','+p2[1].toFixed(1);}
+    // 彩色分段: 绿 0-700 / 黄 700-1100 / 红 1100-1400
+    var segs=[[180,95,'#22c55e'],[95,45,'#eab308'],[45,0,'#ef4444']];
+    var segHtml='';
+    segs.forEach(function(g){segHtml+='<path d="'+arc(g[0],g[1])+'" stroke="'+g[2]+'" stroke-width="15" fill="none" stroke-linecap="round" opacity="0.85"/>';});
+    // 刻度线 + 数字
+    var ticks='';
+    [0,350,700,1050,1400].forEach(function(v){
+      var a=180-(v/maxVal*180);
+      var p1=pt(a,r-3),p2=pt(a,r-16),lp=pt(a,r-30);
+      ticks+='<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>'+
+             '<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" fill="#9ca3af" font-size="10" text-anchor="middle">'+v+'</text>';
+    });
+    // 指针
+    var val=Math.min(value,maxVal);
+    var ang=180-(val/maxVal*180);
+    var tp=pt(ang,r-24);
+    var needle='<line x1="'+cx+'" y1="'+cy+'" x2="'+tp[0].toFixed(1)+'" y2="'+tp[1].toFixed(1)+'" stroke="#f87171" stroke-width="4" stroke-linecap="round"/>'+
+               '<circle cx="'+cx+'" cy="'+cy+'" r="9" fill="#f87171" stroke="#7f1d1d" stroke-width="2"/>';
+    return '<svg viewBox="0 0 260 150" width="100%" style="max-width:280px;display:block;margin:0 auto;">'+
+      '<path d="'+arc(180,0)+'" stroke="rgba(148,163,184,0.18)" stroke-width="15" fill="none"/>'+
+      segHtml+ticks+needle+'</svg>';
   }
+  var gaugeHtml='<div style="text-align:center;margin-bottom:6px;">'+rpmGauge(ACTUAL,TARGET)+
+    '<div style="font-size:14px;font-weight:700;color:'+(ACTUAL>0?'#f87171':'#9ca3af')+';">'+ACTUAL.toFixed(0)+'B VND <span style="font-size:10px;font-weight:400;color:var(--muted);">('+getWin1Label('win1t4','已中标','Won')+')</span></div>'+
+    '<div style="font-size:10px;color:var(--muted);">Target: '+TARGET+'B VND</div></div>';
 
-  function barRow(label,val,color,bg){
-    var pct=maxVal>0?(val/maxVal*100):0;
-    return '<div class="flex items-center gap-2" style="font-size:11px;">'+
-      '<div style="width:96px;min-width:96px;text-align:right;color:var(--muted);white-space:nowrap;">'+label+'</div>'+
-      '<div style="flex:1;background:var(--bg2);border-radius:4px;height:14px;overflow:hidden;">'+
-      '<div style="width:'+pct.toFixed(1)+'%;height:100%;background:'+bg+';border-radius:4px;transition:width .5s;min-width:3px;"></div>'+
-      '</div>'+
-      '<div style="width:52px;text-align:right;font-weight:600;color:'+color+';white-space:nowrap;font-size:10px;">'+val.toFixed(0)+'B VND</div>'+
-      '</div>';
-  }
-
-  var html=
+  var html=gaugeHtml+
     barRow(getWin1Label('win1t1','营收目标 2026','Revenue 2026'),TARGET,'#60a5fa','#1e40af')+
     '<div style="height:4px;"></div>'+
     barRow(getWin1Label('win1t2','业务营收目标','Sale Dept revenue'),BUSINESS,'#34d399','#065f46')+
