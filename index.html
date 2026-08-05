@@ -439,7 +439,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div id="bs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
       <div class="sc ai" style="animation-delay:.1s"><div class="text-[var(--muted)] text-sm mb-1" id="s1">项目信息 / Project Info</div><div class="text-2xl font-bold text-blue-400" id="c1">0</div></div>
       <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s2">投标中 / Bidding</div><div class="text-2xl font-bold text-amber-400" id="c2">0</div></div>
-      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s3">评审中 / Reviewing</div><div class="text-2xl font-bold text-purple-400" id="c3">0</div></div>
+      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s3">潜在 / Potential</div><div class="text-2xl font-bold text-purple-400" id="c3">0</div></div>
       <div class="sc ai" style="animation-delay:.4s"><div class="text-[var(--muted)] text-sm mb-1" id="s4">跟踪 / Following</div><div class="text-2xl font-bold text-emerald-400" id="c4">0</div></div>
       <div class="sc ai" style="animation-delay:.5s"><div class="text-[var(--muted)] text-sm mb-1" id="s5">分类统计 / Category</div><div class="flex gap-3 mt-1"><span class="text-lg font-bold text-emerald-400">A: <span id="ca">0</span></span><span class="text-lg font-bold text-amber-400">B: <span id="cba">0</span></span></div></div>
       <div class="sc ai" style="animation-delay:.6s"><div class="text-[var(--muted)] text-sm mb-1" id="s6">预估总额 / Est. Total Value</div><div class="text-2xl font-bold text-cyan-400" id="totalValue">0</div></div>
@@ -2863,14 +2863,15 @@ function renderJuneChambers(){
 
 function updateStats(){
   const sm={
-    '评审中':'c3','评审中 / Reviewing':'c3','Reviewing':'c3','Reviewing / 评审中':'c3',
+    '潜在':'c3','潜在 / Potential':'c3','Potential':'c3','Potential / 潜在':'c3',
     '中标':'c5','中标 / Won':'c5','Won':'c5','Won / 中标':'c5',
     '未中标':'c5','未中标 / Lost':'c5','Lost':'c5','Lost / 未中标':'c5'
   };
   // 阶段内容映射(基于 stageContent,非投标阶段 stage)
   const scm={
     '投标中':'c2','投标中 / Bidding':'c2','Bidding':'c2','Bidding / 投标中':'c2',
-    '跟踪':'c4','跟踪 / Following':'c4','Following':'c4','Following / 跟踪':'c4'
+    '跟踪':'c4','跟踪 / Following':'c4','Following':'c4','Following / 跟踪':'c4',
+    '潜在':'c3','潜在 / Potential':'c3','Potential':'c3','Potential / 潜在':'c3'
   };
   const c={c1:0,c2:0,c3:0,c4:0,c5:0,ca:0,cba:0};
   // 项目统计:跟随 Summary 页面 sumBidsTotal
