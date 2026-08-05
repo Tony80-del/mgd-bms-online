@@ -7216,7 +7216,7 @@ function openDownloadModal(items){
   const body = document.getElementById('downloadModalBody');
   const btns = document.getElementById('downloadModalBtns');
   title.textContent = '📥 Download Files';
-  let h = `<div class="result-hint">🔗 Click a link to download the file directly. All files share ONE folder name if you typed it (e.g. abc); otherwise they are grouped by theme.</div>`;
+  let h = `<div class="result-hint">🔗 <b>Google Drive</b> files auto-download when you press Auto Download. <b>OneDrive</b> links need your Microsoft sign-in — click each link to download them manually (then press Auto Download to bundle the Google Drive files).</div>`;
   h += `<h3>📡 DOWNLOAD LIST · by folder</h3>`;
   Object.keys(groups).forEach(k=>{
     const folder = groups[k][0].fname || k;
@@ -7250,15 +7250,27 @@ function confirmDownload(){
   if(dlAutoDownloading || !dlItems.length) return;
   dlAutoDownloading = true;
   const items = dlItems.slice();
+  // 方案A：只自动下载 Google Drive 文件；OneDrive 链接需用户逐个点开下载（微软会话验证，无法绕过）
+  const odRe = /1drv\.ms|onedrive\.live\.com|onedrive\.com/;
+  const autoItems = items.filter(d=>!odRe.test(d.link||''));
+  const odItems = items.filter(d=>odRe.test(d.link||''));
   let idx = 0;
-  showToast({ title:'📥 Download started', body:`Downloading ${items.length} file(s)... Google Drive downloads automatically; OneDrive links may open a page — click Download there if needed.`, cls:'' });
+  if(autoItems.length){
+    showToast({ title:'📥 Auto-downloading Google Drive files…', body:`${autoItems.length} GD file(s) downloading now; OneDrive file(s) — click links to download manually.`, cls:'' });
+  } else {
+    showToast({ title:'📥 No Google Drive files', body:`${odItems.length} OneDrive file(s) — click each link above to download.`, cls:'' });
+  }
   function next(){
-    if(idx >= items.length){
+    if(idx >= autoItems.length){
       dlAutoDownloading = false;
-      showToast({ title:'✅ Done', body:`Saved ${items.length} file(s) to your downloads.`, cls:'' });
+      if(odItems.length){
+        showToast({ title:'✅ GD files saved', body:`${autoItems.length} Google Drive file(s) saved · ${odItems.length} OneDrive file(s): click the 🔗 links in the list to download them.`, cls:'' });
+      } else {
+        showToast({ title:'✅ Done', body:`Saved ${autoItems.length} file(s) to your downloads.`, cls:'' });
+      }
       return;
     }
-    const d = items[idx];
+    const d = autoItems[idx];
     const u = toDlUrl(d.link);
     try{
       // Google Drive blocks fetch() from browsers (net::ERR_FAILED), so we
@@ -7275,7 +7287,7 @@ function confirmDownload(){
       a.click();
       a.remove();
       idx++;
-      showToast({ title:'📥 Downloading', body:`(${idx}/${items.length}) ${d.desc || d.link}`, cls:'' });
+      showToast({ title:'📥 Downloading', body:`(${idx}/${autoItems.length}) ${d.desc || d.link}`, cls:'' });
     }catch(e){
       console.error('Auto-download click failed:', d.desc, e);
       idx++;
