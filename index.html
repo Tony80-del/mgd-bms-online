@@ -439,7 +439,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div id="bs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
       <div class="sc ai" style="animation-delay:.1s"><div class="text-[var(--muted)] text-sm mb-1" id="s1">项目信息 / Project Info</div><div class="text-2xl font-bold text-blue-400" id="c1">0</div></div>
       <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s2">投标中 / Bidding</div><div class="text-2xl font-bold text-amber-400" id="c2">0</div></div>
-      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s3">潜在 / Potential</div><div class="text-2xl font-bold text-purple-400" id="c3">0</div></div>
+      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s3c">潜在 / Potential</div><div class="text-2xl font-bold text-purple-400" id="c3">0</div></div>
       <div class="sc ai" style="animation-delay:.4s"><div class="text-[var(--muted)] text-sm mb-1" id="s4">跟踪 / Following</div><div class="text-2xl font-bold text-emerald-400" id="c4">0</div></div>
       <div class="sc ai" style="animation-delay:.5s"><div class="text-[var(--muted)] text-sm mb-1" id="s5">分类统计 / Category</div><div class="flex gap-3 mt-1"><span class="text-lg font-bold text-emerald-400">A: <span id="ca">0</span></span><span class="text-lg font-bold text-amber-400">B: <span id="cba">0</span></span></div></div>
       <div class="sc ai" style="animation-delay:.6s"><div class="text-[var(--muted)] text-sm mb-1" id="s6">预估总额 / Est. Total Value</div><div class="text-2xl font-bold text-cyan-400" id="totalValue">0</div></div>
@@ -975,7 +975,7 @@ function updateUI(){
   // 安全防护: 确保 mod 是有效值
   const validMods=['summary','bids','customers','projects','chambers','quarterly','plan2026','weeklyreport','docstorage','docscollect'];
   const safeMod=validMods.includes(mod)?mod:'summary';
-  ['ttl','sub','nd','nb','nc','ni','nch','nquarterly','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s3','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
+  ['ttl','sub','nd','nb','nc','ni','nch','nquarterly','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
   document.getElementById('si').placeholder=t('sp');
   const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc'],docscollect:['ptDC','psDC']};
   document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
