@@ -6100,8 +6100,9 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
     border-bottom: 1px solid #16223a;
   }#dcApp .theme-row:hover{ background: #16233c; }#dcApp .theme-row .arrow{ transition: transform .2s; color: #f59e0b; font-size: 11px; }#dcApp .theme-row .arrow.open{ transform: rotate(90deg); }#dcApp .theme-row .tc{ margin-left: auto; font-weight: 400; font-size: 11px; color: #5f7296; background: #0f1b30; padding: 2px 10px; border-radius: 10px; }#dcApp .subsec-title{
     padding: 8px 16px 4px 32px; font-size: 12px; font-weight: 500; color: #6d81a3;
-    letter-spacing: .4px; text-transform: uppercase;
-  }#dcApp .doc-row{
+    letter-spacing: .4px; text-transform: uppercase; cursor: pointer; user-select: none;
+    display: flex; align-items: center; gap: 6px;
+  }#dcApp .subsec-title:hover{ color: #f59e0b; }#dcApp .subsec-title .arrow{ transition: transform .2s; color: #f59e0b; font-size: 9px; }#dcApp .subsec-title .arrow.open{ transform: rotate(90deg); }#dcApp .subsec-title .sub-cnt{ margin-left: auto; font-size: 10px; color: #5f7296; background: #0f1b30; padding: 1px 8px; border-radius: 8px; text-transform: none; }#dcApp .doc-row{
     display: flex; align-items: center; gap: 10px; padding: 7px 16px 7px 32px;
     font-size: 13px; border-radius: 6px; transition: background .15s; margin: 0 8px;
     min-width: 0; overflow: hidden;
@@ -6882,12 +6883,17 @@ function renderList(){
     subs.forEach(sub=>{
       const subDocs = tdocs.filter(d=>d.subSection===sub && matchesQuery(d));
       if(!subDocs.length) return;
-      html += `<div class="subsec-title">📁 ${sub}</div>`;
+      const subKey = theme+'::'+sub;
+      const subOpen = collapsedSub[subKey]!==false;
+      html += `<div class="subsec-title" onclick="event.stopPropagation();dcToggleSub('${theme}','${sub}')">
+        <span class="arrow ${subOpen?'open':''}">▶</span>📁 ${sub}
+        <span class="sub-cnt">${subDocs.length}</span></div>`;
+      if(!subOpen) return;
       subDocs.forEach(d=>{
         matched++;
         const inCart = cart.some(c=>c.id===d.id);
         html += `<div class="doc-row">
-          <button class="add ${inCart?'added':''}" onclick="dcToggleCart('${d.id}')">${inCart?'✓':'+'}</button>
+          <button class="add ${inCart?'added':''}" onclick="dcToggleCart('${d.id}')'>${inCart?'✓':'+'}</button>
           <span class="dd">${d.desc}</span><span class="dl">📍 ${d.loc}</span><span class="ds">${d.source}</span>
         </div>`;
       });
@@ -6899,6 +6905,13 @@ function renderList(){
 }
 
 function toggleTheme(t){ collapsed[t] = collapsed[t]===false ? true : false; renderList(); }
+
+const collapsedSub = {};
+function toggleSub(theme, sub){
+  const k = theme+'::'+sub;
+  collapsedSub[k] = collapsedSub[k]===false ? true : false;
+  renderList();
+}
 
 // ═══════════════════════════════════════════════════════
 //  CART  (gated by PIN verification)
@@ -7246,6 +7259,7 @@ window.dcSetFilter = setFilter;
 window.dcClearQuery = clearQuery;
 window.dcSetQuery = setQuery;
 window.dcToggleTheme = toggleTheme;
+window.dcToggleSub = toggleSub;
 window.dcAddMember = addMember;
 window.dcRemoveMember = removeMember;
 window.dcSetMemberPin = setMemberPin;
