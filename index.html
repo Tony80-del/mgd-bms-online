@@ -2811,6 +2811,23 @@ function renderWin1Chart(){
   }
 
   container.innerHTML=html;
+
+  // 双语标签函数
+  function getWin1Label(key, zhVal, enVal){
+    var currentVal=lang==='en'?enVal:zhVal;
+    return '<span onclick="toggleWin1Lang()" style="cursor:pointer;text-decoration:underline dotted;" title="点击切换语言">'+currentVal+'</span>';
+  }
+
+  function barRow(label,val,color,bg){
+    var pct=maxVal>0?(val/maxVal*100):0;
+    return '<div class="flex items-center gap-2" style="font-size:11px;">'+
+      '<div style="width:96px;min-width:96px;text-align:right;color:var(--muted);white-space:nowrap;">'+label+'</div>'+
+      '<div style="flex:1;background:var(--bg2);border-radius:4px;height:14px;overflow:hidden;">'+
+      '<div style="width:'+pct.toFixed(1)+'%;height:100%;background:'+bg+';border-radius:4px;transition:width .5s;min-width:3px;"></div>'+
+      '</div>'+
+      '<div style="width:52px;text-align:right;font-weight:600;color:'+color+';white-space:nowrap;font-size:10px;">'+val.toFixed(0)+'B VND</div>'+
+      '</div>';
+  }
 }
 
 function renderJuneChambers(){
