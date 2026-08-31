@@ -5505,6 +5505,7 @@ let docCounter = 1;
 // "undefined" ever shows in the table/dashboard.
 function docNormalizeSections(){
   if(!Array.isArray(docSECTIONS)) return;
+  var _changed = false;
   docSECTIONS.forEach(sec => {
     if(!sec || typeof sec !== 'object') return;
     if(!sec.label) sec.label = sec.id || 'OTHER';
@@ -5513,8 +5514,23 @@ function docNormalizeSections(){
       if(!sub || typeof sub !== 'object') return;
       if(!sub.label) sub.label = sub.id || 'General';
       if(!Array.isArray(sub.items)) sub.items = [];
+      // Dedupe: drop exact duplicate items (same desc + location) within a sub-section.
+      // Fixes "Document Description duplicates" caused by older dual-write bugs.
+      var seen = {};
+      var _origLen = sub.items.length;
+      sub.items = sub.items.filter(function(it){
+        if(!it || typeof it !== 'object') return false;
+        var key = String(it.desc||'') + '\u0000' + String(it.location||'');
+        if(seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+      if(sub.items.length !== _origLen) _changed = true;
     });
   });
+  if(_changed){
+    try{ localStorage.setItem('bms_doc_data', JSON.stringify(docSECTIONS)); }catch(e){}
+  }
 }
 
 function docRebuildAllItems(){
