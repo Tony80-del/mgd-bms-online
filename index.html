@@ -5541,6 +5541,7 @@ function docRebuildAllItems(){
       sub.items.forEach(it => {
         const id = docCounter++;
         it._id = id; // Tag source tree for SaveLocation back-mapping
+        it.id = id;  // Unify id system: override stale `id` from legacy dual-write data
         docAllItems.push({
           id, sectionId: sec.id, sectionLabel: sec.label, bgClass: sec.bgClass,
           subsection: sub.label, desc: it.desc, start: it.start, collected: it.collected,
@@ -5565,7 +5566,7 @@ function docSyncSource(id, field, value){
   docSECTIONS.forEach(sec => {
     sec.subs.forEach(sub => {
       sub.items.forEach(src => {
-        if(src._id === id || src.id === id){
+        if(src._id === id){
           src[field] = value;
         }
       });
@@ -5866,7 +5867,7 @@ function docSaveLocation(){
   docSECTIONS.forEach(sec => {
     sec.subs.forEach(sub => {
       sub.items.forEach(src => {
-        if(src._id === item.id || src.id === item.id){
+        if(src._id === item.id){
           if(newDesc) src.desc = newDesc;
           src.location = loc;
           if(loc && !src.collected) src.collected = '\u2713';
@@ -6165,7 +6166,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
       sub = {label: subLabel, items: []};
       sec.subs.push(sub);
     }
-    sub.items.push({id, desc, start:'', collected:'', location:loc, dept:'', remark:''});
+    sub.items.push({id, _id:id, desc, start:'', collected:'', location:loc, dept:'', remark:''});
   }
   docAllItems.push({id, sectionId:secId, sectionLabel:secId, bgClass:bg,
     subsection:subLabel, desc, start:'', collected:'', location:loc, dept:'', remark:''});
