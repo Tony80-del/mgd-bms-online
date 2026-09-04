@@ -751,13 +751,13 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <button class="btn-add" onclick="docOpenModal()">➕ Add Document</button>
     <div class="section-btns" id="sectionBtns">
       <button class="sbtn active" data-sec="" onclick="docSetSection('')">📋 All</button>
-      <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificate</button>
-      <button class="sbtn" data-sec="2. ISO" onclick="docSetSection('2. ISO')">📄 ISO</button>
-      <button class="sbtn" data-sec="3. STAFF" onclick="docSetSection('3. STAFF')">👤 Staff</button>
-      <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance</button>
-      <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Org Chart</button>
-      <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
-      <button class="sbtn" data-sec="7. FORMS" onclick="docSetSection('7. FORMS')">📋 Forms</button>
+      <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificates</button>
+      <button class="sbtn" data-sec="2. ISO" onclick="docSetSection('2. ISO')">🏅 ISO & Policies</button>
+      <button class="sbtn" data-sec="3. STAFF" onclick="docSetSection('3. STAFF')">👥 Staff & Personnel</button>
+      <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance & Insurance</button>
+      <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Organization Chart</button>
+      <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 Project Info</button>
+      <button class="sbtn" data-sec="7. FORMS" onclick="docSetSection('7. FORMS')">📋 Forms & Contracts</button>
     </div>
     </div>
 
@@ -5497,6 +5497,34 @@ let docSECTIONS = [
   ]}
 ];
 
+// ── THEME display map ──
+// id (stable data key) → friendly English name + icon, shared by BOTH
+// Documentation Storage AND Documents Collection (THEMES sidebar).
+// Display-layer mapping only — underlying Firestore/localStorage section
+// ids & labels are never mutated, so existing data links stay intact.
+const DOC_THEME_META = {
+  '1. CERTIFICATE':        { name:'Certificates',        icon:'📜' },
+  '2. ISO':                { name:'ISO & Policies',      icon:'🏅' },
+  '3. STAFF':              { name:'Staff & Personnel',   icon:'👥' },
+  '4. FINANCE':            { name:'Finance & Insurance', icon:'💰' },
+  '5. ORGANIZATION CHART': { name:'Organization Chart',  icon:'🏢' },
+  '6. PROJECT INFO':       { name:'Project Info',        icon:'📁' },
+  '7. FORMS':              { name:'Forms & Contracts',   icon:'📋' },
+  '8. PROFILE':            { name:'Company Profile',     icon:'🏛️' },
+  '9. DESIGN':             { name:'Design & Drawings',   icon:'🎨' }
+};
+function docSectionName(id){
+  var m = DOC_THEME_META[id];
+  if(m) return m.name;
+  var s = (id||'').replace(/^\d+\.?\s*/, '').trim();
+  return s || 'OTHER';
+}
+function docSectionIcon(idOrName){
+  if(DOC_THEME_META[idOrName]) return DOC_THEME_META[idOrName].icon;
+  for(var k in DOC_THEME_META){ if(DOC_THEME_META[k].name === idOrName) return DOC_THEME_META[k].icon; }
+  return '📁';
+}
+
 let docAllItems = [];
 let docCounter = 1;
 
@@ -5646,7 +5674,7 @@ function docRenderTrackerBody(filtered){
     // When a specific section is selected (via top buttons), only render that section's rows
     if(docCurrentSection && sec.id !== docCurrentSection) return;
     const secItems = filtered.filter(i => i.sectionId === sec.id);
-    html += `<tr class="section-row s-row-${si % 6}"><td colspan="6">${sec.label}</td><td class="c del-cell" onclick="docDeleteSection(${si})" title="Delete this section">🗑</td></tr>`;
+    html += `<tr class="section-row s-row-${si % 6}"><td colspan="6">${docSectionName(sec.id)}</td><td class="c del-cell" onclick="docDeleteSection(${si})" title="Delete this section">🗑</td></tr>`;
     if(secItems.length === 0) return;
     // Collect all sub-section labels from data + predefined (preserve order)
     const allSubLabels = [...new Set([
@@ -5685,10 +5713,6 @@ function docRenderTrackerBody(filtered){
 
 function docRenderDashboard(){
   const tbody = document.getElementById('dashBody');
-  const shortLbls = {'1. CERTIFICATE':'1. Certificate','2. ISO':'2. ISO','3. STAFF':'3. Staff',
-    '4. FINANCE':'4. Finance','5. ORGANIZATION CHART':'5. Organization Chart','6. PROJECT INFO':'6. PROJECT INFO',
-    '7. FORMS':'7. Forms'};
-
   let html = '';
   docSECTIONS.forEach(sec => {
     const items = docAllItems.filter(i => i.sectionId === sec.id);
@@ -5697,7 +5721,7 @@ function docRenderDashboard(){
     const located = items.filter(i => i.location).length;
     const pending = total - done;
     const pct = total > 0 ? (done/total*100).toFixed(0) + '%' : '0%';
-    const secName = shortLbls[sec.id] || sec.label || sec.id;
+    const secName = docSectionName(sec.id);
 
     html += `<tr class="${sec.bgClass}">
       <td class="col-section">${secName}</td>
@@ -5895,11 +5919,10 @@ function docSetFilter(f){
 }
 function docBuildSectionBtns(){
   const container = document.getElementById('sectionBtns');
-  const icons = {'1. CERTIFICATE':'📜','2. ISO':'📄','3. STAFF':'👤','4. FINANCE':'💰','5. ORGANIZATION CHART':'🏢','6. PROJECT INFO':'📁','7. FORMS':'📋'};
   let html = `<button class="sbtn${!docCurrentSection?' active':''}" data-sec="" onclick="docSetSection('')">📋 All</button>`;
   docSECTIONS.forEach(sec => {
-    const icon = icons[sec.id] || '📋';
-    const short = sec.label.replace(/^\d+\. /,'').substring(0,18);
+    const icon = docSectionIcon(sec.id);
+    const short = docSectionName(sec.id);
     html += `<button class="sbtn${docCurrentSection===sec.id?' active':''}" data-sec="${sec.id}" onclick="docSetSection('${sec.id}')">${icon} ${short}</button>`;
   });
   container.innerHTML = html;
@@ -5964,7 +5987,7 @@ function docEditSelectedSub(){
   if(!subLabel){ alert('Please select or type a sub-section first.'); return; }
   const sub = sec.subs.find(s => s.label === subLabel);
   if(!sub){ alert('Sub-section "' + subLabel + '" not found in this section.'); return; }
-  document.getElementById('subEditSec').value = sec.label;
+  document.getElementById('subEditSec').value = docSectionName(sec.id);
   document.getElementById('subEditSec').dataset.oldLabel = subLabel;
   document.getElementById('subEditName').value = subLabel;
   document.getElementById('subEditModal').classList.add('open');
@@ -6006,7 +6029,7 @@ function docDeleteSelectedSection(){
   if(si < 0){ alert('Section not found.'); return; }
   const sec = docSECTIONS[si];
   const itemCount = sec.subs ? sec.subs.reduce((n,sub)=>n+(sub.items?sub.items.length:0),0) : 0;
-  if(!confirm('Delete section "' + sec.label + '"' + (itemCount>0 ? ' and its '+itemCount+' document(s)' : '') + '?')) return;
+  if(!confirm('Delete section "' + docSectionName(sec.id) + '"' + (itemCount>0 ? ' and its '+itemCount+' document(s)' : '') + '?')) return;
   docSECTIONS.splice(si, 1);
   delete data.docItems;
   docRebuildAllItems();
@@ -6016,20 +6039,20 @@ function docDeleteSelectedSection(){
   docPopulateSubs();
   docCloseModal();
   docPersist();
-  docToast('🗑 Deleted section: ' + sec.label);
+  docToast('🗑 Deleted section: ' + docSectionName(sec.id));
 }
 
 // ── Delete Section / Sub-Section / Document ──
 function docDeleteSection(si){
   const sec = docSECTIONS[si];
-  if(!confirm('Delete section "' + sec.label + '" and all its documents?')) return;
+  if(!confirm('Delete section "' + docSectionName(sec.id) + '" and all its documents?')) return;
   docSECTIONS.splice(si, 1);
   delete data.docItems;
   docRebuildAllItems();
   docBuildSectionBtns();
   docRenderTable();
   docPersist();
-  docToast('🗑 Deleted section: ' + sec.label);
+  docToast('🗑 Deleted section: ' + docSectionName(sec.id));
 }
 
 function docDeleteSubsection(si, subKey){
@@ -6110,7 +6133,7 @@ function docGetSubSectionValue(){
 function docOpenModal(){
   document.getElementById('modalTitle').textContent = '➕ Add / Record Document';
   const secSel = document.getElementById('f_section');
-  secSel.innerHTML = docSECTIONS.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+  secSel.innerHTML = docSECTIONS.map(s => `<option value="${s.id}">${docSectionName(s.id)}</option>`).join('');
   // Clear inputs
   document.getElementById('f_subsection_new').value = '';
   document.getElementById('f_subsection_new').style.display = 'none';
@@ -6577,7 +6600,7 @@ function getDocs(){
           cid++;
           out.push({
             id: 'r' + cid,
-            theme: sec.label || sec.id || 'OTHER',
+            theme: docSectionName(sec.id),
             subSection: sub.label || 'General',
             desc: it.desc || '',
             loc: it.location || '',
@@ -6617,7 +6640,7 @@ function getAllSections(){
           });
         }
         // Skip sections with nothing confirmed yet — no count, no row
-        if(n > 0) secs.push({ label: sec.label || sec.id || 'OTHER', count: n });
+        if(n > 0) secs.push({ id: sec.id, label: docSectionName(sec.id), count: n });
       });
     }
   }catch(e){ console.warn('[dc] getAllSections failed:', e); }
@@ -6989,7 +7012,7 @@ function renderFilter(){
     const b = document.createElement('button');
     const n = t.count;
     b.setAttribute('data-sec', t.label);
-    b.innerHTML = `${t.label} <span class="n">${n}</span>`;
+    b.innerHTML = `${docSectionIcon(t.id || t.label)} ${t.label} <span class="n">${n}</span>`;
     b.onclick = ()=>setFilter(t.label);
     bar.appendChild(b);
   });
