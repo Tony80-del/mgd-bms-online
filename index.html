@@ -751,13 +751,13 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <button class="btn-add" onclick="docOpenModal()">➕ Add Document</button>
     <div class="section-btns" id="sectionBtns">
       <button class="sbtn active" data-sec="" onclick="docSetSection('')">📋 All</button>
-      <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificates</button>
-      <button class="sbtn" data-sec="2. ISO" onclick="docSetSection('2. ISO')">🏅 ISO & Policies</button>
-      <button class="sbtn" data-sec="3. STAFF" onclick="docSetSection('3. STAFF')">👥 Staff & Personnel</button>
-      <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance & Insurance</button>
-      <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 Organization Chart</button>
-      <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 Project Info</button>
-      <button class="sbtn" data-sec="7. FORMS" onclick="docSetSection('7. FORMS')">📋 Forms & Contracts</button>
+      <button class="sbtn" data-sec="1. CERTIFICATE" onclick="docSetSection('1. CERTIFICATE')">📜 Certificate</button>
+      <button class="sbtn" data-sec="2. ISO" onclick="docSetSection('2. ISO')">🏅 ISO</button>
+      <button class="sbtn" data-sec="3. STAFF" onclick="docSetSection('3. STAFF')">👥 Staff</button>
+      <button class="sbtn" data-sec="4. FINANCE" onclick="docSetSection('4. FINANCE')">💰 Finance</button>
+      <button class="sbtn" data-sec="5. ORGANIZATION CHART" onclick="docSetSection('5. ORGANIZATION CHART')">🏢 ORGANIZATION CHART</button>
+      <button class="sbtn" data-sec="6. PROJECT INFO" onclick="docSetSection('6. PROJECT INFO')">📁 PROJECT INFO</button>
+      <button class="sbtn" data-sec="7. FORMS" onclick="docSetSection('7. FORMS')">📋 FORMS</button>
     </div>
     </div>
 
@@ -5503,15 +5503,15 @@ let docSECTIONS = [
 // Display-layer mapping only — underlying Firestore/localStorage section
 // ids & labels are never mutated, so existing data links stay intact.
 const DOC_THEME_META = {
-  '1. CERTIFICATE':        { name:'Certificates',        icon:'📜' },
-  '2. ISO':                { name:'ISO & Policies',      icon:'🏅' },
-  '3. STAFF':              { name:'Staff & Personnel',   icon:'👥' },
-  '4. FINANCE':            { name:'Finance & Insurance', icon:'💰' },
-  '5. ORGANIZATION CHART': { name:'Organization Chart',  icon:'🏢' },
-  '6. PROJECT INFO':       { name:'Project Info',        icon:'📁' },
-  '7. FORMS':              { name:'Forms & Contracts',   icon:'📋' },
-  '8. PROFILE':            { name:'Company Profile',     icon:'🏛️' },
-  '9. DESIGN':             { name:'Design & Drawings',   icon:'🎨' }
+  '1. CERTIFICATE':        { name:'Certificate',        icon:'📜' },
+  '2. ISO':                { name:'ISO',                icon:'🏅' },
+  '3. STAFF':              { name:'Staff',              icon:'👥' },
+  '4. FINANCE':            { name:'Finance',            icon:'💰' },
+  '5. ORGANIZATION CHART': { name:'ORGANIZATION CHART', icon:'🏢' },
+  '6. PROJECT INFO':       { name:'PROJECT INFO',       icon:'📁' },
+  '7. FORMS':              { name:'FORMS',              icon:'📋' },
+  '8. PROFILE':            { name:'PROFILE',            icon:'🏛️' },
+  '9. DESIGN':             { name:'DESIGN',             icon:'🎨' }
 };
 function docSectionName(id){
   var m = DOC_THEME_META[id];
