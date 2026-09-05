@@ -500,6 +500,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button onclick="setBidsFilter('bidding')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfBidding">投标中 / Bidding</button>
       <button onclick="setBidsFilter('tracking')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfTracking">追踪 / Tracking</button>
       <button onclick="setBidsFilter('potential')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfPotential">潜在 / Potential</button>
+      <button onclick="setBidsFilter('cancelled')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfCancelled">已取消 / Cancelled</button>
     </div>
     <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
       <div style="grid-column:1/-1;display:flex;justify-content:flex-end;margin-bottom:8px;">
@@ -3104,6 +3105,8 @@ function renderTable(){
       d=d.filter(b=>!b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪'));
     }else if(bidsFilter==='potential'){
       d=d.filter(b=>!b.inactive&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在'));
+    }else if(bidsFilter==='cancelled'){
+      d=d.filter(b=>b.inactive||(b.stageContent==='已取消'||b.stageContent==='已取消 / Cancelled'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'));
     }
     d=[...d].sort((a,b)=>(a.inactive?1:0)-(b.inactive?1:0));
   }
