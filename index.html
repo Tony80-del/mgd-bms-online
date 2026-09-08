@@ -1399,7 +1399,7 @@ function renderQuarterly(){
   var qd=data.quarterly[q]||{actual:{},qTarget:{},notes:{}};
   var ac=qd.actual||{};
 
-  var qMonths={Q1:{mn:1,mx:3,label:'Jan-Mar'},Q2:{mn:4,mx:6,label:'Apr-Jun'},Q3:{mn:7,mx:9,label:'Jul-Sep'},Q4:{mn:10,mx:12,label:'Oct-Dec'}};
+  var qMonths={Q1:{mn:1,mx:3,label:'Jan-Mar',pref:['2026-01','2026-02','2026-03'],mn3:['Jan','Feb','Mar']},Q2:{mn:4,mx:6,label:'Apr-Jun',pref:['2026-04','2026-05','2026-06'],mn3:['Apr','May','Jun']},Q3:{mn:7,mx:9,label:'Jul-Sep',pref:['2026-07','2026-08','2026-09'],mn3:['Jul','Aug','Sep']},Q4:{mn:10,mx:12,label:'Oct-Dec',pref:['2026-10','2026-11','2026-12'],mn3:['Oct','Nov','Dec']}};
   var qm=qMonths[q]||qMonths.Q1;
   var pf='qr_'+q+'_';
 
@@ -1535,8 +1535,8 @@ function renderQuarterly(){
     return'<div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:6px 0"><div style="height:100%;width:'+Math.min(100,p)+'%;background:'+color+';border-radius:3px"></div></div>';
   }
 
-  // ===== BRANCH: Q2 gets full dashboard, Q1/Q3/Q4 get compact =====
-  if(q==='Q2'||q==='Q3'){
+  // ===== BRANCH: Q2/Q3/Q4 get full dashboard (Q4 upgraded 2026-09-08), Q1 keeps compact =====
+  if(q==='Q2'||q==='Q3'||q==='Q4'){
     // Dynamic pipeline vars
     var _sc=function(b,k){var s=(b.stageContent||'').toLowerCase();return k.some(function(x){return s.indexOf(x.toLowerCase())!==-1;});};
     var _pa=function(v){if(!v||v==='-'||v==='—')return 0;var s=(''+v).replace(/,/g,'').trim();return /[bB]/.test(s)?(parseFloat(s.replace(/[^0-9.]/g,''))||0):((parseFloat(s)||0)/1e9);};
@@ -1597,7 +1597,7 @@ function renderQuarterly(){
 <div class="q26hdr">
   <div class="q26hdr-l">
     <h1>MGD ${q} · 2026</h1>
-    <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 ${q==='Q2'?'Apr–Jun':'Jul–Sep'} 2026</span></div>
+    <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 ${qm.label} 2026</span></div>
   </div>
   <div class="q26hdr-r">Dynamic · live BMS data</div>
 </div>
@@ -1614,7 +1614,7 @@ function renderQuarterly(){
   <div class="q26card">
     <div class="q26t">📈 S&M Revenue Target (FY 2026)</div>
     <div class="q26v">250B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="q26sub">Q2 Actual: <span class="tag tag-r">0 VND</span></div>
+    <div class="q26sub">${q} Actual: <span class="tag tag-r">0 VND</span></div>
     <div class="q26sub" style="color:var(--t3);font-size:11px">ℹ️ No quarterly actual data entered in BMS</div>
     <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
   </div>
@@ -1637,33 +1637,33 @@ function renderQuarterly(){
 <!-- ===== ROW 2: Q SPECIFIC CARDS ===== -->
 <div class="q26g3">
   <div class="q26card">
-    <div class="q26t">👥 New Contacts (${q} · ${q==='Q2'?'Apr–Jun':'Jul–Sep'})</div>
+    <div class="q26t">👥 New Contacts (${q} · ${qm.label})</div>
     <div class="q26flex">
-      <div class="q26v" style="color:var(--green)">${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</div>
+      <div class="q26v" style="color:var(--green)">${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</div>
       <div style="margin-left:auto"><span class="tag tag-g">YTD: ${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()}</span></div>
     </div>
     <div class="q26sub">${t('ncTarget')}</div>
     <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      ${function(){var _c=data.customers||[];var _m=q==='Q2'?['Apr','May','Jun']:['Jul','Aug','Sep'];var _mp=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _m.map(function(mn,i){var cnt=_c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf(_mp[i])===0;}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
+      ${function(){var _c=data.customers||[];return qm.mn3.map(function(mn,i){var cnt=_c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf(qm.pref[i])===0;}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
     </div>
     <div class="q26bar"><div class="q26bar-f" style="width:113%;background:var(--green)"></div></div>
     <div class="q26data-source">${(data.customers||[]).length} customers in database · ${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()} with 2026 dates</div>
   </div>
   <div class="q26card">
-    <div class="q26t">✅ Project Won (${q} · ${q==='Q2'?'Apr–Jun':'Jul–Sep'})</div>
+    <div class="q26t">✅ Project Won (${q} · ${qm.label})</div>
     <div class="q26v" style="color:var(--t3)">0</div>
-    <div class="q26sub">No project won in ${q==='Q2'?'Apr–Jun':'Jul–Sep'} 2026</div>
+    <div class="q26sub">No project won in ${qm.label} 2026</div>
     <div class="q26data-source">PROMEA-KCP (9B) — Won 2025, excluded</div>
   </div>
   <div class="q26card">
-    <div class="q26t">📋 ${q==='Q2'?'Apr–Jun':'Jul–Sep'} Chamber Events <span class="tag tag-a" style="margin-left:4px">${function(){if(q==='Q2'){var _cnt=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var m=new Date(d).getMonth()+1;return m>=1&&m<=6;}catch(e){return false;}}).length;return _cnt+' H1 2026';}else{var _now=new Date(),_cnt=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=_now;}catch(e){return false;}}).length;return _cnt+' YTD 2026';}}()}</span></div>
+    <div class="q26t">📋 ${qm.label} Chamber Events <span class="tag tag-a" style="margin-left:4px">${function(){var _now=new Date(),_cnt=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=_now&&dt.getMonth()+1>=qm.mn&&dt.getMonth()+1<=qm.mx;}catch(e){return false;}}).length;return _cnt+' '+q+' 2026';}}()</span></div>
     <div class="q26flex">
       <div class="q26v" style="color:var(--purple)">${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()}</div>
       <div style="margin-left:auto"><span class="tag tag-g">${16} target</span></div>
     </div>
     <div class="q26sub">Annual target: 16 events · ${q} Attended: ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()}</div>
     <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      ${function(){var _ch=data.chambers||[];var _now=new Date();var _m=q==='Q2'?['Apr','May','Jun']:['Jul','Aug','Sep'];var _mp=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _m.map(function(mn,i){var cnt=_ch.filter(function(c){var d=c.attendanceDate||'';try{return d.indexOf(_mp[i])===0&&new Date(d)<=_now;}catch(e){return false;}}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
+      ${function(){var _ch=data.chambers||[];var _now=new Date();return qm.mn3.map(function(mn,i){var cnt=_ch.filter(function(c){var d=c.attendanceDate||'';try{return d.indexOf(qm.pref[i])===0&&new Date(d)<=_now;}catch(e){return false;}}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
     </div>
     <div class="q26bar"><div class="q26bar-f" style="width:${function(){var _ytd=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}});return Math.min(100,(_ytd.length/16*100)).toFixed(0);}()}%;background:var(--purple)"></div></div>
     <div class="q26data-source">${(function(){return (data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}}).length;})()} chambers tracked YTD · annual target ${16} · ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()} ${q} attended</div>
@@ -1691,10 +1691,10 @@ function renderQuarterly(){
       <tr><td>Bidding</td><td class="r">${_bl.length} projects · ${_fa(_ba)}</td></tr>
       <tr><td>Tracking</td><td class="r">${_tl.length} projects · ${_fa(_ta)}</td></tr>
       <tr><td>Potential</td><td class="r">${_pl.length} projects · ${_fa(_pa_amt)}</td></tr>
-      <tr><td>New Contacts (${q})</td><td class="r">${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</td></tr>
+      <tr><td>New Contacts (${q})</td><td class="r">${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</td></tr>
       <tr><td>New Contacts (YTD)</td><td class="r">${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()}</td></tr>
       <tr><td>Customers Database</td><td class="r">${(data.customers||[]).length}</td></tr>
-      <tr><td>Chambers</td><td class="r">${(function(){var _s=new Set(),_now=new Date();(data.chambers||[]).forEach(function(c){if(!c.attendanceDate)return;try{var _d=new Date(c.attendanceDate);if(_d.getFullYear()!==2026||_d>_now)return;if(q==='Q2'){if(_d.getMonth()<6)_s.add(c);}else{_s.add(c);}}catch(e){}});return _s.size;})()}</td></tr>
+      <tr><td>Chambers (${q}·${qm.label})</td><td class="r">${(function(){var _now=new Date();return (data.chambers||[]).filter(function(c){if(!c.attendanceDate)return false;try{var _d=new Date(c.attendanceDate);return _d.getFullYear()===2026&&_d<=_now&&_d.getMonth()+1>=qm.mn&&_d.getMonth()+1<=qm.mx;}catch(e){return false;}}).length;})()}</td></tr>
       <tr><td>Projects Tracked</td><td class="r">${(data.projects||[]).length}</td></tr>
       <tr><td>${q} Realized Sales</td><td class="r"><span class="tag tag-r">${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0':((a/1e9).toFixed(1))+'B';}()}</span></td></tr>
     </table>
@@ -1769,7 +1769,7 @@ function renderQuarterly(){
     <div class="sm mt-8" style="line-height:1.5">
       <strong>Projects with amounts:</strong> ${_ac} active · ${_cl.length} cancelled<br>
       <strong>Pipeline coverage:</strong> ${_cv.toFixed(1)}× (Bidding+Potential) vs 1,400B FY target<br>
-      <strong>${q} new contacts:</strong> ${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()} (target 160) · <strong>${q} realized sales:</strong> ${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0 VND':((a/1e9).toFixed(1))+'B';}()}
+      <strong>${q} new contacts:</strong> ${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()} (target 160) · <strong>${q} realized sales:</strong> ${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0 VND':((a/1e9).toFixed(1))+'B';}()}
     </div>
   </div>
 </div>
@@ -1784,7 +1784,7 @@ function renderQuarterly(){
   <span>·</span>
   <span>Potential <strong>${_fa(_pa_amt)}</strong></span>
   <span>·</span>
-  <span>${q} new contacts <strong>${function(){var _c=data.customers||[];var _pref=q==='Q2'?['2026-04','2026-05','2026-06']:['2026-07','2026-08','2026-09'];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return _pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</strong> · ${(function(){var _s=new Set(),_now=new Date();(data.chambers||[]).forEach(function(c){if(!c.attendanceDate)return;try{var _d=new Date(c.attendanceDate);if(_d.getFullYear()!==2026||_d>_now)return;if(q==="Q2"){if(_d.getMonth()<6)_s.add(c);}else{_s.add(c);}}catch(e){}});return _s.size;})()} chambers tracked ${q==="Q2"?"H1":"YTD"}}</span>
+  <span>${q} new contacts <strong>${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</strong> · ${(function(){var _now=new Date();return (data.chambers||[]).filter(function(c){if(!c.attendanceDate)return false;try{var _d=new Date(c.attendanceDate);return _d.getFullYear()===2026&&_d<=_now&&_d.getMonth()+1>=qm.mn&&_d.getMonth()+1<=qm.mx;}catch(e){return false;}}).length;})()} chambers tracked ${q} ${qm.label}}</span>
 </div>
 
 </div>`;
