@@ -2143,7 +2143,7 @@ function momRenderSheet(){
   s+='<tr><td class="lbl">Chairperson</td>'+mf('chair',rec.chair)+'<td class="lbl">Recorder</td>'+mf('recorder',rec.recorder)+'</tr>';
   s+='<tr><td class="lbl">Attendees</td>'+mf('attendees',rec.attendees)+'<td class="lbl">Absent</td>'+mf('absent',rec.absent)+'</tr>';
   s+='<tr><td class="hdr" colspan="4">AGENDA · DISCUSSION · DECISION</td></tr>';
-  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic<span style="float:right;font-weight:400"><button type="button" onclick="momAddAgendaTopic()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Topic</button></span></td></tr>';
+  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic<span style="float:right;font-weight:400"><button type="button" onclick="momAddAgendaTopic()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Agenda</button></span></td></tr>';
   rec.agenda=momNormAgenda(rec.agenda);
   rec.agenda.forEach(function(g,gi){
     s+='<tr data-agtopic="'+gi+'"><td class="num"></td><td colspan="3" style="position:relative;padding-right:150px;background:#eaf2fa">'
@@ -2160,7 +2160,7 @@ function momRenderSheet(){
   s+='</table>';
   /* ---- Table 2: action items (grouped by section/topic) ---- */
   s+='<table class="mm"><colgroup><col style="width:4%"><col style="width:25%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:10%"><col style="width:18%"><col style="width:9%"><col style="width:5%"></colgroup>';
-  s+='<tr><td class="hdr" colspan="9" style="text-align:left">ACTION ITEMS · NEXT STEP<span style="float:right;font-weight:400"><button type="button" onclick="momAddActionSection()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Section</button></span></td></tr>';
+  s+='<tr><td class="hdr" colspan="9" style="text-align:left">ACTION ITEMS · NEXT STEP<span style="float:right;font-weight:400"><button type="button" onclick="momAddActionSection()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Action</button></span></td></tr>';
   s+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td><td class="hdr"></td></tr>';
   rec.actions=momNormActions(rec.actions);
   rec.actions.forEach(function(g,gi){
