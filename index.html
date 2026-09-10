@@ -2147,7 +2147,7 @@ function momRenderSheet(){
   rec.agenda=momNormAgenda(rec.agenda);
   rec.agenda.forEach(function(g,gi){
     s+='<tr data-agtopic="'+gi+'"><td class="num"></td><td colspan="3" style="position:relative;padding-right:150px;background:#eaf2fa">'
-      +'<span style="font-weight:700;color:#1F4E79">Topic:</span> <span contenteditable="true" data-agtk="'+gi+'" style="font-weight:700;color:#1F4E79;display:inline-block;min-width:140px;outline:none">'+momEsc(g.topic)+'</span>'
+      +'<span contenteditable="true" data-agtk="'+gi+'" style="font-weight:700;color:#1F4E79;display:inline-block;min-width:140px;outline:none">'+momEsc(g.topic)+'</span>'
       +'<span style="position:absolute;top:4px;right:5px;display:flex;gap:5px;align-items:center">'
         +'<button type="button" onclick="momAddAgendaItem('+gi+')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;border:1px solid #1F4E79;background:#fff;color:#1F4E79;cursor:pointer">＋ Item</button>'
         +'<button type="button" title="Delete topic" onclick="momDelAgendaTopic('+gi+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.6" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.6\';this.style.background=\'transparent\'">✕</button>'
