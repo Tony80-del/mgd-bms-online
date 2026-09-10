@@ -2007,6 +2007,20 @@ function momRenderList(){
   }).join('');
 }
 function momPick(id){momCollect();momCurrentId=id;momRenderList();momRenderSheet();}
+function momAddAgenda(){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  if(!rec.agenda)rec.agenda=[];
+  rec.agenda.push({topic:''});
+  momRenderSheet();
+  var rows=document.querySelectorAll('#momSheet [data-ag="topic"]');
+  var last=rows[rows.length-1];if(last){last.focus();}
+}
+function momDelAgenda(i){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  if(!rec.agenda||rec.agenda.length<=1)return;
+  rec.agenda.splice(i,1);
+  momRenderSheet();
+}
 function momToggleRecords(){
   var sb=document.getElementById('momSidebar'),lay=document.getElementById('momLayout'),btn=document.getElementById('momRecordsBtn');
   if(!sb)return;
@@ -2047,9 +2061,9 @@ function momRenderSheet(){
   s+='<tr><td class="lbl">Chairperson</td>'+mf('chair',rec.chair)+'<td class="lbl">Recorder</td>'+mf('recorder',rec.recorder)+'</tr>';
   s+='<tr><td class="lbl">Attendees</td>'+mf('attendees',rec.attendees)+'<td class="lbl">Absent</td>'+mf('absent',rec.absent)+'</tr>';
   s+='<tr><td class="hdr" colspan="4">AGENDA · DISCUSSION · DECISION</td></tr>';
-  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3">Agenda / Topic</td></tr>';
+  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic<span style="float:right;font-weight:400"><button type="button" onclick="momAddAgenda()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Topic</button></span></td></tr>';
   (rec.agenda||[]).forEach(function(a,i){
-    s+='<tr><td class="num">'+(i+1)+'</td><td contenteditable="true" data-ag="topic" colspan="3">'+momEsc(a.topic)+'</td></tr>';
+    s+='<tr><td class="num">'+(i+1)+'</td><td colspan="3" style="position:relative;padding-right:34px"><span contenteditable="true" data-ag="topic" style="display:block;min-height:16px">'+momEsc(a.topic)+'</span><button type="button" title="Delete topic" onclick="momDelAgenda('+i+')" style="position:absolute;top:3px;right:5px;width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.5" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.5\';this.style.background=\'transparent\'">✕</button></td></tr>';
   });
   s+='</table>';
   /* ---- Table 2: action items ---- */
