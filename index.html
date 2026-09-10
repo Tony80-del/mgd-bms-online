@@ -712,7 +712,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <!-- Weekly Report Section -->
     <div id="weeklyReportContainer" class="hidden mb-6" style="display:none;">
       <!-- Sub-page switch: Weekly Report | Meeting Minutes -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);">
+      <div id="wrSubTabsRow" style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);position:sticky;top:81px;z-index:40;background:var(--bg1);">
         <button id="wrSubTabReport" onclick="wrSwitchSub('report')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--blue);background:transparent;border:none;border-bottom:2px solid var(--blue);cursor:pointer;margin-bottom:-1px;">📊 Weekly Report</button>
         <button id="wrSubTabMom" onclick="wrSwitchSub('mom')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📝 Meeting Minutes</button>
       </div>
@@ -770,7 +770,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
           </div>
           <!-- right: excel-format minutes -->
           <div>
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div id="momHeaderBar" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:123px;z-index:39">
               <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px">📄 <span id="momHeadTitle">Meeting Minutes</span> <span class="mom-badge b" style="background:rgba(0,180,216,.15);color:var(--blue);padding:2px 8px;border-radius:11px;font-size:10px;font-weight:700">Excel Format</span></div>
               <div style="display:flex;gap:8px;align-items:center">
                 <button id="momRecordsBtn" onclick="momToggleRecords()" style="font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer">📁 Records</button>
