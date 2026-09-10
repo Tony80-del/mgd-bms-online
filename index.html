@@ -1959,24 +1959,36 @@ function momRecolor(el,kind){el.className='mom-badge '+(kind==='prio'?momPrioCla
 function momSeedRecords(){
   return [
     {id:'MOM-012',title:'Weekly Project Review',date:'10 Sep 2026 (Thu)',time:'09:00 – 10:30',project:'TaiYang Metal · Global Star',location:'MGD Office · Room 2',chair:'Mr. Quốc',recorder:'Ms. Hường',attendees:'Mr. Quốc, Ms. Hường, Mr. Lê, Tony (4)',absent:'—',preparedBy:'Ms. Hường',approvedBy:'Mr. Quốc',distribution:'BOD, Project Team',
-      agenda:[{topic:'Project kick-off — site access & survey schedule confirmed with client. Decision: proceed Phase 1.'},{topic:'Design review — client commented on foundation drawing. Decision: revise DWG-204 & resubmit.'},{topic:'Bidding — BOQ required for Global Star warehouse. Decision: prepare full BOQ.'},{topic:'Procurement — steel structure pricing needed. Decision: obtain 3 quotations.'},{topic:'Permits — Transimex application pending land documents. Decision: collect missing items.'},{topic:'Client follow-up — Treasure Lighting proposal (bilingual). Decision: send updated version.'}],
+      agenda:[{topic:'Business',items:['Project kick-off — site access & survey schedule confirmed with client. Decision: proceed Phase 1.','Bidding — BOQ required for Global Star warehouse. Decision: prepare full BOQ.','Client follow-up — Treasure Lighting proposal (bilingual). Decision: send updated version.']},{topic:'Project',items:['Design review — client commented on foundation drawing. Decision: revise DWG-204 & resubmit.','Permits — Transimex application pending land documents. Decision: collect missing items.']},{topic:'System',items:['Procurement — steel structure pricing needed. Decision: obtain 3 quotations.','Reporting — weekly report template to be standardized across projects. Decision: adopt new format.']}],
       actions:[{task:'Confirm site survey schedule with client',pic:'Mr. Quốc',due:'12 Sep',priority:'High',status:'Completed',next:'Send confirmed schedule to BOD',remark:'—'},{task:'Revise foundation drawing per client comment (DWG-204)',pic:'Ms. Hường',due:'14 Sep',priority:'High',status:'In Progress',next:'Submit revised DWG to consultant',remark:'—'},{task:'Prepare BOQ for Global Star warehouse',pic:'Mr. Lê',due:'15 Sep',priority:'Medium',status:'In Progress',next:'Cross-check quantity with QS team',remark:'—'},{task:'Get 3 quotations for steel structure',pic:'Tony',due:'11 Sep',priority:'Urgent',status:'Overdue',next:'Follow up 2 pending suppliers today',remark:'—'},{task:'Submit construction permit application (Transimex)',pic:'Ms. Hường',due:'18 Sep',priority:'High',status:'Pending',next:'Collect missing land documents',remark:'—'},{task:'Send updated proposal to Treasure Lighting',pic:'Mr. Quốc',due:'10 Sep',priority:'Medium',status:'Completed',next:'Await client feedback this week',remark:'—'}]},
     {id:'MOM-011',title:'Client Meeting — Treasure Lighting',date:'03 Sep 2026 (Wed)',time:'14:00 – 15:30',project:'Treasure Lighting',location:'Client Office',chair:'Mr. Quốc',recorder:'Ms. Hường',attendees:'Mr. Quốc, Ms. Hường, Client BOD (3)',absent:'Mr. Lê',preparedBy:'Ms. Hường',approvedBy:'Mr. Quốc',distribution:'BOD, Project Team',
-      agenda:[{topic:'Present company profile and capability.'},{topic:'Client requests bilingual proposal (CN-VN) with phased pricing.'}],
+      agenda:[{topic:'Business',items:['Present company profile and capability.']},{topic:'Project',items:['Client requests bilingual proposal (CN-VN) with phased pricing.']}],
       actions:[{task:'Prepare bilingual proposal (CN-VN)',pic:'Ms. Hường',due:'08 Sep',priority:'High',status:'Completed',next:'Send to client for review',remark:'—'},{task:'Clarify land handover timeline',pic:'Mr. Quốc',due:'06 Sep',priority:'Medium',status:'Completed',next:'Confirm in writing',remark:'—'},{task:'Arrange technical meeting with BOD',pic:'Mr. Quốc',due:'18 Sep',priority:'Medium',status:'Pending',next:'Propose 2 time slots',remark:'—'},{task:'Site photos & measurements',pic:'Mr. Lê',due:'15 Sep',priority:'Low',status:'Pending',next:'Schedule site visit',remark:'—'}]},
     {id:'MOM-010',title:'Site Survey Debrief',date:'27 Aug 2026 (Thu)',time:'09:00 – 10:00',project:'TaiYang Metal',location:'MGD Office · Room 1',chair:'Ms. Hường',recorder:'Mr. Lê',attendees:'Ms. Hường, Mr. Lê, Tony (3)',absent:'Mr. Quốc',preparedBy:'Mr. Lê',approvedBy:'Ms. Hường',distribution:'Project Team',
-      agenda:[{topic:'Results of site survey (10,000 m²) and soil conditions.'},{topic:'Plan for PQ document preparation.'}],
+      agenda:[{topic:'Project',items:['Results of site survey (10,000 m²) and soil conditions.']},{topic:'System',items:['Plan for PQ document preparation.']}],
       actions:[{task:'Compile survey report',pic:'Mr. Lê',due:'29 Aug',priority:'High',status:'Completed',next:'Share with design team',remark:'—'},{task:'Request soil test from lab',pic:'Ms. Hường',due:'30 Aug',priority:'High',status:'Completed',next:'Follow up lab result',remark:'—'},{task:'Start PQ document checklist',pic:'Mr. Lê',due:'01 Sep',priority:'Medium',status:'Completed',next:'Submit PQ package',remark:'—'}]},
     {id:'MOM-009',title:'Bidding Strategy — Global Star',date:'20 Aug 2026 (Thu)',time:'10:00 – 11:30',project:'Global Star',location:'MGD Office · Room 2',chair:'Mr. Quốc',recorder:'Ms. Hường',attendees:'Mr. Quốc, Mr. Lê, Ms. Hường (3)',absent:'—',preparedBy:'Ms. Hường',approvedBy:'Mr. Quốc',distribution:'BOD',
-      agenda:[{topic:'Review tender requirements and scoring criteria.'},{topic:'Agree pricing strategy and margin target.'}],
+      agenda:[{topic:'Business',items:['Review tender requirements and scoring criteria.']},{topic:'Project',items:['Agree pricing strategy and margin target.']}],
       actions:[{task:'Download and study tender documents',pic:'Mr. Lê',due:'22 Aug',priority:'High',status:'Completed',next:'Prepare BOQ',remark:'—'},{task:'Draft BOQ outline',pic:'Mr. Lê',due:'28 Aug',priority:'Medium',status:'Completed',next:'Fill quantities',remark:'—'},{task:'Identify 3 steel suppliers',pic:'Tony',due:'25 Aug',priority:'Medium',status:'Completed',next:'Request quotations',remark:'—'},{task:'Confirm margin target with BOD',pic:'Mr. Quốc',due:'26 Aug',priority:'High',status:'Completed',next:'Lock pricing',remark:'—'},{task:'Prepare tender submission plan',pic:'Ms. Hường',due:'01 Sep',priority:'Low',status:'Pending',next:'Set deadlines',remark:'—'}]},
     {id:'MOM-008',title:'Procurement Kick-off',date:'13 Aug 2026 (Thu)',time:'09:30 – 10:15',project:'TaiYang Metal',location:'MGD Office · Room 1',chair:'Mr. Quốc',recorder:'Ms. Hường',attendees:'Mr. Quốc, Tony (2)',absent:'—',preparedBy:'Ms. Hường',approvedBy:'Mr. Quốc',distribution:'Project Team',
-      agenda:[{topic:'Set up procurement plan for main materials.'}],
+      agenda:[{topic:'System',items:['Set up procurement plan for main materials.']}],
       actions:[{task:'List main material packages',pic:'Tony',due:'16 Aug',priority:'Medium',status:'Completed',next:'Get quotations',remark:'—'},{task:'Shortlist suppliers',pic:'Tony',due:'20 Aug',priority:'Low',status:'Pending',next:'Compare prices',remark:'—'}]}
   ];
 }
 function momGetData(){
-  if(!data.meetingMinutes||!data.meetingMinutes.records){data.meetingMinutes={seq:12,records:momSeedRecords()};}
+  if(!data.meetingMinutes||!data.meetingMinutes.records){data.meetingMinutes={seq:12,records:momSeedRecords(),migVersion:2};return data.meetingMinutes;}
+  if(data.meetingMinutes.migVersion!==2){
+    var _r=data.meetingMinutes.records||[];
+    var _ids=_r.map(function(x){return x.id;}).sort().join(',');
+    if(_ids==='MOM-008,MOM-009,MOM-010,MOM-011,MOM-012'){
+      data.meetingMinutes.records=momSeedRecords();
+      data.meetingMinutes.seq=12;
+    }else{
+      _r.forEach(function(rec){rec.agenda=momNormAgenda(rec.agenda);});
+    }
+    data.meetingMinutes.migVersion=2;
+    try{if(typeof saveData==='function')saveData();}catch(e){}
+  }
   return data.meetingMinutes;
 }
 function momGetRec(){var d=momGetData();return d.records.filter(function(r){return r.id===momCurrentId;})[0];}
@@ -2007,18 +2019,43 @@ function momRenderList(){
   }).join('');
 }
 function momPick(id){momCollect();momCurrentId=id;momRenderList();momRenderSheet();}
-function momAddAgenda(){
-  momCollect();var rec=momGetRec();if(!rec)return;
-  if(!rec.agenda)rec.agenda=[];
-  rec.agenda.push({topic:''});
-  momRenderSheet();
-  var rows=document.querySelectorAll('#momSheet [data-ag="topic"]');
-  var last=rows[rows.length-1];if(last){last.focus();}
+function momNormAgenda(ag){
+  if(!ag||!ag.length)ag=[{topic:'',items:['']}];
+  return ag.map(function(g){
+    if(typeof g==='string'){var parts=g.split(/\s+[·—–-]\s+/);var tp=parts.shift()||'';return {topic:tp,items:parts.length?parts:['']};}
+    var topic=(g&&typeof g.topic==='string')?g.topic:'';
+    var items=(g&&Array.isArray(g.items))?g.items.slice():((g&&g.detail)?[String(g.detail)]:['']);
+    return {topic:topic,items:items.length?items:['']};
+  });
 }
-function momDelAgenda(i){
+function momAddAgendaTopic(){
   momCollect();var rec=momGetRec();if(!rec)return;
-  if(!rec.agenda||rec.agenda.length<=1)return;
-  rec.agenda.splice(i,1);
+  rec.agenda=momNormAgenda(rec.agenda);
+  rec.agenda.push({topic:'',items:['']});
+  momRenderSheet();
+  var t=document.querySelectorAll('#momSheet [data-agtk]');var last=t[t.length-1];if(last)last.focus();
+}
+function momDelAgendaTopic(gi){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.agenda=momNormAgenda(rec.agenda);
+  if(rec.agenda.length<=1)return;
+  rec.agenda.splice(gi,1);
+  momRenderSheet();
+}
+function momAddAgendaItem(gi){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.agenda=momNormAgenda(rec.agenda);
+  if(!rec.agenda[gi])return;
+  rec.agenda[gi].items.push('');
+  momRenderSheet();
+  var it=document.querySelectorAll('#momSheet [data-agi^="'+gi+'_"][data-agi]');var last=it[it.length-1];if(last)last.focus();
+}
+function momDelAgendaItem(gi,ii){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.agenda=momNormAgenda(rec.agenda);
+  var g=rec.agenda[gi];if(!g)return;
+  if(g.items.length<=1)return;
+  g.items.splice(ii,1);
   momRenderSheet();
 }
 function momToggleRecords(){
@@ -2042,7 +2079,7 @@ function momCollect(){
   });
   var pb=document.getElementById('momPreparedBy');if(pb)rec.preparedBy=pb.textContent.trim();
   var ab=document.getElementById('momApprovedBy');if(ab)rec.approvedBy=ab.textContent.trim();
-  var agenda=[];root.querySelectorAll('[data-ag="topic"]').forEach(function(c){agenda.push({topic:c.textContent.trim()});});
+  var agenda=[];root.querySelectorAll('[data-agtopic]').forEach(function(tr){var gi=tr.getAttribute('data-agtopic');var tk=root.querySelector('[data-agtk="'+gi+'"]');var items=[];root.querySelectorAll('[data-agi^="'+gi+'_"][data-agi]').forEach(function(sp){items.push(sp.textContent.trim());});agenda.push({topic:tk?tk.textContent.trim():'',items:items});});
   if(agenda.length)rec.agenda=agenda;
   var actions=[];root.querySelectorAll('[data-aarow]').forEach(function(row){var o={};row.querySelectorAll('[data-af]').forEach(function(c){o[c.getAttribute('data-af')]=c.textContent.trim();});actions.push(o);});
   if(actions.length)rec.actions=actions;
@@ -2061,9 +2098,19 @@ function momRenderSheet(){
   s+='<tr><td class="lbl">Chairperson</td>'+mf('chair',rec.chair)+'<td class="lbl">Recorder</td>'+mf('recorder',rec.recorder)+'</tr>';
   s+='<tr><td class="lbl">Attendees</td>'+mf('attendees',rec.attendees)+'<td class="lbl">Absent</td>'+mf('absent',rec.absent)+'</tr>';
   s+='<tr><td class="hdr" colspan="4">AGENDA · DISCUSSION · DECISION</td></tr>';
-  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic<span style="float:right;font-weight:400"><button type="button" onclick="momAddAgenda()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Topic</button></span></td></tr>';
-  (rec.agenda||[]).forEach(function(a,i){
-    s+='<tr><td class="num">'+(i+1)+'</td><td colspan="3" style="position:relative;padding-right:34px"><span contenteditable="true" data-ag="topic" style="display:block;min-height:16px">'+momEsc(a.topic)+'</span><button type="button" title="Delete topic" onclick="momDelAgenda('+i+')" style="position:absolute;top:3px;right:5px;width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.5" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.5\';this.style.background=\'transparent\'">✕</button></td></tr>';
+  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic<span style="float:right;font-weight:400"><button type="button" onclick="momAddAgendaTopic()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Topic</button></span></td></tr>';
+  rec.agenda=momNormAgenda(rec.agenda);
+  rec.agenda.forEach(function(g,gi){
+    s+='<tr data-agtopic="'+gi+'"><td class="num"></td><td colspan="3" style="position:relative;padding-right:150px;background:#eaf2fa">'
+      +'<span style="font-weight:700;color:#1F4E79">Topic:</span> <span contenteditable="true" data-agtk="'+gi+'" style="font-weight:700;color:#1F4E79;display:inline-block;min-width:140px;outline:none">'+momEsc(g.topic)+'</span>'
+      +'<span style="position:absolute;top:4px;right:5px;display:flex;gap:5px;align-items:center">'
+        +'<button type="button" onclick="momAddAgendaItem('+gi+')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;border:1px solid #1F4E79;background:#fff;color:#1F4E79;cursor:pointer">＋ Item</button>'
+        +'<button type="button" title="Delete topic" onclick="momDelAgendaTopic('+gi+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.6" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.6\';this.style.background=\'transparent\'">✕</button>'
+      +'</span></td></tr>';
+    (g.items||[]).forEach(function(it,ii){
+      s+='<tr data-agitem="'+gi+'_'+ii+'"><td class="num">'+(ii+1)+'</td><td colspan="3" style="position:relative;padding-right:34px"><span contenteditable="true" data-agi="'+gi+'_'+ii+'" style="display:block;min-height:16px;padding-left:14px">'+momEsc(it)+'</span>'
+        +'<button type="button" title="Delete item" onclick="momDelAgendaItem('+gi+','+ii+')" style="position:absolute;top:3px;right:5px;width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.5" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.5\';this.style.background=\'transparent\'">✕</button></td></tr>';
+    });
   });
   s+='</table>';
   /* ---- Table 2: action items ---- */
@@ -2093,7 +2140,7 @@ function momAddMeeting(){
   var id='MOM-'+String(d.seq).padStart(3,'0');
   var nd=new Date();var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var dateStr=nd.getDate()+' '+mo[nd.getMonth()]+' '+nd.getFullYear()+' ('+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()]+')';
-  d.records.unshift({id:id,title:'New Meeting',date:dateStr,time:'',project:'',location:'',chair:'',recorder:'',attendees:'',absent:'—',preparedBy:'',approvedBy:'',distribution:'',agenda:[{topic:''}],actions:[{task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'}]});
+  d.records.unshift({id:id,title:'New Meeting',date:dateStr,time:'',project:'',location:'',chair:'',recorder:'',attendees:'',absent:'—',preparedBy:'',approvedBy:'',distribution:'',agenda:[{topic:'',items:['']}],actions:[{task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'}]});
   momCurrentId=id;momRenderList();momRenderSheet();
 }
 function momSave(){momCollect();saveData();momRenderList();if(typeof showToast==='function')showToast('✅ Meeting Minutes saved');else if(typeof toast==='function')toast('Meeting Minutes saved');}
