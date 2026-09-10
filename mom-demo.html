@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MGD BMS · Minutes of Meeting &amp; Task Tracker — Design Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#030912;--bg2:#071325;--card:#0b1e3d;--cardh:#10274a;--blue:#00B4D8;--cyan:#06d6c7;--purple:#8b5cf6;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--text1:#E8F4FF;--text2:#7FB3D8;--muted:#3D5A80;--border:#0f2d50;--glow:rgba(0,180,216,0.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,'Noto Sans SC',sans-serif;background:var(--bg1);color:var(--text1);min-height:100vh;line-height:1.5}
+.fd{font-family:'Space Grotesk','Inter',sans-serif}
+.bgp{background-color:var(--bg1);background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,180,216,0.12) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 90% 90%,rgba(139,92,246,0.06) 0%,transparent 50%),linear-gradient(rgba(0,180,216,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,216,0.03) 1px,transparent 1px);background-size:100% 100%,100% 100%,40px 40px,40px 40px}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--blue)}
+
+.wrap{max-width:1280px;margin:0 auto;padding:24px 22px 60px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;box-shadow:0 0 20px rgba(0,180,216,.35)}
+.brand h1{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.brand p{font-size:11.5px;color:var(--text2)}
+.demo-tag{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.35);padding:5px 12px;border-radius:20px}
+
+/* tabs */
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{padding:11px 18px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:.2s;display:flex;align-items:center;gap:8px;margin-bottom:-1px}
+.tab:hover{color:var(--blue)}
+.tab.act{color:var(--blue);border-bottom-color:var(--blue)}
+.tab .cnt{font-size:10px;font-weight:700;background:rgba(0,180,216,.15);color:var(--blue);padding:1px 7px;border-radius:10px}
+
+.page{display:none}.page.act{display:block}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.card-t{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-t .ico{font-size:16px}
+.card-sub{font-size:11.5px;color:var(--text2)}
+
+/* meeting meta grid */
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.meta-i{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 13px}
+.meta-i .k{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.meta-i .v{font-size:13px;font-weight:600;color:var(--text1)}
+.meta-i .v small{color:var(--text2);font-weight:500}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:12px;padding:14px 16px}
+.stat.g{border-left-color:var(--green)}.stat.a{border-left-color:var(--amber)}.stat.r{border-left-color:var(--red)}.stat.p{border-left-color:var(--purple)}
+.stat .n{font-size:26px;font-weight:800;font-family:'Space Grotesk',sans-serif}
+.stat .l{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 10px;background:var(--bg2);font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(0,180,216,.03)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.pill.b{background:rgba(0,180,216,.14);color:#5bd6ef}
+.pill.g{background:rgba(34,197,94,.14);color:#4ade80}
+.pill.a{background:rgba(245,158,11,.15);color:#fbbf24}
+.pill.r{background:rgba(239,68,68,.14);color:#f87171}
+.pill.p{background:rgba(139,92,246,.15);color:#c4b5fd}
+.pill.gray{background:rgba(61,90,128,.25);color:#9fb8d4}
+
+.num{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--muted);font-size:12px}
+.task-t{font-weight:600;color:var(--text1)}
+.task-x{font-size:11px;color:var(--text2);margin-top:3px}
+.pic{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.next{font-size:11.5px;color:var(--text2)}
+.next b{color:var(--cyan);font-weight:600}
+
+/* weekly board */
+.week-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.week-pick{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:6px 12px;font-size:12.5px;font-weight:600}
+.week-pick .arw{cursor:pointer;color:var(--blue);font-weight:800;padding:0 4px}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.col{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;min-height:180px}
+.col-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.col-h .d{color:var(--muted)}
+.mini{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:9px;padding:9px 10px;margin-bottom:8px;font-size:11.5px}
+.mini.g{border-left-color:var(--green)}.mini.a{border-left-color:var(--amber)}.mini.p{border-left-color:var(--purple)}.mini.r{border-left-color:var(--red)}
+.mini .t{font-weight:600;margin-bottom:4px}
+.mini .m{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.prog{height:4px;background:var(--border);border-radius:3px;margin-top:7px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px}
+
+/* project cards */
+.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.proj{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;border-top:3px solid var(--blue)}
+.proj.w{--blue:#8b5cf6}
+.proj-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.proj-n{font-size:15px;font-weight:700}
+.proj-c{font-size:11.5px;color:var(--text2)}
+.proj-kv{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.proj-kv div{font-size:11px;color:var(--text2)}.proj-kv b{color:var(--text1);font-weight:600;display:block;font-size:12.5px}
+.plan-t{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;margin-bottom:7px}
+.plan li{list-style:none;font-size:11.5px;padding:6px 0 6px 20px;position:relative;border-bottom:1px dashed var(--border);color:var(--text2)}
+.plan li:last-child{border-bottom:none}
+.plan li:before{content:'▸';position:absolute;left:4px;color:var(--blue);font-weight:700}
+.plan li b{color:var(--text1);font-weight:600}
+.plan li .due{float:right;color:var(--muted);font-size:10px}
+.plan li.done:before{content:'✓';color:var(--green)}
+.plan li.done b{text-decoration:line-through;opacity:.6}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-top:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+.foot{text-align:center;font-size:11px;color:var(--muted);margin-top:30px}
+.actions{display:flex;gap:8px}
+.btn{font-size:11.5px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.pri{background:var(--blue);color:#02121f;border-color:var(--blue)}
+.btn.pri:hover{opacity:.88;color:#02121f}
+@media(max-width:900px){.meta,.stats{grid-template-columns:repeat(2,1fr)}.board{grid-template-columns:1fr}.proj-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="bgp">
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo fd">MGD</div>
+      <div>
+        <h1 class="fd">Minutes of Meeting &amp; Task Tracker</h1>
+        <p>Business Management System · Design Preview</p>
+      </div>
+    </div>
+    <span class="demo-tag">◆ Design Demo · Sample Data</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab act" onclick="go('mom',this)">📝 Minutes of Meeting <span class="cnt">6 actions</span></button>
+    <button class="tab" onclick="go('week',this)">📅 Weekly Plan</button>
+    <button class="tab" onclick="go('proj',this)">🏗️ Project Info &amp; Next Plan</button>
+  </div>
+
+  <!-- ===================== MOM ===================== -->
+  <div id="mom" class="page act">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t"><span class="ico">📋</span> Meeting Information</div>
+        <div class="actions">
+          <button class="btn">＋ New Meeting</button>
+          <button class="btn pri">💾 Save</button>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-i"><div class="k">Meeting Title</div><div class="v">Weekly Project Review</div></div>
+        <div class="meta-i"><div class="k">Date / Time</div><div class="v">10 Sep 2026 <small>· 09:00–10:30</small></div></div>
+        <div class="meta-i"><div class="k">Location</div><div class="v">MGD Office <small>· Room 2</small></div></div>
+        <div class="meta-i"><div class="k">Chairperson</div><div class="v">Mr. Quốc</div></div>
+        <div class="meta-i"><div class="k">Attendees</div><div class="v">Quốc, Hường, Lê, Tony <small>(4)</small></div></div>
+        <div class="meta-i"><div class="k">Project</div><div class="v">TaiYang Metal <small>· Warehouse</small></div></div>
+        <div class="meta-i"><div class="k">Minutes By</div><div class="v">Ms. Hường</div></div>
+        <div class="meta-i"><div class="k">Next Meeting</div><div class="v">17 Sep 2026 <small>· 09:00</small></div></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">6</div><div class="l">Total Actions</div></div>
+      <div class="stat g"><div class="n">2</div><div class="l">Completed</div></div>
+      <div class="stat a"><div class="n">3</div><div class="l">In Progress</div></div>
+      <div class="stat r"><div class="n">1</div><div class="l">Overdue</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t"><span class="ico">✅</span> Agenda &amp; Action Items</div>
+        <div class="card-sub">Recorded tasks · owner · due date · next step</div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:34px">#</th>
+              <th style="width:20%">Agenda / Topic</th>
+              <th style="width:26%">Task / Action</th>
+              <th>PIC</th>
+              <th>Due Date</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th style="width:22%">Next Step Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="num">01</td>
+              <td>Project kick-off</td>
+              <td><div class="task-t">Confirm site survey schedule with client</div><div class="task-x">TaiYang Metal — Phase 1</div></td>
+              <td><span class="pic"><span class="av">Q</span>Mr. Quốc</span></td>
+              <td>12 Sep 2026</td>
+              <td><span class="pill a">High</span></td>
+              <td><span class="pill g">● Completed</span></td>
+              <td class="next"><b>→</b> Send confirmed schedule to BOD</td>
+            </tr>
+            <tr>
+              <td class="num">02</td>
+              <td>Design review</td>
+              <td><div class="task-t">Revise foundation drawing per client comment</div><div class="task-x">Drawing DWG-204</div></td>
+              <td><span class="pic"><span class="av">H</span>Ms. Hường</span></td>
+              <td>14 Sep 2026</td>
+              <td><span class="pill a">High</span></td>
+              <td><span class="pill b">● In Progress</span></td>
+              <td class="next"><b>→</b> Submit revised DWG to consultant</td>
+            </tr>
+            <tr>
+              <td class="num">03</td>
+              <td>Bidding</td>
+              <td><div class="task-t">Prepare BOQ for Global Star warehouse</div><div class="task-x">Est. value ~120B VND</div></td>
+              <td><span class="pic"><span class="av">L</span>Mr. Lê</span></td>
+              <td>15 Sep 2026</td>
+              <td><span class="pill p">Medium</span></td>
+              <td><span class="pill b">● In Progress</span></td>
+              <td class="next"><b>→</b> Cross-check quantity with QS team</td>
+            </tr>
+            <tr>
+              <td class="num">04</td>
+              <td>Procurement</td>
+              <td><div class="task-t">Get 3 quotations for steel structure</div><div class="task-x">Supplier shortlist</div></td>
+              <td><span class="pic"><span class="av">T</span>Tony</span></td>
+              <td>11 Sep 2026</td>
+              <td><span class="pill r">Urgent</span></td>
+              <td><span class="pill r">● Overdue</span></td>
+              <td class="next"><b>→</b> Follow up 2 pending suppliers today</td>
+            </tr>
+            <tr>
+              <td class="num">05</td>
+              <td>Permits</td>
+              <td><div class="task-t">Submit construction permit application</div><div class="task-x">Transimex project</div></td>
+              <td><span class="pic"><span class="av">H</span>Ms. Hường</span></td>
+              <td>18 Sep 2026</td>
+              <td><span class="pill a">High</span></td>
+              <td><span class="pill gray">○ Pending</span></td>
+              <td class="next"><b>→</b> Collect missing land documents</td>
+            </tr>
+            <tr>
+              <td class="num">06</td>
+              <td>Client follow-up</td>
+              <td><div class="task-t">Send updated proposal to Treasure Lighting</div><div class="task-x">Bilingual (CN-VN)</div></td>
+              <td><span class="pic"><span class="av">Q</span>Mr. Quốc</span></td>
+              <td>10 Sep 2026</td>
+              <td><span class="pill p">Medium</span></td>
+              <td><span class="pill g">● Completed</span></td>
+              <td class="next"><b>→</b> Await client feedback this week</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="background:#22c55e"></i> Completed</span>
+        <span><i class="dot" style="background:#00B4D8"></i> In Progress</span>
+        <span><i class="dot" style="background:#3D5A80"></i> Pending</span>
+        <span><i class="dot" style="background:#ef4444"></i> Overdue / Urgent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WEEKLY ===================== -->
+  <div id="week" class="page">
+    <div class="card">
+      <div class="card-h">
+        <div class="week-pick"><span class="arw">‹</span> Week 37 · 07–11 Sep 2026 <span class="arw">›</span></div>
+        <div class="actions">
+          <button class="btn">＋ Add Task</button>
+          <button class="btn pri">💾 Save Week</button>
+        </div>
+      </div>
+      <div class="board">
+        <div class="col">
+          <div class="col-h"><span>MON</span><span class="d">07</span></div>
+          <div class="mini g"><div class="t">Site kick-off meeting</div><div class="m"><span>Quốc</span><span>✓ Done</span></div></div>
+          <div class="mini"><div class="t">Draft BOQ structure</div><div class="m"><span>Lê</span><span>6h</span></div><div class="prog"><i style="width:100%"></i></div></div>
+        </div>
+        <div class="col">
+          <div class="col-h"><span>TUE</span><span class="d">08</span></div>
+          <div class="mini a"><div class="t">Revise foundation DWG</div><div class="m"><span>Hường</span><span>14 Sep</span></div><div class="prog"><i style="width:55%"></i></div></div>
+          <div class="mini"><div class="t">Supplier calls</div><div class="m"><span>Tony</span><span>4h</span></div><div class="prog"><i style="width:100%"></i></div></div>
+        </div>
+        <div class="col">
+          <div class="col-h"><span>WED</span><span class="d">09</span></div>
+          <div class="mini r"><div class="t">Steel quotations (3×)</div><div class="m"><span>Tony</span><span>Overdue</span></div><div class="prog"><i style="width:33%"></i></div></div>
+          <div class="mini p"><div class="t">Client proposal (TL)</div><div class="m"><span>Quốc</span><span>10 Sep</span></div><div class="prog"><i style="width:90%"></i></div></div>
+        </div>
+        <div class="col">
+          <div class="col-h"><span>THU</span><span class="d">10</span></div>
+          <div class="mini a"><div class="t">Weekly review</div><div class="m"><span>All</span><span>09:00</span></div><div class="prog"><i style="width:100%"></i></div></div>
+          <div class="mini"><div class="t">Permit docs</div><div class="m"><span>Hường</span><span>18 Sep</span></div><div class="prog"><i style="width:20%"></i></div></div>
+        </div>
+        <div class="col">
+          <div class="col-h"><span>FRI</span><span class="d">11</span></div>
+          <div class="mini"><div class="t">BOQ cross-check</div><div class="m"><span>Lê</span><span>15 Sep</span></div><div class="prog"><i style="width:10%"></i></div></div>
+          <div class="mini"><div class="t">Submit permit file</div><div class="m"><span>Hường</span><span>18 Sep</span></div><div class="prog"><i style="width:0%"></i></div></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="background:#00B4D8"></i> On track</span>
+        <span><i class="dot" style="background:#f59e0b"></i> At risk</span>
+        <span><i class="dot" style="background:#8b5cf6"></i> High priority</span>
+        <span><i class="dot" style="background:#ef4444"></i> Overdue</span>
+        <span><i class="dot" style="background:#22c55e"></i> Completed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PROJECT ===================== -->
+  <div id="proj" class="page">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t"><span class="ico">🏗️</span> Project Info &amp; Next Plan Tasks</div>
+        <button class="btn pri">＋ Add Project</button>
+      </div>
+      <div class="proj-grid">
+
+        <div class="proj">
+          <div class="proj-h">
+            <div><div class="proj-n">TaiYang Metal</div><div class="proj-c">Warehouse fit-out · Client: TaiYang (CN)</div></div>
+            <span class="pill b">● In Progress</span>
+          </div>
+          <div class="proj-kv">
+            <div>Est. Value<b>85B VND</b></div>
+            <div>Land Area<b>10,000 m²</b></div>
+            <div>Stage<b>Bidding</b></div>
+            <div>PIC<b>Mr. Quốc</b></div>
+          </div>
+          <div class="plan-t">Next Plan Tasks</div>
+          <ul class="plan">
+            <li class="done"><b>Site survey schedule confirmed</b><span class="due">12 Sep</span></li>
+            <li><b>Finalize BOQ v2</b> — with revised steel qty<span class="due">15 Sep</span></li>
+            <li><b>Submit tender package</b> to client<span class="due">20 Sep</span></li>
+          </ul>
+        </div>
+
+        <div class="proj w">
+          <div class="proj-h">
+            <div><div class="proj-n">Global Star</div><div class="proj-c">Factory building · Client: Global Star</div></div>
+            <span class="pill a">● Bidding</span>
+          </div>
+          <div class="proj-kv">
+            <div>Est. Value<b>120B VND</b></div>
+            <div>Land Area<b>18,000 m²</b></div>
+            <div>Stage<b>Reviewing</b></div>
+            <div>PIC<b>Mr. Lê</b></div>
+          </div>
+          <div class="plan-t">Next Plan Tasks</div>
+          <ul class="plan">
+            <li><b>Prepare full BOQ</b><span class="due">15 Sep</span></li>
+            <li><b>Cross-check quantity</b> with QS team<span class="due">17 Sep</span></li>
+            <li><b>Site visit with client</b><span class="due">19 Sep</span></li>
+          </ul>
+        </div>
+
+        <div class="proj">
+          <div class="proj-h">
+            <div><div class="proj-n">Transimex</div><div class="proj-c">Logistics center · Client: Transimex</div></div>
+            <span class="pill gray">○ Pending</span>
+          </div>
+          <div class="proj-kv">
+            <div>Est. Value<b>64B VND</b></div>
+            <div>Land Area<b>8,500 m²</b></div>
+            <div>Stage<b>Permits</b></div>
+            <div>PIC<b>Ms. Hường</b></div>
+          </div>
+          <div class="plan-t">Next Plan Tasks</div>
+          <ul class="plan">
+            <li><b>Collect land documents</b> (missing 2 items)<span class="due">14 Sep</span></li>
+            <li><b>Submit permit application</b><span class="due">18 Sep</span></li>
+            <li><b>Follow up authority response</b><span class="due">25 Sep</span></li>
+          </ul>
+        </div>
+
+        <div class="proj w">
+          <div class="proj-h">
+            <div><div class="proj-n">Treasure Lighting</div><div class="proj-c">Production plant · Client: Treasure Lighting (VN)</div></div>
+            <span class="pill p">● Proposal</span>
+          </div>
+          <div class="proj-kv">
+            <div>Est. Value<b>45B VND</b></div>
+            <div>Land Area<b>6,200 m²</b></div>
+            <div>Stage<b>Follow up</b></div>
+            <div>PIC<b>Mr. Quốc</b></div>
+          </div>
+          <div class="plan-t">Next Plan Tasks</div>
+          <ul class="plan">
+            <li class="done"><b>Send bilingual proposal (CN-VN)</b><span class="due">10 Sep</span></li>
+            <li><b>Await client feedback</b><span class="due">13 Sep</span></li>
+            <li><b>Arrange technical meeting</b> with BOD<span class="due">18 Sep</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">MGD · Business Management System — Minutes of Meeting module · Design format preview for review</div>
+</div>
+
+<script>
+function go(id,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('act')});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('act')});
+  document.getElementById(id).classList.add('act');
+  el.classList.add('act');
+}
+</script>
+</body>
+</html>
