@@ -65,7 +65,7 @@ tbody tr:hover{background:rgba(0,180,216,.03)}
 .pill.a{background:rgba(245,158,11,.15);color:#fbbf24}
 .pill.r{background:rgba(239,68,68,.14);color:#f87171}
 .pill.p{background:rgba(139,92,246,.15);color:#c4b5fd}
-.pill.gray{background:rgba(61,90,128,.25);color:#9fb8d4}
+.pill.gray{background:rgba(148,163,184,.2);color:#cbd5e1;border:1px solid rgba(148,163,184,.35)}
 
 .num{font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--muted);font-size:12px}
 .task-t{font-weight:600;color:var(--text1)}
@@ -83,12 +83,12 @@ tbody tr:hover{background:rgba(0,180,216,.03)}
 .col{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;min-height:180px}
 .col-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
 .col-h .d{color:var(--muted)}
-.mini{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:9px;padding:9px 10px;margin-bottom:8px;font-size:11.5px}
-.mini.g{border-left-color:var(--green)}.mini.a{border-left-color:var(--amber)}.mini.p{border-left-color:var(--purple)}.mini.r{border-left-color:var(--red)}
+.mini{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:9px;padding:9px 10px;margin-bottom:8px;font-size:11.5px;--st:var(--blue)}
+.mini.g{border-left-color:var(--green);--st:var(--green)}.mini.a{border-left-color:var(--amber);--st:var(--amber)}.mini.p{border-left-color:var(--purple);--st:var(--purple)}.mini.r{border-left-color:var(--red);--st:var(--red)}
 .mini .t{font-weight:600;margin-bottom:4px}
 .mini .m{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
 .prog{height:4px;background:var(--border);border-radius:3px;margin-top:7px;overflow:hidden}
-.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px}
+.prog i{display:block;height:100%;background:var(--st);border-radius:3px}
 
 /* project cards */
 .proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
