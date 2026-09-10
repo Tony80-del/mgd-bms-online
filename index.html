@@ -759,12 +759,12 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
       <!-- ================= MEETING MINUTES sub-page (integrated from design demo) ================= -->
       <div id="wrSubMom" style="display:none;">
-        <div style="display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start" class="mom-layout">
-          <!-- left: meeting history -->
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px">
+        <div id="momLayout" style="display:grid;grid-template-columns:1fr;gap:16px;align-items:start" class="mom-layout">
+          <!-- left: meeting history (collapsible, hidden by default) -->
+          <div id="momSidebar" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2)">Meeting Records</span>
-              <button onclick="momAddMeeting()" style="font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer">＋ New</button>
+              <button onclick="momToggleRecords()" style="font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer">✕</button>
             </div>
             <div id="momList" style="display:flex;flex-direction:column;gap:6px;max-height:620px;overflow-y:auto"></div>
           </div>
@@ -772,7 +772,8 @@ input[type="date"]::-moz-calendar-picker-indicator {
           <div>
             <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
               <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px">📄 <span id="momHeadTitle">Meeting Minutes</span> <span class="mom-badge b" style="background:rgba(0,180,216,.15);color:var(--blue);padding:2px 8px;border-radius:11px;font-size:10px;font-weight:700">Excel Format</span></div>
-              <div style="display:flex;gap:8px">
+              <div style="display:flex;gap:8px;align-items:center">
+                <button id="momRecordsBtn" onclick="momToggleRecords()" style="font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer">📁 Records</button>
                 <button onclick="momPrint()" style="font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer">🖨 Print</button>
                 <button onclick="momAddMeeting()" style="font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer">📋 New</button>
                 <button onclick="momSave()" style="font-size:11px;font-weight:600;padding:6px 11px;border-radius:8px;border:none;background:var(--blue);color:#02121f;cursor:pointer">💾 Save</button>
@@ -2006,6 +2007,19 @@ function momRenderList(){
   }).join('');
 }
 function momPick(id){momCollect();momCurrentId=id;momRenderList();momRenderSheet();}
+function momToggleRecords(){
+  var sb=document.getElementById('momSidebar'),lay=document.getElementById('momLayout'),btn=document.getElementById('momRecordsBtn');
+  if(!sb)return;
+  var open=sb.style.display!=='none';
+  if(open){
+    sb.style.display='none';lay.style.gridTemplateColumns='1fr';
+    if(btn)btn.style.background='var(--bg2)',btn.style.borderColor='var(--border)';
+  }else{
+    sb.style.display='block';lay.style.gridTemplateColumns='270px 1fr';
+    momRenderList();
+    if(btn)btn.style.background='rgba(0,180,216,.15)',btn.style.borderColor='var(--blue)';
+  }
+}
 function momCollect(){
   var rec=momGetRec();if(!rec)return;
   var root=document.getElementById('momSheetWrap');if(!root)return;
