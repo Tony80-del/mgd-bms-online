@@ -1960,7 +1960,7 @@ function momSeedRecords(){
   return [
     {id:'MOM-012',title:'Weekly Project Review',date:'10 Sep 2026 (Thu)',time:'09:00 – 10:30',project:'TaiYang Metal · Global Star',location:'MGD Office · Room 2',chair:'Mr. Quốc',recorder:'Ms. Hường',attendees:'Mr. Quốc, Ms. Hường, Mr. Lê, Tony (4)',absent:'—',preparedBy:'Ms. Hường',approvedBy:'Mr. Quốc',distribution:'BOD, Project Team',
       agenda:[{topic:'Business',items:['Project kick-off — site access & survey schedule confirmed with client. Decision: proceed Phase 1.','Bidding — BOQ required for Global Star warehouse. Decision: prepare full BOQ.','Client follow-up — Treasure Lighting proposal (bilingual). Decision: send updated version.']},{topic:'Project',items:['Design review — client commented on foundation drawing. Decision: revise DWG-204 & resubmit.','Permits — Transimex application pending land documents. Decision: collect missing items.']},{topic:'System',items:['Procurement — steel structure pricing needed. Decision: obtain 3 quotations.','Reporting — weekly report template to be standardized across projects. Decision: adopt new format.']}],
-      actions:[{task:'Confirm site survey schedule with client',pic:'Mr. Quốc',due:'12 Sep',priority:'High',status:'Completed',next:'Send confirmed schedule to BOD',remark:'—'},{task:'Revise foundation drawing per client comment (DWG-204)',pic:'Ms. Hường',due:'14 Sep',priority:'High',status:'In Progress',next:'Submit revised DWG to consultant',remark:'—'},{task:'Prepare BOQ for Global Star warehouse',pic:'Mr. Lê',due:'15 Sep',priority:'Medium',status:'In Progress',next:'Cross-check quantity with QS team',remark:'—'},{task:'Get 3 quotations for steel structure',pic:'Tony',due:'11 Sep',priority:'Urgent',status:'Overdue',next:'Follow up 2 pending suppliers today',remark:'—'},{task:'Submit construction permit application (Transimex)',pic:'Ms. Hường',due:'18 Sep',priority:'High',status:'Pending',next:'Collect missing land documents',remark:'—'},{task:'Send updated proposal to Treasure Lighting',pic:'Mr. Quốc',due:'10 Sep',priority:'Medium',status:'Completed',next:'Await client feedback this week',remark:'—'}]},
+      actions:[{topic:'Business',items:[{task:'Confirm site survey schedule with client',pic:'Mr. Quốc',due:'12 Sep',priority:'High',status:'Completed',next:'Send confirmed schedule to BOD',remark:'—'},{task:'Send updated proposal to Treasure Lighting',pic:'Mr. Quốc',due:'10 Sep',priority:'Medium',status:'Completed',next:'Await client feedback this week',remark:'—'}]},{topic:'Project',items:[{task:'Revise foundation drawing per client comment (DWG-204)',pic:'Ms. Hường',due:'14 Sep',priority:'High',status:'In Progress',next:'Submit revised DWG to consultant',remark:'—'},{task:'Prepare BOQ for Global Star warehouse',pic:'Mr. Lê',due:'15 Sep',priority:'Medium',status:'In Progress',next:'Cross-check quantity with QS team',remark:'—'},{task:'Submit construction permit application (Transimex)',pic:'Ms. Hường',due:'18 Sep',priority:'High',status:'Pending',next:'Collect missing land documents',remark:'—'}]},{topic:'System',items:[{task:'Get 3 quotations for steel structure',pic:'Tony',due:'11 Sep',priority:'Urgent',status:'Overdue',next:'Follow up 2 pending suppliers today',remark:'—'}]}],
     {id:'MOM-011',title:'Client Meeting — Treasure Lighting',date:'03 Sep 2026 (Wed)',time:'14:00 – 15:30',project:'Treasure Lighting',location:'Client Office',chair:'Mr. Quốc',recorder:'Ms. Hường',attendees:'Mr. Quốc, Ms. Hường, Client BOD (3)',absent:'Mr. Lê',preparedBy:'Ms. Hường',approvedBy:'Mr. Quốc',distribution:'BOD, Project Team',
       agenda:[{topic:'Business',items:['Present company profile and capability.']},{topic:'Project',items:['Client requests bilingual proposal (CN-VN) with phased pricing.']}],
       actions:[{task:'Prepare bilingual proposal (CN-VN)',pic:'Ms. Hường',due:'08 Sep',priority:'High',status:'Completed',next:'Send to client for review',remark:'—'},{task:'Clarify land handover timeline',pic:'Mr. Quốc',due:'06 Sep',priority:'Medium',status:'Completed',next:'Confirm in writing',remark:'—'},{task:'Arrange technical meeting with BOD',pic:'Mr. Quốc',due:'18 Sep',priority:'Medium',status:'Pending',next:'Propose 2 time slots',remark:'—'},{task:'Site photos & measurements',pic:'Mr. Lê',due:'15 Sep',priority:'Low',status:'Pending',next:'Schedule site visit',remark:'—'}]},
@@ -1976,17 +1976,17 @@ function momSeedRecords(){
   ];
 }
 function momGetData(){
-  if(!data.meetingMinutes||!data.meetingMinutes.records){data.meetingMinutes={seq:12,records:momSeedRecords(),migVersion:2};return data.meetingMinutes;}
-  if(data.meetingMinutes.migVersion!==2){
+  if(!data.meetingMinutes||!data.meetingMinutes.records){data.meetingMinutes={seq:12,records:momSeedRecords(),migVersion:3};return data.meetingMinutes;}
+  if(data.meetingMinutes.migVersion!==3){
     var _r=data.meetingMinutes.records||[];
     var _ids=_r.map(function(x){return x.id;}).sort().join(',');
     if(_ids==='MOM-008,MOM-009,MOM-010,MOM-011,MOM-012'){
       data.meetingMinutes.records=momSeedRecords();
       data.meetingMinutes.seq=12;
     }else{
-      _r.forEach(function(rec){rec.agenda=momNormAgenda(rec.agenda);});
+      _r.forEach(function(rec){rec.agenda=momNormAgenda(rec.agenda);rec.actions=momNormActions(rec.actions);});
     }
-    data.meetingMinutes.migVersion=2;
+    data.meetingMinutes.migVersion=3;
     try{if(typeof saveData==='function')saveData();}catch(e){}
   }
   return data.meetingMinutes;
@@ -2015,10 +2015,55 @@ function momRenderList(){
     return '<div class="mom-mitem'+(rec.id===momCurrentId?' act':'')+'" onclick="momPick(\''+rec.id+'\')">'
       +'<div class="no">'+momEsc(rec.id)+'</div>'
       +'<div class="ti">'+momEsc(rec.title)+'</div>'
-      +'<div class="mt"><span>'+momEsc(rec.date)+'</span><span>'+((rec.actions||[]).length)+' actions</span></div></div>';
+      +'<div class="mt"><span>'+momEsc(rec.date)+'</span><span>'+momCountActions(rec.actions)+' actions</span></div></div>';
   }).join('');
 }
+function momCountActions(ac){if(!ac||!ac.length)return 0;if(ac[0]&&ac[0].items)return ac.reduce(function(s,g){return s+((g.items||[]).length);},0);return ac.length;}
 function momPick(id){momCollect();momCurrentId=id;momRenderList();momRenderSheet();}
+function momNormActions(ac){
+  if(!ac||!ac.length)ac=[{topic:'',items:[]}];
+  var _new={task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'};
+  var _isSec=function(s){return s&&typeof s==='object'&&!Array.isArray(s)&&(Object.prototype.hasOwnProperty.call(s,'items')||Object.prototype.hasOwnProperty.call(s,'topic'));};
+  if(!_isSec(ac[0])){
+    var _flat=ac.filter(function(a){return !_isSec(a);});
+    return [{topic:'',items:_flat.map(function(a){var o={};_new&&Object.keys(_new).forEach(function(k){o[k]=a[k]!=null?a[k]:_new[k];});return o;})}];
+  }
+  return ac.map(function(g){
+    var topic=(g&&typeof g.topic==='string')?g.topic:'';
+    var items=(g&&Array.isArray(g.items))?g.items.map(function(a){var o={};Object.keys(_new).forEach(function(k){o[k]=a&&a[k]!=null?a[k]:_new[k];});return o;}):[];
+    return {topic:topic,items:items};
+  });
+}
+function momAddActionSection(){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.actions=momNormActions(rec.actions);
+  rec.actions.push({topic:'',items:[{task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'}]});
+  momRenderSheet();
+  var t=document.querySelectorAll('#momSheet [data-astk]');var last=t[t.length-1];if(last)last.focus();
+}
+function momDelActionSection(gi){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.actions=momNormActions(rec.actions);
+  if(rec.actions.length<=1)return;
+  rec.actions.splice(gi,1);
+  momRenderSheet();
+}
+function momAddActionItem(gi){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.actions=momNormActions(rec.actions);
+  if(!rec.actions[gi])return;
+  rec.actions[gi].items.push({task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'});
+  momRenderSheet();
+  var rows=document.querySelectorAll('#momSheet [data-arow^="'+gi+'_"][data-arow]');var last=rows[rows.length-1];if(last){var t=last.querySelector('[data-af=task]');if(t)t.focus();}
+}
+function momDelActionItem(gi,ii){
+  momCollect();var rec=momGetRec();if(!rec)return;
+  rec.actions=momNormActions(rec.actions);
+  var g=rec.actions[gi];if(!g)return;
+  if(g.items.length<=1)return;
+  g.items.splice(ii,1);
+  momRenderSheet();
+}
 function momNormAgenda(ag){
   if(!ag||!ag.length)ag=[{topic:'',items:['']}];
   return ag.map(function(g){
@@ -2081,7 +2126,7 @@ function momCollect(){
   var ab=document.getElementById('momApprovedBy');if(ab)rec.approvedBy=ab.textContent.trim();
   var agenda=[];root.querySelectorAll('[data-agtopic]').forEach(function(tr){var gi=tr.getAttribute('data-agtopic');var tk=root.querySelector('[data-agtk="'+gi+'"]');var items=[];root.querySelectorAll('[data-agi^="'+gi+'_"][data-agi]').forEach(function(sp){items.push(sp.textContent.trim());});agenda.push({topic:tk?tk.textContent.trim():'',items:items});});
   if(agenda.length)rec.agenda=agenda;
-  var actions=[];root.querySelectorAll('[data-aarow]').forEach(function(row){var o={};row.querySelectorAll('[data-af]').forEach(function(c){o[c.getAttribute('data-af')]=c.textContent.trim();});actions.push(o);});
+  var actions=[];root.querySelectorAll('[data-astopic]').forEach(function(tr){var gi=tr.getAttribute('data-astopic');var tk=root.querySelector('[data-astk="'+gi+'"]');var items=[];root.querySelectorAll('[data-arow^="'+gi+'_"][data-arow]').forEach(function(row){var o={};row.querySelectorAll('[data-af]').forEach(function(c){o[c.getAttribute('data-af')]=c.textContent.trim();});items.push(o);});actions.push({topic:tk?tk.textContent.trim():'',items:items});});
   if(actions.length)rec.actions=actions;
 }
 function momRenderSheet(){
@@ -2113,21 +2158,31 @@ function momRenderSheet(){
     });
   });
   s+='</table>';
-  /* ---- Table 2: action items ---- */
-  s+='<table class="mm"><colgroup><col style="width:4%"><col style="width:26%"><col style="width:11%"><col style="width:11%"><col style="width:9%"><col style="width:11%"><col style="width:19%"><col style="width:9%"></colgroup>';
-  s+='<tr><td class="hdr" colspan="8">ACTION ITEMS · NEXT STEP</td></tr>';
-  s+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td></tr>';
-  (rec.actions||[]).forEach(function(a,i){
-    s+='<tr data-aarow>'
-      +'<td class="num">'+String(i+1).padStart(2,'0')+'</td>'
-      +'<td contenteditable="true" data-af="task">'+momEsc(a.task)+'</td>'
-      +'<td class="ctr" contenteditable="true" data-af="pic">'+momEsc(a.pic)+'</td>'
-      +'<td class="ctr" contenteditable="true" data-af="due">'+momEsc(a.due)+'</td>'
-      +'<td class="ctr"><span class="mom-badge '+momPrioClass(a.priority)+'" contenteditable="true" data-af="priority" onblur="momRecolor(this,\'prio\')">'+momEsc(a.priority)+'</span></td>'
-      +'<td class="ctr"><span class="mom-badge '+momStatClass(a.status)+'" contenteditable="true" data-af="status" onblur="momRecolor(this)">'+momEsc(a.status)+'</span></td>'
-      +'<td contenteditable="true" data-af="next">'+momEsc(a.next)+'</td>'
-      +'<td class="ctr" contenteditable="true" data-af="remark">'+momEsc(a.remark||'—')+'</td>'
-      +'</tr>';
+  /* ---- Table 2: action items (grouped by section/topic) ---- */
+  s+='<table class="mm"><colgroup><col style="width:4%"><col style="width:25%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:10%"><col style="width:18%"><col style="width:9%"><col style="width:5%"></colgroup>';
+  s+='<tr><td class="hdr" colspan="9" style="text-align:left">ACTION ITEMS · NEXT STEP<span style="float:right;font-weight:400"><button type="button" onclick="momAddActionSection()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Section</button></span></td></tr>';
+  s+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td><td class="hdr"></td></tr>';
+  rec.actions=momNormActions(rec.actions);
+  rec.actions.forEach(function(g,gi){
+    s+='<tr data-astopic="'+gi+'"><td colspan="9" style="position:relative;padding-right:150px;background:#eaf2fa;padding-top:5px;padding-bottom:5px">'
+      +'<span style="font-weight:700;color:#1F4E79">Topic:</span> <span contenteditable="true" data-astk="'+gi+'" style="font-weight:700;color:#1F4E79;display:inline-block;min-width:140px;outline:none">'+momEsc(g.topic)+'</span>'
+      +'<span style="position:absolute;top:4px;right:5px;display:flex;gap:5px;align-items:center">'
+        +'<button type="button" onclick="momAddActionItem('+gi+')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;border:1px solid #1F4E79;background:#fff;color:#1F4E79;cursor:pointer">＋ Item</button>'
+        +'<button type="button" title="Delete section" onclick="momDelActionSection('+gi+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.6" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.6\';this.style.background=\'transparent\'">✕</button>'
+      +'</span></td></tr>';
+    (g.items||[]).forEach(function(a,ii){
+      s+='<tr data-arow="'+gi+'_'+ii+'">'
+        +'<td class="num">'+String(ii+1).padStart(2,'0')+'</td>'
+        +'<td contenteditable="true" data-af="task">'+momEsc(a.task)+'</td>'
+        +'<td class="ctr" contenteditable="true" data-af="pic">'+momEsc(a.pic)+'</td>'
+        +'<td class="ctr" contenteditable="true" data-af="due">'+momEsc(a.due)+'</td>'
+        +'<td class="ctr"><span class="mom-badge '+momPrioClass(a.priority)+'" contenteditable="true" data-af="priority" onblur="momRecolor(this,\'prio\')">'+momEsc(a.priority)+'</span></td>'
+        +'<td class="ctr"><span class="mom-badge '+momStatClass(a.status)+'" contenteditable="true" data-af="status" onblur="momRecolor(this)">'+momEsc(a.status)+'</span></td>'
+        +'<td contenteditable="true" data-af="next">'+momEsc(a.next)+'</td>'
+        +'<td class="ctr" contenteditable="true" data-af="remark">'+momEsc(a.remark||'—')+'</td>'
+        +'<td class="ctr"><button type="button" title="Delete item" onclick="momDelActionItem('+gi+','+ii+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.5" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.5\';this.style.background=\'transparent\'">✕</button></td>'
+        +'</tr>';
+    });
   });
   s+='</table>';
   host.innerHTML=s;
@@ -2140,7 +2195,7 @@ function momAddMeeting(){
   var id='MOM-'+String(d.seq).padStart(3,'0');
   var nd=new Date();var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var dateStr=nd.getDate()+' '+mo[nd.getMonth()]+' '+nd.getFullYear()+' ('+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()]+')';
-  d.records.unshift({id:id,title:'New Meeting',date:dateStr,time:'',project:'',location:'',chair:'',recorder:'',attendees:'',absent:'—',preparedBy:'',approvedBy:'',distribution:'',agenda:[{topic:'',items:['']}],actions:[{task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'}]});
+  d.records.unshift({id:id,title:'New Meeting',date:dateStr,time:'',project:'',location:'',chair:'',recorder:'',attendees:'',absent:'—',preparedBy:'',approvedBy:'',distribution:'',agenda:[{topic:'',items:['']}],actions:[{topic:'',items:[{task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'}]}]});
   momCurrentId=id;momRenderList();momRenderSheet();
 }
 function momSave(){momCollect();saveData();momRenderList();if(typeof showToast==='function')showToast('✅ Meeting Minutes saved');else if(typeof toast==='function')toast('Meeting Minutes saved');}
