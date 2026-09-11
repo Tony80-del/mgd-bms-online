@@ -8347,7 +8347,11 @@ function pifBuildingSummary(){
   var out=[];
   PIF_BUILDINGS.forEach(function(b){
     var t=pifVal('pif_b'+b.n+'_type'),a=pifVal('pif_b'+b.n+'_area'),f=pifVal('pif_b'+b.n+'_fl');
-    if(t||a||f)out.push(t+(a?' '+a+' m\u00b2':'')+(f?' / '+f:''));
+    if(!t&&!a&&!f)return;
+    var s=t;
+    if(a&&a!=='-')s+=' '+a+' m\u00b2';
+    if(f&&f!=='-')s+=' / '+f;
+    out.push(s);
   });
   return out.join(' \u00b7 ');
 }
@@ -8405,7 +8409,7 @@ window.pfuSetTaskStatus=pfuSetTaskStatus;
 </script>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 PROJECT INFORMATION FORM (MR-001) \u2014 Stage 1 only \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
-<div class="pif-modal" id="pifModal">
+<div class="pif-modal" id="pifModal" onclick="if(event.target===this)pifClose()">
   <div class="pif-sheet">
     <div class="pif-t1">PROJECT  INFORMATION FORM</div>
     <div class="pif-t2">CTPARK VINATEX RBW</div>
