@@ -102,6 +102,12 @@
     .pfu-btn.pri{background:var(--blue);color:#02121f;border-color:var(--blue)}
     .pfu-btn.pri:hover{opacity:.88;color:#02121f}
     .pfu-btn.sm{padding:5px 10px;font-size:11px}
+    .pfu-btn.fin{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.45);color:#4ade80}
+    .pfu-btn.fin:hover{border-color:#22c55e;color:#22c55e}
+    .pfu-stagetag{display:inline-block;margin-left:5px;padding:1px 7px;border-radius:20px;background:rgba(0,180,216,.12);color:var(--cyan);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+    .pfu-auto-tag{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:20px;background:rgba(148,163,184,.18);color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+    table.pfu-grid tr.stage-row.cur td{background:rgba(0,180,216,.14)}
+    table.pfu-grid tr.stage-empty td{color:var(--muted);font-style:italic;font-size:11px;font-weight:400;text-transform:none;letter-spacing:0}
     .pfu-layout.pfu-closed{grid-template-columns:1fr}
     .pfu-panel{animation:pfuSlideIn .18s ease}
     @keyframes pfuSlideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
@@ -8058,7 +8064,15 @@ function pfuGetData(){
     (p.tasks||[]).forEach(function(t){if(_REN[t.stage]){t.stage=_REN[t.stage];_mig=true;}});
     if(!p.badgeCls||_REN[p.badgeCls])p.badgeCls=PFU_STAGE_CLS[p.stage]||'b';
   });
-  if(_mig&&typeof saveData==='function')saveData();
+  /* per-stage records: stageStatus + stage-tagged log + automatic progress */
+  var _mig2=false;
+  data.projectTracking.forEach(function(p){
+    if(pfuEnsureStageStatus(p))_mig2=true;
+    (p.log||[]).forEach(function(l){ if(l&&!l.stage){ l.stage=p.stage; _mig2=true; } });
+    var _pr=pfuProgress(p);
+    if(Number(p.progress)!==_pr){ p.progress=_pr; _mig2=true; }
+  });
+  if((_mig||_mig2)&&typeof saveData==='function')saveData();
   if(!pfuCurId||!data.projectTracking.some(function(p){return p.id===pfuCurId;})){pfuCurId=data.projectTracking[0].id;}
   return data.projectTracking;
 }
@@ -8085,7 +8099,7 @@ function pfuRenderDetail(){
   if(!p){box.innerHTML='';return;}
   var curIdx=PFU_STAGES.indexOf(p.stage); if(curIdx<0)curIdx=0;
   var _bc=PFU_BADGE_COLORS[p.badgeCls||'b']||PFU_BADGE_COLORS.b;
-  var _stageOpts=PFU_STAGE_LABELS.map(function(lbl,i){return '<option value="'+i+'"'+(i===curIdx?' selected':'')+'>'+pfuEsc(lbl)+'</option>';}).join('');
+  var _stageOpts=PFU_STAGE_LABELS.map(function(lbl,i){var _dn=(p.stageStatus&&p.stageStatus[PFU_STAGES[i]]==='Completed');return '<option value="'+i+'"'+(i===curIdx?' selected':'')+'>'+(_dn?'\u2713 ':'')+pfuEsc(lbl)+'</option>';}).join('');
   var h='';
   h+='<div class="pfu-head"><div class="row1"><div>'
     +'<h2 data-edit data-f="name">'+pfuEsc(p.name)+'</h2>'
@@ -8094,22 +8108,24 @@ function pfuRenderDetail(){
     +'<button class="pfu-btn sm" id="pfuPanelToggle" onclick="pfuTogglePanel()">\ud83d\udcc1 Projects</button>'
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
+    +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
     +'<button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
     +'</div></div>';
   h+='<div class="pfu-kv">';
-  [['estValue','Est. Value'],['landArea','Land Area'],['pic','PIC'],['start','Start'],['target','Target Result'],['progress','Progress']].forEach(function(kv){
-    var v=p[kv[0]]; if(kv[0]==='progress'){v=(v==null?'0':v)+'%';}
-    h+='<div>'+kv[1]+'<b data-edit data-f="'+kv[0]+'">'+pfuEsc(v||'\u2014')+'</b></div>';
+  [['estValue','Est. Value'],['landArea','Land Area'],['pic','PIC'],['start','Start'],['target','Target Result']].forEach(function(kv){
+    h+='<div>'+kv[1]+'<b data-edit data-f="'+kv[0]+'">'+pfuEsc(p[kv[0]]||'\u2014')+'</b></div>';
   });
+  h+='<div>Progress<b style="border-bottom:none">'+(p.progress==null?0:p.progress)+'% <span class="pfu-auto-tag" title="Auto-calculated: completed stages / 6">auto</span></b></div>';
   h+='</div></div>';
   h+='<div class="pfu-pipe">';
   PFU_STAGES.forEach(function(s,i){
-    var cls=i<curIdx?'done':(i===curIdx?'cur':'');
+    var st=(p.stageStatus&&p.stageStatus[s])||'Pending';
+    var cls=(st==='Completed')?'done':(st==='In Progress'?'cur':'');
     var res=(s==='Result')?' res':'';
-    var sd=i<curIdx?'\u2713 done':(i===curIdx?'\u25cf In progress':'\u25cb Pending');
-    h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
+    var sd=(st==='Completed'?'\u2713 completed':(st==='In Progress'?'\u25cf in progress':'\u25cb pending'));
+    h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')" title="Click to switch to this stage"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
   });
   h+='</div>';
   h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udccc Tasks by Stage</div><div class="pfu-card-sub">Each stage has tasks \u00b7 PIC \u00b7 date \u00b7 follow-up note \u00b7 status</div></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
@@ -8117,9 +8133,9 @@ function pfuRenderDetail(){
   var tasks=p.tasks||[];
   PFU_STAGES.forEach(function(s,si){
     var rows=[]; tasks.forEach(function(t,idx){if(t.stage===s)rows.push(idx);});
-    if(!rows.length)return;
-    var sub=si<curIdx?'completed':(si===curIdx?'in progress':'pending');
-    h+='<tr class="stage-row"><td colspan="6">'+PFU_NUM[si]+' '+pfuEsc(s)+' \u2014 '+sub+'</td></tr>';
+    var st=(p.stageStatus&&p.stageStatus[s])||'Pending';
+    h+='<tr class="stage-row'+(st==='In Progress'?' cur':'')+'"><td colspan="6">'+PFU_NUM[si]+' '+pfuEsc(s)+' \u2014 '+st.toLowerCase()+' \u00b7 '+rows.length+' task'+(rows.length===1?'':'s')+'</td></tr>';
+    if(!rows.length){h+='<tr class="stage-empty"><td colspan="6">\u2014 no tasks recorded in this stage yet \u2014 select this stage then ＋ Add Task \u2014</td></tr>';return;}
     rows.forEach(function(idx){
       var t=tasks[idx];
       h+='<tr>'
@@ -8135,7 +8151,7 @@ function pfuRenderDetail(){
   h+='</tbody></table></div></div>';
   h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udd53 Follow-up Log <span class="pfu-badge b" style="margin-left:6px">Every step recorded</span></div><button class="pfu-btn sm" onclick="pfuAddNote()">\uff0b Add Note</button></div><div class="pfu-tl">';
   (p.log||[]).forEach(function(l){
-    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n">'+pfuEsc(l.note)+'</div></div>';
+    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+(l.stage?' <span class="pfu-stagetag">'+pfuEsc(l.stage)+'</span>':'')+'</div><div class="pfu-tl-t">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n">'+pfuEsc(l.note)+'</div></div>';
   });
   h+='</div></div>';
   box.innerHTML=h;
@@ -8152,7 +8168,7 @@ function pfuCollect(){
   var sub=box.querySelector('[data-f="subtitle"]');
   if(sub){var txt=sub.textContent||'';var mC=txt.match(/Client:\s*(.*?)\s*\u00b7\s*Ref:/i);var mR=txt.match(/Ref:\s*(.*)$/i);var parts=txt.split('\u00b7');if(parts[0]!=null)p.type=parts[0].trim();if(mC)p.client=mC[1].trim();if(mR)p.ref=mR[1].trim();}
   ['estValue','landArea','pic','start','target'].forEach(function(k){var el=box.querySelector('[data-f="'+k+'"]');if(el)p[k]=el.textContent.trim();});
-  var pr=box.querySelector('[data-f="progress"]'); if(pr){var n=parseInt((pr.textContent||'').replace(/[^0-9]/g,''),10); if(!isNaN(n))p.progress=Math.max(0,Math.min(100,n));}
+  p.progress=pfuProgress(p); /* auto: completed stages / 6 */
   box.querySelectorAll('[data-ti]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
     if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=c.textContent.trim();
@@ -8185,12 +8201,58 @@ function pfuDelProject(){
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
+/* ---- per-stage records helpers ---- */
+function pfuEnsureStageStatus(p){
+  if(!p||typeof p!=='object')return false;
+  if(!p.stageStatus||typeof p.stageStatus!=='object'||Array.isArray(p.stageStatus))p.stageStatus={};
+  var cur=PFU_STAGES.indexOf(p.stage); if(cur<0)cur=0;
+  var changed=false;
+  PFU_STAGES.forEach(function(s,i){
+    if(p.stageStatus[s]!=='Completed'&&p.stageStatus[s]!=='In Progress'&&p.stageStatus[s]!=='Pending'){
+      p.stageStatus[s]=(i<cur?'Completed':(i===cur?'In Progress':'Pending')); changed=true;
+    }
+  });
+  if(!p.stageDone||typeof p.stageDone!=='object'||Array.isArray(p.stageDone))p.stageDone={};
+  return changed;
+}
+function pfuProgress(p){
+  pfuEnsureStageStatus(p);
+  var done=0; PFU_STAGES.forEach(function(s){ if(p.stageStatus[s]==='Completed')done++; });
+  return Math.round(done/PFU_STAGES.length*100);
+}
+function pfuFinalizeStage(){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  var cur=PFU_STAGES.indexOf(p.stage); if(cur<0)cur=0;
+  var name=PFU_STAGES[cur];
+  pfuEnsureStageStatus(p);
+  var already=(p.stageStatus[name]==='Completed');
+  var next=(cur<PFU_STAGES.length-1)?PFU_STAGES[cur+1]:null;
+  var msg=already
+    ? ('Stage '+(cur+1)+' \u00b7 '+name+' is already completed.'+(next?' Move on to stage '+(cur+2)+' \u00b7 '+next+' ?':' This is the final stage.'))
+    : ('Finalize stage '+(cur+1)+' \u00b7 '+name+' ?\n\nAll records of this stage are KEPT (tasks + notes stay). '+(next?'Then the page moves on to stage '+(cur+2)+' \u00b7 '+next+'.':'This is the final stage.'));
+  if(!window.confirm(msg))return;
+  p.stageStatus[name]='Completed';
+  p.stageDone[name]=pfuNow();
+  if(!Array.isArray(p.log))p.log=[];
+  p.log.unshift({date:pfuNow(),type:'g',stage:name,title:'Stage '+(cur+1)+' \u00b7 '+name+' finalized',note:'All records kept.'+(next?' Advanced to stage '+(cur+2)+' \u00b7 '+next+'.':'')});
+  if(next){
+    p.stage=next; p.badge=next; p.badgeCls=PFU_STAGE_CLS[next]||'b';
+    if(p.stageStatus[next]==='Pending')p.stageStatus[next]='In Progress';
+  }
+  p.progress=pfuProgress(p);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast('\u2705 Stage '+(cur+1)+' finalized \u2014 records kept');
+}
 function pfuSetStage(i){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
   var s=PFU_STAGES[i]; if(!s)return;
+  pfuEnsureStageStatus(p);
   p.stage=s; p.badge=s; p.badgeCls=PFU_STAGE_CLS[s]||'b';
-  if(i>=PFU_STAGES.length-1)p.progress=Math.max(Number(p.progress)||0,0);
+  if(p.stageStatus[s]==='Pending')p.stageStatus[s]='In Progress';
+  p.progress=pfuProgress(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
@@ -8215,7 +8277,7 @@ function pfuAddNote(){
   var p=pfuCur(); if(!p)return;
   var n=window.prompt('Follow-up note / \u8ddf\u8fdb\u8bb0\u5f55:'); if(!n||!n.trim())return;
   if(!Array.isArray(p.log))p.log=[];
-  p.log.unshift({date:pfuNow(),type:'g',title:'Note added',note:n.trim()});
+  p.log.unshift({date:pfuNow(),type:'g',stage:p.stage,title:'Note added',note:n.trim()});
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
   pfuToast('\u2705 Note added');
@@ -8232,6 +8294,7 @@ window.pfuSetStage=pfuSetStage;
 window.pfuAddTask=pfuAddTask;
 window.pfuDelTask=pfuDelTask;
 window.pfuAddNote=pfuAddNote;
+window.pfuFinalizeStage=pfuFinalizeStage;
 function pfuSetTaskStatus(idx,val){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.tasks||!p.tasks[idx])return;
