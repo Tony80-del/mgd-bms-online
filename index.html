@@ -8345,10 +8345,10 @@ function pifRenderBuildings(vals){
     var v=(vals&&vals[i])?vals[i]:null;
     function g(k,def){return v?(v[k]==null?'':v[k]):def;}
     return '<tr><td>'+b.n+'</td>'
-      +'<td><input type="text" id="pif_b'+b.n+'_type" value="'+pfuEsc(g('type',b.type))+' "></td>'
-      +'<td><input type="text" id="pif_b'+b.n+'_area" value="'+pfuEsc(g('area',b.area))+' "></td>'
-      +'<td><input type="text" id="pif_b'+b.n+'_fl" value="'+pfuEsc(g('fl',b.fl))+' "></td>'
-      +'<td><input type="text" id="pif_b'+b.n+'_rem" value="'+pfuEsc(g('rem',b.rem))+' "></td></tr>';
+      +'<td><input type="text" id="pif_b'+b.n+'_type" value="'+pfuEsc(g('type',b.type))+'"></td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_area" value="'+pfuEsc(g('area',b.area))+'"></td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_fl" value="'+pfuEsc(g('fl',b.fl))+'"></td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_rem" value="'+pfuEsc(g('rem',b.rem))+'"></td></tr>';
   }).join('')+'<tr class="pif-total"><td></td><td></td><td><input type="text" id="pif_b_total" value="30000"></td><td></td><td></td></tr>';
 }
 function pifVal(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
