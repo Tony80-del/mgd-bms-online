@@ -8240,14 +8240,15 @@ function pfuRenderDetail(){
     var l=o.l;
     var _items=(l.items||[]);
     h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t" data-edit data-lf="title" data-li="'+o.i+'">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n" data-edit data-lf="note" data-li="'+o.i+'">'+pfuEsc(l.note)+'</div>';
-    h+='<table class="pfu-li-tbl"><thead><tr><th style="width:54%">Task / Discussion</th><th style="width:16%">PIC</th><th style="width:14%">Date</th><th style="width:16%">Status</th></tr></thead><tbody>';
-    if(!_items.length){h+='<tr><td colspan="4" class="pfu-li-empty">\u2014 no rows yet \u2014</td></tr>';}
+    h+='<table class="pfu-li-tbl"><thead><tr><th style="width:40%">Task / Discussion</th><th style="width:14%">PIC</th><th style="width:13%">Date</th><th style="width:16%">Dept</th><th style="width:17%">Status</th></tr></thead><tbody>';
+    if(!_items.length){h+='<tr><td colspan="5" class="pfu-li-empty">\u2014 no rows yet \u2014</td></tr>';}
     _items.forEach(function(it,j){
       var _c=PFU_BADGE_COLORS[pfuStatusCls(it.status||'Pending')]||PFU_BADGE_COLORS.gray;
       h+='<tr>'
         +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="task">'+pfuEsc(it.task||'')+'</td>'
         +'<td><input class="pfu-inp" list="pfuPicList" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="pic" value="'+pfuEsc(it.pic&&it.pic!=='\u2014'?it.pic:'')+'" placeholder="\u2014"></td>'
         +'<td><input class="pfu-inp" type="date" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="date" value="'+pfuEsc(pfuToISO(it.date))+'"'+(pfuToISO(it.date)?'':' data-keep="'+pfuEsc(it.date||'')+'"')+'></td>'
+        +'<td><input class="pfu-inp" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="dept" value="'+pfuEsc(it.dept||'')+'" placeholder="\u2014"></td>'
         +'<td><select class="pfu-li-sel" style="background:'+_c[0]+';color:'+_c[1]+'" onchange="pfuSetLogItemStatus('+o.i+','+j+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option'+(s===(it.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelLogItem('+o.i+','+j+')" title="Delete row">\u2715</span></td>'
         +'</tr>';
     });
@@ -8464,7 +8465,7 @@ function pfuAddLogItem(li){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.log||!p.log[li])return;
   if(!Array.isArray(p.log[li].items))p.log[li].items=[];
-  p.log[li].items.push({task:'',pic:'',date:'',status:'Pending'});
+  p.log[li].items.push({task:'',pic:'',date:'',dept:'',status:'Pending'});
   if(typeof saveData==='function')saveData();
   var j=p.log[li].items.length-1;
   pfuRenderAll();
