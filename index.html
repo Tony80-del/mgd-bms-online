@@ -3863,6 +3863,7 @@ function sm(m){
     if(typeof docRenderDashboard==='function')docRenderDashboard();
     if(typeof docRenderProgress==='function')docRenderProgress();
     if(typeof docRenderPieChart==='function')docRenderPieChart();
+    if(typeof docBuildSectionBtns==='function')docBuildSectionBtns();
     if(typeof docRebuildAllItems==='function'){docRebuildAllItems();docRenderTable();}
   }else if(m==='docscollect'){
     if(!window.dcPrevModule) window.dcPrevModule='summary';
