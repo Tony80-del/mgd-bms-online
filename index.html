@@ -180,6 +180,11 @@
     #pfuDetail [data-edit]{outline:none;border-radius:3px;cursor:text}
     #pfuDetail [data-edit]:hover{background:rgba(0,180,216,.06);box-shadow:inset 0 0 0 1px rgba(0,180,216,.28)}
     #pfuDetail [data-edit]:focus{background:rgba(0,180,216,.09);box-shadow:inset 0 0 0 1px var(--blue)}
+    .pfu-inp{width:100%;background:transparent;color:var(--text1);border:none;border-bottom:1px dashed var(--border);font-family:inherit;font-size:11.5px;padding:1px 2px;outline:none;border-radius:3px}
+    .pfu-inp:hover{background:rgba(0,180,216,.06)}
+    .pfu-inp:focus{background:rgba(0,180,216,.09);border-bottom-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+    .pfu-inp::placeholder{color:var(--muted)}
+    .pfu-inp[type=date]{color-scheme:dark;font-size:11px;min-height:20px}
     @media(max-width:960px){.pfu-layout{grid-template-columns:1fr}}
     @media(max-width:960px){.mom-layout{grid-template-columns:1fr !important}.mom-sheet .mm{font-size:11px}}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -8147,6 +8152,30 @@ function pfuRenderAll(){
   pfuApplyPanel();
 }
 
+function pfuToISO(v){
+  if(v==null)return '';
+  v=String(v).trim();
+  if(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v))return v;
+  var m=v.match(/^([0-9]{1,2})\s+([A-Za-z]{3,})\.?\s*([0-9]{4})?$/);
+  if(m){
+    var mo=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[2].slice(0,3).toLowerCase());
+    if(mo>=0){var y=m[3]||new Date().getFullYear();return y+'-'+('0'+(mo+1)).slice(-2)+'-'+('0'+parseInt(m[1],10)).slice(-2);}
+  }
+  return '';
+}
+function pfuCellVal(c){
+  var t=c.tagName;
+  if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA'){var v=String(c.value||'').trim();if(!v&&c.getAttribute('data-keep'))v=String(c.getAttribute('data-keep')).trim();return v;}
+  return c.textContent.trim();
+}
+function pfuPicNames(){
+  var set={}; ['Qu\u1ed1c','H\u01b0\u1eddng','L\u00ea','Tony'].forEach(function(n){set[n]=1;});
+  (data.projectTracking||[]).forEach(function(pp){
+    (pp.tasks||[]).forEach(function(t){if(t.pic&&t.pic!=='\u2014')set[t.pic]=1;});
+    (pp.log||[]).forEach(function(l){(l.items||[]).forEach(function(it){if(it.pic&&it.pic!=='\u2014')set[it.pic]=1;});});
+  });
+  return Object.keys(set);
+}
 function pfuRenderDetail(){
   var p=pfuCur(); var box=document.getElementById('pfuDetail'); if(!box)return;
   if(!p){box.innerHTML='';return;}
@@ -8217,8 +8246,8 @@ function pfuRenderDetail(){
       var _c=PFU_BADGE_COLORS[pfuStatusCls(it.status||'Pending')]||PFU_BADGE_COLORS.gray;
       h+='<tr>'
         +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="task">'+pfuEsc(it.task||'')+'</td>'
-        +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="pic">'+pfuEsc(it.pic||'\u2014')+'</td>'
-        +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="date">'+pfuEsc(it.date||'\u2014')+'</td>'
+        +'<td><input class="pfu-inp" list="pfuPicList" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="pic" value="'+pfuEsc(it.pic&&it.pic!=='\u2014'?it.pic:'')+'" placeholder="\u2014"></td>'
+        +'<td><input class="pfu-inp" type="date" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="date" value="'+pfuEsc(pfuToISO(it.date))+'"'+(pfuToISO(it.date)?'':' data-keep="'+pfuEsc(it.date||'')+'"')+'></td>'
         +'<td><select class="pfu-li-sel" style="background:'+_c[0]+';color:'+_c[1]+'" onchange="pfuSetLogItemStatus('+o.i+','+j+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option'+(s===(it.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelLogItem('+o.i+','+j+')" title="Delete row">\u2715</span></td>'
         +'</tr>';
     });
@@ -8227,9 +8256,10 @@ function pfuRenderDetail(){
     h+='</div>';
   });
   h+='</div></div>';
+  h+='<datalist id="pfuPicList">'+pfuPicNames().map(function(n){return '<option value="'+pfuEsc(n)+'"></option>';}).join('')+'</datalist>';
   box.innerHTML=h;
-  // Make every [data-edit] field actually editable (was display-only, so nothing could be typed)
-  box.querySelectorAll('[data-edit]').forEach(function(el){el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});
+  // Make every [data-edit] TEXT field editable (form controls keep their native behaviour)
+  box.querySelectorAll('[data-edit]').forEach(function(el){if(el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA')return;el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});
 }
 
 function pfuPick(id){pfuCollect();pfuCurId=id;pfuRenderAll();}
@@ -8244,15 +8274,15 @@ function pfuCollect(){
   p.progress=pfuProgress(p); /* auto: completed stages / 6 */
   box.querySelectorAll('[data-ti]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
-    if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=c.textContent.trim();
+    if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=pfuCellVal(c);
   });
   box.querySelectorAll('[data-lf]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-li'),10); var f=c.getAttribute('data-lf');
-    if(p.log&&p.log[i]&&f!=null)p.log[i][f]=c.textContent.trim();
+    if(p.log&&p.log[i]&&f!=null)p.log[i][f]=pfuCellVal(c);
   });
   box.querySelectorAll('[data-ii]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-li'),10), j=parseInt(c.getAttribute('data-ii'),10), f=c.getAttribute('data-lt');
-    if(p.log&&p.log[i]&&p.log[i].items&&p.log[i].items[j]&&f!=null)p.log[i].items[j][f]=c.textContent.trim();
+    if(p.log&&p.log[i]&&p.log[i].items&&p.log[i].items[j]&&f!=null)p.log[i].items[j][f]=pfuCellVal(c);
   });
 }
 
