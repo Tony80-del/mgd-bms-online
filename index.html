@@ -102,6 +102,9 @@
     .pfu-btn.pri{background:var(--blue);color:#02121f;border-color:var(--blue)}
     .pfu-btn.pri:hover{opacity:.88;color:#02121f}
     .pfu-btn.sm{padding:5px 10px;font-size:11px}
+    .pfu-layout.pfu-closed{grid-template-columns:1fr}
+    .pfu-panel{animation:pfuSlideIn .18s ease}
+    @keyframes pfuSlideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
     .pfu-head h2{font-family:'Space Grotesk',sans-serif}
     .pfu-kv b{font-family:'Space Grotesk',sans-serif}
     .pfu-step{cursor:pointer}
@@ -606,11 +609,14 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <!-- ================= PROJECT DETAIL TRACKING (Project Follow-up) ================= -->
     <div id="bidsTrackingContainer" style="display:none">
-      <div class="pfu-layout">
-        <div class="pfu-panel">
+      <div class="pfu-layout pfu-closed" id="pfuLayout">
+        <div class="pfu-panel" id="pfuPanel" style="display:none">
           <div class="pfu-panel-h">
             <span class="pfu-panel-t">Projects</span>
-            <button class="pfu-btn sm pri" onclick="pfuAddProject()">＋ New</button>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="pfu-btn sm pri" onclick="pfuAddProject()">＋ New</button>
+              <button class="pfu-btn sm" onclick="pfuTogglePanel()" title="Close / 收起">✕</button>
+            </div>
           </div>
           <div id="pfuList" style="display:flex;flex-direction:column;gap:6px;max-height:620px;overflow-y:auto"></div>
         </div>
@@ -8005,6 +8011,16 @@ var PFU_STAGES=['Data Collection','PQ','Bidding','Reviewing','Negotiation','Resu
 var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
 var PFU_STAGE_CLS={'Data Collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
 var pfuCurId=null;
+var pfuPanelOpen=false; /* side "Projects" panel hidden by default; toggle to show */
+function pfuTogglePanel(){pfuPanelOpen=!pfuPanelOpen;pfuApplyPanel();}
+function pfuApplyPanel(){
+  var panel=document.getElementById('pfuPanel');
+  var layout=document.getElementById('pfuLayout');
+  var btn=document.getElementById('pfuPanelToggle');
+  if(panel)panel.style.display=pfuPanelOpen?'block':'none';
+  if(layout)layout.classList.toggle('pfu-closed',!pfuPanelOpen);
+  if(btn)btn.textContent=pfuPanelOpen?'\ud83d\udcc1 Projects \u2715':'\ud83d\udcc1 Projects';
+}
 
 function pfuEsc(s){return (s==null?'':String(s)).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
 function pfuInitial(str){str=(str||'').replace(/^(Mr\.|Ms\.|Mrs\.)\s*/i,'').replace(/[^A-Za-z\u00C0-\u024F\u1EA0-\u1EFF]/g,'').trim();return str?str.charAt(0).toUpperCase():'\u2014';}
@@ -8087,6 +8103,7 @@ function pfuRenderAll(){
     }).join('');
   }
   pfuRenderDetail();
+  pfuApplyPanel();
 }
 
 function pfuRenderDetail(){
@@ -8098,6 +8115,7 @@ function pfuRenderDetail(){
     +'<h2 data-edit data-f="name">'+pfuEsc(p.name)+'</h2>'
     +'<div class="cl" data-edit data-f="subtitle">'+pfuEsc(p.type||'')+' \u00b7 Client: '+pfuEsc(p.client||'')+' \u00b7 Ref: '+pfuEsc(p.ref||'')+'</div>'
     +'</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    +'<button class="pfu-btn sm" id="pfuPanelToggle" onclick="pfuTogglePanel()">\ud83d\udcc1 Projects</button>'
     +'<span class="pfu-badge '+(p.badgeCls||'b')+'" style="font-size:12px;padding:5px 14px">Stage: '+pfuEsc(p.stage)+'</span>'
     +'<button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
@@ -8227,6 +8245,7 @@ function pfuAddNote(){
 window.bidsSwitchView=bidsSwitchView;
 window.bidsApplyView=bidsApplyView;
 window.pfuPick=pfuPick;
+window.pfuTogglePanel=pfuTogglePanel;
 window.pfuSave=pfuSave;
 window.pfuAddProject=pfuAddProject;
 window.pfuDelProject=pfuDelProject;
