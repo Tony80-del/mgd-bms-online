@@ -108,7 +108,8 @@
     .pfu-auto-tag{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:20px;background:rgba(148,163,184,.18);color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
     .pfu-tl-empty{color:var(--muted);font-style:italic;font-size:11.5px;padding:10px 2px}
     .pfu-formbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed var(--border);margin-top:12px;padding-top:12px}
-    .pfu-li-tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px}
+    .pfu-li-tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px;table-layout:fixed}
+    .pfu-li-tbl th+th,.pfu-li-tbl td+td{padding-left:4px;padding-right:4px}
     .pfu-li-tbl th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);font-weight:700;padding:3px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
     .pfu-li-tbl td{padding:4px 6px;border-bottom:1px solid var(--border);vertical-align:top;white-space:normal}
     .pfu-li-tbl tr:last-child td{border-bottom:none}
@@ -8240,7 +8241,7 @@ function pfuRenderDetail(){
     var l=o.l;
     var _items=(l.items||[]);
     h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t" data-edit data-lf="title" data-li="'+o.i+'">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n" data-edit data-lf="note" data-li="'+o.i+'">'+pfuEsc(l.note)+'</div>';
-    h+='<table class="pfu-li-tbl"><thead><tr><th style="width:40%">Task / Discussion</th><th style="width:14%">PIC</th><th style="width:13%">Date</th><th style="width:16%">Dept</th><th style="width:17%">Status</th></tr></thead><tbody>';
+    h+='<table class="pfu-li-tbl"><thead><tr><th style="width:54%">Task / Discussion</th><th style="width:11%">PIC</th><th style="width:13%">Date</th><th style="width:10%">Dept</th><th style="width:12%">Status</th></tr></thead><tbody>';
     if(!_items.length){h+='<tr><td colspan="5" class="pfu-li-empty">\u2014 no rows yet \u2014</td></tr>';}
     _items.forEach(function(it,j){
       var _c=PFU_BADGE_COLORS[pfuStatusCls(it.status||'Pending')]||PFU_BADGE_COLORS.gray;
