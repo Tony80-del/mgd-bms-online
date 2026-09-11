@@ -113,6 +113,8 @@
     @keyframes pfuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,180,216,.25)}50%{box-shadow:0 0 0 6px rgba(0,180,216,.08)}}
     .pfu-badge{display:inline-block;padding:2px 8px;border-radius:11px;font-size:10px;font-weight:700;white-space:nowrap}
     .pfu-badge.g{background:#d7f2df;color:#137a3a}.pfu-badge.b{background:#d4ecfb;color:#0a5f8f}.pfu-badge.a{background:#fdeccb;color:#9a5b00}.pfu-badge.r{background:#fbdcdc;color:#b3261e}.pfu-badge.gray{background:#e6e9ed;color:#5a6672}.pfu-badge.p{background:#e8e0fb;color:#5b34c0}
+    .pfu-select{font-size:12px;font-weight:700;padding:5px 10px;border-radius:11px;border:1px solid var(--border);cursor:pointer;outline:none;max-width:240px;font-family:inherit}
+    .pfu-select:focus{box-shadow:0 0 0 2px rgba(0,180,216,.35)}
     .pfu-x{cursor:pointer;color:var(--muted);font-weight:700;font-size:12px;padding:0 4px}
     .pfu-x:hover{color:#fb7185}
     .pfu-panel-t,.pfu-card-t{white-space:nowrap}
@@ -8010,6 +8012,8 @@ function bidsApplyView(){
 var PFU_STAGES=['Data Collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
 var PFU_STAGE_CLS={'Data Collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
+var PFU_STAGE_LABELS=['1 \u00b7 Data Collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lost)'];
+var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0']};
 var pfuCurId=null;
 var pfuPanelOpen=false; /* side "Projects" panel hidden by default; toggle to show */
 function pfuTogglePanel(){pfuPanelOpen=!pfuPanelOpen;pfuApplyPanel();}
@@ -8110,13 +8114,16 @@ function pfuRenderDetail(){
   var p=pfuCur(); var box=document.getElementById('pfuDetail'); if(!box)return;
   if(!p){box.innerHTML='';return;}
   var curIdx=PFU_STAGES.indexOf(p.stage); if(curIdx<0)curIdx=0;
+  var _bc=PFU_BADGE_COLORS[p.badgeCls||'b']||PFU_BADGE_COLORS.b;
+  var _stageOpts=PFU_STAGE_LABELS.map(function(lbl,i){return '<option value="'+i+'"'+(i===curIdx?' selected':'')+'>'+pfuEsc(lbl)+'</option>';}).join('');
   var h='';
   h+='<div class="pfu-head"><div class="row1"><div>'
     +'<h2 data-edit data-f="name">'+pfuEsc(p.name)+'</h2>'
     +'<div class="cl" data-edit data-f="subtitle">'+pfuEsc(p.type||'')+' \u00b7 Client: '+pfuEsc(p.client||'')+' \u00b7 Ref: '+pfuEsc(p.ref||'')+'</div>'
     +'</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
     +'<button class="pfu-btn sm" id="pfuPanelToggle" onclick="pfuTogglePanel()">\ud83d\udcc1 Projects</button>'
-    +'<span class="pfu-badge '+(p.badgeCls||'b')+'" style="font-size:12px;padding:5px 14px">Stage: '+pfuEsc(p.stage)+'</span>'
+    +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
+    +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
     +'<button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
