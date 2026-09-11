@@ -120,7 +120,8 @@
     @keyframes pfuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,180,216,.25)}50%{box-shadow:0 0 0 6px rgba(0,180,216,.08)}}
     .pfu-badge{display:inline-block;padding:2px 8px;border-radius:11px;font-size:10px;font-weight:700;white-space:nowrap}
     .pfu-badge.g{background:#d7f2df;color:#137a3a}.pfu-badge.b{background:#d4ecfb;color:#0a5f8f}.pfu-badge.a{background:#fdeccb;color:#9a5b00}.pfu-badge.r{background:#fbdcdc;color:#b3261e}.pfu-badge.gray{background:#e6e9ed;color:#5a6672}.pfu-badge.p{background:#e8e0fb;color:#5b34c0}
-    .pfu-select{font-size:12px;font-weight:700;padding:5px 10px;border-radius:11px;border:1px solid var(--border);cursor:pointer;outline:none;max-width:240px;font-family:inherit}
+    .pfu-select{font-size:12px;font-weight:700;padding:5px 10px;border-radius:11px;border:1px solid var(--border);cursor:pointer;outline:none;max-width:240px;font-family:inherit;background:var(--card);color:var(--text1)}
+    .pfu-select option{background:#0b1e3d;color:#E8F4FF}
     .pfu-select:focus{box-shadow:0 0 0 2px rgba(0,180,216,.35)}
     .pfu-x{cursor:pointer;color:var(--muted);font-weight:700;font-size:12px;padding:0 4px}
     .pfu-x:hover{color:#fb7185}
@@ -8139,13 +8140,14 @@ function pfuRenderDetail(){
   if(!_rows.length){h+='<tr class="stage-empty"><td colspan="6">\u2014 no tasks recorded in this stage yet \u2014 use \uff0b Add Task \u2014</td></tr>';}
   _rows.forEach(function(idx){
       var t=tasks[idx];
+      var _tc=PFU_BADGE_COLORS[pfuStatusCls(t.status||'Pending')]||PFU_BADGE_COLORS.gray;
       h+='<tr>'
         +'<td data-edit data-tf="stage" data-ti="'+idx+'">'+pfuEsc(t.stage)+'</td>'
         +'<td data-edit data-tf="task" data-ti="'+idx+'">'+pfuEsc(t.task)+'</td>'
         +'<td><span class="pfu-av">'+pfuEsc(pfuInitial(t.pic))+'</span><span data-edit data-tf="pic" data-ti="'+idx+'">'+pfuEsc(t.pic||'\u2014')+'</span></td>'
         +'<td data-edit data-tf="date" data-ti="'+idx+'">'+pfuEsc(t.date||'\u2014')+'</td>'
         +'<td class="pfu-note" data-edit data-tf="note" data-ti="'+idx+'">'+pfuEsc(t.note||'\u2014')+'</td>'
-        +'<td><select class="pfu-select" style="width:auto;padding:2px 6px;font-size:11px" onchange="pfuSetTaskStatus('+idx+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option value="'+pfuEsc(s)+'"'+(s===(t.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelTask('+idx+')" title="Delete task">\u2715</span></td>'
+        +'<td><select class="pfu-select" style="width:auto;padding:2px 6px;font-size:11px;background:'+_tc[0]+';color:'+_tc[1]+'" onchange="pfuSetTaskStatus('+idx+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option value="'+pfuEsc(s)+'"'+(s===(t.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelTask('+idx+')" title="Delete task">\u2715</span></td>'
         +'</tr>';
   });
   h+='</tbody></table></div></div>';
