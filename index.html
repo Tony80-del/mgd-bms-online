@@ -108,7 +108,14 @@
     .pfu-auto-tag{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:20px;background:rgba(148,163,184,.18);color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
     .pfu-tl-empty{color:var(--muted);font-style:italic;font-size:11.5px;padding:10px 2px}
     .pfu-formbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed var(--border);margin-top:12px;padding-top:12px}
-    .pfu-formhint{font-size:11px;color:var(--text2)}
+    .pfu-li-tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px}
+    .pfu-li-tbl th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);font-weight:700;padding:3px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
+    .pfu-li-tbl td{padding:4px 6px;border-bottom:1px solid var(--border);vertical-align:top;white-space:normal}
+    .pfu-li-tbl tr:last-child td{border-bottom:none}
+    .pfu-li-tbl .pfu-li-empty{color:var(--muted);font-style:italic}
+    .pfu-li-tbl select.pfu-li-sel{font-size:10.5px;font-weight:600;padding:1px 5px;border-radius:8px;border:1px solid var(--border);font-family:inherit;cursor:pointer;outline:none}
+    .pfu-li-tbl select.pfu-li-sel option{background:#0b1e3d;color:#E8F4FF}
+    .pfu-logadd{margin-top:6px}
     .pfu-btn.pif{background:rgba(139,92,246,.14);border-color:rgba(139,92,246,.5);color:#c4b5fd;font-weight:700}
     .pfu-btn.pif:hover{background:rgba(139,92,246,.24);color:#ddd6fe}
     /* ---- PROJECT INFORMATION FORM (MR-001) ---- */
@@ -8202,7 +8209,22 @@ function pfuRenderDetail(){
   if(!_logs.length){h+='<div class="pfu-tl-empty">\u2014 no notes recorded in this stage yet \u2014 use \uff0b Add Note \u2014</div>';}
   _logs.forEach(function(o){
     var l=o.l;
-    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t" data-edit data-lf="title" data-li="'+o.i+'">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n" data-edit data-lf="note" data-li="'+o.i+'">'+pfuEsc(l.note)+'</div></div>';
+    var _items=(l.items||[]);
+    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t" data-edit data-lf="title" data-li="'+o.i+'">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n" data-edit data-lf="note" data-li="'+o.i+'">'+pfuEsc(l.note)+'</div>';
+    h+='<table class="pfu-li-tbl"><thead><tr><th style="width:54%">Task / Discussion</th><th style="width:16%">PIC</th><th style="width:14%">Date</th><th style="width:16%">Status</th></tr></thead><tbody>';
+    if(!_items.length){h+='<tr><td colspan="4" class="pfu-li-empty">\u2014 no rows yet \u2014</td></tr>';}
+    _items.forEach(function(it,j){
+      var _c=PFU_BADGE_COLORS[pfuStatusCls(it.status||'Pending')]||PFU_BADGE_COLORS.gray;
+      h+='<tr>'
+        +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="task">'+pfuEsc(it.task||'')+'</td>'
+        +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="pic">'+pfuEsc(it.pic||'\u2014')+'</td>'
+        +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="date">'+pfuEsc(it.date||'\u2014')+'</td>'
+        +'<td><select class="pfu-li-sel" style="background:'+_c[0]+';color:'+_c[1]+'" onchange="pfuSetLogItemStatus('+o.i+','+j+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option'+(s===(it.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelLogItem('+o.i+','+j+')" title="Delete row">\u2715</span></td>'
+        +'</tr>';
+    });
+    h+='</tbody></table>';
+    h+='<button class="pfu-btn sm pfu-logadd" onclick="pfuAddLogItem('+o.i+')">\uff0b Add row</button>';
+    h+='</div>';
   });
   h+='</div></div>';
   box.innerHTML=h;
@@ -8224,9 +8246,13 @@ function pfuCollect(){
     var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
     if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=c.textContent.trim();
   });
-  box.querySelectorAll('[data-li]').forEach(function(c){
+  box.querySelectorAll('[data-lf]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-li'),10); var f=c.getAttribute('data-lf');
     if(p.log&&p.log[i]&&f!=null)p.log[i][f]=c.textContent.trim();
+  });
+  box.querySelectorAll('[data-ii]').forEach(function(c){
+    var i=parseInt(c.getAttribute('data-li'),10), j=parseInt(c.getAttribute('data-ii'),10), f=c.getAttribute('data-lt');
+    if(p.log&&p.log[i]&&p.log[i].items&&p.log[i].items[j]&&f!=null)p.log[i].items[j][f]=c.textContent.trim();
   });
 }
 
@@ -8404,6 +8430,33 @@ function pifSave(){
   pfuRenderAll();
   pfuToast('\u2705 Project Information Form saved');
 }
+function pfuAddLogItem(li){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.log||!p.log[li])return;
+  var t=window.prompt('New row / discussion item \u2014 \u65b0\u589e\u8ba8\u8bba\u9879:'); if(!t||!t.trim())return;
+  if(!Array.isArray(p.log[li].items))p.log[li].items=[];
+  p.log[li].items.push({task:t.trim(),pic:'',date:'',status:'Pending'});
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast('\u2705 Row added');
+}
+function pfuDelLogItem(li,ii){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.log||!p.log[li]||!p.log[li].items)return;
+  p.log[li].items.splice(ii,1);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+}
+function pfuSetLogItemStatus(li,ii,v){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.log||!p.log[li]||!p.log[li].items||!p.log[li].items[ii])return;
+  p.log[li].items[ii].status=v;
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+}
+window.pfuAddLogItem=pfuAddLogItem;
+window.pfuDelLogItem=pfuDelLogItem;
+window.pfuSetLogItemStatus=pfuSetLogItemStatus;
 window.pifOpen=pifOpen;
 window.pifClose=pifClose;
 window.pifSave=pifSave;
