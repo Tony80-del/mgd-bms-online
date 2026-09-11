@@ -41,6 +41,81 @@
     .mom-mitem .no{font-size:10px;font-weight:700;color:var(--blue);font-family:'Space Grotesk',sans-serif}
     .mom-mitem .ti{font-size:12.5px;font-weight:600;margin:2px 0 4px;line-height:1.35;color:var(--text1)}
     .mom-mitem .mt{font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+    /* ===== PROJECT DETAIL TRACKING (Project Follow-up) ===== */
+    .pfu-layout{display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:start}
+    .pfu-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+    .pfu-panel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .pfu-panel-t{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2)}
+    .pfu-item{border:1px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;transition:.2s;background:var(--bg2);margin-bottom:6px}
+    .pfu-item:hover{border-color:rgba(0,180,216,.5)}
+    .pfu-item.act{border-color:var(--blue);background:rgba(0,180,216,.09)}
+    .pfu-item .pn{font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:6px}
+    .pfu-item .pc{font-size:10.5px;color:var(--muted);margin-top:3px}
+    .pfu-item .pb{height:4px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
+    .pfu-item .pb i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px}
+    .pfu-head{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+    .pfu-head .row1{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+    .pfu-head h2{font-size:19px;font-weight:800}
+    .pfu-head .cl{font-size:11.5px;color:var(--text2);margin-top:2px}
+    .pfu-kv{display:flex;gap:22px;flex-wrap:wrap}
+    .pfu-kv div{font-size:10.5px;color:var(--text2)}
+    .pfu-kv b{display:block;color:var(--text1);font-weight:700;font-size:14px}
+    .pfu-pipe{display:flex;gap:0;margin-bottom:14px;flex-wrap:wrap}
+    .pfu-step{flex:1;min-width:110px;position:relative;padding:11px 10px 11px 26px;background:var(--card);border:1px solid var(--border);border-right:none;font-size:11px}
+    .pfu-step:first-child{border-radius:11px 0 0 11px;padding-left:16px}
+    .pfu-step:last-child{border-right:1px solid var(--border);border-radius:0 11px 11px 0}
+    .pfu-step .sn{font-weight:700;font-size:11.5px;display:block}
+    .pfu-step .sd{font-size:9.5px;color:var(--muted);margin-top:2px}
+    .pfu-step .dot{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:11px;height:11px;border-radius:50%;background:var(--border);border:2px solid var(--card)}
+    .pfu-step:first-child .dot{left:4px}
+    .pfu-step.done{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}
+    .pfu-step.done .dot{background:#22c55e}
+    .pfu-step.done .sn{color:#4ade80}
+    .pfu-step.cur{background:rgba(0,180,216,.1);border-color:rgba(0,180,216,.45);box-shadow:inset 0 0 20px rgba(0,180,216,.07)}
+    .pfu-step.cur .dot{background:var(--blue);box-shadow:0 0 0 3px rgba(0,180,216,.25)}
+    .pfu-step.cur .sn{color:var(--cyan)}
+    .pfu-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+    .pfu-card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .pfu-card-t{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+    .pfu-card-sub{font-size:11px;color:var(--text2)}
+    .pfu-tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:11px}
+    table.pfu-grid{width:100%;border-collapse:collapse;font-size:12px}
+    table.pfu-grid th{text-align:left;padding:8px 10px;background:var(--bg2);font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap}
+    table.pfu-grid td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;white-space:normal}
+    table.pfu-grid tr.stage-row td{background:rgba(0,180,216,.07);font-weight:700;color:var(--cyan);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px}
+    table.pfu-grid tr:last-child td{border-bottom:none}
+    table.pfu-grid tbody tr:hover{background:rgba(0,180,216,.03)}
+    .pfu-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;vertical-align:middle;margin-right:6px}
+    .pfu-note{font-size:11.5px;color:var(--text2);line-height:1.5}
+    .pfu-note b{color:var(--cyan);font-weight:600}
+    .pfu-tl{position:relative;padding-left:24px}
+    .pfu-tl:before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--border)}
+    .pfu-tl-i{position:relative;padding:0 0 16px 0}
+    .pfu-tl-i:before{content:'';position:absolute;left:-22px;top:3px;width:11px;height:11px;border-radius:50%;background:var(--blue);border:2px solid var(--card);box-shadow:0 0 0 2px rgba(0,180,216,.25)}
+    .pfu-tl-i.g:before{background:#22c55e}.pfu-tl-i.a:before{background:#f59e0b}.pfu-tl-i.p:before{background:var(--purple)}
+    .pfu-tl-d{font-size:10.5px;color:var(--muted);font-weight:600}
+    .pfu-tl-t{font-size:12.5px;font-weight:600;margin:2px 0}
+    .pfu-tl-n{font-size:11.5px;color:var(--text2);line-height:1.5}
+    .pfu-tl-n b{color:var(--text1);font-weight:600}
+    .pfu-btn{font-size:11.5px;font-weight:600;padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+    .pfu-btn:hover{border-color:var(--blue);color:var(--blue)}
+    .pfu-btn.pri{background:var(--blue);color:#02121f;border-color:var(--blue)}
+    .pfu-btn.pri:hover{opacity:.88;color:#02121f}
+    .pfu-btn.sm{padding:5px 10px;font-size:11px}
+    .pfu-head h2{font-family:'Space Grotesk',sans-serif}
+    .pfu-kv b{font-family:'Space Grotesk',sans-serif}
+    .pfu-step{cursor:pointer}
+    .pfu-step.res.done{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.4)}
+    .pfu-step.cur .dot{animation:pfuPulse 1.8s infinite}
+    @keyframes pfuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,180,216,.25)}50%{box-shadow:0 0 0 6px rgba(0,180,216,.08)}}
+    .pfu-badge{display:inline-block;padding:2px 8px;border-radius:11px;font-size:10px;font-weight:700;white-space:nowrap}
+    .pfu-badge.g{background:#d7f2df;color:#137a3a}.pfu-badge.b{background:#d4ecfb;color:#0a5f8f}.pfu-badge.a{background:#fdeccb;color:#9a5b00}.pfu-badge.r{background:#fbdcdc;color:#b3261e}.pfu-badge.gray{background:#e6e9ed;color:#5a6672}.pfu-badge.p{background:#e8e0fb;color:#5b34c0}
+    .pfu-x{cursor:pointer;color:var(--muted);font-weight:700;font-size:12px;padding:0 4px}
+    .pfu-x:hover{color:#fb7185}
+    .pfu-panel-t,.pfu-card-t{white-space:nowrap}
+    #pfuDetail [data-edit]{outline:none;border-radius:3px}
+    #pfuDetail [data-edit]:focus{background:rgba(0,180,216,.09);box-shadow:inset 0 0 0 1px var(--blue)}
+    @media(max-width:960px){.pfu-layout{grid-template-columns:1fr}}
     @media(max-width:960px){.mom-layout{grid-template-columns:1fr !important}.mom-sheet .mm{font-size:11px}}
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Noto Sans SC',sans-serif;background:var(--bg1);color:var(--text1);min-height:100vh}
@@ -462,6 +537,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
   </header>
 
   <div class="p-8">
+    <!-- Bid Project Tracking sub-tabs: list view | Project Follow-up -->
+    <div id="bidsSubTabsRow" style="display:none;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);position:sticky;top:81px;z-index:40;background:var(--bg1);">
+      <button id="bidsSubTabTable" onclick="bidsSwitchView('table')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--blue);background:transparent;border:none;border-bottom:2px solid var(--blue);cursor:pointer;margin-bottom:-1px;">📊 投标列表 / Bid Tracking</button>
+      <button id="bidsSubTabTracking" onclick="bidsSwitchView('tracking')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">🏗️ Project Follow-up</button>
+    </div>
     <div id="bs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
       <div class="sc ai" style="animation-delay:.1s"><div class="text-[var(--muted)] text-sm mb-1" id="s1">项目信息 / Project Info</div><div class="text-2xl font-bold text-blue-400" id="c1">0</div></div>
       <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s2">投标中 / Bidding</div><div class="text-2xl font-bold text-amber-400" id="c2">0</div></div>
@@ -523,6 +603,19 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button onclick="setBidsFilter('tracking')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfTracking">追踪 / Tracking</button>
       <button onclick="setBidsFilter('potential')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfPotential">潜在 / Potential</button>
       <button onclick="setBidsFilter('cancelled')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfCancelled">已取消 / Cancelled</button>
+    </div>
+    <!-- ================= PROJECT DETAIL TRACKING (Project Follow-up) ================= -->
+    <div id="bidsTrackingContainer" style="display:none">
+      <div class="pfu-layout">
+        <div class="pfu-panel">
+          <div class="pfu-panel-h">
+            <span class="pfu-panel-t">Projects</span>
+            <button class="pfu-btn sm pri" onclick="pfuAddProject()">＋ New</button>
+          </div>
+          <div id="pfuList" style="display:flex;flex-direction:column;gap:6px;max-height:620px;overflow-y:auto"></div>
+        </div>
+        <div id="pfuDetail"></div>
+      </div>
     </div>
     <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
       <div style="grid-column:1/-1;display:flex;justify-content:flex-end;margin-bottom:8px;">
@@ -3670,6 +3763,8 @@ function sm(m){
   document.getElementById('custDateWrap').style.display='none';
   document.getElementById('chf').style.display='none';
   document.getElementById('bf').style.display='none';
+  var _bst=document.getElementById('bidsSubTabsRow'); if(_bst)_bst.style.display='none';
+  var _btc=document.getElementById('bidsTrackingContainer'); if(_btc)_btc.style.display='none';
   document.getElementById('sum').style.display='none';
   document.getElementById('win123Container').style.display='none';
   document.getElementById('plan2026Section').style.display='none';
@@ -3698,12 +3793,13 @@ function sm(m){
     document.getElementById('win123Container').style.display='grid';
     updateSummary();
   }else if(m==='bids'){
+    document.getElementById('bidsSubTabsRow').style.display='flex';
     document.getElementById('bs').style.display='grid';
     document.getElementById('bf').style.display='flex';
     document.querySelector('.tc').style.display='block';
     ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
-    setBidsFilter(bidsFilter);
     updateStats();
+    bidsApplyView();
   }else if(m==='customers'){
     document.getElementById('cs').style.display='grid';
     document.getElementById('yf').style.display='flex';
@@ -7875,5 +7971,269 @@ window.dcShowHistoryDetail = showHistoryDetail;
 </script>
 </div>
 <!-- ═══ END DOCUMENTS COLLECTION ═══ -->
+
+<script>
+/* ============================================================
+   BID PROJECT TRACKING — sub-tab switch + PROJECT FOLLOW-UP page
+   Layout/content replicated from mom-followup-demo.html (Project Follow-up tab).
+   Data stored in data.projectTracking and persisted via saveData() (local + cloud).
+   ============================================================ */
+var bidsView='table';
+
+function bidsSwitchView(v){
+  bidsView=(v==='tracking')?'tracking':'table';
+  bidsApplyView();
+}
+function bidsApplyView(){
+  var showTable=(bidsView!=='tracking');
+  var tT=document.getElementById('bidsSubTabTable');
+  var tK=document.getElementById('bidsSubTabTracking');
+  if(tT){tT.style.color=showTable?'var(--blue)':'var(--text2)';tT.style.borderBottomColor=showTable?'var(--blue)':'transparent';}
+  if(tK){tK.style.color=showTable?'var(--text2)':'var(--blue)';tK.style.borderBottomColor=showTable?'transparent':'var(--blue)';}
+  if(mod!=='bids')return;
+  var bs=document.getElementById('bs'),bf=document.getElementById('bf'),tc=document.querySelector('.tc'),ct=document.getElementById('bidsTrackingContainer');
+  if(bs)bs.style.display=showTable?'grid':'none';
+  if(bf)bf.style.display=showTable?'flex':'none';
+  if(tc)tc.style.display=showTable?'block':'none';
+  if(ct)ct.style.display=showTable?'none':'block';
+  if(showTable){setBidsFilter(bidsFilter);}
+  else{pfuRenderAll();}
+}
+
+/* ---------- Project Follow-up (data + render) ---------- */
+var PFU_STAGES=['Data Collection','PQ','Bidding','Reviewing','Negotiation','Result'];
+var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
+var PFU_STAGE_CLS={'Data Collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
+var pfuCurId=null;
+
+function pfuEsc(s){return (s==null?'':String(s)).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});}
+function pfuInitial(str){str=(str||'').replace(/^(Mr\.|Ms\.|Mrs\.)\s*/i,'').replace(/[^A-Za-z\u00C0-\u024F\u1EA0-\u1EFF]/g,'').trim();return str?str.charAt(0).toUpperCase():'\u2014';}
+function pfuStatusCls(st){var s=(st||'').toLowerCase();if(s.indexOf('complete')>=0)return 'g';if(s.indexOf('progress')>=0)return 'b';if(s.indexOf('overdue')>=0||s.indexOf('urgent')>=0)return 'r';return 'gray';}
+function pfuStatusBadge(st){return '<span class="pfu-badge '+pfuStatusCls(st)+'">'+pfuEsc(st||'Pending')+'</span>';}
+function pfuNow(){var d=new Date();var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];var p=function(n){return n<10?'0'+n:''+n;};return p(d.getDate())+' '+mo+' '+d.getFullYear()+' \u00b7 '+p(d.getHours())+':'+p(d.getMinutes());}
+function pfuToast(msg){try{var t=document.createElement('div');t.textContent=msg;t.style.cssText='position:fixed;right:22px;bottom:22px;background:var(--blue);color:#02121f;font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.4)';document.body.appendChild(t);setTimeout(function(){t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(function(){t.remove();},400);},1400);}catch(e){}}
+
+function pfuSeed(){
+  return [
+    {id:'P1',name:'TaiYang Metal',badge:'Bidding',badgeCls:'b',type:'Warehouse fit-out',client:'TaiYang (China)',ref:'FY2026-018',stage:'Bidding',estValue:'85B VND',landArea:'10,000 m\u00b2',pic:'Mr. Qu\u1ed1c',start:'20 Aug 2026',target:'30 Sep 2026',progress:55,
+      tasks:[
+        {stage:'Data Collection',task:'Collect client requirements',pic:'Qu\u1ed1c',date:'20 Aug',note:'Requirements list received; scope: warehouse 10,000 m\u00b2',status:'Completed'},
+        {stage:'Data Collection',task:'Conduct site survey',pic:'H\u01b0\u1eddng',date:'25 Aug',note:'Survey done \u00b7 soil report pending from lab',status:'Completed'},
+        {stage:'PQ',task:'Submit PQ documents',pic:'L\u00ea',date:'28 Aug',note:'All documents submitted; client reviewing',status:'Completed'},
+        {stage:'PQ',task:'Client approves PQ',pic:'Qu\u1ed1c',date:'01 Sep',note:'Approved \u2014 proceeded to Bidding stage',status:'Completed'},
+        {stage:'Bidding',task:'Prepare BOQ v1',pic:'L\u00ea',date:'05 Sep',note:'Draft BOQ prepared, est. 85B VND',status:'Completed'},
+        {stage:'Bidding',task:'Revise BOQ per client comment (steel qty)',pic:'L\u00ea',date:'12 Sep',note:'Ongoing: client asked to re-check steel structure quantity',status:'In Progress'},
+        {stage:'Bidding',task:'Submit tender package',pic:'Qu\u1ed1c',date:'20 Sep',note:'Waiting on final BOQ v2',status:'Pending'},
+        {stage:'Reviewing',task:'Client reviews submission',pic:'\u2014',date:'25 Sep',note:'\u2014',status:'Pending'},
+        {stage:'Negotiation',task:'Price negotiation with client',pic:'Qu\u1ed1c',date:'30 Sep',note:'\u2014',status:'Pending'},
+        {stage:'Result',task:'Contract award decision',pic:'Qu\u1ed1c',date:'\u2014',note:'Record outcome here when project closes',status:'Pending'}
+      ],
+      log:[
+        {date:'09 Sep 2026 \u00b7 14:20',type:'a',title:'Ms. H\u01b0\u1eddng added a follow-up note',note:'Client asked to re-check steel structure quantity in BOQ. Revised BOQ v2 due 12 Sep. Status set to In Progress.'},
+        {date:'05 Sep 2026 \u00b7 10:05',type:'g',title:'Mr. L\u00ea completed \"Prepare BOQ v1\"',note:'Draft BOQ prepared \u00b7 estimated value 85B VND. Stage remains Bidding.'},
+        {date:'01 Sep 2026 \u00b7 16:40',type:'g',title:'Mr. Qu\u1ed1c \u2014 PQ approved by client',note:'Pre-qualification passed. Project advanced to Bidding stage.'},
+        {date:'28 Aug 2026 \u00b7 09:15',type:'p',title:'Mr. L\u00ea submitted PQ documents',note:'Full PQ package uploaded. Awaiting client review.'},
+        {date:'25 Aug 2026 \u00b7 11:30',type:'',title:'Ms. H\u01b0\u1eddng completed site survey',note:'Survey completed \u00b7 site area 10,000 m\u00b2. Soil report pending from lab.'},
+        {date:'20 Aug 2026 \u00b7 08:00',type:'g',title:'Project created \u2014 Mr. Qu\u1ed1c',note:'TaiYang Metal warehouse fit-out registered. Starting stage: Data Collection.'}
+      ]},
+    {id:'P2',name:'Global Star',badge:'Reviewing',badgeCls:'a',type:'Factory building',client:'Global Star',ref:'FY2026-021',stage:'Reviewing',estValue:'120B VND',landArea:'18,000 m\u00b2',pic:'Mr. L\u00ea',start:'05 Aug 2026',target:'15 Oct 2026',progress:40,
+      tasks:[
+        {stage:'Data Collection',task:'Site survey & requirements',pic:'L\u00ea',date:'08 Aug',note:'Survey and requirements captured',status:'Completed'},
+        {stage:'Bidding',task:'Submit full BOQ',pic:'L\u00ea',date:'28 Aug',note:'Full BOQ submitted to client',status:'Completed'},
+        {stage:'Reviewing',task:'Client reviews submission',pic:'Qu\u1ed1c',date:'20 Sep',note:'Under client review',status:'In Progress'}
+      ],
+      log:[{date:'28 Aug 2026 \u00b7 09:00',type:'g',title:'Mr. L\u00ea submitted full BOQ',note:'BOQ submitted for Global Star factory building.'}]},
+    {id:'P3',name:'Transimex',badge:'Permits',badgeCls:'gray',type:'Logistics center',client:'Transimex',ref:'FY2026-014',stage:'Reviewing',estValue:'64B VND',landArea:'12,000 m\u00b2',pic:'Ms. H\u01b0\u1eddng',start:'22 Jul 2026',target:'10 Nov 2026',progress:25,
+      tasks:[
+        {stage:'PQ',task:'Prepare PQ package',pic:'H\u01b0\u1eddng',date:'30 Jul',note:'PQ documents prepared',status:'Completed'},
+        {stage:'Reviewing',task:'Collect land documents for permit',pic:'H\u01b0\u1eddng',date:'18 Sep',note:'Pending missing land documents',status:'Pending'}
+      ],
+      log:[{date:'30 Jul 2026 \u00b7 15:00',type:'g',title:'PQ package prepared',note:'Transimex logistics center PQ ready.'}]},
+    {id:'P4',name:'Treasure Lighting',badge:'Follow up',badgeCls:'p',type:'Production plant',client:'Treasure Lighting (VN)',ref:'FY2026-009',stage:'Negotiation',estValue:'45B VND',landArea:'7,500 m\u00b2',pic:'Mr. Qu\u1ed1c',start:'10 Jul 2026',target:'30 Sep 2026',progress:30,
+      tasks:[
+        {stage:'Bidding',task:'Send updated bilingual proposal',pic:'Qu\u1ed1c',date:'10 Sep',note:'Await client feedback this week',status:'Completed'},
+        {stage:'Negotiation',task:'Price negotiation',pic:'Qu\u1ed1c',date:'25 Sep',note:'Ongoing negotiation',status:'In Progress'}
+      ],
+      log:[{date:'10 Sep 2026 \u00b7 16:00',type:'a',title:'Mr. Qu\u1ed1c sent updated proposal',note:'Bilingual proposal sent to Treasure Lighting.'}]},
+    {id:'P5',name:'Vina Textile',badge:'Won',badgeCls:'g',type:'Factory expansion',client:'Vina',ref:'FY2026-003',stage:'Result',estValue:'92B VND',landArea:'15,000 m\u00b2',pic:'Mr. Qu\u1ed1c',start:'15 May 2026',target:'20 Aug 2026',progress:100,
+      tasks:[
+        {stage:'Result',task:'Contract award decision',pic:'Qu\u1ed1c',date:'20 Aug',note:'Contract awarded \u2014 project Won',status:'Completed'}
+      ],
+      log:[{date:'20 Aug 2026 \u00b7 10:00',type:'g',title:'Contract awarded \u2014 Won',note:'Vina Textile factory expansion won.'}]}
+  ];
+}
+
+function pfuGetData(){
+  if(!data.projectTracking||!Array.isArray(data.projectTracking)||!data.projectTracking.length){
+    data.projectTracking=pfuSeed();
+    if(typeof saveData==='function')saveData();
+  }
+  data.projectTracking.forEach(function(p){if(!Array.isArray(p.tasks))p.tasks=[];if(!Array.isArray(p.log))p.log=[];if(!p.badgeCls)p.badgeCls=PFU_STAGE_CLS[p.stage]||'b';});
+  if(!pfuCurId||!data.projectTracking.some(function(p){return p.id===pfuCurId;})){pfuCurId=data.projectTracking[0].id;}
+  return data.projectTracking;
+}
+function pfuCur(){var l=pfuGetData();return l.filter(function(p){return p.id===pfuCurId;})[0]||l[0];}
+
+function pfuRenderAll(){
+  var list=pfuGetData();
+  var lc=document.getElementById('pfuList');
+  if(lc){
+    lc.innerHTML=list.map(function(p){
+      var pct=Math.max(0,Math.min(100,Number(p.progress)||0));
+      return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+'" onclick="pfuPick(\''+p.id+'\')">'
+        +'<div class="pn">'+pfuEsc(p.name)+' <span class="pfu-badge '+(p.badgeCls||'b')+'">'+pfuEsc(p.badge||'')+'</span></div>'
+        +'<div class="pc">'+pfuEsc(p.type||'')+(p.client?' \u00b7 '+pfuEsc(p.client):'')+(p.estValue?' \u00b7 '+pfuEsc(p.estValue):'')+'</div>'
+        +'<div class="pb"><i style="width:'+pct+'%"></i></div></div>';
+    }).join('');
+  }
+  pfuRenderDetail();
+}
+
+function pfuRenderDetail(){
+  var p=pfuCur(); var box=document.getElementById('pfuDetail'); if(!box)return;
+  if(!p){box.innerHTML='';return;}
+  var curIdx=PFU_STAGES.indexOf(p.stage); if(curIdx<0)curIdx=0;
+  var h='';
+  h+='<div class="pfu-head"><div class="row1"><div>'
+    +'<h2 data-edit data-f="name">'+pfuEsc(p.name)+'</h2>'
+    +'<div class="cl" data-edit data-f="subtitle">'+pfuEsc(p.type||'')+' \u00b7 Client: '+pfuEsc(p.client||'')+' \u00b7 Ref: '+pfuEsc(p.ref||'')+'</div>'
+    +'</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    +'<span class="pfu-badge '+(p.badgeCls||'b')+'" style="font-size:12px;padding:5px 14px">Stage: '+pfuEsc(p.stage)+'</span>'
+    +'<button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button>'
+    +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
+    +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
+    +'</div></div>';
+  h+='<div class="pfu-kv">';
+  [['estValue','Est. Value'],['landArea','Land Area'],['pic','PIC'],['start','Start'],['target','Target Result'],['progress','Progress']].forEach(function(kv){
+    var v=p[kv[0]]; if(kv[0]==='progress'){v=(v==null?'0':v)+'%';}
+    h+='<div>'+kv[1]+'<b data-edit data-f="'+kv[0]+'">'+pfuEsc(v||'\u2014')+'</b></div>';
+  });
+  h+='</div></div>';
+  h+='<div class="pfu-pipe">';
+  PFU_STAGES.forEach(function(s,i){
+    var cls=i<curIdx?'done':(i===curIdx?'cur':'');
+    var res=(s==='Result')?' res':'';
+    var sd=i<curIdx?'\u2713 done':(i===curIdx?'\u25cf In progress':'\u25cb Pending');
+    h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
+  });
+  h+='</div>';
+  h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udccc Tasks by Stage</div><div class="pfu-card-sub">Each stage has tasks \u00b7 PIC \u00b7 date \u00b7 follow-up note \u00b7 status</div></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
+    +'<th style="width:15%">Stage</th><th style="width:26%">Task</th><th style="width:12%">PIC</th><th style="width:10%">Date</th><th style="width:22%">Noted Follow-up</th><th style="width:15%">Status</th></tr></thead><tbody>';
+  var tasks=p.tasks||[];
+  PFU_STAGES.forEach(function(s,si){
+    var rows=[]; tasks.forEach(function(t,idx){if(t.stage===s)rows.push(idx);});
+    if(!rows.length)return;
+    var sub=si<curIdx?'completed':(si===curIdx?'in progress':'pending');
+    h+='<tr class="stage-row"><td colspan="6">'+PFU_NUM[si]+' '+pfuEsc(s)+' \u2014 '+sub+'</td></tr>';
+    rows.forEach(function(idx){
+      var t=tasks[idx];
+      h+='<tr>'
+        +'<td data-edit data-tf="stage" data-ti="'+idx+'">'+pfuEsc(t.stage)+'</td>'
+        +'<td data-edit data-tf="task" data-ti="'+idx+'">'+pfuEsc(t.task)+'</td>'
+        +'<td><span class="pfu-av">'+pfuEsc(pfuInitial(t.pic))+'</span><span data-edit data-tf="pic" data-ti="'+idx+'">'+pfuEsc(t.pic||'\u2014')+'</span></td>'
+        +'<td data-edit data-tf="date" data-ti="'+idx+'">'+pfuEsc(t.date||'\u2014')+'</td>'
+        +'<td class="pfu-note" data-edit data-tf="note" data-ti="'+idx+'">'+pfuEsc(t.note||'\u2014')+'</td>'
+        +'<td>'+pfuStatusBadge(t.status)+' <span class="pfu-x" onclick="pfuDelTask('+idx+')" title="Delete task">\u2715</span></td>'
+        +'</tr>';
+    });
+  });
+  h+='</tbody></table></div></div>';
+  h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udd53 Follow-up Log <span class="pfu-badge b" style="margin-left:6px">Every step recorded</span></div><button class="pfu-btn sm" onclick="pfuAddNote()">\uff0b Add Note</button></div><div class="pfu-tl">';
+  (p.log||[]).forEach(function(l){
+    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n">'+pfuEsc(l.note)+'</div></div>';
+  });
+  h+='</div></div>';
+  box.innerHTML=h;
+}
+
+function pfuPick(id){pfuCollect();pfuCurId=id;pfuRenderAll();}
+
+function pfuCollect(){
+  var p=pfuCur(); if(!p)return;
+  var box=document.getElementById('pfuDetail'); if(!box)return;
+  var nm=box.querySelector('[data-f="name"]'); if(nm)p.name=nm.textContent.trim();
+  var sub=box.querySelector('[data-f="subtitle"]');
+  if(sub){var txt=sub.textContent||'';var mC=txt.match(/Client:\s*(.*?)\s*\u00b7\s*Ref:/i);var mR=txt.match(/Ref:\s*(.*)$/i);var parts=txt.split('\u00b7');if(parts[0]!=null)p.type=parts[0].trim();if(mC)p.client=mC[1].trim();if(mR)p.ref=mR[1].trim();}
+  ['estValue','landArea','pic','start','target'].forEach(function(k){var el=box.querySelector('[data-f="'+k+'"]');if(el)p[k]=el.textContent.trim();});
+  var pr=box.querySelector('[data-f="progress"]'); if(pr){var n=parseInt((pr.textContent||'').replace(/[^0-9]/g,''),10); if(!isNaN(n))p.progress=Math.max(0,Math.min(100,n));}
+  box.querySelectorAll('[data-ti]').forEach(function(c){
+    var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
+    if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=c.textContent.trim();
+  });
+}
+
+function pfuSave(){
+  pfuCollect();
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast('\u2705 Project Follow-up saved');
+}
+function pfuAddProject(){
+  pfuCollect();
+  var name=window.prompt('New project name / \u65b0\u9879\u76ee\u540d\u79f0:'); if(!name||!name.trim())return;
+  var id='P'+Date.now();
+  data.projectTracking.unshift({id:id,name:name.trim(),badge:'Data Collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Data Collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',title:'Project created',note:name.trim()}]});
+  pfuCurId=id;
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast('\u2705 Project added');
+}
+function pfuDelProject(){
+  var p=pfuCur(); if(!p)return;
+  if(!window.confirm('Delete project \"'+p.name+'\"?'))return;
+  var l=pfuGetData();
+  var i=l.indexOf(p); if(i>=0)l.splice(i,1);
+  if(!l.length)l.push({id:'P'+Date.now(),name:'New Project',badge:'Data Collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Data Collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[]});
+  pfuCurId=l[0].id;
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+}
+function pfuSetStage(i){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  var s=PFU_STAGES[i]; if(!s)return;
+  p.stage=s; p.badge=s; p.badgeCls=PFU_STAGE_CLS[s]||'b';
+  if(i>=PFU_STAGES.length-1)p.progress=Math.max(Number(p.progress)||0,0);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+}
+function pfuAddTask(){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  var t=window.prompt('Task name / \u4efb\u52a1\u540d\u79f0:'); if(!t||!t.trim())return;
+  if(!Array.isArray(p.tasks))p.tasks=[];
+  p.tasks.push({stage:p.stage,task:t.trim(),pic:'',date:'',note:'',status:'Pending'});
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+}
+function pfuDelTask(idx){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.tasks||!p.tasks[idx])return;
+  p.tasks.splice(idx,1);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+}
+function pfuAddNote(){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  var n=window.prompt('Follow-up note / \u8ddf\u8fdb\u8bb0\u5f55:'); if(!n||!n.trim())return;
+  if(!Array.isArray(p.log))p.log=[];
+  p.log.unshift({date:pfuNow(),type:'g',title:'Note added',note:n.trim()});
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast('\u2705 Note added');
+}
+
+window.bidsSwitchView=bidsSwitchView;
+window.bidsApplyView=bidsApplyView;
+window.pfuPick=pfuPick;
+window.pfuSave=pfuSave;
+window.pfuAddProject=pfuAddProject;
+window.pfuDelProject=pfuDelProject;
+window.pfuSetStage=pfuSetStage;
+window.pfuAddTask=pfuAddTask;
+window.pfuDelTask=pfuDelTask;
+window.pfuAddNote=pfuAddNote;
+</script>
 </body>
 </html>
