@@ -8198,10 +8198,11 @@ function pfuRenderDetail(){
   if(curIdx===0){var _saved=(p.pif&&p.pif.savedAt);h+='<div class="pfu-formbar"><button class="pfu-btn sm pif" onclick="pifOpen()">\ud83d\udccb Project Information Form'+(_saved?' \u2713':'')+'</button><span class="pfu-formhint">'+(p.pif?('Saved '+pfuEsc(p.pif.savedAt||'')+' \u2014 click to view / edit \u00b7 open the form and use \ud83d\udd8a Print / PDF for signature'):('Fill the MR-001 form \u2014 it is saved with the project (Stage 1 only)'))+'</span></div>';}
   h+='</div>';
   h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udd53 Follow-up Log \u2014 Stage '+(curIdx+1)+' <span class="pfu-badge b" style="margin-left:6px">stage '+(curIdx+1)+' records only</span></div><button class="pfu-btn sm" onclick="pfuAddNote()">\uff0b Add Note</button></div><div class="pfu-tl">';
-  var _logs=(p.log||[]).filter(function(l){return ((l&&l.stage)||p.stage)===_curS;});
+  var _logs=[]; (p.log||[]).forEach(function(l,i){if(((l&&l.stage)||p.stage)===_curS)_logs.push({l:l,i:i});});
   if(!_logs.length){h+='<div class="pfu-tl-empty">\u2014 no notes recorded in this stage yet \u2014 use \uff0b Add Note \u2014</div>';}
-  _logs.forEach(function(l){
-    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n">'+pfuEsc(l.note)+'</div></div>';
+  _logs.forEach(function(o){
+    var l=o.l;
+    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t" data-edit data-lf="title" data-li="'+o.i+'">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n" data-edit data-lf="note" data-li="'+o.i+'">'+pfuEsc(l.note)+'</div></div>';
   });
   h+='</div></div>';
   box.innerHTML=h;
@@ -8222,6 +8223,10 @@ function pfuCollect(){
   box.querySelectorAll('[data-ti]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
     if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=c.textContent.trim();
+  });
+  box.querySelectorAll('[data-li]').forEach(function(c){
+    var i=parseInt(c.getAttribute('data-li'),10); var f=c.getAttribute('data-lf');
+    if(p.log&&p.log[i]&&f!=null)p.log[i][f]=c.textContent.trim();
   });
 }
 
