@@ -8433,12 +8433,13 @@ function pifSave(){
 function pfuAddLogItem(li){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.log||!p.log[li])return;
-  var t=window.prompt('New row / discussion item \u2014 \u65b0\u589e\u8ba8\u8bba\u9879:'); if(!t||!t.trim())return;
   if(!Array.isArray(p.log[li].items))p.log[li].items=[];
-  p.log[li].items.push({task:t.trim(),pic:'',date:'',status:'Pending'});
+  p.log[li].items.push({task:'',pic:'',date:'',status:'Pending'});
   if(typeof saveData==='function')saveData();
+  var j=p.log[li].items.length-1;
   pfuRenderAll();
-  pfuToast('\u2705 Row added');
+  var el=document.querySelector('#pfuDetail [data-li="'+li+'"][data-ii="'+j+'"][data-lt="task"]');
+  if(el){try{el.focus();var r=document.createRange();r.selectNodeContents(el);r.collapse(false);var s=window.getSelection();s.removeAllRanges();s.addRange(r);}catch(e){}}
 }
 function pfuDelLogItem(li,ii){
   pfuCollect();
