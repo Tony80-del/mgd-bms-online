@@ -107,6 +107,35 @@
     .pfu-stagetag{display:inline-block;margin-left:5px;padding:1px 7px;border-radius:20px;background:rgba(0,180,216,.12);color:var(--cyan);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
     .pfu-auto-tag{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:20px;background:rgba(148,163,184,.18);color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
     .pfu-tl-empty{color:var(--muted);font-style:italic;font-size:11.5px;padding:10px 2px}
+    .pfu-formbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed var(--border);margin-top:12px;padding-top:12px}
+    .pfu-formhint{font-size:11px;color:var(--text2)}
+    .pfu-btn.pif{background:rgba(139,92,246,.14);border-color:rgba(139,92,246,.5);color:#c4b5fd;font-weight:700}
+    .pfu-btn.pif:hover{background:rgba(139,92,246,.24);color:#ddd6fe}
+    /* ---- PROJECT INFORMATION FORM (MR-001) ---- */
+    .pif-modal{position:fixed;inset:0;background:rgba(2,6,14,.8);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:26px 12px;z-index:9990}
+    .pif-modal.open{display:flex}
+    .pif-sheet{background:#fff;color:#000;width:100%;max-width:1080px;border-radius:8px;padding:26px 30px 30px;font-family:"Times New Roman",Georgia,serif;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+    .pif-t1{text-align:center;font-size:22px;font-weight:700;letter-spacing:1px}
+    .pif-t2{text-align:center;font-size:18px;font-weight:700;margin-top:2px}
+    .pif-formno{text-align:right;font-size:12px;margin-top:8px}
+    .pif-meta{display:flex;justify-content:space-between;font-size:12px;border-top:2px solid #000;border-bottom:2px solid #000;padding:5px 0;margin-top:2px}
+    .pif-meta input{border:none;border-bottom:1px dotted #999;font-family:inherit;font-size:12px;width:180px;background:transparent;color:#000}
+    table.pif-xl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+    table.pif-xl td{border:1px solid #000;padding:5px 7px;vertical-align:top;white-space:normal}
+    table.pif-xl tr.pif-sec td{background:#d9d9d9;font-weight:700;letter-spacing:.4px}
+    table.pif-xl tr.pif-hd td{background:#e8e8e8;font-weight:700}
+    table.pif-xl td.pif-k{background:#f4f4f4;font-weight:700;width:150px;white-space:nowrap}
+    table.pif-xl input[type=text],table.pif-xl textarea{width:100%;border:none;border-bottom:1px dotted #999;font-family:inherit;font-size:12.5px;padding:1px 2px;background:transparent;color:#000}
+    table.pif-xl input[type=text]:focus,table.pif-xl textarea:focus{outline:none;background:#fffbe6}
+    table.pif-xl textarea{resize:vertical;min-height:52px;line-height:1.4}
+    table.pif-xl tr.pif-total input{font-weight:700}
+    .pif-cb{display:inline-flex;align-items:center;gap:5px;margin-right:16px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+    .pif-cb input{width:14px;height:14px}
+    .pif-foot{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-top:12px;flex-wrap:wrap}
+    .pif-foot input{border:none;border-bottom:1px dotted #999;font-family:inherit;font-size:12.5px;background:transparent;color:#000}
+    .pif-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+    .pif-acts button{font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:8px;border:1px solid #bbb;background:#f2f2f2;color:#222;cursor:pointer}
+    .pif-acts button.pri{background:#0a5f8f;border-color:#0a5f8f;color:#fff}
     table.pfu-grid tr.stage-row.cur td{background:rgba(0,180,216,.14)}
     table.pfu-grid tr.stage-empty td{color:var(--muted);font-style:italic;font-size:11px;font-weight:400;text-transform:none;letter-spacing:0}
     .pfu-layout.pfu-closed{grid-template-columns:1fr}
@@ -8150,7 +8179,9 @@ function pfuRenderDetail(){
         +'<td><select class="pfu-select" style="width:auto;padding:2px 6px;font-size:11px;background:'+_tc[0]+';color:'+_tc[1]+'" onchange="pfuSetTaskStatus('+idx+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option value="'+pfuEsc(s)+'"'+(s===(t.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelTask('+idx+')" title="Delete task">\u2715</span></td>'
         +'</tr>';
   });
-  h+='</tbody></table></div></div>';
+  h+='</tbody></table></div>';
+  if(curIdx===0){h+='<div class="pfu-formbar"><button class="pfu-btn sm pif" onclick="pifOpen()">\ud83d\udccb Project Information Form</button><span class="pfu-formhint">Fill the MR-001 form \u2014 the content is added into this Stage 1 table. <b>Stage 1 only.</b></span></div>';}
+  h+='</div>';
   h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udd53 Follow-up Log \u2014 Stage '+(curIdx+1)+' <span class="pfu-badge b" style="margin-left:6px">stage '+(curIdx+1)+' records only</span></div><button class="pfu-btn sm" onclick="pfuAddNote()">\uff0b Add Note</button></div><div class="pfu-tl">';
   var _logs=(p.log||[]).filter(function(l){return ((l&&l.stage)||p.stage)===_curS;});
   if(!_logs.length){h+='<div class="pfu-tl-empty">\u2014 no notes recorded in this stage yet \u2014 use \uff0b Add Note \u2014</div>';}
@@ -8287,6 +8318,69 @@ function pfuAddNote(){
   pfuToast('\u2705 Note added');
 }
 
+/* ---------- PROJECT INFORMATION FORM (MR-001) \u2014 Stage 1 only ---------- */
+var PIF_BUILDINGS=[
+  {n:1,type:'Factory',area:'',fl:'',rem:''},
+  {n:2,type:'Office',area:'-',fl:'-',rem:'incl in warehouse building'},
+  {n:3,type:'Dormitory',area:'-',fl:'-',rem:''},
+  {n:4,type:'Canteen',area:'-',fl:'-',rem:''},
+  {n:5,type:'Warehouse',area:'30000',fl:'2 floors',rem:''},
+  {n:6,type:'Utilities',area:'',fl:'',rem:''},
+  {n:7,type:'Guard House',area:'',fl:'',rem:''},
+  {n:8,type:'OTHER:',area:'',fl:'',rem:''}
+];
+function pifRenderBuildings(){
+  var tb=document.getElementById('pifBldRows'); if(!tb)return;
+  tb.innerHTML=PIF_BUILDINGS.map(function(b){
+    return '<tr><td>'+b.n+'</td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_type" value="'+pfuEsc(b.type)+'"></td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_area" value="'+pfuEsc(b.area)+'"></td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_fl" value="'+pfuEsc(b.fl)+'"></td>'
+      +'<td><input type="text" id="pif_b'+b.n+'_rem" value="'+pfuEsc(b.rem)+'"></td></tr>';
+  }).join('')+'<tr class="pif-total"><td></td><td></td><td><input type="text" id="pif_b_total" value="30000"></td><td></td><td></td></tr>';
+}
+function pifVal(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
+function pifChk(id){var e=document.getElementById(id);return !!(e&&e.checked);}
+function pifOpen(){pifRenderBuildings();var m=document.getElementById('pifModal');if(m)m.classList.add('open');}
+function pifClose(){var m=document.getElementById('pifModal');if(m)m.classList.remove('open');}
+function pifBuildingSummary(){
+  var out=[];
+  PIF_BUILDINGS.forEach(function(b){
+    var t=pifVal('pif_b'+b.n+'_type'),a=pifVal('pif_b'+b.n+'_area'),f=pifVal('pif_b'+b.n+'_fl');
+    if(t||a||f)out.push(t+(a?' '+a+' m\u00b2':'')+(f?' / '+f:''));
+  });
+  return out.join(' \u00b7 ');
+}
+function pifSave(){
+  var p=pfuCur(); if(!p)return;
+  pfuCollect();
+  var s=PFU_STAGES[0];
+  var date=pifVal('pif_date')||pfuNow();
+  var pic=pifVal('pif_contact');
+  var it=[]; if(pifChk('pif_fdi'))it.push('FDI'); if(pifChk('pif_dom'))it.push('Domestic'); if(pifChk('pif_jv'))it.push('Joint Venture');
+  var own=pifChk('pif_own')?'Owned':(pifChk('pif_lease')?'Leasing':(pifChk('pif_acquire')?'To Acquire':'\u2014'));
+  var stg=pifChk('pif_dl')?'Design & Legal':(pifChk('pif_pq')?'PQ':(pifChk('pif_bid')?'Bidding':'\u2014'));
+  var pa=[]; if(pifChk('pif_con'))pa.push('Consultant'); if(pifChk('pif_par'))pa.push('Partners'); if(pifChk('pif_owner'))pa.push('Owner'); if(pifChk('pif_ip'))pa.push('Industrial Park');
+  var add=[
+    {task:'A. Investor Profile \u2014 '+pifVal('pif_company'),note:'Nationality: '+pifVal('pif_nation')+' \u00b7 Contact: '+pifVal('pif_contact')+' ('+pifVal('pif_position')+') \u00b7 Phone: '+pifVal('pif_phone')+' \u00b7 Email: '+pifVal('pif_email')+' \u00b7 Type: '+(it.join(', ')||'\u2014')},
+    {task:'B. Project Information \u2014 '+pifVal('pif_proj'),note:'Location: '+pifVal('pif_loc')+' \u00b7 Land: '+pifVal('pif_land')+' m\u00b2 \u00b7 Products: '+pifVal('pif_products')+' \u00b7 Ownership: '+own+' \u00b7 Stage: '+stg+' \u00b7 Partners: '+(pa.join(' + ')||'\u2014')},
+    {task:'C1. Building Area Schedule',note:(pifBuildingSummary()||'\u2014')+' \u00b7 Total: '+pifVal('pif_b_total')+' m\u00b2'},
+    {task:'C2. Documentation',note:'BOQ '+(pifChk('pif_d_boq')?'\u2611':'\u2610')+' \u00b7 Design Drawing '+(pifChk('pif_d_draw')?'\u2611':'\u2610')+' \u00b7 Concept '+(pifChk('pif_d_concept')?'\u2611':'\u2610')+' \u00b7 PQ document '+(pifChk('pif_d_pq')?'\u2611':'\u2610')},
+    {task:'C3. Remark',note:pifVal('pif_remark')},
+    {task:'D. Schedule & Budget',note:'Est. Budget: '+pifVal('pif_budget')+' VND \u00b7 Schedule: '+pifVal('pif_sched')},
+    {task:'E. Potential Evaluation',note:pifChk('pif_p_high')?'High':(pifChk('pif_p_med')?'Medium':(pifChk('pif_p_low')?'Low':'\u2014'))}
+  ];
+  if(!Array.isArray(p.tasks))p.tasks=[];
+  add.forEach(function(r){p.tasks.push({stage:s,task:r.task,pic:pic,date:date,note:r.note,status:'Pending'});});
+  p.progress=pfuProgress(p);
+  if(typeof saveData==='function')saveData();
+  pifClose();
+  pfuRenderAll();
+  pfuToast('\u2705 Project Information Form added \u2014 '+add.length+' rows in Stage 1');
+}
+window.pifOpen=pifOpen;
+window.pifClose=pifClose;
+window.pifSave=pifSave;
 window.bidsSwitchView=bidsSwitchView;
 window.bidsApplyView=bidsApplyView;
 window.pfuPick=pfuPick;
@@ -8309,5 +8403,129 @@ function pfuSetTaskStatus(idx,val){
 }
 window.pfuSetTaskStatus=pfuSetTaskStatus;
 </script>
+
+<!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 PROJECT INFORMATION FORM (MR-001) \u2014 Stage 1 only \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
+<div class="pif-modal" id="pifModal">
+  <div class="pif-sheet">
+    <div class="pif-t1">PROJECT  INFORMATION FORM</div>
+    <div class="pif-t2">CTPARK VINATEX RBW</div>
+    <div class="pif-formno">Form No: MR-001</div>
+    <div class="pif-meta">
+      <span>Date: <input type="text" id="pif_date" value="Tuesday 23-06-2026"></span>
+      <span><b>Rev: 00</b></span>
+    </div>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td colspan="6">A. INVESTOR PROFILE</td></tr>
+      <tr>
+        <td class="pif-k">Company Name</td><td colspan="3"><input type="text" id="pif_company" value="CTP Investment"></td>
+        <td class="pif-k" style="width:110px">Nationality</td><td><input type="text" id="pif_nation" value="EU"></td>
+      </tr>
+      <tr>
+        <td class="pif-k">Contact Person</td><td colspan="3"><input type="text" id="pif_contact" value="Mr. Canh Trung"></td>
+        <td class="pif-k">Position</td><td><input type="text" id="pif_position" value="Senior Project Manager"></td>
+      </tr>
+      <tr>
+        <td class="pif-k">Phone</td><td colspan="3"><input type="text" id="pif_phone" value="zalo"></td>
+        <td class="pif-k">Email</td><td><input type="text" id="pif_email" value="canh.trung@ctp.eu"></td>
+      </tr>
+      <tr>
+        <td class="pif-k">Investment Type</td>
+        <td colspan="5">
+          <label class="pif-cb"><input type="checkbox" id="pif_fdi" checked> FDI</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_dom"> Domestic</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_jv"> Joint Venture</label>
+        </td>
+      </tr>
+    </table>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td colspan="6">B. PROJECT INFORMATION</td></tr>
+      <tr><td class="pif-k">Project Name</td><td colspan="5"><input type="text" id="pif_proj" value="CTPARK Vinatex RBW/RBF"></td></tr>
+      <tr><td class="pif-k">Location</td><td colspan="5"><input type="text" id="pif_loc" value="Khu CN Dệt may Nhơn Trạch, Đồng Nai"></td></tr>
+      <tr>
+        <td class="pif-k">Land Size (m²)</td><td colspan="2"><input type="text" id="pif_land" value="N/A"></td>
+        <td colspan="3"></td>
+      </tr>
+      <tr><td class="pif-k">Products</td><td colspan="5"><input type="text" id="pif_products" value="RBW"></td></tr>
+      <tr>
+        <td class="pif-k">Land Ownership</td>
+        <td colspan="5">
+          <label class="pif-cb"><input type="checkbox" id="pif_own" checked> Owned</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_lease"> Leasing</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_acquire"> To Acquire</label>
+        </td>
+      </tr>
+      <tr>
+        <td class="pif-k">Project Stage</td>
+        <td colspan="5">
+          <label class="pif-cb"><input type="checkbox" id="pif_dl"> Design &amp; Legal</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_pq" checked> PQ</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_bid"> Bidding</label>
+        </td>
+      </tr>
+      <tr>
+        <td class="pif-k">Project Partners</td>
+        <td colspan="5">
+          <label class="pif-cb"><input type="checkbox" id="pif_con" checked> Consultant</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_par"> Partners</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_owner" checked> Owner</label>
+          <label class="pif-cb"><input type="checkbox" id="pif_ip"> Industrial Park</label>
+        </td>
+      </tr>
+    </table>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td colspan="5">C1. BUILDING AREA SCHEDULE</td></tr>
+      <tr class="pif-hd"><td style="width:6%">No.</td><td style="width:26%">Building Type</td><td style="width:16%">Area (m²)</td><td style="width:16%">No. of Floor</td><td>Remarks</td></tr>
+      <tbody id="pifBldRows"></tbody>
+    </table>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td colspan="4">C2. DOCUMENTATION RECEIVED</td></tr>
+      <tr><td colspan="4">
+        <label class="pif-cb"><input type="checkbox" id="pif_d_boq"> BOQ (Bill of Quantities)</label>
+        <label class="pif-cb"><input type="checkbox" id="pif_d_draw"> Design Drawing</label>
+        <label class="pif-cb"><input type="checkbox" id="pif_d_concept"> Concept Drawing</label>
+        <label class="pif-cb"><input type="checkbox" id="pif_d_pq"> PQ document</label>
+      </td></tr>
+    </table>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td>C3. REMARK</td></tr>
+      <tr><td style="font-weight:700">Remarks / Notes:</td></tr>
+      <tr><td><textarea id="pif_remark"> Current Project Status
+Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea></td></tr>
+    </table>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td colspan="4">D. SCHEDULE &amp; BUDGET</td></tr>
+      <tr>
+        <td class="pif-k" style="width:170px">Est. Budget (VND) =</td><td><input type="text" id="pif_budget" value="300000000000"></td>
+        <td class="pif-k" style="width:170px">Est. Schedule:</td><td><input type="text" id="pif_sched" value="9 months"></td>
+      </tr>
+    </table>
+
+    <table class="pif-xl">
+      <tr class="pif-sec"><td colspan="3">E. POTENTIAL EVALUATION</td></tr>
+      <tr><td colspan="3">
+        <label class="pif-cb"><input type="checkbox" id="pif_p_high"> High</label>
+        <label class="pif-cb"><input type="checkbox" id="pif_p_med" checked> Medium</label>
+        <label class="pif-cb"><input type="checkbox" id="pif_p_low"> Low</label>
+      </td></tr>
+    </table>
+
+    <div class="pif-foot">
+      <span>Name: <input type="text" id="pif_signname" value="" style="width:180px"></span>
+      <span>Signature: ______________________</span>
+      <span>Date: <input type="text" id="pif_signdate" value="Tuesday __ - __ - ____" style="width:200px"></span>
+    </div>
+
+    <div class="pif-acts">
+      <button onclick="pifClose()">Cancel</button>
+      <button class="pri" onclick="pifSave()">\ud83d\udcbe Add to Stage 1 Tasks</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
