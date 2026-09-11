@@ -136,6 +136,8 @@
     .pif-cb input{width:14px;height:14px}
     .pif-foot{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-top:12px;flex-wrap:wrap}
     .pif-foot input{border:none;border-bottom:1px dotted #999;font-family:inherit;font-size:12.5px;background:transparent;color:#000}
+    .pif-foot input[type=date]{width:180px;padding:0}
+    .pif-foot input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.65}
     .pif-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
     .pif-acts button{font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 18px;border-radius:8px;border:1px solid #bbb;background:#f2f2f2;color:#222;cursor:pointer}
     .pif-acts button.pri{background:#0a5f8f;border-color:#0a5f8f;color:#fff}
@@ -8371,7 +8373,7 @@ function pifCollect(){
 }
 function pifApply(o){
   if(!o)return;
-  if(o.t)PIF_TEXT.forEach(function(k){var e=document.getElementById('pif_'+k);if(e&&o.t[k]!=null)e.value=o.t[k];});
+  if(o.t)PIF_TEXT.forEach(function(k){var e=document.getElementById('pif_'+k);if(!e||o.t[k]==null)return;if(e.type==='date'&&!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(o.t[k]))return;e.value=o.t[k];});
   if(o.c)PIF_CHECK.forEach(function(k){var e=document.getElementById('pif_'+k);if(e)e.checked=!!o.c[k];});
   if(o.b)pifRenderBuildings(o.b);
   var t=document.getElementById('pif_b_total'); if(t&&o.total!=null)t.value=o.total;
@@ -8380,6 +8382,8 @@ function pifOpen(){
   var p=pfuCur();
   pifRenderBuildings(p&&p.pif?p.pif.b:null);
   pifApply(p&&p.pif?p.pif:null);
+  var sd=document.getElementById('pif_signdate');
+  if(sd&&!sd.value){var _d=new Date();sd.value=_d.getFullYear()+'-'+('0'+(_d.getMonth()+1)).slice(-2)+'-'+('0'+_d.getDate()).slice(-2);}
   var m=document.getElementById('pifModal');if(m)m.classList.add('open');
 }
 function pifClose(){var m=document.getElementById('pifModal');if(m)m.classList.remove('open');}
@@ -8535,7 +8539,7 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
     <div class="pif-foot">
       <span>Name: <input type="text" id="pif_signname" value="" style="width:180px"></span>
       <span>Signature: ______________________</span>
-      <span>Date: <input type="text" id="pif_signdate" value="Tuesday __ - __ - ____" style="width:200px"></span>
+      <span>Date: <input type="date" id="pif_signdate" value="" style="width:180px"></span>
     </div>
 
     <div class="pif-acts">
