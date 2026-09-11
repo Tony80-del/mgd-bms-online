@@ -8125,9 +8125,10 @@ function pfuRenderDetail(){
   h+='<div class="pfu-pipe">';
   PFU_STAGES.forEach(function(s,i){
     var st=(p.stageStatus&&p.stageStatus[s])||'Pending';
-    var cls=(st==='Completed')?'done':(st==='In Progress'?'cur':'');
+    var isCur=(s===_curS);
+    var cls=(st==='Completed')?'done':(isCur?'cur':'');
     var res=(s==='Result')?' res':'';
-    var sd=(st==='Completed'?'\u2713 completed':(st==='In Progress'?'\u25cf in progress':'\u25cb pending'));
+    var sd=(st==='Completed'?'\u2713 completed':(isCur?'\u25cf in progress':'\u25cb pending'));
     h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')" title="Click to switch to this stage"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
   });
   h+='</div>';
