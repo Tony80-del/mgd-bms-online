@@ -8127,7 +8127,7 @@ function pfuRenderDetail(){
     var isCur=(s===_curS);
     var cls=(st==='Completed')?'done':(isCur?'cur':'');
     var res=(s==='Result')?' res':'';
-    var sd=(st==='Completed'?'\u2713 completed':(isCur?'\u25cf in progress':'\u25cb pending'));
+    var sd=(st==='Completed'?'\u2713 completed':(isCur?'\u25cf in progress':'\u25cb pending'))+((isCur&&st==='Completed')?' \u00b7 current':'');
     h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')" title="Click to switch to this stage"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
   });
   h+='</div>';
