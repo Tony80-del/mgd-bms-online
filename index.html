@@ -8112,7 +8112,6 @@ function pfuRenderDetail(){
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
     +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
-    +'<button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
     +'</div></div>';
@@ -8132,7 +8131,7 @@ function pfuRenderDetail(){
     h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')" title="Click to switch to this stage"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
   });
   h+='</div>';
-  h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udccc Tasks \u2014 Stage '+(curIdx+1)+' \u00b7 '+pfuEsc(_curS)+'</div><div class="pfu-card-sub">Stage '+(curIdx+1)+' only \u00b7 PIC \u00b7 date \u00b7 follow-up note \u00b7 status \u2014 other stages\u2019 records are kept</div></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
+  h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udccc Tasks \u2014 Stage '+(curIdx+1)+' \u00b7 '+pfuEsc(_curS)+'</div><div class="pfu-card-sub">Stage '+(curIdx+1)+' only \u00b7 PIC \u00b7 date \u00b7 follow-up note \u00b7 status \u2014 other stages\u2019 records are kept</div></div><button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
     +'<th style="width:15%">Stage</th><th style="width:26%">Task</th><th style="width:12%">PIC</th><th style="width:10%">Date</th><th style="width:22%">Noted Follow-up</th><th style="width:15%">Status</th></tr></thead><tbody>';
   var tasks=p.tasks||[];
   var _rows=[]; tasks.forEach(function(t,idx){if(t.stage===_curS)_rows.push(idx);});
