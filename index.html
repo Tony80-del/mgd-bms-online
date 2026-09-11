@@ -8009,10 +8009,10 @@ function bidsApplyView(){
 }
 
 /* ---------- Project Follow-up (data + render) ---------- */
-var PFU_STAGES=['Data Collection','PQ','Bidding','Reviewing','Negotiation','Result'];
+var PFU_STAGES=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
-var PFU_STAGE_CLS={'Data Collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
-var PFU_STAGE_LABELS=['1 \u00b7 Data Collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lost)'];
+var PFU_STAGE_CLS={'Project Info collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
+var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lost)'];
 var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0']};
 var pfuCurId=null;
 var pfuPanelOpen=false; /* side "Projects" panel hidden by default; toggle to show */
@@ -8037,8 +8037,8 @@ function pfuSeed(){
   return [
     {id:'P1',name:'TaiYang Metal',badge:'Bidding',badgeCls:'b',type:'Warehouse fit-out',client:'TaiYang (China)',ref:'FY2026-018',stage:'Bidding',estValue:'85B VND',landArea:'10,000 m\u00b2',pic:'Mr. Qu\u1ed1c',start:'20 Aug 2026',target:'30 Sep 2026',progress:55,
       tasks:[
-        {stage:'Data Collection',task:'Collect client requirements',pic:'Qu\u1ed1c',date:'20 Aug',note:'Requirements list received; scope: warehouse 10,000 m\u00b2',status:'Completed'},
-        {stage:'Data Collection',task:'Conduct site survey',pic:'H\u01b0\u1eddng',date:'25 Aug',note:'Survey done \u00b7 soil report pending from lab',status:'Completed'},
+        {stage:'Project Info collection',task:'Collect client requirements',pic:'Qu\u1ed1c',date:'20 Aug',note:'Requirements list received; scope: warehouse 10,000 m\u00b2',status:'Completed'},
+        {stage:'Project Info collection',task:'Conduct site survey',pic:'H\u01b0\u1eddng',date:'25 Aug',note:'Survey done \u00b7 soil report pending from lab',status:'Completed'},
         {stage:'PQ',task:'Submit PQ documents',pic:'L\u00ea',date:'28 Aug',note:'All documents submitted; client reviewing',status:'Completed'},
         {stage:'PQ',task:'Client approves PQ',pic:'Qu\u1ed1c',date:'01 Sep',note:'Approved \u2014 proceeded to Bidding stage',status:'Completed'},
         {stage:'Bidding',task:'Prepare BOQ v1',pic:'L\u00ea',date:'05 Sep',note:'Draft BOQ prepared, est. 85B VND',status:'Completed'},
@@ -8054,11 +8054,11 @@ function pfuSeed(){
         {date:'01 Sep 2026 \u00b7 16:40',type:'g',title:'Mr. Qu\u1ed1c \u2014 PQ approved by client',note:'Pre-qualification passed. Project advanced to Bidding stage.'},
         {date:'28 Aug 2026 \u00b7 09:15',type:'p',title:'Mr. L\u00ea submitted PQ documents',note:'Full PQ package uploaded. Awaiting client review.'},
         {date:'25 Aug 2026 \u00b7 11:30',type:'',title:'Ms. H\u01b0\u1eddng completed site survey',note:'Survey completed \u00b7 site area 10,000 m\u00b2. Soil report pending from lab.'},
-        {date:'20 Aug 2026 \u00b7 08:00',type:'g',title:'Project created \u2014 Mr. Qu\u1ed1c',note:'TaiYang Metal warehouse fit-out registered. Starting stage: Data Collection.'}
+        {date:'20 Aug 2026 \u00b7 08:00',type:'g',title:'Project created \u2014 Mr. Qu\u1ed1c',note:'TaiYang Metal warehouse fit-out registered. Starting stage: Project Info collection.'}
       ]},
     {id:'P2',name:'Global Star',badge:'Reviewing',badgeCls:'a',type:'Factory building',client:'Global Star',ref:'FY2026-021',stage:'Reviewing',estValue:'120B VND',landArea:'18,000 m\u00b2',pic:'Mr. L\u00ea',start:'05 Aug 2026',target:'15 Oct 2026',progress:40,
       tasks:[
-        {stage:'Data Collection',task:'Site survey & requirements',pic:'L\u00ea',date:'08 Aug',note:'Survey and requirements captured',status:'Completed'},
+        {stage:'Project Info collection',task:'Site survey & requirements',pic:'L\u00ea',date:'08 Aug',note:'Survey and requirements captured',status:'Completed'},
         {stage:'Bidding',task:'Submit full BOQ',pic:'L\u00ea',date:'28 Aug',note:'Full BOQ submitted to client',status:'Completed'},
         {stage:'Reviewing',task:'Client reviews submission',pic:'Qu\u1ed1c',date:'20 Sep',note:'Under client review',status:'In Progress'}
       ],
@@ -8088,7 +8088,17 @@ function pfuGetData(){
     data.projectTracking=pfuSeed();
     if(typeof saveData==='function')saveData();
   }
-  data.projectTracking.forEach(function(p){if(!Array.isArray(p.tasks))p.tasks=[];if(!Array.isArray(p.log))p.log=[];if(!p.badgeCls)p.badgeCls=PFU_STAGE_CLS[p.stage]||'b';});
+  /* rename migration: stage 1 "Data Collection" -> "Project Info collection" */
+  var _REN={'Data Collection':'Project Info collection'};var _mig=false;
+  data.projectTracking.forEach(function(p){
+    if(!Array.isArray(p.tasks))p.tasks=[];
+    if(!Array.isArray(p.log))p.log=[];
+    if(_REN[p.stage]){p.stage=_REN[p.stage];_mig=true;}
+    if(_REN[p.badge]){p.badge=_REN[p.badge];_mig=true;}
+    (p.tasks||[]).forEach(function(t){if(_REN[t.stage]){t.stage=_REN[t.stage];_mig=true;}});
+    if(!p.badgeCls||_REN[p.badgeCls])p.badgeCls=PFU_STAGE_CLS[p.stage]||'b';
+  });
+  if(_mig&&typeof saveData==='function')saveData();
   if(!pfuCurId||!data.projectTracking.some(function(p){return p.id===pfuCurId;})){pfuCurId=data.projectTracking[0].id;}
   return data.projectTracking;
 }
@@ -8197,7 +8207,7 @@ function pfuAddProject(){
   pfuCollect();
   var name=window.prompt('New project name / \u65b0\u9879\u76ee\u540d\u79f0:'); if(!name||!name.trim())return;
   var id='P'+Date.now();
-  data.projectTracking.unshift({id:id,name:name.trim(),badge:'Data Collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Data Collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',title:'Project created',note:name.trim()}]});
+  data.projectTracking.unshift({id:id,name:name.trim(),badge:'Project Info collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Project Info collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',title:'Project created',note:name.trim()}]});
   pfuCurId=id;
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
@@ -8208,7 +8218,7 @@ function pfuDelProject(){
   if(!window.confirm('Delete project \"'+p.name+'\"?'))return;
   var l=pfuGetData();
   var i=l.indexOf(p); if(i>=0)l.splice(i,1);
-  if(!l.length)l.push({id:'P'+Date.now(),name:'New Project',badge:'Data Collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Data Collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[]});
+  if(!l.length)l.push({id:'P'+Date.now(),name:'New Project',badge:'Project Info collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Project Info collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[]});
   pfuCurId=l[0].id;
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
