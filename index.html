@@ -2131,7 +2131,7 @@ var MOM_PRIO=['Low','Medium','High','Urgent'];
 var MOM_STAT=['Pending','In Progress','Completed','Overdue','Cancelled'];
 var MOM_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],p:['#e8e0fb','#5b34c0'],gray:['#e6e9ed','#5a6672']};
 function momSelColor(kind,val){var cl=(kind==='prio')?momPrioClass(val):momStatClass(val);return MOM_COLORS[cl]||MOM_COLORS.gray;}
-function momRecolorSel(el,kind){var c=momSelColor(kind,el.value);el.style.background=c[0];el.style.color=c[1];}
+function momRecolorSel(el,kind){var c=momSelColor(kind,el.value);el.style.background=c[0];el.style.color=c[1];for(var i=0;i<el.options.length;i++){if(el.options[i].value===el.value)el.options[i].setAttribute('selected','');else el.options[i].removeAttribute('selected');}}
 function momSelCell(field,kind,val){
   val=val||'';var list=((kind==='prio')?MOM_PRIO:MOM_STAT).slice();
   if(val&&list.indexOf(val)<0)list.push(val);
@@ -2342,7 +2342,7 @@ function momRenderSheet(){
   });
   s+='</table>';
   /* ---- Table 2: action items (grouped by section/topic) ---- */
-  s+='<table class="mm"><colgroup><col style="width:4%"><col style="width:23%"><col style="width:10%"><col style="width:10%"><col style="width:9%"><col style="width:13%"><col style="width:17%"><col style="width:9%"><col style="width:5%"></colgroup>';
+  s+='<table class="mm"><colgroup><col style="width:4%"><col style="width:24%"><col style="width:9%"><col style="width:10%"><col style="width:9%"><col style="width:13%"><col style="width:17%"><col style="width:9%"><col style="width:5%"></colgroup>';
   s+='<tr><td class="hdr" colspan="9" style="text-align:left">ACTION ITEMS · NEXT STEP<span style="float:right;font-weight:400"><button type="button" onclick="momAddActionSection()" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Action</button></span></td></tr>';
   s+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td><td class="hdr"></td></tr>';
   rec.actions=momNormActions(rec.actions);
@@ -2358,7 +2358,7 @@ function momRenderSheet(){
         +'<td class="num">'+String(ii+1).padStart(2,'0')+'</td>'
         +'<td contenteditable="true" data-af="task">'+momEsc(a.task)+'</td>'
         +'<td class="ctr" contenteditable="true" data-af="pic">'+momEsc(a.pic)+'</td>'
-        +'<td class="ctr"><input class="mom-inp" type="date" data-af="due" value="'+pfuToISO(a.due)+'"'+(pfuToISO(a.due)?'':' data-keep="'+momEsc(a.due)+'"')+'></td>'
+        +'<td class="ctr"><input class="mom-inp" type="date" data-af="due" value="'+pfuToISO(a.due)+'" onchange="this.setAttribute(\'value\',this.value)"'+(pfuToISO(a.due)?'':' data-keep="'+momEsc(a.due)+'"')+'></td>'
         +'<td class="ctr">'+momSelCell('priority','prio',a.priority)+'</td>'
         +'<td class="ctr">'+momSelCell('status','stat',a.status)+'</td>'
         +'<td contenteditable="true" data-af="next">'+momEsc(a.next)+'</td>'
@@ -2387,6 +2387,11 @@ function momPrint(){
   var sheet=document.getElementById('momSheet');if(!sheet)return;
   /* 1) clone the sheet so the on-screen version is untouched */
   var clone=sheet.cloneNode(true);
+  /* 1b) cloneNode does not carry unsaved control values -> copy them from the live sheet */
+  var lSel=sheet.querySelectorAll('select[data-af]'),cSel=clone.querySelectorAll('select[data-af]');
+  for(var z=0;z<lSel.length&&z<cSel.length;z++){cSel[z].value=lSel[z].value;}
+  var lInp=sheet.querySelectorAll('input[type=date]'),cInp=clone.querySelectorAll('input[type=date]');
+  for(var z2=0;z2<lInp.length&&z2<cInp.length;z2++){cInp[z2].value=lInp[z2].value;}
   /* 2) strip every interactive button (＋Add Agenda / ＋Item / ✕Delete) */
   var bl=clone.querySelectorAll('button');
   for(var i=bl.length-1;i>=0;i--){if(bl[i].parentNode)bl[i].parentNode.removeChild(bl[i]);}
@@ -2395,7 +2400,7 @@ function momPrint(){
   if(tbs[1]){var rs=tbs[1].querySelectorAll('tr');for(var r=0;r<rs.length;r++){var cs=rs[r].children;if(cs.length===9)rs[r].removeChild(cs[8]);}
     var cg=tbs[1].querySelector('colgroup');
     if(cg){var cols=cg.querySelectorAll('col');if(cols.length>8)cg.removeChild(cols[8]);
-      var w8=[4,26,9,9,10,13,19,10];for(var w2=0;w2<w8.length;w2++){if(cols[w2])cols[w2].style.width=w8[w2]+'%';}}}
+      var w8=[4,26,9,11,9,13,18,10];for(var w2=0;w2<w8.length;w2++){if(cols[w2])cols[w2].style.width=w8[w2]+'%';}}}
   /* 4) release the right padding that was reserved for those buttons */
   var pads=clone.querySelectorAll('[data-agtopic] td,[data-astopic] td');
   for(var p=0;p<pads.length;p++){pads[p].style.paddingRight='';pads[p].style.position='';}
