@@ -8353,8 +8353,14 @@ function pfuCollect(){
   });
 }
 
+/* keep the most recently updated project at the top of the side list */
+function pfuBumpToTop(p){
+  var l=data.projectTracking; if(!l||!p)return;
+  var i=l.indexOf(p); if(i>0){ l.splice(i,1); l.unshift(p); }
+}
 function pfuSave(){
   pfuCollect();
+  var _bp=pfuCur(); if(_bp)pfuBumpToTop(_bp);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
   pfuToast('\u2705 Project Follow-up saved');
@@ -8419,6 +8425,7 @@ function pfuFinalizeStage(){
     if(p.stageStatus[next]==='Pending')p.stageStatus[next]='In Progress';
   }
   p.progress=pfuProgress(p);
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
   pfuToast('\u2705 Stage '+(cur+1)+' finalized \u2014 records kept');
@@ -8440,6 +8447,7 @@ function pfuAddTask(){
   var t=window.prompt('Task name / \u4efb\u52a1\u540d\u79f0:'); if(!t||!t.trim())return;
   if(!Array.isArray(p.tasks))p.tasks=[];
   p.tasks.push({stage:p.stage,task:t.trim(),pic:'',date:'',note:'',status:'Pending'});
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
@@ -8447,6 +8455,7 @@ function pfuDelTask(idx){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.tasks||!p.tasks[idx])return;
   p.tasks.splice(idx,1);
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
@@ -8456,6 +8465,7 @@ function pfuAddNote(){
   var n=window.prompt('Follow-up note / \u8ddf\u8fdb\u8bb0\u5f55:'); if(!n||!n.trim())return;
   if(!Array.isArray(p.log))p.log=[];
   p.log.unshift({date:pfuNow(),type:'g',stage:p.stage,title:'Note added',note:n.trim()});
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
   pfuToast('\u2705 Note added');
@@ -8532,6 +8542,7 @@ function pfuAddLogItem(li){
   var p=pfuCur(); if(!p||!p.log||!p.log[li])return;
   if(!Array.isArray(p.log[li].items))p.log[li].items=[];
   p.log[li].items.push({task:'',pic:'',date:'',dept:'',status:'Pending'});
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   var j=p.log[li].items.length-1;
   pfuRenderAll();
@@ -8542,6 +8553,7 @@ function pfuDelLogItem(li,ii){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.log||!p.log[li]||!p.log[li].items)return;
   p.log[li].items.splice(ii,1);
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
@@ -8549,6 +8561,7 @@ function pfuSetLogItemStatus(li,ii,v){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.log||!p.log[li]||!p.log[li].items||!p.log[li].items[ii])return;
   p.log[li].items[ii].status=v;
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
@@ -8574,6 +8587,7 @@ function pfuSetTaskStatus(idx,val){
   pfuCollect();
   var p=pfuCur(); if(!p||!p.tasks||!p.tasks[idx])return;
   p.tasks[idx].status=val;
+  pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
   pfuToast('\u2705 Status updated');
