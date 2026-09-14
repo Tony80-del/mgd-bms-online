@@ -9062,10 +9062,10 @@ window.canRefresh=canRefresh; window.canGapCalc=canGapCalc;
 /* ================= CANCELLATION REPORT (Stage 6 · result = Cancel) ================= */
 var CRA_GROUPS=[
  {g:'Owner / Client', items:[
-   {id:'budget',   ic:'\u2702\ufe0f', n:'Low budget',                 d:'No money this year / budget not approved'},
+   {id:'cbudget',   ic:'\u2702\ufe0f', n:'Low budget',                 d:'No money this year / budget not approved'},
    {id:'owncontr', ic:'\ud83d\udd01', n:'Owner choose own contractor', d:'Group or in-house contractor nominated'},
    {id:'invest',   ic:'\ud83d\udcc9', n:'Investment cancelled',        d:'Project stopped, no funding'},
-   {id:'internal', ic:'\ud83c\udfe2', n:'Owner internal decision',     d:'New management / new direction'},
+   {id:'cinternal', ic:'\ud83c\udfe2', n:'Owner internal decision',     d:'New management / new direction'},
    {id:'legal',    ic:'\ud83d\udcc4', n:'Licence not approved',        d:'IRC, planning or fire approval refused / delayed'},
    {id:'land',     ic:'\ud83c\udfe6', n:'Land payment failed',         d:'Owner could not pay for the land'},
    {id:'moved',    ic:'\ud83c\udf0f', n:'Production moved',            d:'Moved to another country / province'}
@@ -9078,7 +9078,7 @@ var CRA_GROUPS=[
    {id:'design',   ic:'\ud83d\udccf', n:'Design not final',            d:'Concept / basic design still pending'}
  ]},
  {g:'Time / Market', items:[
-   {id:'postpone', ic:'\u23f8', n:'Postponed',                    d:'Only delayed \u2014 check again next budget year'},
+   {id:'cpostpone', ic:'\u23f8', n:'Postponed',                    d:'Only delayed \u2014 check again next budget year'},
    {id:'market',   ic:'\ud83d\udcc9', n:'Market downturn',             d:'Industry down / company restructuring'}
  ]},
  {g:'Our side', items:[
