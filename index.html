@@ -131,6 +131,7 @@
     .pfu-resbanner{margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.45);color:#4ade80;font-weight:700;font-size:13px;display:flex;align-items:center;flex-wrap:wrap}
     .pfu-congrats{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(3,9,18,.93);backdrop-filter:blur(6px)}
     .pfu-congrats .cg{text-align:center;padding:44px 60px;border-radius:20px;border:1px solid rgba(34,197,94,.5);background:radial-gradient(circle at 50% 0%,rgba(34,197,94,.22),rgba(11,30,61,.98));box-shadow:0 0 60px rgba(34,197,94,.28);animation:pfuPop .5s cubic-bezier(.2,1.4,.4,1)}
+    .pfu-congrats .cglogo{display:block;width:200px;max-width:62vw;margin:0 auto 18px;padding:10px 18px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
     .pfu-congrats .em{font-size:54px;line-height:1}
     .pfu-congrats h1{margin:12px 0 6px;font-size:30px;letter-spacing:2px;color:#4ade80;text-shadow:0 0 24px rgba(34,197,94,.5)}
     .pfu-congrats .pj{font-size:17px;font-weight:700;color:var(--text1);margin-top:8px}
@@ -8369,7 +8370,7 @@ function pfuCongrats(){
   var p=pfuCur(); if(!p)return;
   pfuCongratsClose();
   var d=document.createElement('div'); d.className='pfu-congrats'; d.id='pfuCongratsBox';
-  d.innerHTML='<div class="cg"><div class="em">🎉🏆🎉</div><h1>CONGRATULATIONS!</h1><div class="pj">'+pfuEsc(p.name)+'</div><div class="rw">PROJECT WON · 中标</div><button class="pfu-btn pri cgclose" onclick="pfuCongratsClose()">Close</button></div>';
+  d.innerHTML='<div class="cg"><img src="mgd-logo.png" alt="MGD Logo" class="cglogo"><div class="em">🎉🏆🎉</div><h1>CONGRATULATIONS!</h1><div class="pj">'+pfuEsc(p.name)+'</div><div class="rw">PROJECT WON · 中标</div><button class="pfu-btn pri cgclose" onclick="pfuCongratsClose()">Close</button></div>';
   d.addEventListener('click',function(e){if(e.target===d)pfuCongratsClose();});
   document.body.appendChild(d);
 }
