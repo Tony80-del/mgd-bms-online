@@ -57,10 +57,14 @@
     .pfu-item .pc{font-size:10.5px;color:var(--muted);margin-top:3px}
     .pfu-item .pb{height:4px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
     .pfu-item .pb i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px}
-    .pfu-item.res-cancel{opacity:.68}
-    .pfu-item.res-cancel .pname{text-decoration:line-through;text-decoration-color:rgba(248,113,113,.7)}
-    .pfu-item.res-cancel .pb{background:rgba(248,113,113,.22)}
-    .pfu-item.res-cancel .pb i{background:#f87171}
+    .pfu-item.res-cancel,.pfu-item.res-lose{opacity:.68}
+    .pfu-item.res-cancel .pname,.pfu-item.res-lose .pname{text-decoration:line-through;text-decoration-color:rgba(248,113,113,.7)}
+    .pfu-item.res-cancel .pb,.pfu-item.res-lose .pb{background:rgba(248,113,113,.22)}
+    .pfu-item.res-cancel .pb i,.pfu-item.res-lose .pb i{background:#f87171}
+    .pfu-item.res-won{border-color:rgba(34,197,94,.45)}
+    .pfu-item.res-won:hover{border-color:rgba(34,197,94,.8)}
+    .pfu-item.res-won .pb{background:rgba(34,197,94,.22)}
+    .pfu-item.res-won .pb i{background:#22c55e}
     .pfu-head{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px}
     .pfu-head .row1{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
     .pfu-head h2{font-size:19px;font-weight:800}
@@ -8349,12 +8353,21 @@ function pfuRenderAll(){
   if(lc){
     lc.innerHTML=list.map(function(p){
       var pct=Math.max(0,Math.min(100,Number(p.progress)||0));
-      var _rs=String(((p.result||{}).status)||'');
-      var _cancel=(_rs==='Cancelled');
-      var _reason=_cancel?String((p.result||{}).reason||'').trim():'';
-      return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+(_cancel?' res-cancel':'')+'" onclick="pfuPick(\''+p.id+'\')"'+(_cancel?(' title="'+pfuEsc('🚫 Cancelled'+(_reason?' — '+_reason:''))+'"'):'')+'>'
+      var _r=(p.result||{});
+      var _rs=String(_r.status||'');
+      var _rc=_rs==='Cancelled'?'res-cancel':(_rs==='Won'?'res-won':(_rs==='Lost'?'res-lose':''));
+      var _reason=String(_r.reason||'').trim();
+      var _when=String(_r.date||'').trim();
+      var _resLine='';
+      if(_rs==='Cancelled')_resLine='<span style="color:#f87171;font-weight:700">🚫 Cancelled</span>'+(_reason?' · '+pfuEsc(_reason):'');
+      else if(_rs==='Lost')_resLine='<span style="color:#f87171;font-weight:700">❌ Lose</span>'+(_reason?' · '+pfuEsc(_reason):'');
+      else if(_rs==='Won')_resLine='<span style="color:#22c55e;font-weight:700">🏆 Won</span>'+(_when?' · '+pfuEsc(_when):'');
+      var _ico=(_rs==='Won')?'🏆 Won':(_rs==='Lost'?'❌ Lose':(_rs==='Cancelled'?'🚫 Cancelled':''));
+      var _extra=(_rs==='Won')?_when:_reason;
+      var _tip=_ico?(_ico+(_extra?' — '+_extra:'')):'';
+      return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+(_rc?' '+_rc:'')+'" onclick="pfuPick(\''+p.id+'\')"'+(_tip?(' title="'+pfuEsc(_tip)+'"'):'')+'>'
         +'<div class="pn"><span class="pname">'+pfuEsc(p.name)+'</span> <span class="pfu-badge '+(p.badgeCls||'b')+'">'+pfuEsc(p.badge||'')+'</span></div>'
-        +'<div class="pc">'+(_cancel?('<span style="color:#f87171;font-weight:700">🚫 Cancelled</span>'+(_reason?' · '+pfuEsc(_reason):'')+'<br>'):'')+pfuEsc(p.type||'')+(p.client?' · '+pfuEsc(p.client):'')+(p.estValue?' · '+pfuEsc(p.estValue):'')+'</div>'
+        +'<div class="pc">'+(_resLine?_resLine+'<br>':'')+pfuEsc(p.type||'')+(p.client?' · '+pfuEsc(p.client):'')+(p.estValue?' · '+pfuEsc(p.estValue):'')+'</div>'
         +'<div class="pb"><i style="width:'+pct+'%"></i></div></div>';
     }).join('');
   }
