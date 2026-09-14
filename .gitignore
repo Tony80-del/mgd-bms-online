@@ -4,11 +4,12 @@
 *.bak.*
 index.html.bak
 
-# design demos / reports (kept locally, not part of the live system)
-*-demo.html
+# design demos / local reports (kept on this Mac only, not part of the live system)
+*demo*.html
 *-report.html
 pricebook-*.html
 close-analysis-report.html
+lost-analysis*.html
 
 # macOS
 .DS_Store
