@@ -8519,12 +8519,13 @@ function pfuSetStage(i){
 function pfuAddTask(){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
-  var t=window.prompt('Task name / \u4efb\u52a1\u540d\u79f0:'); if(!t||!t.trim())return;
   if(!Array.isArray(p.tasks))p.tasks=[];
-  p.tasks.push({stage:p.stage,task:t.trim(),pic:'',date:'',note:'',status:'Pending'});
+  p.tasks.push({stage:p.stage,task:'',pic:'',date:'',note:'',status:'Pending'});
+  var i=p.tasks.length-1;
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
+  try{var c=document.querySelector('#pfuDetail [data-ti="'+i+'"][data-tf="task"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
 }
 function pfuDelTask(idx){
   pfuCollect();
