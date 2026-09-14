@@ -197,6 +197,56 @@
       table.pif-xl tr{page-break-inside:avoid}
       @page{size:A4 portrait;margin:12mm}
     }
+    
+    /* ---- CLOSE ANALYSIS REPORT (Stage 6 · result = Lose) ---- */
+    .can-modal{position:fixed;inset:0;background:rgba(2,6,14,.82);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px;z-index:9995}
+    .can-modal.open{display:flex}
+    .can-sheet{background:var(--card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:1040px;padding:20px 22px 22px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+    .can-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap}
+    .can-t{font-size:16px;font-weight:800;letter-spacing:.4px}
+    .can-sub{font-size:11px;color:var(--text2);margin-top:2px}
+    .can-card{border:1px solid var(--border);background:var(--bg2);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+    .can-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--cyan);margin-bottom:8px}
+    .can-sec span.n{color:var(--muted);font-weight:400;text-transform:none}
+    .can-grid{display:grid;gap:9px}
+    .can-g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .can-g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .can-g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media(max-width:900px){.can-g3,.can-g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .can-sheet label{display:block;font-size:10px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+    .can-sheet input,.can-sheet select,.can-sheet textarea{width:100%;background:#061423;color:var(--text1);border:1px solid var(--border);border-radius:8px;padding:7px 9px;font-size:12px;font-family:inherit;outline:none}
+    .can-sheet input:focus,.can-sheet select:focus,.can-sheet textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,180,216,.15)}
+    .can-sheet option{background:#0b1e3d;color:#E8F4FF}
+    .can-sheet input[type=date]{color-scheme:dark}
+    .can-sheet textarea{resize:vertical;min-height:52px;line-height:1.55}
+    .can-chips{display:flex;flex-wrap:wrap;gap:6px}
+    .can-chip{padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:11.5px;color:var(--text2);user-select:none}
+    .can-chip:hover{border-color:rgba(0,180,216,.55);color:var(--text1)}
+    .can-chip.on{background:rgba(0,180,216,.2);border-color:var(--blue);color:var(--text1);font-weight:700}
+    .can-chip.on.main{background:rgba(239,68,68,.18);border-color:#f87171}
+    table.can-cmp{width:100%;border-collapse:collapse;font-size:12px}
+    table.can-cmp th{background:var(--bg2);color:var(--text2);font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+    table.can-cmp td{padding:6px 9px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:normal}
+    table.can-cmp tr:last-child td{border-bottom:none}
+    table.can-cmp td.dim{color:var(--text2);font-weight:600}
+    .can-hint{font-size:10.5px;color:var(--muted)}
+    .can-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+    @media print{
+      body *{visibility:hidden !important}
+      #canModal,#canModal *{visibility:visible !important}
+      #canModal{position:absolute !important;left:0 !important;top:0 !important;right:auto !important;bottom:auto !important;display:block !important;background:#fff !important;padding:0 !important;overflow:visible !important}
+      .can-sheet{background:#fff !important;color:#111 !important;border:none !important;box-shadow:none !important;max-width:none !important;width:100% !important;border-radius:0 !important;padding:0 6mm !important}
+      .can-t,.can-sec{color:#1F4E79 !important}
+      .can-sub,.can-hint,.can-sheet label,table.can-cmp td.dim{color:#5b7691 !important}
+      .can-card{border:1px solid #ccc !important;background:#fff !important}
+      .can-sheet input,.can-sheet select,.can-sheet textarea{background:#fff !important;color:#111 !important;border:1px solid #ccc !important}
+      .can-chip{background:#f2f5f8 !important;color:#33475f !important;border-color:#c8d4e0 !important}
+      .can-chip.on{background:#dceafc !important;border-color:#1F4E79 !important;color:#12314f !important}
+      table.can-cmp th{background:#eef3f8 !important;color:#12314f !important}
+      .can-acts{display:none !important}
+      .can-card{page-break-inside:avoid}
+      @page{size:A4 portrait;margin:12mm}
+    }
     table.pfu-grid tr.stage-row.cur td{background:rgba(0,180,216,.14)}
     table.pfu-grid tr.stage-empty td{color:var(--muted);font-style:italic;font-size:11px;font-weight:400;text-transform:none;letter-spacing:0}
     .pfu-layout.pfu-closed{grid-template-columns:1fr}
@@ -8360,10 +8410,16 @@ function pfuRenderAll(){
       var _when=String(_r.date||'').trim();
       var _resLine='';
       if(_rs==='Cancelled')_resLine='<span style="color:#f87171;font-weight:700">🚫 Cancelled</span>'+(_reason?' · '+pfuEsc(_reason):'');
-      else if(_rs==='Lost')_resLine='<span style="color:#f87171;font-weight:700">❌ Lose</span>'+(_reason?' · '+pfuEsc(_reason):'');
+      else if(_rs==='Lost'){
+        var _an=(p.analysis||{}); var _mi=_an.primary?canIssueLabel(_an.primary):'';
+        var _gv=(_an.gap===''||_an.gap==null)?'':((Number(_an.gap)>0?'+':'')+Number(_an.gap).toFixed(1)+'%');
+        _resLine='<span style="color:#f87171;font-weight:700">❌ Close</span>'
+          +(_mi?(' · '+pfuEsc(_mi)+(_gv?' '+pfuEsc(_gv):'')):(_reason?' · '+pfuEsc(_reason):''));
+      }
       else if(_rs==='Won')_resLine='<span style="color:#22c55e;font-weight:700">🏆 Won</span>'+(_when?' · '+pfuEsc(_when):'');
-      var _ico=(_rs==='Won')?'🏆 Won':(_rs==='Lost'?'❌ Lose':(_rs==='Cancelled'?'🚫 Cancelled':''));
-      var _extra=(_rs==='Won')?_when:_reason;
+      var _ico=(_rs==='Won')?'🏆 Won':(_rs==='Lost'?'❌ Close':(_rs==='Cancelled'?'🚫 Cancelled':''));
+      var _anx=(_rs==='Lost')?(p.analysis||{}):{};
+      var _extra=(_rs==='Won')?_when:(_anx.primary?(canIssueLabel(_anx.primary)+((_anx.gap===''||_anx.gap==null)?'':' '+(Number(_anx.gap)>0?'+':'')+Number(_anx.gap).toFixed(1)+'%')):_reason);
       var _tip=_ico?(_ico+(_extra?' — '+_extra:'')):'';
       return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+(_rc?' '+_rc:'')+'" onclick="pfuPick(\''+p.id+'\')"'+(_tip?(' title="'+pfuEsc(_tip)+'"'):'')+'>'
         +'<div class="pn"><span class="pname">'+pfuEsc(p.name)+'</span> <span class="pfu-badge '+(p.badgeCls||'b')+'">'+pfuEsc(p.badge||'')+'</span></div>'
@@ -8494,9 +8550,17 @@ function pfuRenderDetail(){
     h+='<button class="pfu-resbtn undo" onclick="pfuResetResult()" title="Undo \u2014 clear the final result and go back to \'no result\'">\u21ba Undo</button>';
     h+='</div>';
     if(_rs==='Lost'||_rs==='Cancelled'){
-      h+='<div class="pfu-resreason"><div class="pfu-card-t" style="font-size:12px;margin-bottom:6px">'+(_rs==='Lost'?'📝 Reason why LOST — analysis report / 失标原因分析':'📝 Reason why CANCELLED — analysis report / 取消原因分析')+'</div>';
+      h+='<div class="pfu-resreason"><div class="pfu-card-t" style="font-size:12px;margin-bottom:6px">'+(_rs==='Lost'?'📝 Reason why CLOSED — quick note / 关闭原因（简）':'📝 Reason why CANCELLED — analysis report / 取消原因分析')+'</div>';
       h+='<textarea data-f="resultReason" placeholder="Write the reason here... / 在这里写原因...">'+pfuEsc(_r.reason||'')+'</textarea>';
-      h+='<div class="pfu-formhint">Saved with the project when you press 💾 Save.</div></div>';
+      h+='<div class="pfu-formhint">Saved with the project when you press 💾 Save.</div>';
+      if(_rs==='Lost'){
+        var _a=(p.analysis||{});
+        h+='<div style="margin-top:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">';
+        h+='<button class="pfu-btn pif" onclick="canOpen()">📋 Close Analysis Report</button>';
+        h+=(_a.savedAt?'<span class="pfu-auto-tag">✓ saved '+pfuEsc(_a.savedAt)+'</span>':'<span class="pfu-formhint">Standard close analysis: competitor · price gap · key issues · lessons</span>');
+        h+='</div>';
+      }
+      h+='</div>';
     }
     if(_rs==='Won'){
       h+='<div class="pfu-resbanner">🎉 Project WON — congratulations!<button class="pfu-btn sm" onclick="pfuCongrats()" style="margin-left:10px">Show congratulations</button></div>';
@@ -8830,6 +8894,147 @@ window.pfuSetResult=pfuSetResult;
 window.pfuResetResult=pfuResetResult;
 window.pfuCongrats=pfuCongrats;
 window.pfuCongratsClose=pfuCongratsClose;
+
+/* ================= CLOSE ANALYSIS REPORT (Stage 6 · result = Lose) ================= */
+var CAN_ISSUES=[
+ {id:'price',ic:'\ud83d\udcb0',n:'Price too high'},
+ {id:'relation',ic:'\ud83e\udd1d',n:'Relationship / access'},
+ {id:'schedule',ic:'\u23f1',n:'Programme'},
+ {id:'terms',ic:'\ud83d\udcc4',n:'Commercial terms'},
+ {id:'contract',ic:'\ud83d\udcd1',n:'Contract conditions (unfavourable)'},
+ {id:'tech',ic:'\ud83d\udcd0',n:'Technical scheme'},
+ {id:'qual',ic:'\ud83c\udfc5',n:'Qualification'},
+ {id:'scope',ic:'\ud83d\udccb',n:'Scope'},
+ {id:'budget',ic:'\u2702\ufe0f',n:'Budget cut'},
+ {id:'postpone',ic:'\u23f8',n:'Postponed / cancelled'},
+ {id:'internal',ic:'\ud83c\udfaf',n:'Owner decision'},
+ {id:'submit',ic:'\ud83d\udd50',n:'Submission error'},
+ {id:'ourbad',ic:'\ud83e\udde9',n:'Our own fault'}
+];
+var CAN_ADV=[{id:'a1',n:'Strong local relationship'},{id:'a2',n:'Lower price'},{id:'a3',n:'Shorter programme'},{id:'a4',n:'Better technical scheme'},{id:'a5',n:'Easier payment / financing'},{id:'a6',n:'Already worked with this client'}];
+var CAN_MIST=[{id:'m1',n:'Missing items / arithmetic error'},{id:'m2',n:'Under-estimated cost'},{id:'m3',n:'Insufficient risk allowance'},{id:'m4',n:'Priced too high (too much margin)'},{id:'m5',n:'Submitted late'},{id:'m6',n:'Did not follow up client feedback'},{id:'m7',n:'No value-engineering option'},{id:'m8',n:'Not enough team capacity'}];
+var CAN_GAPR=[{id:'g1',n:'No local main-contractor licence'},{id:'g2',n:'No MEP subcontractor'},{id:'g3',n:'No piling / earthwork resource'},{id:'g4',n:'No design-consultant support'},{id:'g5',n:'No steel fabrication capacity'},{id:'g6',n:'No bond / funding capacity'}];
+var CAN_CMPROWS=['Price','Technical scheme','Programme','Commercial terms','Relationship / early involvement','Warranty / after-sales'];
+var CAN_TODAY=function(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);};
+var canState={main:'price',keys:[],adv:[],mist:[],gapr:[],cmp:{}};
+function canEl(id){return document.getElementById(id);}
+function canVal(id){var e=canEl(id);return e?String(e.value||'').trim():'';}
+function canSet(id,v){var e=canEl(id);if(e)e.value=(v==null?'':v);}
+function canSetSel(id,v,def){var e=canEl(id);if(!e)return;var want=(v==null||v==='')?def:v;var ok=false;for(var i=0;i<e.options.length;i++){if(e.options[i].value===want||e.options[i].text===want){e.selectedIndex=i;ok=true;break;}}if(!ok)e.selectedIndex=0;}
+function canNum(v){var n=parseFloat(String(v==null?'':v).replace(/[^0-9.]/g,''));return isNaN(n)?0:n;}
+function canMoney(v){var n=canNum(v);if(!n)return '\u2014';return n>=1e9?(Math.round(n/1e7)/100)+'B VND':n.toLocaleString('en-US')+' VND';}
+function canIssueLabel(id){for(var i=0;i<CAN_ISSUES.length;i++)if(CAN_ISSUES[i].id===id)return CAN_ISSUES[i].ic+' '+CAN_ISSUES[i].n;return '';}
+function canChips(host,arr,pick,bad){
+  var el=canEl(host); if(!el)return;
+  el.innerHTML=arr.map(function(x){
+    var on=canState[pick].indexOf(x.id)>-1;
+    return '<span class="can-chip'+(on?' on'+(bad?' main':''):'')+'" data-id="'+x.id+'">'+(x.ic?x.ic+' ':'')+x.n+'</span>';
+  }).join('');
+  [].forEach.call(el.querySelectorAll('.can-chip'),function(c){
+    c.onclick=function(){
+      var id=c.getAttribute('data-id');
+      if(pick==='main'){ canState.main=id; if(canState.keys.indexOf(id)<0)canState.keys.push(id); }
+      else { var a=canState[pick],i=a.indexOf(id); if(i>-1)a.splice(i,1); else a.push(id); }
+      canRefresh();
+    };
+  });
+}
+function canRenderCmp(){
+  var tb=canEl('can_cmp'); if(!tb)return;
+  tb.innerHTML=CAN_CMPROWS.map(function(k,i){
+    var c=(canState.cmp[i]||{}); var j=c.v||'';
+    return '<tr><td class="dim">'+k+'</td>'
+      +'<td><input type="text" id="can_cmp_us_'+i+'" value="'+pfuEsc(c.us||'').replace(/"/g,'&quot;')+'"></td>'
+      +'<td><input type="text" id="can_cmp_th_'+i+'" value="'+pfuEsc(c.them||'').replace(/"/g,'&quot;')+'"></td>'
+      +'<td><select id="can_cmp_v_'+i+'">'+['','Better','Equal','Worse'].map(function(o){return '<option value="'+o+'"'+(o===j?' selected':'')+'>'+(o||'\u2014')+'</option>';}).join('')+'</select></td></tr>';
+  }).join('');
+}
+function canGapCalc(){
+  var a=canNum(canVal('can_our')),b=canNum(canVal('can_winp'));
+  var box=canEl('can_gap'); if(!box)return null;
+  if(!a||!b){box.innerHTML='<span class="can-hint">fill both prices</span>';return null;}
+  var g=(a-b)/b*100, col=(g>3?'#f87171':(g>-1?'#fbbf24':'#4ade80'));
+  box.innerHTML='<span style="font-weight:700;color:'+col+'">'+(g>0?'+':'')+g.toFixed(1)+'%</span>'
+    +'<div class="can-hint">we are '+(g>0?'higher':'lower')+' by '+Math.abs(g).toFixed(1)+'%</div>';
+  return g;
+}
+function canRefresh(){ canChips('can_main',CAN_ISSUES,'main',true); canChips('can_keys',CAN_ISSUES,'keys',false); canChips('can_adv',CAN_ADV,'adv',false); canChips('can_mist',CAN_MIST,'mist',false); canChips('can_gapr',CAN_GAPR,'gapr',false); canRenderCmp(); canGapCalc(); canCollectCmp(); }
+function canCollectCmp(){
+  CAN_CMPROWS.forEach(function(k,i){
+    var us=canVal('can_cmp_us_'+i).replace(/^\s+|\s+$/g,''), th=canVal('can_cmp_th_'+i).replace(/^\s+|\s+$/g,''), v=canVal('can_cmp_v_'+i);
+    if(us||th||v)canState.cmp[i]={us:us,them:th,v:v};
+    else delete canState.cmp[i];
+  });
+}
+function canOpen(){
+  var p=pfuCur(); if(!p)return;
+  var a=p.analysis||{};
+  var pr=(p.result||{});
+  canSet('can_proj',p.name||'');
+  canSet('can_date',a.closeDate||pr.dateISO||CAN_TODAY());
+  canSetSel('can_notify',a.notifiedBy,'Email (formal)');
+  canSetSel('can_stage',a.closeStage,'Result (final)');
+  canSet('can_our',a.ourPrice||p.estValue||'');
+  canSet('can_unit',a.unitPrice||'');
+  canSet('can_area',a.area||p.landArea||'');
+  canSet('can_pic',a.pic||p.pic||'');
+  canSet('can_win',a.winner||'');
+  canSetSel('can_wint',a.winnerType,'Local contractor (Vietnam)');
+  canSet('can_winp',a.winnerPrice||'');
+  canSet('can_l1',(a.lessons&&a.lessons[0])||'');
+  canSet('can_l2',(a.lessons&&a.lessons[1])||'');
+  canSet('can_l3',(a.lessons&&a.lessons[2])||'');
+  canSetSel('can_chance',a.chance,'Yes \u2014 phase 2 / re-bid / subcontract');
+  canSet('can_fpic',a.followPic||p.pic||'');
+  canSet('can_next',a.nextContact||'');
+  canSetSel('can_rev',a.revisit,'6 months');
+  canSet('can_notes',a.notes||'');
+  canState={main:a.primary||'price',
+            keys:(a.keys||[]).slice(),
+            adv:(a.adv||[]).slice(),
+            mist:(a.mist||[]).slice(),
+            gapr:(a.gapr||[]).slice(),
+            cmp:JSON.parse(JSON.stringify(a.cmp||{}))};
+  if(canState.keys.indexOf(canState.main)<0)canState.keys.unshift(canState.main);
+  canRefresh();
+  var sv=canEl('can_saved'); if(sv)sv.textContent=a.savedAt?('\u2713 last saved '+a.savedAt):'not filled yet';
+  var m=canEl('canModal'); if(m)m.classList.add('open');
+}
+function canClose(){var m=canEl('canModal');if(m)m.classList.remove('open');}
+function canPrint(){var m=canEl('canModal');if(m&&!m.classList.contains('open'))m.classList.add('open');setTimeout(function(){try{window.print();}catch(e){}},80);}
+function canCollect(){
+  canCollectCmp();
+  var g=canGapCalc();
+  return {
+    closeDate:canVal('can_date'), notifiedBy:canVal('can_notify'), closeStage:canVal('can_stage'),
+    ourPrice:canVal('can_our'), unitPrice:canVal('can_unit'), area:canVal('can_area'), pic:canVal('can_pic'),
+    winner:canVal('can_win'), winnerType:canVal('can_wint'), winnerPrice:canVal('can_winp'), gap:(g==null?'':Math.round(g*10)/10),
+    primary:canState.main, keys:canState.keys.slice(), adv:canState.adv.slice(), cmp:canState.cmp,
+    lessons:[canVal('can_l1'),canVal('can_l2'),canVal('can_l3')], mist:canState.mist.slice(), gapr:canState.gapr.slice(),
+    chance:canVal('can_chance'), followPic:canVal('can_fpic'), nextContact:canVal('can_next'), revisit:canVal('can_rev'),
+    notes:canVal('can_notes'), savedAt:pfuNow()
+  };
+}
+function canSave(){
+  var p=pfuCur(); if(!p)return;
+  if(typeof pfuCollect==='function')pfuCollect();
+  p.analysis=canCollect();
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  canClose();
+  pfuToast('\u2705 Close Analysis Report saved');
+}
+function canClear(){
+  var p=pfuCur(); if(!p)return;
+  if(!window.confirm('Clear the Close Analysis Report for this project?'))return;
+  try{delete p.analysis;}catch(e){p.analysis=null;}
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll(); canClose();
+  pfuToast('\ud83d\uddd1 Close Analysis Report cleared');
+}
+window.canOpen=canOpen; window.canClose=canClose; window.canSave=canSave; window.canPrint=canPrint; window.canClear=canClear;
+window.canRefresh=canRefresh; window.canGapCalc=canGapCalc;
+
 </script>
 
 <!-- PROJECT INFORMATION FORM (MR-001) - Stage 1 only -->
@@ -8953,6 +9158,84 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
       <button onclick="pifClose()">Cancel</button>
       <button onclick="pifPrint()">Print PDF</button>
       <button class="pri" onclick="pifSave()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSE ANALYSIS REPORT — Stage 6 · result = Lose only -->
+<div class="can-modal" id="canModal" onclick="if(event.target===this)canClose()">
+  <div class="can-sheet">
+    <div class="can-h">
+      <div>
+        <div class="can-t">CLOSE ANALYSIS REPORT</div>
+        <div class="can-sub">Stage 6 · Result — after ❌ Lose. Standard close analysis, saved with the project (cloud-synced).</div>
+      </div>
+      <div style="text-align:right"><span class="can-hint" id="can_saved"></span></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🏁 A · Result info</div>
+      <div class="can-grid can-g4">
+        <div><label>Project</label><input type="text" id="can_proj" readonly></div>
+        <div><label>Close Date</label><input type="date" id="can_date"></div>
+        <div><label>Notified by</label><select id="can_notify"><option>Email (formal)</option><option>Formal letter</option><option>Phone / verbal</option><option>Tender platform notice</option><option>Not notified</option></select></div>
+        <div><label>Close Stage</label><select id="can_stage"><option>Result (final)</option><option>Negotiation</option><option>Bidding</option><option>Reviewing</option><option>PQ</option><option>Project Info collection</option></select></div>
+        <div><label>Our price (VND)</label><input type="text" id="can_our"></div>
+        <div><label>Unit price (USD/m²)</label><input type="text" id="can_unit"></div>
+        <div><label>Area (m²)</label><input type="text" id="can_area"></div>
+        <div><label>PIC</label><input type="text" id="can_pic"></div>
+      </div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🎯 B · Main issue <span class="n">— choose one (used for statistics)</span></div>
+      <div class="can-chips" id="can_main"></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">➕ C · Key issues <span class="n">— tick any that apply</span></div>
+      <div class="can-chips" id="can_keys"></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🥊 D · Competitor</div>
+      <div class="can-grid can-g4">
+        <div><label>Winner</label><input type="text" id="can_win"></div>
+        <div><label>Winner type</label><select id="can_wint"><option>Local contractor (Vietnam)</option><option>Chinese contractor</option><option>Japanese / Korean</option><option>Taiwanese</option><option>Owner-nominated / connected party</option><option>Group in-house unit</option><option>Not known</option></select></div>
+        <div><label>Winner price (VND)</label><input type="text" id="can_winp"></div>
+        <div><label>Price gap (auto)</label><div id="can_gap" style="padding-top:6px"></div></div>
+      </div>
+      <div class="can-sec" style="margin-top:10px">Winner's advantages <span class="n">— tick any</span></div>
+      <div class="can-chips" id="can_adv"></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">📊 E · Head-to-head <span class="n">— us vs winner</span></div>
+      <table class="can-cmp"><thead><tr><th style="width:22%">Dimension</th><th style="width:36%">MGD (us)</th><th style="width:30%">Winner</th><th style="width:12%">Verdict</th></tr></thead><tbody id="can_cmp"></tbody></table>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🔍 F · Internal review <span class="n">— lessons</span></div>
+      <div class="can-grid can-g3">
+        <div><label>Change #1 — must do differently</label><input type="text" id="can_l1"></div>
+        <div><label>Change #2 — must do differently</label><input type="text" id="can_l2"></div>
+        <div><label>Change #3 — must do differently</label><input type="text" id="can_l3"></div>
+      </div>
+      <div class="can-sec" style="margin-top:10px">Our internal mistakes <span class="n">— tick any</span></div>
+      <div class="can-chips" id="can_mist"></div>
+      <div class="can-sec" style="margin-top:10px">Resource gaps <span class="n">— tick any</span></div>
+      <div class="can-chips" id="can_gapr"></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🔁 G · Follow-up</div>
+      <div class="can-grid can-g4">
+        <div><label>Can we win something back?</label><select id="can_chance"><option>Yes — phase 2 / re-bid / subcontract</option><option>No, not for now</option><option>Unsure — to be checked</option></select></div>
+        <div><label>Follow-up PIC</label><input type="text" id="can_fpic"></div>
+        <div><label>Next contact</label><input type="date" id="can_next"></div>
+        <div><label>Revisit in</label><select id="can_rev"><option>6 months</option><option>3 months</option><option>12 months</option><option>Do not flag</option></select></div>
+      </div>
+      <div style="margin-top:9px"><label>Notes</label><textarea id="can_notes"></textarea></div>
+    </div>
+    <div class="can-acts">
+      <button class="pfu-btn" onclick="canClose()">Cancel</button>
+      <button class="pfu-btn" onclick="canClear()">🗑 Clear</button>
+      <button class="pfu-btn pif" onclick="canPrint()">🖨 Print / PDF</button>
+      <button class="pfu-btn pif" onclick="canSave()" style="background:rgba(139,92,246,.32)">💾 Save</button>
+      <span class="can-hint">Saved with the project · does not write into the Tasks table</span>
     </div>
   </div>
 </div>
