@@ -3059,6 +3059,8 @@ function exportSummaryPDF(){
     if(sc.indexOf('中标')>-1||sc.indexOf('won')>-1) ACTUAL+=num;
   });
   ACTUAL=ACTUAL/1e9; projectTotal=projectTotal/1e9;
+  var _pfuWonP=(typeof pfuWonRevenue==='function')?pfuWonRevenue():{total:0,items:[]};
+  if(_pfuWonP.total>0)ACTUAL+=_pfuWonP.total;
   var maxVal=Math.max(TARGET,BUSINESS,projectTotal,ACTUAL);
   var rl = lang==='en'
     ? {t1:'Revenue 2026',t2:'Sale Dept revenue',t3:'Project Est. Value',t4:'Actual Target'}
@@ -3114,7 +3116,7 @@ function exportSummaryPDF(){
   }
   var win1Gauge='<div style="text-align:center;margin-bottom:6px;">'+rpmGauge(ACTUAL,TARGET)+
     '<div style="font-size:13px;font-weight:700;color:#00b4d8;">'+ACTUAL.toFixed(0)+'B VND <span style="font-size:9px;font-weight:400;color:#3D5A80;">('+rl.t4+')</span></div>'+
-    '<div style="font-size:9px;color:#3D5A80;">Target: '+TARGET+'B VND</div></div>';
+    '<div style="font-size:9px;color:#3D5A80;">Target: '+TARGET+'B VND</div>'+((_pfuWonP&&_pfuWonP.total>0)?('<div style="font-size:8px;color:#3D5A80;">+ Project Follow-up Won: '+_pfuWonP.total.toFixed(0)+'B</div>'):'')+'</div>';
   var win1Body = win1Gauge+
                  barRow(rl.t1,TARGET,'#60a5fa','#1e40af')+
                  barRow(rl.t2,BUSINESS,'#34d399','#065f46')+
@@ -3461,6 +3463,42 @@ function renderBidChart(totalCounts, biddingCounts, categoryCounts){
   container.innerHTML=html;
 }
 
+// ── Project Follow-up → 营收：最终结果 = Won 的项目按 Est. Value 计入 Revenue Target ──
+function pfuVNDtoB(v){
+  if(v==null)return 0;
+  var s=String(v).trim();
+  if(!s||s==='\u2014'||s==='-'||/^n\/a$/i.test(s))return 0;
+  if(/\d{4}-\d{2}-\d{2}/.test(s))return 0;              // 日期串不当作金额
+  var mB=s.match(/([\d][\d.,]*)\s*[bB](?![A-Za-z])/);
+  if(mB){var n1=parseFloat(mB[1].replace(/,/g,''));return isNaN(n1)?0:n1;}
+  var mM=s.match(/([\d][\d.,]*)\s*[mM](?![A-Za-z])/);
+  if(mM){var n2=parseFloat(mM[1].replace(/,/g,''));return isNaN(n2)?0:n2/1000;}
+  var m=s.match(/([\d][\d.,]*)/); if(!m)return 0;
+  var n3=parseFloat(m[1].replace(/,/g,'')); if(isNaN(n3))return 0;
+  return n3/1e9;                                          // 纯 VND → B
+}
+function pfuWonRevenue(){
+  var res={total:0,items:[]};
+  var bids=data.bids||[];
+  function norm(x){return String(x||'').toLowerCase().replace(/[^a-z0-9\u00c0-\u024f\u1ea0-\u1eff]/g,'');}
+  function same(a,b){a=norm(a);b=norm(b);if(!a||!b)return false;return a===b||a.indexOf(b)>=0||b.indexOf(a)>=0;}
+  (data.projectTracking||[]).forEach(function(pp){
+    var st=((pp.result||{}).status)||'';
+    if(st!=='Won')return;
+    var val=pfuVNDtoB(pp.estValue);
+    if(!val)return;
+    // 去重：同一项目已在 Bid Tracking 以中标计入则不重复累加
+    var dup=bids.some(function(b){
+      if(b.inactive)return false;
+      var sc=String(b.stageContent||'');
+      if(sc.indexOf('\u4e2d\u6807')===-1&&!/(^|[^a-z])won([^a-z]|$)/i.test(sc))return false;
+      return same(pp.name,b.projectName)||same(pp.name,b.customerName);
+    });
+    if(dup)return;
+    res.total+=val; res.items.push({name:pp.name,val:val});
+  });
+  return res;
+}
 function renderWin1Chart(){
   var TARGET=1400;   // 营收目标2026
   var BUSINESS=250;  // 业务营收目标
@@ -3477,6 +3515,8 @@ function renderWin1Chart(){
     if(!isNaN(num)) ACTUAL+=num;
   });
   ACTUAL=ACTUAL/1e9; // VND → B
+  // + Project Follow-up: 最终结果 = Won 的项目, Est. Value 计入营收目标 (1400B)
+  var _pfuWon=pfuWonRevenue(); var pfuWonB=_pfuWon.total; ACTUAL+=pfuWonB;
 
   // 汇总活跃管道项目预估金额(仅 Bidding + Potential, 排除 Tracking/Cancelled/Won 及其他), 与 Card 6 / 季度 Active Pipeline 口径一致
   var projectTotal=0;
@@ -3543,7 +3583,7 @@ function renderWin1Chart(){
   }
   var gaugeHtml='<div style="text-align:center;margin-bottom:6px;">'+rpmGauge(ACTUAL,TARGET)+
     '<div style="font-size:13px;font-weight:700;color:#00B4D8;margin-top:2px;">'+ACTUAL.toFixed(0)+' B VND <span style="font-size:9px;font-weight:400;color:var(--muted);">('+getWin1Label('win1t4','已中标','Won')+')</span></div>'+
-    '<div style="font-size:10px;color:var(--muted);">Target: '+TARGET+'B VND</div></div>';
+    '<div style="font-size:10px;color:var(--muted);">Target: '+TARGET+'B VND</div>'+(pfuWonB>0?('<div style="font-size:9px;color:var(--muted);margin-top:1px;">+ Project Follow-up Won: <b style="color:#f87171">'+pfuWonB.toFixed(0)+'B</b> ('+_pfuWon.items.map(function(it){return String(it.name).replace(/[<>&]/g,'');}).join(' \u00b7 ')+')</div>'):'')+'</div>';
 
   var html=gaugeHtml+
     barRow(getWin1Label('win1t1','营收目标 2026','Revenue 2026'),TARGET,'#60a5fa','#1e40af')+
