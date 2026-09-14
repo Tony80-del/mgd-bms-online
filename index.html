@@ -8329,7 +8329,7 @@ function pfuRenderDetail(){
     +'<button class="pfu-btn sm" id="pfuPanelToggle" onclick="pfuTogglePanel()">\ud83d\udcc1 Projects</button>'
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
-    +(function(){var _b=pfuBidStageOf(p.name);return _b?'<span class="pfu-badge "+_b.cls+"" title="From Bid Tracking / 投标追踪状态: "+pfuEsc(_b.raw)+"">'+pfuEsc(_b.label)+'</span>':'';})()
+    +(function(){var _b=pfuBidStageOf(p.name);return _b?('<span class="pfu-badge '+_b.cls+'" title="From Bid Tracking / 投标追踪状态: '+pfuEsc(_b.raw)+'">'+pfuEsc(_b.label)+'</span>'):'';})()
     +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
