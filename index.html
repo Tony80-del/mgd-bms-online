@@ -8433,22 +8433,21 @@ function pfuBumpToTop(p){
 }
 function pfuSave(){
   pfuCollect();
-  var _bp=pfuCur(); if(_bp)pfuBumpToTop(_bp);
+  var _bp=pfuCur(); if(_bp){pfuFillFromBid(_bp);pfuBumpToTop(_bp);}
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
   pfuToast('\u2705 Project Follow-up saved');
 }
 function pfuAddProject(){
   pfuCollect();
-  var name=window.prompt('New project name / \u65b0\u9879\u76ee\u540d\u79f0:'); if(!name||!name.trim())return;
   var id='P'+Date.now();
-  var _np={id:id,name:name.trim(),badge:'Project Info collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Project Info collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',title:'Project created',note:name.trim()}]};
-  pfuFillFromBid(_np);
+  var _np={id:id,name:'New Project',badge:'Project Info collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Project Info collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',stage:'Project Info collection',title:'Project created',note:''}]};
   data.projectTracking.unshift(_np);
   pfuCurId=id;
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
-  pfuToast('\u2705 Project added');
+  try{var c=document.querySelector('#pfuDetail [data-f="name"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
+  pfuToast('\u2705 New project added \u2014 type the name');
 }
 function pfuDelProject(){
   var p=pfuCur(); if(!p)return;
@@ -8538,13 +8537,13 @@ function pfuDelTask(idx){
 function pfuAddNote(){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
-  var n=window.prompt('Follow-up note / \u8ddf\u8fdb\u8bb0\u5f55:'); if(!n||!n.trim())return;
   if(!Array.isArray(p.log))p.log=[];
-  p.log.unshift({date:pfuNow(),type:'g',stage:p.stage,title:'Note added',note:n.trim()});
+  p.log.unshift({date:pfuNow(),type:'g',stage:p.stage,title:'',note:''});
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
-  pfuToast('\u2705 Note added');
+  try{var c=document.querySelector('#pfuDetail [data-lf="title"][data-li="0"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
+  pfuToast('\u2705 New note row added \u2014 type the note');
 }
 
 /* ---------- PROJECT INFORMATION FORM (MR-001) \u2014 Stage 1 only ---------- */
