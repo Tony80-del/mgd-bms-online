@@ -220,6 +220,7 @@
     .can-sheet input[type=date]{color-scheme:dark}
     .can-sheet textarea{resize:vertical;min-height:52px;line-height:1.55}
     .can-chips{display:flex;flex-wrap:wrap;gap:6px}
+    .can-grp{font-size:10.5px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin:11px 0 5px}
     .can-chip{padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:11.5px;color:var(--text2);user-select:none}
     .can-chip:hover{border-color:rgba(0,180,216,.55);color:var(--text1)}
     .can-chip.on{background:rgba(0,180,216,.2);border-color:var(--blue);color:var(--text1);font-weight:700}
@@ -237,7 +238,7 @@
       #canModal{position:absolute !important;left:0 !important;top:0 !important;right:auto !important;bottom:auto !important;display:block !important;background:#fff !important;padding:0 !important;overflow:visible !important}
       .can-sheet{background:#fff !important;color:#111 !important;border:none !important;box-shadow:none !important;max-width:none !important;width:100% !important;border-radius:0 !important;padding:0 6mm !important}
       .can-t,.can-sec{color:#1F4E79 !important}
-      .can-sub,.can-hint,.can-sheet label,table.can-cmp td.dim{color:#5b7691 !important}
+      .can-sub,.can-hint,.can-sheet label,.can-grp,table.can-cmp td.dim{color:#5b7691 !important}
       .can-card{border:1px solid #ccc !important;background:#fff !important}
       .can-sheet input,.can-sheet select,.can-sheet textarea{background:#fff !important;color:#111 !important;border:1px solid #ccc !important}
       .can-chip{background:#f2f5f8 !important;color:#33475f !important;border-color:#c8d4e0 !important}
@@ -246,6 +247,10 @@
       .can-acts{display:none !important}
       .can-card{page-break-inside:avoid}
       @page{size:A4 portrait;margin:12mm}
+    }
+    @media print{
+      #craModal,#craModal *{visibility:visible !important}
+      #craModal{position:absolute !important;left:0 !important;top:0 !important;right:auto !important;bottom:auto !important;display:block !important;background:#fff !important;padding:0 !important;overflow:visible !important}
     }
     table.pfu-grid tr.stage-row.cur td{background:rgba(0,180,216,.14)}
     table.pfu-grid tr.stage-empty td{color:var(--muted);font-style:italic;font-size:11px;font-weight:400;text-transform:none;letter-spacing:0}
@@ -8409,7 +8414,10 @@ function pfuRenderAll(){
       var _reason=String(_r.reason||'').trim();
       var _when=String(_r.date||'').trim();
       var _resLine='';
-      if(_rs==='Cancelled')_resLine='<span style="color:#f87171;font-weight:700">🚫 Cancelled</span>'+(_reason?' · '+pfuEsc(_reason):'');
+      if(_rs==='Cancelled'){
+        var _cn=(p.cancel||{}); var _cmi=_cn.primary?canIssueLabel(_cn.primary):'';
+        _resLine='<span style="color:#f87171;font-weight:700">🚫 Cancelled</span>'+(_cmi?(' · '+pfuEsc(_cmi)):(_reason?' · '+pfuEsc(_reason):''));
+      }
       else if(_rs==='Lost'){
         var _an=(p.analysis||{}); var _mi=_an.primary?canIssueLabel(_an.primary):'';
         var _gv=(_an.gap===''||_an.gap==null)?'':((Number(_an.gap)>0?'+':'')+Number(_an.gap).toFixed(1)+'%');
@@ -8418,7 +8426,7 @@ function pfuRenderAll(){
       }
       else if(_rs==='Won')_resLine='<span style="color:#22c55e;font-weight:700">🏆 Won</span>'+(_when?' · '+pfuEsc(_when):'');
       var _ico=(_rs==='Won')?'🏆 Won':(_rs==='Lost'?'❌ Close':(_rs==='Cancelled'?'🚫 Cancelled':''));
-      var _anx=(_rs==='Lost')?(p.analysis||{}):{};
+      var _anx=(_rs==='Lost')?(p.analysis||{}):((_rs==='Cancelled')?(p.cancel||{}):{});
       var _extra=(_rs==='Won')?_when:(_anx.primary?(canIssueLabel(_anx.primary)+((_anx.gap===''||_anx.gap==null)?'':' '+(Number(_anx.gap)>0?'+':'')+Number(_anx.gap).toFixed(1)+'%')):_reason);
       var _tip=_ico?(_ico+(_extra?' — '+_extra:'')):'';
       return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+(_rc?' '+_rc:'')+'" onclick="pfuPick(\''+p.id+'\')"'+(_tip?(' title="'+pfuEsc(_tip)+'"'):'')+'>'
@@ -8558,6 +8566,13 @@ function pfuRenderDetail(){
         h+='<div style="margin-top:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">';
         h+='<button class="pfu-btn pif" onclick="canOpen()">📋 Close Analysis Report</button>';
         h+=(_a.savedAt?'<span class="pfu-auto-tag">✓ saved '+pfuEsc(_a.savedAt)+'</span>':'<span class="pfu-formhint">Standard close analysis: competitor · price gap · key issues · lessons</span>');
+        h+='</div>';
+      }
+      else if(_rs==='Cancelled'){
+        var _c=(p.cancel||{});
+        h+='<div style="margin-top:9px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">';
+        h+='<button class="pfu-btn pif" onclick="craOpen()">📋 Cancellation Report</button>';
+        h+=(_c.savedAt?'<span class="pfu-auto-tag">✓ saved '+pfuEsc(_c.savedAt)+'</span>':'<span class="pfu-formhint">Standard cancellation report: reason · what happened · money · follow-up</span>');
         h+='</div>';
       }
       h+='</div>';
@@ -8923,7 +8938,7 @@ function canSet(id,v){var e=canEl(id);if(e)e.value=(v==null?'':v);}
 function canSetSel(id,v,def){var e=canEl(id);if(!e)return;var want=(v==null||v==='')?def:v;var ok=false;for(var i=0;i<e.options.length;i++){if(e.options[i].value===want||e.options[i].text===want){e.selectedIndex=i;ok=true;break;}}if(!ok)e.selectedIndex=0;}
 function canNum(v){var n=parseFloat(String(v==null?'':v).replace(/[^0-9.]/g,''));return isNaN(n)?0:n;}
 function canMoney(v){var n=canNum(v);if(!n)return '\u2014';return n>=1e9?(Math.round(n/1e7)/100)+'B VND':n.toLocaleString('en-US')+' VND';}
-function canIssueLabel(id){for(var i=0;i<CAN_ISSUES.length;i++)if(CAN_ISSUES[i].id===id)return CAN_ISSUES[i].ic+' '+CAN_ISSUES[i].n;return '';}
+function canIssueLabel(id){for(var i=0;i<CAN_ISSUES.length;i++)if(CAN_ISSUES[i].id===id)return CAN_ISSUES[i].ic+' '+CAN_ISSUES[i].n;return craIssueLabel(id);}
 function canChips(host,arr,pick,bad){
   var el=canEl(host); if(!el)return;
   el.innerHTML=arr.map(function(x){
@@ -9043,6 +9058,121 @@ function canClear(){
 }
 window.canOpen=canOpen; window.canClose=canClose; window.canSave=canSave; window.canPrint=canPrint; window.canClear=canClear;
 window.canRefresh=canRefresh; window.canGapCalc=canGapCalc;
+
+/* ================= CANCELLATION REPORT (Stage 6 · result = Cancel) ================= */
+var CRA_GROUPS=[
+ {g:'Owner / Client', items:[
+   {id:'budget',   ic:'\u2702\ufe0f', n:'Low budget',                 d:'No money this year / budget not approved'},
+   {id:'owncontr', ic:'\ud83d\udd01', n:'Owner choose own contractor', d:'Group or in-house contractor nominated'},
+   {id:'invest',   ic:'\ud83d\udcc9', n:'Investment cancelled',        d:'Project stopped, no funding'},
+   {id:'internal', ic:'\ud83c\udfe2', n:'Owner internal decision',     d:'New management / new direction'},
+   {id:'legal',    ic:'\ud83d\udcc4', n:'Licence not approved',        d:'IRC, planning or fire approval refused / delayed'},
+   {id:'land',     ic:'\ud83c\udfe6', n:'Land payment failed',         d:'Owner could not pay for the land'},
+   {id:'moved',    ic:'\ud83c\udf0f', n:'Production moved',            d:'Moved to another country / province'}
+ ]},
+ {g:'Project / Site', items:[
+   {id:'extension',ic:'\ud83d\udcd0', n:'Extension work only',         d:'Small extension / phase 2 only, not worth bidding'},
+   {id:'location', ic:'\ud83d\udccd', n:'Location not suitable',       d:'Wrong site / land not ready / lease not signed'},
+   {id:'rc',       ic:'\ud83c\udfd7', n:'Existing RC building',        d:'Old concrete structure, retrofit not feasible'},
+   {id:'info',     ic:'\u2753', n:'Information not clear',       d:'Requirement never confirmed by owner'},
+   {id:'design',   ic:'\ud83d\udccf', n:'Design not final',            d:'Concept / basic design still pending'}
+ ]},
+ {g:'Time / Market', items:[
+   {id:'postpone', ic:'\u23f8', n:'Postponed',                    d:'Only delayed \u2014 check again next budget year'},
+   {id:'market',   ic:'\ud83d\udcc9', n:'Market downturn',             d:'Industry down / company restructuring'}
+ ]},
+ {g:'Our side', items:[
+   {id:'capacity', ic:'\ud83e\udde9', n:'We cannot proceed',           d:'Licence / MEP / capacity / bond'},
+   {id:'declined', ic:'\ud83d\udeab', n:'Terms not accepted',          d:'Price, risk or payment terms we refused'}
+ ]}
+];
+var craState={reasons:[]};
+function craEl(id){return document.getElementById(id);}
+function craVal(id){var e=craEl(id);return e?String(e.value||'').trim():'';}
+function craSet(id,v){var e=craEl(id);if(e)e.value=(v==null?'':v);}
+function craSetSel(id,v,def){var e=craEl(id);if(!e)return;var want=(v==null||v==='')?def:v;var ok=false;for(var i=0;i<e.options.length;i++){if(e.options[i].value===want||e.options[i].text===want){e.selectedIndex=i;ok=true;break;}}if(!ok)e.selectedIndex=0;}
+function craAll(){var a=[];CRA_GROUPS.forEach(function(g){g.items.forEach(function(x){a.push(x);});});return a;}
+function craIssueLabel(id){var f=craAll().filter(function(x){return x.id===id;});return f.length?(f[0].ic+' '+f[0].n):'';}
+function craChips(){
+  var el=craEl('cra_groups'); if(!el)return;
+  var h='';
+  CRA_GROUPS.forEach(function(g){
+    h+='<div class="can-grp">'+g.g+'</div><div class="can-chips">';
+    g.items.forEach(function(x){
+      var on=craState.reasons.indexOf(x.id)>-1;
+      h+='<span class="can-chip'+(on?' on main':'')+'" data-id="'+x.id+'" title="'+pfuEsc(x.d)+'">'+x.ic+' '+x.n+'</span>';
+    });
+    h+='</div>';
+  });
+  el.innerHTML=h;
+  [].forEach.call(el.querySelectorAll('.can-chip'),function(ch){
+    ch.onclick=function(){
+      var id=ch.getAttribute('data-id'),i=craState.reasons.indexOf(id);
+      if(i>-1)craState.reasons.splice(i,1); else craState.reasons.push(id);
+      craRefresh();
+    };
+  });
+}
+function craRefresh(){
+  craChips();
+  var mh=craEl('cra_mainhint');
+  if(mh)mh.innerHTML=craState.reasons.length
+    ?('Main reason \u2192 <b style="color:#f87171">'+pfuEsc(craIssueLabel(craState.reasons[0]))+'</b> &nbsp;+'+(craState.reasons.length-1)+' more')
+    :'Nothing ticked yet \u2014 the first reason you tick becomes the main reason.';
+}
+function craOpen(){
+  var p=pfuCur(); if(!p)return;
+  var a=p.cancel||{}; var pr=(p.result||{});
+  craSet('cra_proj',p.name||'');
+  craSet('cra_date',a.cancelDate||pr.dateISO||CAN_TODAY());
+  craSetSel('cra_notify',a.notifiedBy,'Email (formal)');
+  craSetSel('cra_stage',a.cancelStage,'Result (final)');
+  craSet('cra_value',a.estValueLost||p.estValue||'');
+  craSet('cra_area',a.area||p.landArea||'');
+  craSet('cra_pic',a.pic||p.pic||'');
+  craSetSel('cra_dead',a.reallyDead,'Yes \u2014 dropped');
+  craSet('cra_notes',a.notes||'');
+  craSet('cra_cost',a.costIncurred||'');
+  craSetSel('cra_claim',a.claim,'None');
+  craSetSel('cra_opp',a.opportunity,'No');
+  craSetSel('cra_docs',a.docs,'No');
+  craSetSel('cra_back',a.comeBack,'Yes \u2014 later phase / next budget year');
+  craSet('cra_fpic',a.followPic||p.pic||'');
+  craSet('cra_next',a.nextContact||'');
+  craSetSel('cra_rev',a.revisit,'6 months');
+  craState.reasons=(a.reasons||(a.primary?[a.primary]:[])).slice();
+  craRefresh();
+  var sv=craEl('cra_saved'); if(sv)sv.textContent=a.savedAt?('\u2713 last saved '+a.savedAt):'not filled yet';
+  var m=craEl('craModal'); if(m)m.classList.add('open');
+}
+function craClose(){var m=craEl('craModal');if(m)m.classList.remove('open');}
+function craPrint(){var m=craEl('craModal');if(m&&!m.classList.contains('open'))m.classList.add('open');setTimeout(function(){try{window.print();}catch(e){}},80);}
+function craCollect(){
+  return {cancelDate:craVal('cra_date'), notifiedBy:craVal('cra_notify'), cancelStage:craVal('cra_stage'),
+    estValueLost:craVal('cra_value'), area:craVal('cra_area'), pic:craVal('cra_pic'), reallyDead:craVal('cra_dead'),
+    primary:(craState.reasons[0]||''), reasons:craState.reasons.slice(), notes:craVal('cra_notes'),
+    costIncurred:craVal('cra_cost'), claim:craVal('cra_claim'), opportunity:craVal('cra_opp'), docs:craVal('cra_docs'),
+    comeBack:craVal('cra_back'), followPic:craVal('cra_fpic'), nextContact:craVal('cra_next'), revisit:craVal('cra_rev'),
+    savedAt:pfuNow()};
+}
+function craSave(){
+  var p=pfuCur(); if(!p)return;
+  if(typeof pfuCollect==='function')pfuCollect();
+  p.cancel=craCollect();
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll(); craClose();
+  pfuToast('\u2705 Cancellation Report saved');
+}
+function craClear(){
+  var p=pfuCur(); if(!p)return;
+  if(!window.confirm('Clear the Cancellation Report for this project?'))return;
+  try{delete p.cancel;}catch(e){p.cancel=null;}
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll(); craClose();
+  pfuToast('\ud83d\uddd1 Cancellation Report cleared');
+}
+window.craOpen=craOpen; window.craClose=craClose; window.craSave=craSave; window.craPrint=craPrint; window.craClear=craClear; window.craRefresh=craRefresh;
+
 
 </script>
 
@@ -9241,6 +9371,66 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
       <button class="pfu-btn" onclick="canClear()">🗑 Clear</button>
       <button class="pfu-btn pif" onclick="canPrint()">🖨 Print / PDF</button>
       <button class="pfu-btn pif" onclick="canSave()" style="background:rgba(139,92,246,.32)">💾 Save</button>
+      <span class="can-hint">Saved with the project · does not write into the Tasks table</span>
+    </div>
+  </div>
+</div>
+
+<!-- CANCELLATION REPORT — Stage 6 · result = Cancel only -->
+<div class="can-modal" id="craModal" onclick="if(event.target===this)craClose()">
+  <div class="can-sheet">
+    <div class="can-h">
+      <div>
+        <div class="can-t">CANCELLATION REPORT</div>
+        <div class="can-sub">Stage 6 · Result — after 🚫 Cancel. Why the project was cancelled. Saved with the project (cloud-synced).</div>
+      </div>
+      <div style="text-align:right"><span class="can-hint" id="cra_saved"></span></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🏁 A · Cancel info</div>
+      <div class="can-grid can-g4">
+        <div><label>Project</label><input type="text" id="cra_proj" readonly></div>
+        <div><label>Cancel Date</label><input type="date" id="cra_date"></div>
+        <div><label>Notified by</label><select id="cra_notify"><option>Email (formal)</option><option>Formal letter</option><option>Phone / verbal</option><option>Tender platform notice</option><option>Not notified</option></select></div>
+        <div><label>Cancel Stage</label><select id="cra_stage"><option>Result (final)</option><option>Negotiation</option><option>Bidding</option><option>Reviewing</option><option>PQ</option><option>Project Info collection</option></select></div>
+        <div><label>Est. value lost (VND)</label><input type="text" id="cra_value"></div>
+        <div><label>Area (m²)</label><input type="text" id="cra_area"></div>
+        <div><label>PIC</label><input type="text" id="cra_pic"></div>
+        <div><label>Is it really dead?</label><select id="cra_dead"><option>Yes — dropped</option><option>No — only postponed</option><option>Unsure</option></select></div>
+      </div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🎯 B · Reason for cancellation <span class="n">— tick any · the FIRST tick becomes the main reason (statistics)</span></div>
+      <div id="cra_groups"></div>
+      <div class="can-hint" id="cra_mainhint" style="margin-top:7px"></div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">📝 C · What happened <span class="n">— facts, not opinions</span></div>
+      <textarea id="cra_notes" placeholder="e.g. Owner confirmed extension work only — main factory already built by another contractor. Budget for phase 2 not approved this year."></textarea>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">💰 D · Money &amp; claims</div>
+      <div class="can-grid can-g4">
+        <div><label>Costs incurred so far (VND)</label><input type="text" id="cra_cost" placeholder="0"></div>
+        <div><label>Advance / claim</label><select id="cra_claim"><option>None</option><option>Advance received — must return</option><option>Claim submitted</option><option>To be checked</option></select></div>
+        <div><label>Loss of opportunity?</label><select id="cra_opp"><option>No</option><option>Yes — competed instead</option><option>Yes — team idle</option></select></div>
+        <div><label>Do we still hold documents?</label><select id="cra_docs"><option>No</option><option>Yes — for future re-bid</option><option>Must return to owner</option></select></div>
+      </div>
+    </div>
+    <div class="can-card">
+      <div class="can-sec">🔁 E · Follow-up</div>
+      <div class="can-grid can-g4">
+        <div><label>Can it come back?</label><select id="cra_back"><option>Yes — later phase / next budget year</option><option>No, not for now</option><option>Unsure — to be checked</option></select></div>
+        <div><label>Follow-up PIC</label><input type="text" id="cra_fpic"></div>
+        <div><label>Next contact</label><input type="date" id="cra_next"></div>
+        <div><label>Revisit in</label><select id="cra_rev"><option>6 months</option><option>3 months</option><option>12 months</option><option>Do not flag</option></select></div>
+      </div>
+    </div>
+    <div class="can-acts">
+      <button class="pfu-btn" onclick="craClose()">Cancel</button>
+      <button class="pfu-btn" onclick="craClear()">🗑 Clear</button>
+      <button class="pfu-btn pif" onclick="craPrint()">🖨 Print / PDF</button>
+      <button class="pfu-btn pif" onclick="craSave()" style="background:rgba(139,92,246,.32)">💾 Save</button>
       <span class="can-hint">Saved with the project · does not write into the Tasks table</span>
     </div>
   </div>
