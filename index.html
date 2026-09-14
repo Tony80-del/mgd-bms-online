@@ -8173,6 +8173,63 @@ function pfuSeed(){
   ];
 }
 
+/* ---- auto-fill KV fields from the matching Bid Tracking record ---- */
+function pfuNorm(s){return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9]/g,'');}
+function pfuMatchBid(name){
+  var n=pfuNorm(name); if(n.length<3)return null;
+  var best=null,bestScore=0;
+  (data.bids||[]).forEach(function(b){
+    [[b.projectName,3],[b.customerName,2]].forEach(function(pr){
+      var t=pfuNorm(pr[0]); if(t.length<3)return;
+      var score=0;
+      if(t===n)score=100;
+      else if(t.indexOf(n)===0||n.indexOf(t)===0)score=80;
+      else if(t.indexOf(n)>-1||n.indexOf(t)>-1)score=60;
+      if(score)score+=pr[1]+Math.min(10,Math.floor(t.length/6));
+      if(score>bestScore){bestScore=score;best=b;}
+    });
+  });
+  return best;
+}
+function pfuIsBlank(v){v=String(v==null?'':v).trim();return v===''||v==='—'||v==='-';}
+function pfuFmtMoney(v){
+  var s=String(v==null?'':v).trim(); if(!s||/[a-zA-Z]/.test(s))return s;
+  var num=parseFloat(s.replace(/,/g,'')); if(!isFinite(num))return s;
+  if(num>=1e9){var b=Math.round(num/1e8)/10;return (b%1?b.toFixed(1):b)+'B VND';}
+  if(num>=1e6){var m=Math.round(num/1e5)/10;return (m%1?m.toFixed(1):m)+'M VND';}
+  return num.toLocaleString('en-US')+' VND';
+}
+function pfuFmtArea(v){
+  var s=String(v==null?'':v).trim(); if(!s||/[a-zA-Z²]/.test(s))return s;
+  var num=parseFloat(s.replace(/,/g,'')); if(!isFinite(num))return s;
+  return num.toLocaleString('en-US')+' m²';
+}
+function pfuFmtDate(v){
+  var s=String(v==null?'':v).trim(); if(!s)return s;
+  var m=s.match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})/);
+  if(m){var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[3]+' '+mo[parseInt(m[2],10)-1]+' '+m[1];}
+  return s;
+}
+function pfuApplyBid(p,b){
+  var n=0; if(!p||!b)return n;
+  [['estValue',pfuFmtMoney(b.estimatedValue)],['landArea',pfuFmtArea(b.landArea)],['pic',String(b.personInCharge==null?'':b.personInCharge).trim()],['start',pfuFmtDate(b.startDate)]].forEach(function(kv){
+    if(pfuIsBlank(p[kv[0]])&&!pfuIsBlank(kv[1])){p[kv[0]]=kv[1];n++;}
+  });
+  if(pfuIsBlank(p.client)&&!pfuIsBlank(b.customerName)){p.client=String(b.customerName).trim();n++;}
+  if(n)p.filledFromBid=b.projectName||b.customerName||'';
+  return n;
+}
+function pfuFillFromBid(p){ if(!p||!p.name)return 0; return pfuApplyBid(p,pfuMatchBid(p.name)); }
+function pfuRefillFromBid(){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  var b=pfuMatchBid(p.name);
+  if(!b){pfuToast('⚠ No matching Bid Tracking record found for this project name');return;}
+  var n=pfuApplyBid(p,b);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast(n?('✅ Filled '+n+' field(s) from Bid: '+(b.projectName||b.customerName)):('ℹ Nothing to fill — Bid: '+(b.projectName||b.customerName)));
+}
 function pfuGetData(){
   if(!data.projectTracking||!Array.isArray(data.projectTracking)||!data.projectTracking.length){
     data.projectTracking=pfuSeed();
@@ -8196,7 +8253,10 @@ function pfuGetData(){
     var _pr=pfuProgress(p);
     if(Number(p.progress)!==_pr){ p.progress=_pr; _mig2=true; }
   });
-  if((_mig||_mig2)&&typeof saveData==='function')saveData();
+  /* auto-fill Est.Value / Land Area / PIC / Start from the matching Bid Tracking record (only blank fields) */
+  var _mig3=false;
+  data.projectTracking.forEach(function(p){ if(pfuFillFromBid(p)>0)_mig3=true; });
+  if((_mig||_mig2||_mig3)&&typeof saveData==='function')saveData();
   if(!pfuCurId||!data.projectTracking.some(function(p){return p.id===pfuCurId;})){pfuCurId=data.projectTracking[0].id;}
   return data.projectTracking;
 }
@@ -8259,6 +8319,7 @@ function pfuRenderDetail(){
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
     +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
+    +'<button class="pfu-btn sm" onclick="pfuRefillFromBid()" title="Auto-fill Est. Value / Land Area / PIC / Start from the matching Bid Tracking record">&#8635; Fill from Bid</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
     +'</div></div>';
@@ -8369,7 +8430,9 @@ function pfuAddProject(){
   pfuCollect();
   var name=window.prompt('New project name / \u65b0\u9879\u76ee\u540d\u79f0:'); if(!name||!name.trim())return;
   var id='P'+Date.now();
-  data.projectTracking.unshift({id:id,name:name.trim(),badge:'Project Info collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Project Info collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',title:'Project created',note:name.trim()}]});
+  var _np={id:id,name:name.trim(),badge:'Project Info collection',badgeCls:'gray',type:'',client:'',ref:'',stage:'Project Info collection',estValue:'',landArea:'',pic:'',start:'',target:'',progress:0,tasks:[],log:[{date:pfuNow(),type:'g',title:'Project created',note:name.trim()}]};
+  pfuFillFromBid(_np);
+  data.projectTracking.unshift(_np);
   pfuCurId=id;
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
@@ -8575,6 +8638,7 @@ window.bidsSwitchView=bidsSwitchView;
 window.bidsApplyView=bidsApplyView;
 window.pfuPick=pfuPick;
 window.pfuTogglePanel=pfuTogglePanel;
+window.pfuRefillFromBid=pfuRefillFromBid;
 window.pfuSave=pfuSave;
 window.pfuAddProject=pfuAddProject;
 window.pfuDelProject=pfuDelProject;
