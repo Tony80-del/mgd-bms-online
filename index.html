@@ -112,6 +112,29 @@
     .pfu-auto-tag{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:20px;background:rgba(148,163,184,.18);color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
     .pfu-tl-empty{color:var(--muted);font-style:italic;font-size:11.5px;padding:10px 2px}
     .pfu-formbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px dashed var(--border);margin-top:12px;padding-top:12px}
+    .pfu-result{background:linear-gradient(135deg,rgba(0,180,216,.06),rgba(139,92,246,.07))}
+    .pfu-resbtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:2px}
+    .pfu-resbtn{cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;padding:9px 20px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text1);transition:.15s}
+    .pfu-resbtn:hover{transform:translateY(-1px)}
+    .pfu-resbtn.won{border-color:rgba(34,197,94,.5);color:#4ade80}
+    .pfu-resbtn.won.on{background:#22c55e;color:#04220f;border-color:#22c55e;box-shadow:0 0 14px rgba(34,197,94,.45)}
+    .pfu-resbtn.lose{border-color:rgba(239,68,68,.5);color:#f87171}
+    .pfu-resbtn.lose.on{background:#ef4444;color:#2a0505;border-color:#ef4444;box-shadow:0 0 14px rgba(239,68,68,.45)}
+    .pfu-resbtn.cancel{border-color:rgba(148,163,184,.5);color:#cbd5e1}
+    .pfu-resbtn.cancel.on{background:#64748b;color:#0b1220;border-color:#64748b;box-shadow:0 0 14px rgba(100,116,139,.4)}
+    .pfu-resnow{font-size:11.5px;color:var(--text2)}
+    .pfu-resreason{margin-top:12px;border-top:1px dashed var(--border);padding-top:12px}
+    .pfu-resreason textarea{width:100%;min-height:92px;box-sizing:border-box;background:var(--card);color:var(--text1);border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:12px;line-height:1.55;padding:10px;outline:none;resize:vertical}
+    .pfu-resreason textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,180,216,.15)}
+    .pfu-resbanner{margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.45);color:#4ade80;font-weight:700;font-size:13px;display:flex;align-items:center;flex-wrap:wrap}
+    .pfu-congrats{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(3,9,18,.93);backdrop-filter:blur(6px)}
+    .pfu-congrats .cg{text-align:center;padding:44px 60px;border-radius:20px;border:1px solid rgba(34,197,94,.5);background:radial-gradient(circle at 50% 0%,rgba(34,197,94,.22),rgba(11,30,61,.98));box-shadow:0 0 60px rgba(34,197,94,.28);animation:pfuPop .5s cubic-bezier(.2,1.4,.4,1)}
+    .pfu-congrats .em{font-size:54px;line-height:1}
+    .pfu-congrats h1{margin:12px 0 6px;font-size:30px;letter-spacing:2px;color:#4ade80;text-shadow:0 0 24px rgba(34,197,94,.5)}
+    .pfu-congrats .pj{font-size:17px;font-weight:700;color:var(--text1);margin-top:8px}
+    .pfu-congrats .rw{margin-top:6px;font-size:12px;letter-spacing:3px;color:var(--text2)}
+    .pfu-congrats .cgclose{margin-top:22px}
+    @keyframes pfuPop{0%{transform:scale(.82);opacity:0}100%{transform:scale(1);opacity:1}}
     .pfu-li-tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px;table-layout:fixed}
     .pfu-li-tbl th+th,.pfu-li-tbl td+td{padding-left:4px;padding-right:4px}
     .pfu-li-tbl th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);font-weight:700;padding:3px 6px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -8101,7 +8124,7 @@ function bidsApplyView(){
 var PFU_STAGES=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
 var PFU_STAGE_CLS={'Project Info collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
-var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lost)'];
+var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lose / Cancel)'];
 var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0'],c:['#cdeff0','#0b6b72'],d:['#123e8c','#dbe8ff']};
 var PFU_TASK_STATUS=['Pending','In Progress','Completed','Overdue'];
 var pfuCurId=null;
@@ -8313,6 +8336,30 @@ function pfuPicNames(){
   });
   return Object.keys(set);
 }
+function pfuSetResult(v){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  if(!p.result)p.result={};
+  p.result.status=v; p.result.date=pfuNow();
+  pfuBumpToTop(p);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  if(v==='Won'){pfuCongrats();}
+  else{
+    var ta=document.querySelector('#pfuDetail [data-f="resultReason"]');
+    if(ta){ta.focus();try{ta.setSelectionRange(ta.value.length,ta.value.length);}catch(e){}}
+    pfuToast(v==='Lost'?'❌ Marked as LOST — write the reason below':'🚫 Marked as CANCELLED — write the reason below');
+  }
+}
+function pfuCongrats(){
+  var p=pfuCur(); if(!p)return;
+  pfuCongratsClose();
+  var d=document.createElement('div'); d.className='pfu-congrats'; d.id='pfuCongratsBox';
+  d.innerHTML='<div class="cg"><div class="em">🎉🏆🎉</div><h1>CONGRATULATIONS!</h1><div class="pj">'+pfuEsc(p.name)+'</div><div class="rw">PROJECT WON · 中标</div><button class="pfu-btn pri cgclose" onclick="pfuCongratsClose()">Close</button></div>';
+  d.addEventListener('click',function(e){if(e.target===d)pfuCongratsClose();});
+  document.body.appendChild(d);
+}
+function pfuCongratsClose(){var d=document.getElementById('pfuCongratsBox'); if(d&&d.parentNode)d.parentNode.removeChild(d);}
 function pfuRenderDetail(){
   var p=pfuCur(); var box=document.getElementById('pfuDetail'); if(!box)return;
   if(!p){box.innerHTML='';return;}
@@ -8350,6 +8397,27 @@ function pfuRenderDetail(){
     var sd=(st==='Completed'?'\u2713 completed':(isCur?'\u25cf in progress':'\u25cb pending'))+((isCur&&st==='Completed')?' \u00b7 current':'');
     h+='<div class="pfu-step '+cls+res+'" onclick="pfuSetStage('+i+')" title="Click to switch to this stage"><span class="dot"></span><span class="sn">'+(i+1)+' \u00b7 '+pfuEsc(s)+'</span><span class="sd">'+sd+'</span></div>';
   });
+  if(curIdx===5){
+    var _r=(p.result||{}); var _rs=_r.status||'';
+    var _nowLbl=(_rs==='Won'?'🏆 WON':(_rs==='Lost'?'❌ LOST':(_rs==='Cancelled'?'🚫 CANCELLED':'— not decided yet —')));
+    h+='<div class="pfu-card pfu-result">';
+    h+='<div class="pfu-card-h"><div><div class="pfu-card-t">🏁 Final Result — Stage 6 · Result</div><div class="pfu-card-sub">Final selection: Won / Lose / Cancel — this stage only. You can change it anytime.</div></div></div>';
+    h+='<div class="pfu-resbtns">';
+    h+='<button class="pfu-resbtn won'+(_rs==='Won'?' on':'')+'" onclick="pfuSetResult(\'Won\')">🏆 Won</button>';
+    h+='<button class="pfu-resbtn lose'+(_rs==='Lost'?' on':'')+'" onclick="pfuSetResult(\'Lost\')">❌ Lose</button>';
+    h+='<button class="pfu-resbtn cancel'+(_rs==='Cancelled'?' on':'')+'" onclick="pfuSetResult(\'Cancelled\')">🚫 Cancel</button>';
+    h+='<span class="pfu-resnow">Current: <b>'+_nowLbl+'</b>'+(_r.date?' <span class="pfu-auto-tag">'+pfuEsc(_r.date)+'</span>':'')+'</span>';
+    h+='</div>';
+    if(_rs==='Lost'||_rs==='Cancelled'){
+      h+='<div class="pfu-resreason"><div class="pfu-card-t" style="font-size:12px;margin-bottom:6px">'+(_rs==='Lost'?'📝 Reason why LOST — analysis report / 失标原因分析':'📝 Reason why CANCELLED — analysis report / 取消原因分析')+'</div>';
+      h+='<textarea data-f="resultReason" placeholder="Write the reason here... / 在这里写原因...">'+pfuEsc(_r.reason||'')+'</textarea>';
+      h+='<div class="pfu-formhint">Saved with the project when you press 💾 Save.</div></div>';
+    }
+    if(_rs==='Won'){
+      h+='<div class="pfu-resbanner">🎉 Project WON — congratulations!<button class="pfu-btn sm" onclick="pfuCongrats()" style="margin-left:10px">Show congratulations</button></div>';
+    }
+    h+='</div>';
+  }
   h+='</div>';
   h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udccc Tasks \u2014 Stage '+(curIdx+1)+' \u00b7 '+pfuEsc(_curS)+'</div><div class="pfu-card-sub">Stage '+(curIdx+1)+' only \u00b7 PIC \u00b7 date \u00b7 follow-up note \u00b7 status \u2014 other stages\u2019 records are kept</div></div><button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
     +'<th style="width:15%">Stage</th><th style="width:26%">Task</th><th style="width:12%">PIC</th><th style="width:10%">Date</th><th style="width:22%">Noted Follow-up</th><th style="width:15%">Status</th></tr></thead><tbody>';
@@ -8411,6 +8479,7 @@ function pfuCollect(){
   var sub=box.querySelector('[data-f="subtitle"]');
   if(sub){var txt=sub.textContent||'';var mC=txt.match(/Client:\s*(.*?)\s*\u00b7\s*Ref:/i);var mR=txt.match(/Ref:\s*(.*)$/i);var parts=txt.split('\u00b7');if(parts[0]!=null)p.type=parts[0].trim();if(mC)p.client=mC[1].trim();if(mR)p.ref=mR[1].trim();}
   ['estValue','landArea','pic','start','target'].forEach(function(k){var el=box.querySelector('[data-f="'+k+'"]');if(el)p[k]=el.textContent.trim();});
+  var _rr=box.querySelector('[data-f="resultReason"]'); if(_rr){if(!p.result)p.result={};p.result.reason=String(_rr.value||'').trim();}
   p.progress=pfuProgress(p); /* auto: completed stages / 6 */
   box.querySelectorAll('[data-ti]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
@@ -8669,6 +8738,9 @@ function pfuSetTaskStatus(idx,val){
   pfuToast('\u2705 Status updated');
 }
 window.pfuSetTaskStatus=pfuSetTaskStatus;
+window.pfuSetResult=pfuSetResult;
+window.pfuCongrats=pfuCongrats;
+window.pfuCongratsClose=pfuCongratsClose;
 </script>
 
 <!-- PROJECT INFORMATION FORM (MR-001) - Stage 1 only -->
