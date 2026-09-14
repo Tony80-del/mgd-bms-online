@@ -8484,7 +8484,7 @@ function pfuRenderDetail(){
     h+='</div>';
   }
   h+='</div>';
-  h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udccc Tasks \u2014 Stage '+(curIdx+1)+' \u00b7 '+pfuEsc(_curS)+'</div><div class="pfu-card-sub">Stage '+(curIdx+1)+' only \u00b7 PIC \u00b7 date \u00b7 dept \u00b7 follow-up note \u00b7 status \u2014 other stages\u2019 records are kept</div></div><button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
+  h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udccc Tasks \u2014 Stage '+(curIdx+1)+' \u00b7 '+pfuEsc(_curS)+'</div><div class="pfu-card-sub">Stage '+(curIdx+1)+' only \u00b7 Stage column is editable (write the sub-topic, e.g. PQ \u2014 Legal / PQ \u2014 Fire safety) \u00b7 PIC \u00b7 date \u00b7 dept \u00b7 note \u00b7 status</div></div><button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
     +'<th style="width:15%">Stage</th><th style="width:22%">Task</th><th style="width:12%">PIC</th><th style="width:11%">Date</th><th style="width:10%">Dept</th><th style="width:18%">Noted Follow-up</th><th style="width:12%">Status</th></tr></thead><tbody>';
   var tasks=p.tasks||[];
   var _rows=[]; tasks.forEach(function(t,idx){if(t.stage===_curS)_rows.push(idx);});
@@ -8494,7 +8494,7 @@ function pfuRenderDetail(){
       var t=tasks[idx];
       var _tc=PFU_BADGE_COLORS[pfuStatusCls(t.status||'Pending')]||PFU_BADGE_COLORS.gray;
       h+='<tr>'
-        +'<td data-edit data-tf="stage" data-ti="'+idx+'">'+pfuEsc(t.stage)+'</td>'
+        +'<td data-edit data-tf="stageLabel" data-ti="'+idx+'" title="Editable \u2014 write the sub-topic. Grouping still uses the real stage: '+pfuEsc(t.stage)+'">'+pfuEsc(t.stageLabel||t.stage)+'</td>'
         +'<td data-edit data-tf="task" data-ti="'+idx+'">'+pfuEsc(t.task)+'</td>'
         +'<td><input class="pfu-inp" list="pfuPicList" data-tf="pic" data-ti="'+idx+'" value="'+pfuEsc(t.pic&&t.pic!=='\u2014'?t.pic:'')+'" placeholder="\u2014"></td>'
         +'<td><input class="pfu-inp" type="date" data-tf="date" data-ti="'+idx+'" value="'+pfuEsc(pfuToISO(t.date))+'"'+(pfuToISO(t.date)?'':' data-keep="'+pfuEsc(t.date||'')+'"')+'></td>'
@@ -8552,6 +8552,7 @@ function pfuCollect(){
     var i=parseInt(c.getAttribute('data-ti'),10); var f=c.getAttribute('data-tf');
     if(p.tasks&&p.tasks[i]&&f!=null)p.tasks[i][f]=pfuCellVal(c);
   });
+  (p.tasks||[]).forEach(function(t){if(t&&t.stageLabel===t.stage)t.stageLabel='';});
   box.querySelectorAll('[data-lf]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-li'),10); var f=c.getAttribute('data-lf');
     if(p.log&&p.log[i]&&f!=null)p.log[i][f]=pfuCellVal(c);
@@ -8655,7 +8656,7 @@ function pfuAddTask(){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
   if(!Array.isArray(p.tasks))p.tasks=[];
-  p.tasks.push({stage:p.stage,task:'',pic:'',date:'',dept:'',note:'',status:'Pending'});
+  p.tasks.push({stage:p.stage,stageLabel:'',task:'',pic:'',date:'',dept:'',note:'',status:'Pending'});
   var i=p.tasks.length-1;
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
