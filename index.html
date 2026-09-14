@@ -8916,7 +8916,7 @@ var CAN_MIST=[{id:'m1',n:'Missing items / arithmetic error'},{id:'m2',n:'Under-e
 var CAN_GAPR=[{id:'g1',n:'No local main-contractor licence'},{id:'g2',n:'No MEP subcontractor'},{id:'g3',n:'No piling / earthwork resource'},{id:'g4',n:'No design-consultant support'},{id:'g5',n:'No steel fabrication capacity'},{id:'g6',n:'No bond / funding capacity'}];
 var CAN_CMPROWS=['Price','Technical scheme','Programme','Commercial terms','Relationship / early involvement','Warranty / after-sales'];
 var CAN_TODAY=function(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);};
-var canState={main:'price',keys:[],adv:[],mist:[],gapr:[],cmp:{}};
+var canState={keys:[],adv:[],mist:[],gapr:[],cmp:{}};
 function canEl(id){return document.getElementById(id);}
 function canVal(id){var e=canEl(id);return e?String(e.value||'').trim():'';}
 function canSet(id,v){var e=canEl(id);if(e)e.value=(v==null?'':v);}
@@ -8933,8 +8933,8 @@ function canChips(host,arr,pick,bad){
   [].forEach.call(el.querySelectorAll('.can-chip'),function(c){
     c.onclick=function(){
       var id=c.getAttribute('data-id');
-      if(pick==='main'){ canState.main=id; if(canState.keys.indexOf(id)<0)canState.keys.push(id); }
-      else { var a=canState[pick],i=a.indexOf(id); if(i>-1)a.splice(i,1); else a.push(id); }
+      var a=canState[pick],i=a.indexOf(id);
+      if(i>-1)a.splice(i,1); else a.push(id);
       canRefresh();
     };
   });
@@ -8958,7 +8958,18 @@ function canGapCalc(){
     +'<div class="can-hint">we are '+(g>0?'higher':'lower')+' by '+Math.abs(g).toFixed(1)+'%</div>';
   return g;
 }
-function canRefresh(){ canChips('can_main',CAN_ISSUES,'main',true); canChips('can_keys',CAN_ISSUES,'keys',false); canChips('can_adv',CAN_ADV,'adv',false); canChips('can_mist',CAN_MIST,'mist',false); canChips('can_gapr',CAN_GAPR,'gapr',false); canRenderCmp(); canGapCalc(); canCollectCmp(); }
+function canMainLabel(){return canState.keys.length?canIssueLabel(canState.keys[0]):'';}
+function canRefresh(){
+  canChips('can_keys',CAN_ISSUES,'keys',false);
+  canChips('can_adv',CAN_ADV,'adv',false);
+  canChips('can_mist',CAN_MIST,'mist',false);
+  canChips('can_gapr',CAN_GAPR,'gapr',false);
+  var mh=canEl('can_keysmsg');
+  if(mh)mh.innerHTML=canState.keys.length
+    ?('Main reason \u2192 <b style="color:#f87171">'+pfuEsc(canMainLabel())+'</b> &nbsp;+'+(canState.keys.length-1)+' more key issue(s)')
+    :'Nothing ticked yet \u2014 the first issue you tick becomes the main reason.';
+  canRenderCmp(); canGapCalc(); canCollectCmp();
+}
 function canCollectCmp(){
   CAN_CMPROWS.forEach(function(k,i){
     var us=canVal('can_cmp_us_'+i).replace(/^\s+|\s+$/g,''), th=canVal('can_cmp_th_'+i).replace(/^\s+|\s+$/g,''), v=canVal('can_cmp_v_'+i);
@@ -8989,13 +9000,11 @@ function canOpen(){
   canSet('can_next',a.nextContact||'');
   canSetSel('can_rev',a.revisit,'6 months');
   canSet('can_notes',a.notes||'');
-  canState={main:a.primary||'price',
-            keys:(a.keys||[]).slice(),
+  canState={keys:((a.keys&&a.keys.length)?a.keys.slice():(a.primary?[a.primary]:[])),
             adv:(a.adv||[]).slice(),
             mist:(a.mist||[]).slice(),
             gapr:(a.gapr||[]).slice(),
             cmp:JSON.parse(JSON.stringify(a.cmp||{}))};
-  if(canState.keys.indexOf(canState.main)<0)canState.keys.unshift(canState.main);
   canRefresh();
   var sv=canEl('can_saved'); if(sv)sv.textContent=a.savedAt?('\u2713 last saved '+a.savedAt):'not filled yet';
   var m=canEl('canModal'); if(m)m.classList.add('open');
@@ -9009,7 +9018,7 @@ function canCollect(){
     closeDate:canVal('can_date'), notifiedBy:canVal('can_notify'), closeStage:canVal('can_stage'),
     ourPrice:canVal('can_our'), unitPrice:canVal('can_unit'), area:canVal('can_area'), pic:canVal('can_pic'),
     winner:canVal('can_win'), winnerType:canVal('can_wint'), winnerPrice:canVal('can_winp'), gap:(g==null?'':Math.round(g*10)/10),
-    primary:canState.main, keys:canState.keys.slice(), adv:canState.adv.slice(), cmp:canState.cmp,
+    primary:(canState.keys[0]||''), keys:canState.keys.slice(), adv:canState.adv.slice(), cmp:canState.cmp,
     lessons:[canVal('can_l1'),canVal('can_l2'),canVal('can_l3')], mist:canState.mist.slice(), gapr:canState.gapr.slice(),
     chance:canVal('can_chance'), followPic:canVal('can_fpic'), nextContact:canVal('can_next'), revisit:canVal('can_rev'),
     notes:canVal('can_notes'), savedAt:pfuNow()
@@ -9168,7 +9177,7 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
     <div class="can-h">
       <div>
         <div class="can-t">CLOSE ANALYSIS REPORT</div>
-        <div class="can-sub">Stage 6 · Result — after ❌ Lose. Standard close analysis, saved with the project (cloud-synced).</div>
+        <div class="can-sub">Stage 6 · Result — after ❌ Lose. Tick the key issues (first tick = main reason). Saved with the project, cloud-synced.</div>
       </div>
       <div style="text-align:right"><span class="can-hint" id="can_saved"></span></div>
     </div>
@@ -9186,15 +9195,12 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
       </div>
     </div>
     <div class="can-card">
-      <div class="can-sec">🎯 B · Main issue <span class="n">— choose one (used for statistics)</span></div>
-      <div class="can-chips" id="can_main"></div>
-    </div>
-    <div class="can-card">
-      <div class="can-sec">➕ C · Key issues <span class="n">— tick any that apply</span></div>
+      <div class="can-sec">🎯 B · Key issues <span class="n">— tick any that apply · the FIRST one you tick becomes the main reason (used for statistics)</span></div>
       <div class="can-chips" id="can_keys"></div>
+      <div class="can-hint" id="can_keysmsg" style="margin-top:7px"></div>
     </div>
     <div class="can-card">
-      <div class="can-sec">🥊 D · Competitor</div>
+      <div class="can-sec">🥊 C · Competitor</div>
       <div class="can-grid can-g4">
         <div><label>Winner</label><input type="text" id="can_win"></div>
         <div><label>Winner type</label><select id="can_wint"><option>Local contractor (Vietnam)</option><option>Chinese contractor</option><option>Japanese / Korean</option><option>Taiwanese</option><option>Owner-nominated / connected party</option><option>Group in-house unit</option><option>Not known</option></select></div>
@@ -9205,11 +9211,11 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
       <div class="can-chips" id="can_adv"></div>
     </div>
     <div class="can-card">
-      <div class="can-sec">📊 E · Head-to-head <span class="n">— us vs winner</span></div>
+      <div class="can-sec">📊 D · Head-to-head <span class="n">— us vs winner</span></div>
       <table class="can-cmp"><thead><tr><th style="width:22%">Dimension</th><th style="width:36%">MGD (us)</th><th style="width:30%">Winner</th><th style="width:12%">Verdict</th></tr></thead><tbody id="can_cmp"></tbody></table>
     </div>
     <div class="can-card">
-      <div class="can-sec">🔍 F · Internal review <span class="n">— lessons</span></div>
+      <div class="can-sec">🔍 E · Internal review <span class="n">— lessons</span></div>
       <div class="can-grid can-g3">
         <div><label>Change #1 — must do differently</label><input type="text" id="can_l1"></div>
         <div><label>Change #2 — must do differently</label><input type="text" id="can_l2"></div>
@@ -9221,7 +9227,7 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
       <div class="can-chips" id="can_gapr"></div>
     </div>
     <div class="can-card">
-      <div class="can-sec">🔁 G · Follow-up</div>
+      <div class="can-sec">🔁 F · Follow-up</div>
       <div class="can-grid can-g4">
         <div><label>Can we win something back?</label><select id="can_chance"><option>Yes — phase 2 / re-bid / subcontract</option><option>No, not for now</option><option>Unsure — to be checked</option></select></div>
         <div><label>Follow-up PIC</label><input type="text" id="can_fpic"></div>
