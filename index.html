@@ -57,6 +57,10 @@
     .pfu-item .pc{font-size:10.5px;color:var(--muted);margin-top:3px}
     .pfu-item .pb{height:4px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
     .pfu-item .pb i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px}
+    .pfu-item.res-cancel{opacity:.68}
+    .pfu-item.res-cancel .pname{text-decoration:line-through;text-decoration-color:rgba(248,113,113,.7)}
+    .pfu-item.res-cancel .pb{background:rgba(248,113,113,.22)}
+    .pfu-item.res-cancel .pb i{background:#f87171}
     .pfu-head{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px}
     .pfu-head .row1{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
     .pfu-head h2{font-size:19px;font-weight:800}
@@ -8345,9 +8349,12 @@ function pfuRenderAll(){
   if(lc){
     lc.innerHTML=list.map(function(p){
       var pct=Math.max(0,Math.min(100,Number(p.progress)||0));
-      return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+'" onclick="pfuPick(\''+p.id+'\')">'
-        +'<div class="pn">'+pfuEsc(p.name)+' <span class="pfu-badge '+(p.badgeCls||'b')+'">'+pfuEsc(p.badge||'')+'</span></div>'
-        +'<div class="pc">'+pfuEsc(p.type||'')+(p.client?' \u00b7 '+pfuEsc(p.client):'')+(p.estValue?' \u00b7 '+pfuEsc(p.estValue):'')+'</div>'
+      var _rs=String(((p.result||{}).status)||'');
+      var _cancel=(_rs==='Cancelled');
+      var _reason=_cancel?String((p.result||{}).reason||'').trim():'';
+      return '<div class="pfu-item'+(p.id===pfuCurId?' act':'')+(_cancel?' res-cancel':'')+'" onclick="pfuPick(\''+p.id+'\')"'+(_cancel?(' title="'+pfuEsc('🚫 Cancelled'+(_reason?' — '+_reason:''))+'"'):'')+'>'
+        +'<div class="pn"><span class="pname">'+pfuEsc(p.name)+'</span> <span class="pfu-badge '+(p.badgeCls||'b')+'">'+pfuEsc(p.badge||'')+'</span></div>'
+        +'<div class="pc">'+(_cancel?('<span style="color:#f87171;font-weight:700">🚫 Cancelled</span>'+(_reason?' · '+pfuEsc(_reason):'')+'<br>'):'')+pfuEsc(p.type||'')+(p.client?' · '+pfuEsc(p.client):'')+(p.estValue?' · '+pfuEsc(p.estValue):'')+'</div>'
         +'<div class="pb"><i style="width:'+pct+'%"></i></div></div>';
     }).join('');
   }
