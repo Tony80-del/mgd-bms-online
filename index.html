@@ -122,6 +122,8 @@
     .pfu-resbtn.lose.on{background:#ef4444;color:#2a0505;border-color:#ef4444;box-shadow:0 0 14px rgba(239,68,68,.45)}
     .pfu-resbtn.cancel{border-color:rgba(148,163,184,.5);color:#cbd5e1}
     .pfu-resbtn.cancel.on{background:#64748b;color:#0b1220;border-color:#64748b;box-shadow:0 0 14px rgba(100,116,139,.4)}
+    .pfu-resbtn.undo{border-style:dashed;border-color:var(--muted);color:var(--text2);font-weight:600;padding:8px 16px;margin-left:auto}
+    .pfu-resbtn.undo:hover{border-color:var(--blue);color:var(--blue);border-style:solid}
     .pfu-resnow{font-size:11.5px;color:var(--text2)}
     .pfu-resreason{margin-top:12px;border-top:1px dashed var(--border);padding-top:12px}
     .pfu-resreason textarea{width:100%;min-height:92px;box-sizing:border-box;background:var(--card);color:var(--text1);border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:12px;line-height:1.55;padding:10px;outline:none;resize:vertical}
@@ -8351,6 +8353,18 @@ function pfuSetResult(v){
     pfuToast(v==='Lost'?'❌ Marked as LOST — write the reason below':'🚫 Marked as CANCELLED — write the reason below');
   }
 }
+function pfuResetResult(){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  var had=!!((p.result||{}).status);
+  pfuCongratsClose();
+  p.result=(p.result||{});
+  p.result.status=''; p.result.date='';
+  pfuBumpToTop(p);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  pfuToast(had?'\u21ba Result cleared \u2014 back to \'no result\'':'\u21ba No result was set');
+}
 function pfuCongrats(){
   var p=pfuCur(); if(!p)return;
   pfuCongratsClose();
@@ -8407,6 +8421,7 @@ function pfuRenderDetail(){
     h+='<button class="pfu-resbtn lose'+(_rs==='Lost'?' on':'')+'" onclick="pfuSetResult(\'Lost\')">❌ Lose</button>';
     h+='<button class="pfu-resbtn cancel'+(_rs==='Cancelled'?' on':'')+'" onclick="pfuSetResult(\'Cancelled\')">🚫 Cancel</button>';
     h+='<span class="pfu-resnow">Current: <b>'+_nowLbl+'</b>'+(_r.date?' <span class="pfu-auto-tag">'+pfuEsc(_r.date)+'</span>':'')+'</span>';
+    h+='<button class="pfu-resbtn undo" onclick="pfuResetResult()" title="Undo \u2014 clear the final result and go back to \'no result\'">\u21ba Undo</button>';
     h+='</div>';
     if(_rs==='Lost'||_rs==='Cancelled'){
       h+='<div class="pfu-resreason"><div class="pfu-card-t" style="font-size:12px;margin-bottom:6px">'+(_rs==='Lost'?'📝 Reason why LOST — analysis report / 失标原因分析':'📝 Reason why CANCELLED — analysis report / 取消原因分析')+'</div>';
@@ -8739,6 +8754,7 @@ function pfuSetTaskStatus(idx,val){
 }
 window.pfuSetTaskStatus=pfuSetTaskStatus;
 window.pfuSetResult=pfuSetResult;
+window.pfuResetResult=pfuResetResult;
 window.pfuCongrats=pfuCongrats;
 window.pfuCongratsClose=pfuCongratsClose;
 </script>
