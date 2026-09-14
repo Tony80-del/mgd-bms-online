@@ -1,0 +1,14 @@
+# ---- local-only files: never publish these on GitHub / GitHub Pages ----
+
+# timestamped backups of the app
+*.bak.*
+index.html.bak
+
+# design demos / reports (kept locally, not part of the live system)
+*-demo.html
+*-report.html
+pricebook-*.html
+close-analysis-report.html
+
+# macOS
+.DS_Store
