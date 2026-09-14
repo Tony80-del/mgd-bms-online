@@ -198,7 +198,7 @@
       @page{size:A4 portrait;margin:12mm}
     }
     
-    /* ---- CLOSE ANALYSIS REPORT (Stage 6 · result = Lose) ---- */
+    /* ---- CLOSE ANALYSIS REPORT (Stage 6 · result = Close) ---- */
     .can-modal{position:fixed;inset:0;background:rgba(2,6,14,.82);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px;z-index:9995}
     .can-modal.open{display:flex}
     .can-sheet{background:var(--card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:1040px;padding:20px 22px 22px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
@@ -8225,7 +8225,7 @@ function bidsApplyView(){
 var PFU_STAGES=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
 var PFU_STAGE_CLS={'Project Info collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
-var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lose / Cancel)'];
+var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Close / Cancel)'];
 var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0'],c:['#cdeff0','#0b6b72'],d:['#123e8c','#dbe8ff']};
 var PFU_TASK_STATUS=['Pending','In Progress','Completed','Overdue'];
 var pfuCurId=null;
@@ -8467,7 +8467,7 @@ function pfuSetResult(v){
   else{
     var ta=document.querySelector('#pfuDetail [data-f="resultReason"]');
     if(ta){ta.focus();try{ta.setSelectionRange(ta.value.length,ta.value.length);}catch(e){}}
-    pfuToast(v==='Lost'?'❌ Marked as LOST — write the reason below':'🚫 Marked as CANCELLED — write the reason below');
+    pfuToast(v==='Lost'?'❌ Marked as CLOSED — write the reason below':'🚫 Marked as CANCELLED — write the reason below');
   }
 }
 function pfuResetResult(){
@@ -8539,12 +8539,12 @@ function pfuRenderDetail(){
   });
   if(curIdx===5){
     var _r=(p.result||{}); var _rs=_r.status||'';
-    var _nowLbl=(_rs==='Won'?'🏆 WON':(_rs==='Lost'?'❌ LOST':(_rs==='Cancelled'?'🚫 CANCELLED':'— not decided yet —')));
+    var _nowLbl=(_rs==='Won'?'🏆 WON':(_rs==='Lost'?'❌ CLOSED':(_rs==='Cancelled'?'🚫 CANCELLED':'— not decided yet —')));
     h+='<div class="pfu-card pfu-result">';
-    h+='<div class="pfu-card-h"><div><div class="pfu-card-t">🏁 Final Result — Stage 6 · Result</div><div class="pfu-card-sub">Final selection: Won / Lose / Cancel — this stage only. You can change it anytime.</div></div></div>';
+    h+='<div class="pfu-card-h"><div><div class="pfu-card-t">🏁 Final Result — Stage 6 · Result</div><div class="pfu-card-sub">Final selection: Won / Close / Cancel — this stage only. You can change it anytime.</div></div></div>';
     h+='<div class="pfu-resbtns">';
     h+='<button class="pfu-resbtn won'+(_rs==='Won'?' on':'')+'" onclick="pfuSetResult(\'Won\')">🏆 Won</button>';
-    h+='<button class="pfu-resbtn lose'+(_rs==='Lost'?' on':'')+'" onclick="pfuSetResult(\'Lost\')">❌ Lose</button>';
+    h+='<button class="pfu-resbtn lose'+(_rs==='Lost'?' on':'')+'" onclick="pfuSetResult(\'Lost\')">❌ Close</button>';
     h+='<button class="pfu-resbtn cancel'+(_rs==='Cancelled'?' on':'')+'" onclick="pfuSetResult(\'Cancelled\')">🚫 Cancel</button>';
     h+='<span class="pfu-resnow">Current: <b>'+_nowLbl+'</b>'+(_r.date?' <span class="pfu-auto-tag">'+pfuEsc(_r.date)+'</span>':'')+'</span>';
     h+='<button class="pfu-resbtn undo" onclick="pfuResetResult()" title="Undo \u2014 clear the final result and go back to \'no result\'">\u21ba Undo</button>';
@@ -8895,7 +8895,7 @@ window.pfuResetResult=pfuResetResult;
 window.pfuCongrats=pfuCongrats;
 window.pfuCongratsClose=pfuCongratsClose;
 
-/* ================= CLOSE ANALYSIS REPORT (Stage 6 · result = Lose) ================= */
+/* ================= CLOSE ANALYSIS REPORT (Stage 6 · result = Close) ================= */
 var CAN_ISSUES=[
  {id:'price',ic:'\ud83d\udcb0',n:'Price too high'},
  {id:'relation',ic:'\ud83e\udd1d',n:'Relationship / access'},
@@ -9171,13 +9171,13 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
   </div>
 </div>
 
-<!-- CLOSE ANALYSIS REPORT — Stage 6 · result = Lose only -->
+<!-- CLOSE ANALYSIS REPORT — Stage 6 · result = Close only -->
 <div class="can-modal" id="canModal" onclick="if(event.target===this)canClose()">
   <div class="can-sheet">
     <div class="can-h">
       <div>
         <div class="can-t">CLOSE ANALYSIS REPORT</div>
-        <div class="can-sub">Stage 6 · Result — after ❌ Lose. Tick the key issues (first tick = main reason). Saved with the project, cloud-synced.</div>
+        <div class="can-sub">Stage 6 · Result — after ❌ Close. Tick the key issues (first tick = main reason). Saved with the project, cloud-synced.</div>
       </div>
       <div style="text-align:right"><span class="can-hint" id="can_saved"></span></div>
     </div>
