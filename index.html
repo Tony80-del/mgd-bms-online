@@ -8319,7 +8319,6 @@ function pfuRenderDetail(){
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
     +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
-    +'<button class="pfu-btn sm" onclick="pfuRefillFromBid()" title="Auto-fill Est. Value / Land Area / PIC / Start from the matching Bid Tracking record">&#8635; Fill from Bid</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
     +'</div></div>';
