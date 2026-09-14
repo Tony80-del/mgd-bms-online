@@ -175,7 +175,7 @@
     .pfu-step.cur .dot{animation:pfuPulse 1.8s infinite}
     @keyframes pfuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,180,216,.25)}50%{box-shadow:0 0 0 6px rgba(0,180,216,.08)}}
     .pfu-badge{display:inline-block;padding:2px 8px;border-radius:11px;font-size:10px;font-weight:700;white-space:nowrap}
-    .pfu-badge.g{background:#d7f2df;color:#137a3a}.pfu-badge.b{background:#d4ecfb;color:#0a5f8f}.pfu-badge.a{background:#fdeccb;color:#9a5b00}.pfu-badge.r{background:#fbdcdc;color:#b3261e}.pfu-badge.gray{background:#e6e9ed;color:#5a6672}.pfu-badge.p{background:#e8e0fb;color:#5b34c0}.pfu-badge.c{background:#cdeff0;color:#0b6b72}
+    .pfu-badge.g{background:#d7f2df;color:#137a3a}.pfu-badge.b{background:#d4ecfb;color:#0a5f8f}.pfu-badge.a{background:#fdeccb;color:#9a5b00}.pfu-badge.r{background:#fbdcdc;color:#b3261e}.pfu-badge.gray{background:#e6e9ed;color:#5a6672}.pfu-badge.p{background:#e8e0fb;color:#5b34c0}.pfu-badge.c{background:#cdeff0;color:#0b6b72}.pfu-badge.d{background:#123e8c;color:#dbe8ff}
     .pfu-select{font-size:12px;font-weight:700;padding:5px 10px;border-radius:11px;border:1px solid var(--border);cursor:pointer;outline:none;max-width:240px;font-family:inherit;background:var(--card);color:var(--text1)}
     .pfu-select option{background:#0b1e3d;color:#E8F4FF}
     .pfu-select:focus{box-shadow:0 0 0 2px rgba(0,180,216,.35)}
@@ -8102,7 +8102,7 @@ var PFU_STAGES=['Project Info collection','PQ','Bidding','Reviewing','Negotiatio
 var PFU_NUM=['\u2460','\u2461','\u2462','\u2463','\u2464','\u2465'];
 var PFU_STAGE_CLS={'Project Info collection':'gray','PQ':'a','Bidding':'b','Reviewing':'a','Negotiation':'p','Result':'g'};
 var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-qualification)','3 \u00b7 Bidding','4 \u00b7 Reviewing','5 \u00b7 Negotiation','6 \u00b7 Result (Won / Lost)'];
-var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0'],c:['#cdeff0','#0b6b72']};
+var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0'],c:['#cdeff0','#0b6b72'],d:['#123e8c','#dbe8ff']};
 var PFU_TASK_STATUS=['Pending','In Progress','Completed','Overdue'];
 var pfuCurId=null;
 var pfuPanelOpen=false; /* side "Projects" panel hidden by default; toggle to show */
@@ -8225,7 +8225,7 @@ function pfuBidStageLabel(v){
   var s=String(v==null?'':v).toLowerCase(); if(!s)return null;
   if(s.indexOf('potential')>-1||s.indexOf('潜在')>-1)return {label:'Potential',cls:'a',raw:String(v)};
   if(s.indexOf('follow')>-1||s.indexOf('track')>-1||s.indexOf('跟踪')>-1)return {label:'Follow up',cls:'b',raw:String(v)};
-  if(s.indexOf('bidding')>-1||s.indexOf('投标')>-1)return {label:'Bidding',cls:'c',raw:String(v)};
+  if(s.indexOf('bidding')>-1||s.indexOf('投标')>-1)return {label:'Bidding',cls:'d',raw:String(v)};
   if(s.indexOf('won')>-1||s.indexOf('中标')>-1)return {label:'Won',cls:'g',raw:String(v)};
   if(s.indexOf('cancel')>-1||s.indexOf('取消')>-1)return {label:'Cancelled',cls:'r',raw:String(v)};
   var t=String(v).split('/')[0].trim(); return {label:t||String(v),cls:'gray',raw:String(v)};
@@ -8329,7 +8329,7 @@ function pfuRenderDetail(){
     +'<button class="pfu-btn sm" id="pfuPanelToggle" onclick="pfuTogglePanel()">\ud83d\udcc1 Projects</button>'
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
-    +(function(){var _b=pfuBidStageOf(p.name);return _b?('<span class="pfu-badge '+_b.cls+'" title="From Bid Tracking / 投标追踪状态: '+pfuEsc(_b.raw)+'">'+pfuEsc(_b.label)+'</span>'):'';})()
+
     +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
@@ -8339,6 +8339,7 @@ function pfuRenderDetail(){
     h+='<div>'+kv[1]+'<b data-edit data-f="'+kv[0]+'">'+pfuEsc(p[kv[0]]||'\u2014')+'</b></div>';
   });
   h+='<div>Progress<b style="border-bottom:none">'+(p.progress==null?0:p.progress)+'% <span class="pfu-auto-tag" title="Auto-calculated: completed stages / 6">auto</span></b></div>';
+  h+=(function(){var _b=pfuBidStageOf(p.name);return _b?'<div>Bid Stage<b style="border-bottom:none"><span class="pfu-badge '+_b.cls+'" title="From Bid Tracking / 投标追踪状态: '+pfuEsc(_b.raw)+'">'+pfuEsc(_b.label)+'</span></b></div>':'';})();
   h+='</div></div>';
   h+='<div class="pfu-pipe">';
   PFU_STAGES.forEach(function(s,i){
