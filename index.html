@@ -704,6 +704,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <!-- Bid Project Tracking sub-tabs: list view | Project Follow-up -->
     <div id="bidsSubTabsRow" style="display:none;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);position:sticky;top:81px;z-index:40;background:var(--bg1);">
       <button id="bidsSubTabTable" onclick="bidsSwitchView('table')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--blue);background:transparent;border:none;border-bottom:2px solid var(--blue);cursor:pointer;margin-bottom:-1px;">📊 投标列表 / Bid Tracking</button>
+      <button id="bidsSubTabVerify" onclick="bidsSwitchView('verify')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">✅ Project verification</button>
       <button id="bidsSubTabTracking" onclick="bidsSwitchView('tracking')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">🏗️ Project Follow-up</button>
     </div>
     <div id="bs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
@@ -783,6 +784,10 @@ input[type="date"]::-moz-calendar-picker-indicator {
         </div>
         <div id="pfuDetail"></div>
       </div>
+    </div>
+    <!-- ================= PROJECT VERIFICATION (5 steps + MR-001 PIC form) ================= -->
+    <div id="bidsVerifyContainer" style="display:none">
+      <iframe id="bidsVerifyFrame" title="Project verification — Stage 1" data-src="pfu-verify.html" style="width:100%;height:calc(100vh - 150px);min-height:780px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);display:block"></iframe>
     </div>
     <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
       <div style="grid-column:1/-1;display:flex;justify-content:flex-end;margin-bottom:8px;">
@@ -4033,6 +4038,7 @@ function sm(m){
   document.getElementById('bf').style.display='none';
   var _bst=document.getElementById('bidsSubTabsRow'); if(_bst)_bst.style.display='none';
   var _btc=document.getElementById('bidsTrackingContainer'); if(_btc)_btc.style.display='none';
+  var _bvc=document.getElementById('bidsVerifyContainer'); if(_bvc)_bvc.style.display='none';
   document.getElementById('sum').style.display='none';
   document.getElementById('win123Container').style.display='none';
   document.getElementById('plan2026Section').style.display='none';
@@ -8207,23 +8213,27 @@ window.dcShowHistoryDetail = showHistoryDetail;
 var bidsView='table';
 
 function bidsSwitchView(v){
-  bidsView=(v==='tracking')?'tracking':'table';
+  bidsView=(v==='tracking')?'tracking':((v==='verify')?'verify':'table');
   bidsApplyView();
 }
 function bidsApplyView(){
-  var showTable=(bidsView!=='tracking');
+  var showTable=(bidsView==='table'),showTrack=(bidsView==='tracking'),showVerify=(bidsView==='verify');
   var tT=document.getElementById('bidsSubTabTable');
   var tK=document.getElementById('bidsSubTabTracking');
-  if(tT){tT.style.color=showTable?'var(--blue)':'var(--text2)';tT.style.borderBottomColor=showTable?'var(--blue)':'transparent';}
-  if(tK){tK.style.color=showTable?'var(--text2)':'var(--blue)';tK.style.borderBottomColor=showTable?'transparent':'var(--blue)';}
+  var tV=document.getElementById('bidsSubTabVerify');
+  function _st(el,on){if(!el)return;el.style.color=on?'var(--blue)':'var(--text2)';el.style.borderBottomColor=on?'var(--blue)':'transparent';}
+  _st(tT,showTable);_st(tK,showTrack);_st(tV,showVerify);
   if(mod!=='bids')return;
   var bs=document.getElementById('bs'),bf=document.getElementById('bf'),tc=document.querySelector('.tc'),ct=document.getElementById('bidsTrackingContainer');
   if(bs)bs.style.display=showTable?'grid':'none';
   if(bf)bf.style.display=showTable?'flex':'none';
   if(tc)tc.style.display=showTable?'block':'none';
-  if(ct)ct.style.display=showTable?'none':'block';
+  if(ct)ct.style.display=showTrack?'block':'none';
+  var cv=document.getElementById('bidsVerifyContainer');
+  if(cv)cv.style.display=showVerify?'block':'none';
+  if(showVerify){var fr=document.getElementById('bidsVerifyFrame');if(fr&&!fr.getAttribute('src'))fr.setAttribute('src',fr.getAttribute('data-src'));}
   if(showTable){setBidsFilter(bidsFilter);}
-  else{pfuRenderAll();}
+  else if(showTrack){pfuRenderAll();}
 }
 
 /* ---------- Project Follow-up (data + render) ---------- */
