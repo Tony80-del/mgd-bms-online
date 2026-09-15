@@ -8231,7 +8231,11 @@ function bidsApplyView(){
   if(ct)ct.style.display=showTrack?'block':'none';
   var cv=document.getElementById('bidsVerifyContainer');
   if(cv)cv.style.display=showVerify?'block':'none';
-  if(showVerify){var fr=document.getElementById('bidsVerifyFrame');if(fr&&!fr.getAttribute('src'))fr.setAttribute('src',fr.getAttribute('data-src'));}
+  if(showVerify){
+    var fr=document.getElementById('bidsVerifyFrame');
+    if(fr&&!fr.getAttribute('src'))fr.setAttribute('src',fr.getAttribute('data-src'));
+    if(fr&&!fr._fit){fr._fit=setInterval(function(){try{var _d=fr.contentDocument;if(!_d||!_d.body)return;var _h=_d.body.scrollHeight;if(_h>400){var _n=Math.min(3400,Math.max(780,_h+12));if(Math.abs((parseFloat(fr.style.height)||0)-_n)>14)fr.style.height=_n+'px';}}catch(e){}},900);}
+  }
   if(showTable){setBidsFilter(bidsFilter);}
   else if(showTrack){pfuRenderAll();}
 }
