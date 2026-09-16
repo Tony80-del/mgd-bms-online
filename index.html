@@ -707,13 +707,20 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button id="bidsSubTabVerify" onclick="bidsSwitchView('verify')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">✅ Project verification</button>
       <button id="bidsSubTabTracking" onclick="bidsSwitchView('tracking')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">🏗️ Project Follow-up</button>
     </div>
-    <div id="bs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+    <div id="bs" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div class="sc ai" style="animation-delay:.1s"><div class="text-[var(--muted)] text-sm mb-1" id="s1">项目信息 / Project Info</div><div class="text-2xl font-bold text-blue-400" id="c1">0</div></div>
-      <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s2">投标中 / Bidding</div><div class="text-2xl font-bold text-amber-400" id="c2">0</div></div>
-      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s3c">潜在 / Potential</div><div class="text-2xl font-bold text-purple-400" id="c3">0</div></div>
-      <div class="sc ai" style="animation-delay:.4s"><div class="text-[var(--muted)] text-sm mb-1" id="s4">跟踪 / Following</div><div class="text-2xl font-bold text-emerald-400" id="c4">0</div></div>
-      <div class="sc ai" style="animation-delay:.5s"><div class="text-[var(--muted)] text-sm mb-1" id="s5">分类统计 / Category</div><div class="flex gap-3 mt-1"><span class="text-lg font-bold text-emerald-400">A: <span id="ca">0</span></span><span class="text-lg font-bold text-amber-400">B: <span id="cba">0</span></span></div></div>
-      <div class="sc ai" style="animation-delay:.6s"><div class="text-[var(--muted)] text-sm mb-1" id="s6">预估总额 / Est. Total Value</div><div class="text-2xl font-bold text-cyan-400" id="totalValue">0</div></div>
+      <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s5">分类统计 / Category</div><div class="flex gap-3 mt-1"><span class="text-lg font-bold text-emerald-400">A: <span id="ca">0</span></span><span class="text-lg font-bold text-amber-400">B: <span id="cba">0</span></span></div></div>
+      <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s6">预估总额 / Est. Total Value</div><div class="text-2xl font-bold text-cyan-400" id="totalValue">0</div></div>
+      <div style="grid-column:1/-1">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div class="sc ai" style="animation-delay:.4s"><div class="text-[var(--muted)] text-xs mb-1">1 · Project Info collection</div><div class="text-2xl font-bold text-slate-300" id="cst1">0</div></div>
+          <div class="sc ai" style="animation-delay:.45s"><div class="text-[var(--muted)] text-xs mb-1">2 · PQ</div><div class="text-2xl font-bold text-amber-400" id="cst2">0</div></div>
+          <div class="sc ai" style="animation-delay:.5s"><div class="text-[var(--muted)] text-xs mb-1">3 · Bidding</div><div class="text-2xl font-bold text-cyan-400" id="cst3">0</div></div>
+          <div class="sc ai" style="animation-delay:.55s"><div class="text-[var(--muted)] text-xs mb-1">4 · Reviewing</div><div class="text-2xl font-bold text-purple-400" id="cst4">0</div></div>
+          <div class="sc ai" style="animation-delay:.6s"><div class="text-[var(--muted)] text-xs mb-1">5 · Negotiation</div><div class="text-2xl font-bold text-pink-400" id="cst5">0</div></div>
+          <div class="sc ai" style="animation-delay:.65s"><div class="text-[var(--muted)] text-xs mb-1">6 · Result</div><div class="text-2xl font-bold text-emerald-400" id="cst6">0</div></div>
+        </div>
+      </div>
     </div>
     <div id="cs" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" style="display:none">
       <div class="sc ai"><div class="text-[var(--muted)] text-sm mb-1">2025客户 / 2025</div><div class="text-2xl font-bold text-purple-400" id="cust2025">0</div></div>
@@ -1360,7 +1367,7 @@ function autoFillEmail(){
 }
 
 function getFields(m){
-  if(m==='bids')return[{k:'customerName',l:t('f1'),tp:'text',r:1},{k:'projectName',l:t('f2'),tp:'text',r:1,ed:true},{k:'location',l:t('f3'),tp:'text',r:1,ed:true},{k:'landArea',l:t('f4'),tp:'text',ph:t('ph4'),ed:true},{k:'trackDate',l:t('f5'),tp:'date',r:1,ed:true},{k:'stage',l:t('f6'),tp:'sel',opt:[t('s2'),t('s3'),t('s4'),t('s6'),t('s7'),t('s8')],r:1,ed:true},{k:'nextActionDate',l:t('f26'),tp:'date',ed:true},{k:'nextActionContent',l:t('f27'),tp:'text',ed:true},{k:'notes',l:t('f22'),tp:'ta',ed:true},{k:'personInCharge',l:t('f7'),tp:'text',ed:true},{k:'email',l:t('f8'),tp:'email',ed:true},{k:'category',l:t('f9'),tp:'sel',opt:[t('catA'),t('catB')]},{k:'estimatedValue',l:t('f10'),tp:'text',ph:t('ph10')},{k:'startDate',l:t('f24'),tp:'date',ed:true},{k:'stageContent',l:t('f25'),tp:'sel',opt:[t('s2'),t('s11'),t('s5'),t('s9'),t('s10')],ed:true}];
+  if(m==='bids')return[{k:'customerName',l:t('f1'),tp:'text',r:1},{k:'projectName',l:t('f2'),tp:'text',r:1,ed:true},{k:'location',l:t('f3'),tp:'text',r:1,ed:true},{k:'landArea',l:t('f4'),tp:'text',ph:t('ph4'),ed:true},{k:'trackDate',l:t('f5'),tp:'date',r:1,ed:true},{k:'stage',l:t('f6'),tp:'sel',opt:['1 · Project Info collection','2 · PQ','3 · Bidding','4 · Reviewing','5 · Negotiation','6 · Result'],r:1,ed:true},{k:'nextActionDate',l:t('f26'),tp:'date',ed:true},{k:'nextActionContent',l:t('f27'),tp:'text',ed:true},{k:'notes',l:t('f22'),tp:'ta',ed:true},{k:'personInCharge',l:t('f7'),tp:'text',ed:true},{k:'email',l:t('f8'),tp:'email',ed:true},{k:'category',l:t('f9'),tp:'sel',opt:[t('catA'),t('catB')]},{k:'estimatedValue',l:t('f10'),tp:'text',ph:t('ph10')},{k:'startDate',l:t('f24'),tp:'date',ed:true},{k:'stageContent',l:t('f25'),tp:'sel',opt:[t('s2'),t('s11'),t('s5'),t('s9'),t('s10')],ed:true}];
   if(m==='customers'){
     const opts = getOptionsHistory();
     return[{k:'companyName',l:t('f11'),tp:'text',r:1},{k:'companyBusiness',l:t('f11b'),tp:'sel',opt:opts.companyBusiness},{k:'contactPerson',l:t('f12'),tp:'text',r:1},{k:'position',l:t('f12b'),tp:'sel',opt:opts.position},{k:'phone',l:t('f13'),tp:'text'},{k:'email',l:t('f14'),tp:'email'},{k:'country',l:t('f14b'),tp:'sel',opt:opts.country},{k:'priority',l:t('f14c'),tp:'sel',opt:[t('p1'),t('p2'),t('p3')]},{k:'createdDate',l:t('f23'),tp:'date',r:1}];
@@ -3749,30 +3756,19 @@ function renderJuneChambers(){
 }
 
 function updateStats(){
-  const sm={
-    '潜在':'c3','潜在 / Potential':'c3','Potential':'c3','Potential / 潜在':'c3',
-    '中标':'c5','中标 / Won':'c5','Won':'c5','Won / 中标':'c5',
-    '未中标':'c5','未中标 / Lost':'c5','Lost':'c5','Lost / 未中标':'c5'
-  };
-  // 阶段内容映射(基于 stageContent,非投标阶段 stage)
-  const scm={
-    '投标中':'c2','投标中 / Bidding':'c2','Bidding':'c2','Bidding / 投标中':'c2',
-    '跟踪':'c4','跟踪 / Following':'c4','Following':'c4','Following / 跟踪':'c4','跟踪 / Follow up':'c4','Follow up':'c4','Follow up / 跟踪':'c4',
-    '潜在':'c3','潜在 / Potential':'c3','Potential':'c3','Potential / 潜在':'c3'
-  };
-  const c={c1:0,c2:0,c3:0,c4:0,c5:0,ca:0,cba:0};
+  const c={c1:0,ca:0,cba:0};
   // 项目统计:跟随 Summary 页面 sumBidsTotal
   c.c1 = data.bids.length;
-  // 阶段统计:排除已取消,基于 stageContent
-  data.bids.forEach(b=>{
-    if(b.inactive) return;
-    // 优先用阶段内容判断投标中/跟踪
-    const scKey=scm[b.stageContent];
-    if(scKey){c[scKey]++;return;}
-    // 其他阶段走原逻辑
-    const k=sm[b.stage];
-    if(k) c[k]++;
-  });
+  // 6 张阶段卡:按 Bid Tracking 的 Stage 列(Project Follow-up 六阶段)统计,排除已取消
+  (function(){
+    var st=[0,0,0,0,0,0];
+    data.bids.forEach(function(b){
+      if(b.inactive)return;
+      var i=(typeof bidStageIdx==='function')?bidStageIdx(b.stage):-1;
+      if(i>=0)st[i]++;
+    });
+    for(var k=0;k<6;k++){var el=document.getElementById('cst'+(k+1)); if(el)el.textContent=st[k];}
+  })();
   // 统计分类(含已取消)
   c.ca = data.bids.filter(b=>b.category==='A'||b.category==='A工程').length;
   c.cba = data.bids.filter(b=>b.category==='B'||b.category==='B工程').length;
@@ -3905,13 +3901,15 @@ function renderRow(item,rowIdx){
     const firstCls=x.k===firstMod?' col-customer':'';
     const firstStyle=x.k===firstMod?' position:sticky;left:0;z-index:10;background:var(--bg2);':'';
     if(x.k==='stage'){
+      const st=String(item.stage==null?'':item.stage).trim();
       const cls={
-        '资格预审':'bdg1','资格预审 / Pre-qualification':'bdg1','Pre-qualification':'bdg1','Pre-qualification / 资格预审':'bdg1',
-        '投标中':'bdg2','投标中 / Bidding':'bdg2','Bidding':'bdg2','Bidding / 投标中':'bdg2',
-        '评审中':'bdg3','评审中 / Reviewing':'bdg3','Reviewing':'bdg3','Reviewing / 评审中':'bdg3',
-        '中标':'bdg4','中标 / Won':'bdg4','Won':'bdg4','Won / 中标':'bdg4',
-        '未中标':'bdg5','未中标 / Lost':'bdg5','Lost':'bdg5','Lost / 未中标':'bdg5'
-      }[item.stage]||'';
+        '1 · Project Info collection':'bdg1','1 - Project Info collection':'bdg1','1. Project Info collection':'bdg1','1 Project Info collection':'bdg1',
+        '2 · PQ':'bdg2','2 - PQ':'bdg2','2. PQ':'bdg2','2 PQ':'bdg2',
+        '3 · Bidding':'bdg3','3 - Bidding':'bdg3','3. Bidding':'bdg3','3 Bidding':'bdg3',
+        '4 · Reviewing':'bdg4','4 - Reviewing':'bdg4','4. Reviewing':'bdg4','4 Reviewing':'bdg4',
+        '5 · Negotiation':'bdgA','5 - Negotiation':'bdgA','5. Negotiation':'bdgA','5 Negotiation':'bdgA',
+        '6 · Result':'bdgB','6 - Result':'bdgB','6. Result':'bdgB','6 Result':'bdgB'
+      }[st]||'';
       v='<span class="bdg '+cls+'">'+v+'</span>';
     }
     if(x.k==='status'){
@@ -8362,7 +8360,52 @@ function pfuApplyBid(p,b){
   if(n)p.filledFromBid=b.projectName||b.customerName||'';
   return n;
 }
-function pfuFillFromBid(p){ if(!p||!p.name)return 0; return pfuApplyBid(p,pfuMatchBid(p.name)); }
+/* ---- Bid Tracking Stage 列(第6列) 与 Project Follow-up 阶段统一 ---- */
+function bidStageIdx(v){
+  var s=String(v==null?'':v).trim().toLowerCase().replace(/\s+/g,' '); if(!s)return -1;
+  for(var i=0;i<PFU_STAGES.length;i++){
+    var n=PFU_STAGES[i].toLowerCase();
+    if(s===((i+1)+' \u00b7 '+n)||s===((i+1)+' - '+n)||s===((i+1)+'. '+n)||s===(i+1)+' '+n||s===n)return i;
+  }
+  return -1;
+}
+function pfuStageValue(i){var n=PFU_STAGES[i];return n?((i+1)+' \u00b7 '+n):'';}
+function pfuLegacyStageIdx(v){            /* 旧文字 -> 最近阶段(仅用于“带过来”) */
+  var i=bidStageIdx(v); if(i>=0)return i;
+  var s=String(v==null?'':v).trim().toLowerCase(); if(!s)return -1;
+  if(s.indexOf('pq')>-1||s.indexOf('资格')>-1)return 1;
+  if(s.indexOf('bidding')>-1||s.indexOf('投标中')>-1)return 2;
+  if(s.indexOf('review')>-1||s.indexOf('评审')>-1)return 3;
+  if(s.indexOf('negotiat')>-1)return 4;
+  if(s.indexOf('won')>-1||s.indexOf('中标')>-1||s.indexOf('result')>-1)return 5;
+  return -1;
+}
+/* 反向：PFU 阶段 -> 写回 Bid Tracking 的 Stage 列 */
+function pfuSyncStageToBid(p){
+  try{
+    var b=pfuMatchBid(p&&p.name); if(!b)return false;
+    var i=PFU_STAGES.indexOf(p.stage); if(i<0)return false;
+    var v=pfuStageValue(i); if(!v)return false;
+    if(String(b.stage==null?'':b.stage).trim()===v)return false;
+    b.stage=v; return true;
+  }catch(e){return false;}
+}
+function pfuFillFromBid(p){
+  if(!p||!p.name)return 0;
+  var b=pfuMatchBid(p.name);
+  var n=pfuApplyBid(p,b);
+  /* 正向：新建(还没有任何记录)的跟进项目，阶段自动跟随 Bid Tracking */
+  try{
+    if(b&&!(p.tasks||[]).length&&!(p.log||[]).length){
+      var i=pfuLegacyStageIdx(b.stage);
+      if(i>0&&PFU_STAGES[i]!==p.stage){
+        p.stage=PFU_STAGES[i]; p.badge=p.stage; p.badgeCls=PFU_STAGE_CLS[p.stage]||'b';
+        pfuEnsureStageStatus(p); p.progress=pfuProgress(p); n++;
+      }
+    }
+  }catch(e){}
+  return n;
+}
 /* bid content-stage badge (Potential / Follow up / Bidding / Cancelled / Won) shown in the PFU header row */
 function pfuBidStageLabel(v){
   var s=String(v==null?'':v).toLowerCase(); if(!s)return null;
@@ -8482,6 +8525,7 @@ function pfuSetResult(v){
   var p=pfuCur(); if(!p)return;
   if(!p.result)p.result={};
   p.result.status=v; p.result.date=pfuNow();
+  pfuSyncStageToBid(p);
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
@@ -8749,6 +8793,7 @@ function pfuFinalizeStage(){
     if(p.stageStatus[next]==='Pending')p.stageStatus[next]='In Progress';
   }
   p.progress=pfuProgress(p);
+  pfuSyncStageToBid(p);
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
@@ -8762,6 +8807,7 @@ function pfuSetStage(i){
   p.stage=s; p.badge=s; p.badgeCls=PFU_STAGE_CLS[s]||'b';
   if(p.stageStatus[s]==='Pending')p.stageStatus[s]='In Progress';
   p.progress=pfuProgress(p);
+  pfuSyncStageToBid(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
