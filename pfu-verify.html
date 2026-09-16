@@ -150,7 +150,7 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 .secwrap table{margin-top:0}
 .secttl .counts{align-items:center}
 @media print{.grph .car{display:none}table[id^="tb_"]{display:table!important}}
-.pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#0b1e3d;border:1px solid #0f2d50;border-radius:10px;padding:9px 12px;margin:12px 18px 0}
+.pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#0b1e3d;border:1px solid #0f2d50;border-radius:10px;padding:9px 12px;margin:14px 18px 0}
 .pbar .pl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7FB3D8}
 .pbar select{background:#071325;color:#E8F4FF;border:1px solid #0f2d50;border-radius:8px;padding:7px 10px;font-size:12.5px;min-width:340px;max-width:100%}
 .pbar select option{background:#0b1e3d;color:#E8F4FF}
@@ -204,18 +204,13 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 </style>
 </head>
 <body>
-<div class="bar">
-  <div class="plate"><img src="mgd-logo.png" alt="MGD"></div>
-  <div><h1>Stage 1 · Project verification</h1><div class="s">knock-out gates → project basics · relationship · documents &amp; tender → PIC form (MR-001)</div></div>
-  <div class="sp"></div>
-  <button class="btn" onclick="resetAll()">↺ Reset</button>
-  <button class="btn" onclick="window.print()">🖨 Print</button>
-</div>
 <div class="pbar">
   <span class="pl">Project</span>
   <select id="vpSel" onchange="vpPick(this.value)"><option value="">— loading —</option></select>
   <button class="btn" onclick="vpNewVerification()">＋ New verification</button>
   <button class="btn pri" onclick="vpSave(false)">💾 Save</button>
+  <button class="btn" onclick="resetAll()">↺ Reset</button>
+  <button class="btn" onclick="window.print()">🖨 Print</button>
   <span class="vptip" id="vpTip">…</span>
 </div>
 <div class="stepper" id="stepper"></div>
