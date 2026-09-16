@@ -150,6 +150,14 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 .secwrap table{margin-top:0}
 .secttl .counts{align-items:center}
 @media print{.grph .car{display:none}table[id^="tb_"]{display:table!important}}
+.pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#0b1e3d;border:1px solid #0f2d50;border-radius:10px;padding:9px 12px;margin:12px 18px 0}
+.pbar .pl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7FB3D8}
+.pbar select{background:#071325;color:#E8F4FF;border:1px solid #0f2d50;border-radius:8px;padding:7px 10px;font-size:12.5px;min-width:340px;max-width:100%}
+.pbar select option{background:#0b1e3d;color:#E8F4FF}
+.pbar .vptip{font-size:11.5px;color:#9fc6e6}
+.pbar .vptip.warn{color:#fbbf24}
+.pbar .vptip.ok{color:#4ade80}
+.pbar .vptip.saved{color:#4ade80}
 .sumcard{margin-top:26px;padding-top:4px;border-top:1px solid #1c3a63}
 .sumcard h2{font-size:15px;margin:14px 0 6px}
 
@@ -203,6 +211,13 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
   <button class="btn" onclick="resetAll()">↺ Reset</button>
   <button class="btn" onclick="window.print()">🖨 Print</button>
 </div>
+<div class="pbar">
+  <span class="pl">Project</span>
+  <select id="vpSel" onchange="vpPick(this.value)"><option value="">— loading —</option></select>
+  <button class="btn" onclick="vpNewVerification()">＋ New verification</button>
+  <button class="btn pri" onclick="vpSave(false)">💾 Save</button>
+  <span class="vptip" id="vpTip">…</span>
+</div>
 <div class="stepper" id="stepper"></div>
 <div class="prog"><i id="progBar"></i></div>
 <div id="expBox" style="display:none;margin:12px 18px 0;background:#0b1e3d;border:1px solid #0f2d50;border-radius:10px;padding:10px 12px">
@@ -213,15 +228,15 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 <main>
   <div class="pjhead">
     <div>
-      <div class="pjn">HERCHANG PLASTIC INDUSTRY INTL. CO. LTD</div>
+      <div class="pjn" id="vpPn">—</div>
       <div class="pjs">Stage 1 · project information · verification</div>
     </div>
     <div class="pjchips">
-      <div class="pjc"><b>Client</b><span>Herchang Plastic (Taiwan)</span></div>
-      <div class="pjc"><b>Est. Value</b><span>95B VND</span></div>
-      <div class="pjc"><b>Land Area</b><span>20,000 m²</span></div>
+      <div class="pjc"><b>Client</b><span id="vpClient">—</span></div>
+      <div class="pjc"><b>Est. Value</b><span id="vpValue">—</span></div>
+      <div class="pjc"><b>Land Area</b><span id="vpLand">—</span></div>
       <div class="pjc"><b>Gross Area</b><span id="pjArea">—</span></div>
-      <div class="pjc"><b>Stage</b><span class="badge b-C" style="font-size:10.5px">Project Info collection</span></div>
+      <div class="pjc"><b>Stage</b><span class="badge b-C" style="font-size:10.5px" id="vpStageBadge">—</span></div>
     </div>
   </div>
   <div id="panes"></div>
@@ -445,6 +460,102 @@ function calcKO(){var hit=false;
   g('koBanner').className='banner'+(hit?' on':'');
   try{var ft=g('footTxt');if(ft){var TT=TITLES();ft.innerHTML='Step '+(STEPI+1)+' of '+NSTEP+' \u00b7 <b>'+TT[STEPI]+'</b>'+(hit&&STEPI===0?' \u2014 <span style="color:#fca5a5">knock-out gate ticked: STOP</span>':'');}}catch(e){}
   return hit;}
+/* ===== Project verification: project picker + save into BMS data (data.verify) ===== */
+var VP={bidId:null,bids:[],mode:'standalone',dirty:false,timer:null};
+function vpParent(){try{var p=window.parent;if(p&&p!==window&&p.data&&p.saveData)return p;}catch(e){}return null;}
+function vpDemoBid(){return {id:'DEMO-HERCHANG',projectName:'HP-VSIP3',customerName:'HERCHANG PLASTIC INDUSTRY INTL. CO. LTD',location:'VSIP III, Binh Duong',landArea:'20,000',estimatedValue:'95000000000',personInCharge:'Mr. Luo Yu Sheng',stageContent:'Bidding / 投标中'};}
+function vpBids(){var p=vpParent();if(p&&p.data&&p.data.bids&&p.data.bids.length){VP.mode='bms';return p.data.bids;}VP.mode='standalone';return [vpDemoBid()];}
+function vpStore(){var p=vpParent();if(!p)return null;if(!p.data.verify)p.data.verify={};return p.data.verify;}
+function vpRec(id){var s=vpStore();return (s&&id&&s[id])?s[id]:null;}
+function vpCurBid(){for(var i=0;i<VP.bids.length;i++)if(VP.bids[i].id===VP.bidId)return VP.bids[i];return null;}
+function vpShort(x){return String(x==null?'':x).split('/')[0].trim();}
+function vpBidValue(v){var t=String(v==null?'':v);var n=num(t);if(n&&n<10000){if(/billion|\bb\b/i.test(t))n*=1e9;else if(/million|\bm\b/i.test(t))n*=1e6;}return n;}
+function vpMoney(v){var n=vpBidValue(v);if(!n)return '';return (n>=1e9?(fm(n/1e9,2).replace(/\.00$/,'')+'B'):fm(n))+' VND';}
+function vpStage4(txt){var x=String(txt==null?'':txt);if(/bidd|投标/i.test(x))return 'Bidding';if(/pq|pre-?qualif|资格/i.test(x))return 'PQ';if(/design|legal|设计|法/i.test(x))return 'Design & Legal';return '';}
+function vpSeedFromBid(b){
+  if(!b)return;
+  var map={'0_1':String(b.projectName||'').trim(),'0_2':String(b.customerName||'').trim(),'0_3':String(b.location||'').trim(),
+           '0_4':String(b.landArea||'').trim(),'0_9':vpStage4(b.stageContent||b.stage),
+           '0_38':(vpBidValue(b.estimatedValue)?String(vpBidValue(b.estimatedValue)):''),
+           '1_1':String(b.personInCharge||'').trim()};
+  Object.keys(map).forEach(function(k){if(ST[k]&&map[k]!==''){ST[k]={v:map[k],s:'Told'};}});
+}
+function vpHeader(b){if(!b)return;
+  var set=function(id,txt){var e=g(id);if(e)e.textContent=(txt==null||txt==='')?'—':txt;};
+  set('vpPn',String(b.projectName||'').trim());
+  set('vpClient',String(b.customerName||'').trim());
+  set('vpValue',vpMoney(b.estimatedValue));
+  set('vpLand',(num(b.landArea)?fm(num(b.landArea))+' m²':''));
+  set('vpStageBadge',vpShort(b.stageContent||b.stage));
+}
+function vpStatus(txt,cls){var e=g('vpTip');if(e){e.textContent=txt;e.className='vptip'+(cls?' '+cls:'');}}
+function vpBuildPicker(){
+  var sel=g('vpSel');if(!sel)return;
+  var h='<option value="">— select a project from Bid Tracking —</option>';
+  VP.bids.forEach(function(b){
+    var rec=vpRec(b.id);
+    h+='<option value="'+String(b.id).replace(/"/g,'')+'">'+(rec?'✓ ':'')+vpShort(b.projectName||b.customerName||'(no name)')+' — '+String(b.customerName||'').slice(0,34)+' · '+vpShort(b.stageContent||b.stage||'')+'</option>';
+  });
+  sel.innerHTML=h;
+}
+function vpPick(id){
+  if(!id){return;}
+  if(VP.dirty&&VP.bidId)vpSave(true);
+  VP.bidId=id;
+  var b=vpCurBid()||vpDemoBid();
+  SEC.forEach(function(sec,si){sec.items.forEach(function(it,ii){if(it.grp)return;ST[si+'_'+ii]={v:'',s:'Missing'};});});
+  vpSeedFromBid(b);
+  buildPanes();buildStepper();
+  KO.forEach(function(_,ki){var e=g('ko_'+ki);if(e)e.checked=false;});
+  var rec=vpRec(id);
+  if(rec){
+    if(rec.st)Object.keys(rec.st).forEach(function(k){if(ST[k]&&rec.st[k]){ST[k].v=rec.st[k].v;ST[k].s=rec.st[k].s;}});
+    if(rec.ko)rec.ko.forEach(function(x,ki){var e=g('ko_'+ki);if(e)e.checked=!!x;});
+  }
+  vpHeader(b);vpDirty(false);
+  paint();go(0);
+  var sel=g('vpSel');if(sel)sel.value=id;
+  if(rec)vpStatus('Loaded saved verification · '+String(rec.savedAt||''),'ok');
+  else vpStatus(VP.mode==='bms'?'New verification — fill the steps ①→⑤, then 💾 Save':'Standalone mode (no BMS behind) — saved in this browser only','warn');
+  try{localStorage.setItem('verify_last',id);}catch(e){}
+}
+function vpNewVerification(){
+  var next=null,sel=g('vpSel');
+  for(var i=0;i<VP.bids.length;i++){if(!vpRec(VP.bids[i].id)){next=VP.bids[i].id;break;}}
+  if(!next){vpStatus('Every project in Bid Tracking already has a verification — pick one above to edit.','warn');if(sel)sel.focus();return;}
+  if(sel)sel.value=next;
+  vpPick(next);
+}
+function vpDirty(d){VP.dirty=!!d;if(d)vpStatus('Unsaved changes — press 💾 Save','warn');}
+function vpNow(){var d=new Date();return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function vpSave(quiet){
+  if(!VP.bidId)return;
+  var p=vpParent(),b=vpCurBid()||vpDemoBid();
+  var snap={bidId:VP.bidId,project:String(b.projectName||''),client:String(b.customerName||''),
+    ko:KO.map(function(_,ki){var e=g('ko_'+ki);return e?!!e.checked:false;}),
+    st:JSON.parse(JSON.stringify(ST)),
+    meta:{conf:(g('cTotal')?g('cTotal').textContent:''),items:(g('cItems')?g('cItems').textContent:''),gross:sumSize()},
+    savedAt:vpNow(),savedBy:'Project verification tab',ver:1};
+  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({ko:snap.ko,st:snap.st}));}catch(e){}
+  if(!p){vpDirty(false);vpStatus('Standalone mode — saved in this browser only','warn');vpBuildPicker();return;}
+  if(!p.data.verify)p.data.verify={};
+  p.data.verify[VP.bidId]=snap;
+  try{p.saveData();}catch(e){}
+  vpDirty(false);vpBuildPicker();
+  var sel=g('vpSel');if(sel)sel.value=VP.bidId;
+  vpStatus('Saved '+snap.savedAt+' ✓ — synced into BMS'+((snap.meta.conf)?' ('+snap.meta.conf+' data confidence)':''),'saved');
+}
+function vpInit(){
+  VP.bids=vpBids();
+  vpBuildPicker();
+  var last=null;try{last=localStorage.getItem('verify_last');}catch(e){}
+  var pick=null;
+  if(last){for(var i=0;i<VP.bids.length;i++)if(VP.bids[i].id===last)pick=last;}
+  if(!pick){for(var j=0;j<VP.bids.length;j++){if(vpRec(VP.bids[j].id)){pick=VP.bids[j].id;break;}}}
+  if(!pick&&VP.bids.length)pick=VP.bids[0].id;
+  if(pick)vpPick(pick);
+  else vpStatus('No projects in Bid Tracking yet','warn');
+}
 function paint(){
   var OPTn=0,OPTf=0,tot=0,sum=0,V=0,T=0,M=0,N=0,miss=[],weak=[];
   SEC.forEach(function(sec,si){
@@ -644,6 +755,7 @@ function expUI(on){var b=g('expBox');if(!b)return;var ta=g('expTa');
     b.style.display='block';try{ta.focus();ta.select();}catch(e){}}else{b.style.display='none';}}
 function resetAll(){KO.forEach(function(t,i){g('ko_'+i).checked=false;});
   SEC.forEach(function(sec,si){sec.items.forEach(function(it,ii){if(it.grp)return;ST[si+'_'+ii]={v:it.v||'',s:it.v?'Told':'Missing'};});});
+  try{vpSeedFromBid(vpCurBid());}catch(e){}
   buildPanes();buildStepper();go(0);}
 /* read the last session BEFORE anything repaints (paint() writes to storage) */
 var _SV=null;try{_SV=JSON.parse(localStorage.getItem('pfu_verify_demo_v3')||'null');}catch(e){}
@@ -656,6 +768,7 @@ try{
   }
 }catch(e){}
 paint();go(0);
+try{vpInit();}catch(e){vpStatus('picker error: '+e,'warn');}
 </script>
 </body>
 </html>
