@@ -397,7 +397,7 @@ function buildStepper(){
   g('stepper').innerHTML=T.map(function(s,i){
     return (i?'<div class="bar"></div>':'')+'<div class="step" id="stp'+i+'" onclick="go('+i+')"><div class="dot">'+(i+1)+'</div><div class="lb">'+s+'<div class="small">'+U[i]+'</div></div></div>';}).join('');
   g('koWrap').innerHTML=KO.map(function(t,i){
-    return '<label class="ko" id="koLab'+i+'"><input type="checkbox" id="ko_'+i+'" onchange="calcKO()"><span>'+esc(t)+'</span></label>';}).join('');
+    return '<label class="ko" id="koLab'+i+'"><input type="checkbox" id="ko_'+i+'" onchange="calcKO();vpMarkEdit()"><span>'+esc(t)+'</span></label>';}).join('');
   SEC.forEach(function(sec,si){
     var blocks=[],cur=null;
     sec.items.forEach(function(it,ii){
@@ -445,15 +445,15 @@ function buildStepper(){
   });
   paint();
 }
-function setV(id,v){ST[id].v=v;paint();}
-function setS(id,v){ST[id].s=v;paint();}
+function setV(id,v){ST[id].v=v;vpMarkEdit();paint();}
+function setS(id,v){ST[id].s=v;vpMarkEdit();paint();}
 function setSize(id){
   var L=g('L_'+id).value,W=g('W_'+id).value,F=g('F_'+id).value;
   ST[id].v=(L||'')+' x '+(W||'')+' x '+(F||'');
   var a=sizeArea(ST[id].v);
   g('ar_'+id).textContent=fm(a);
   if(!L&&!W)ST[id].s='Missing';
-  paint();
+  vpMarkEdit();paint();
 }
 function calcKO(){var hit=false;
   KO.forEach(function(t,i){var on=g('ko_'+i).checked;g('koLab'+i).className='ko'+(on?' hit':'');if(on)hit=true;});
@@ -462,10 +462,20 @@ function calcKO(){var hit=false;
   return hit;}
 /* ===== Project verification: project picker + save into BMS data (data.verify) ===== */
 var VP={bidId:null,bids:[],mode:'standalone',dirty:false,timer:null};
-function vpParent(){try{var p=window.parent;if(p&&p!==window&&p.data&&p.saveData)return p;}catch(e){}return null;}
+function vpBridge(){try{var p=window.parent;if(p&&p!==window&&p.__bmsVerifyBridge)return p.__bmsVerifyBridge;}catch(e){}return null;}
+function vpParent(){try{var p=window.parent;if(p&&p!==window&&p.__bmsVerifyBridge)return p;if(p&&p!==window&&p.data&&p.saveData)return p;}catch(e){}return null;}
 function vpDemoBid(){return {id:'DEMO-HERCHANG',projectName:'HP-VSIP3',customerName:'HERCHANG PLASTIC INDUSTRY INTL. CO. LTD',location:'VSIP III, Binh Duong',landArea:'20,000',estimatedValue:'95000000000',personInCharge:'Mr. Luo Yu Sheng',stageContent:'Bidding / 投标中'};}
-function vpBids(){var p=vpParent();if(p&&p.data&&p.data.bids&&p.data.bids.length){VP.mode='bms';return p.data.bids;}VP.mode='standalone';return [vpDemoBid()];}
-function vpStore(){var p=vpParent();if(!p)return null;if(!p.data.verify)p.data.verify={};return p.data.verify;}
+function vpBids(){
+  var br=vpBridge();
+  if(br){var bs=br.getBids();if(bs&&bs.length){VP.mode='bms';return bs;}VP.mode='bms';return [];}
+  var p=vpParent();
+  if(p&&p.data&&p.data.bids&&p.data.bids.length){VP.mode='bms';return p.data.bids;}
+  VP.mode='standalone';return [vpDemoBid()];
+}
+function vpStore(){
+  var br=vpBridge();if(br)return br.getVerify();
+  var p=vpParent();if(!p)return null;if(!p.data.verify)p.data.verify={};return p.data.verify;
+}
 function vpRec(id){var s=vpStore();return (s&&id&&s[id])?s[id]:null;}
 function vpCurBid(){for(var i=0;i<VP.bids.length;i++)if(VP.bids[i].id===VP.bidId)return VP.bids[i];return null;}
 function vpShort(x){return String(x==null?'':x).split('/')[0].trim();}
@@ -526,6 +536,7 @@ function vpNewVerification(){
   if(sel)sel.value=next;
   vpPick(next);
 }
+function vpMarkEdit(){try{if(VP.bidId)vpDirty(true);}catch(e){}}
 function vpDirty(d){VP.dirty=!!d;if(d)vpStatus('Unsaved changes — press 💾 Save','warn');}
 function vpNow(){var d=new Date();return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
 function vpSave(quiet){
@@ -538,9 +549,9 @@ function vpSave(quiet){
     savedAt:vpNow(),savedBy:'Project verification tab',ver:1};
   try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({ko:snap.ko,st:snap.st}));}catch(e){}
   if(!p){vpDirty(false);vpStatus('Standalone mode — saved in this browser only','warn');vpBuildPicker();return;}
-  if(!p.data.verify)p.data.verify={};
-  p.data.verify[VP.bidId]=snap;
-  try{p.saveData();}catch(e){}
+  var br=vpBridge();
+  if(br){var st=br.getVerify();st[VP.bidId]=snap;try{br.save();}catch(e){}}
+  else{if(!p.data.verify)p.data.verify={};p.data.verify[VP.bidId]=snap;try{p.saveData();}catch(e){}}
   vpDirty(false);vpBuildPicker();
   var sel=g('vpSel');if(sel)sel.value=VP.bidId;
   vpStatus('Saved '+snap.savedAt+' ✓ — synced into BMS'+((snap.meta.conf)?' ('+snap.meta.conf+' data confidence)':''),'saved');

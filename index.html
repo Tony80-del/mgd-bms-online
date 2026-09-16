@@ -8896,6 +8896,14 @@ window.pfuSetLogItemStatus=pfuSetLogItemStatus;
 window.pifOpen=pifOpen;
 window.pifClose=pifClose;
 window.pifSave=pifSave;
+/* bridge for the embedded Project verification page (same-origin iframe) */
+window.__bmsVerifyBridge={
+  v:1,
+  getData:function(){return data;},
+  getBids:function(){return (data&&data.bids)?data.bids:[];},
+  getVerify:function(){if(!data.verify)data.verify={};return data.verify;},
+  save:function(){try{saveData();}catch(e){}}
+};
 window.bidsSwitchView=bidsSwitchView;
 window.bidsApplyView=bidsApplyView;
 window.pfuPick=pfuPick;
