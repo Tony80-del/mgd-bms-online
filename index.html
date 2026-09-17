@@ -363,6 +363,19 @@
     .mo{position:fixed;inset:0;background:rgba(3,9,18,0.8);backdrop-filter:blur(8px);display:flex;align-items:flex-start;justify-content:center;z-index:100;opacity:0;visibility:hidden;transition:all .3s;padding:20px 0;overflow-y:auto}
     .mo.active{opacity:1;visibility:visible}
     #bf button.active{background:var(--blue);color:#fff}
+/* --- Bid filter pills (icon + count) --- */
+#bf{flex-wrap:wrap}
+#bf button.bfbtn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--border);color:var(--text1);font-size:13px;cursor:pointer;transition:transform .15s,background .15s,border-color .15s}
+#bf button.bfbtn:hover{background:var(--cardh);border-color:var(--blue);transform:translateY(-1px)}
+#bf button.bfbtn .bfi{font-size:14px;line-height:1}
+#bf button.bfbtn .bfn{min-width:22px;text-align:center;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:var(--text2)}
+#bf button.bfbtn#bfAll .bfn{color:#cbd5e1}
+#bf button.bfbtn#bfBidding .bfn{color:#fbbf24}
+#bf button.bfbtn#bfTracking .bfn{color:#38bdf8}
+#bf button.bfbtn#bfPotential .bfn{color:#34d399}
+#bf button.bfbtn#bfCancelled .bfn{color:#f87171}
+#bf button.bfbtn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+#bf button.bfbtn.active .bfn{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.45);color:#fff}
     .mc{background:var(--card);border:1px solid rgba(0,180,216,0.2);border-radius:20px;padding:24px;max-width:550px;width:90%;transform:scale(0.9);transition:transform .3s;margin:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5),0 0 40px rgba(0,180,216,0.05)}
     .mo.active .mc{transform:scale(1)}
     .mform{max-height:75vh;overflow-y:auto;padding-right:8px;margin-bottom:8px}
@@ -712,6 +725,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <div class="sc ai" style="animation-delay:.2s"><div class="text-[var(--muted)] text-sm mb-1" id="s5">分类统计 / Category</div><div class="flex gap-3 mt-1"><span class="text-lg font-bold text-emerald-400">A: <span id="ca">0</span></span><span class="text-lg font-bold text-amber-400">B: <span id="cba">0</span></span></div></div>
       <div class="sc ai" style="animation-delay:.3s"><div class="text-[var(--muted)] text-sm mb-1" id="s6">预估总额 / Est. Total Value</div><div class="text-2xl font-bold text-cyan-400" id="totalValue">0</div></div>
       <div style="grid-column:1/-1">
+        <div class="text-xs text-[var(--muted)] mb-2">📌 跟随 Project Follow-up 阶段 · 共 <span id="cstTotal">0</span> 个跟进项目 / From Project Follow-up stages</div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div class="sc ai" style="animation-delay:.4s"><div class="text-[var(--muted)] text-xs mb-1">1 · Project Info collection</div><div class="text-2xl font-bold text-slate-300" id="cst1">0</div></div>
           <div class="sc ai" style="animation-delay:.45s"><div class="text-[var(--muted)] text-xs mb-1">2 · PQ</div><div class="text-2xl font-bold text-amber-400" id="cst2">0</div></div>
@@ -769,12 +783,12 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </select>
     </div>
     <div id="bf" class="flex gap-2 mb-4 items-center" style="display:none">
-      <span class="text-sm text-[var(--muted)]">筛选:</span>
-      <button onclick="setBidsFilter('all')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfAll">全部 / All</button>
-      <button onclick="setBidsFilter('bidding')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfBidding">投标中 / Bidding</button>
-      <button onclick="setBidsFilter('tracking')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfTracking">追踪 / Tracking</button>
-      <button onclick="setBidsFilter('potential')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfPotential">潜在 / Potential</button>
-      <button onclick="setBidsFilter('cancelled')" class="px-3 py-1.5 rounded-lg bg-[var(--card)] hover:bg-[var(--cardh)] text-sm cursor-pointer" id="bfCancelled">已取消 / Cancelled</button>
+      <span class="text-sm text-[var(--muted)]">筛选 / Filter:</span>
+      <button onclick="setBidsFilter('all')" class="bfbtn" id="bfAll"><span class="bfi">📋</span>全部 / All<span class="bfn">0</span></button>
+      <button onclick="setBidsFilter('bidding')" class="bfbtn" id="bfBidding"><span class="bfi">⚡</span>投标中 / Bidding<span class="bfn">0</span></button>
+      <button onclick="setBidsFilter('tracking')" class="bfbtn" id="bfTracking"><span class="bfi">🎯</span>追踪 / Tracking<span class="bfn">0</span></button>
+      <button onclick="setBidsFilter('potential')" class="bfbtn" id="bfPotential"><span class="bfi">🌱</span>潜在 / Potential<span class="bfn">0</span></button>
+      <button onclick="setBidsFilter('cancelled')" class="bfbtn" id="bfCancelled"><span class="bfi">🚫</span>已取消 / Cancelled<span class="bfn">0</span></button>
     </div>
     <!-- ================= PROJECT DETAIL TRACKING (Project Follow-up) ================= -->
     <div id="bidsTrackingContainer" style="display:none">
@@ -3774,15 +3788,31 @@ function updateStats(){
   const c={c1:0,ca:0,cba:0};
   // 项目统计:跟随 Summary 页面 sumBidsTotal
   c.c1 = data.bids.length;
-  // 6 张阶段卡:按 Bid Tracking 的 Stage 列(Project Follow-up 六阶段)统计,排除已取消
+  // 6 张阶段卡:跟随 Project Follow-up 的阶段 1-6,统计跟进项目数(方案 A)
   (function(){
-    var st=[0,0,0,0,0,0];
-    data.bids.forEach(function(b){
-      if(b.inactive)return;
-      var i=(typeof bidStageIdx==='function')?bidStageIdx(b.stage):-1;
-      if(i>=0)st[i]++;
+    var P=(typeof PFU_STAGES!=='undefined')?PFU_STAGES:['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
+    var st=[0,0,0,0,0,0],tot=0;
+    (data.projectTracking||[]).forEach(function(p){
+      var i=P.indexOf(p.stage);
+      if(i>=0){st[i]++;tot++;}
     });
     for(var k=0;k<6;k++){var el=document.getElementById('cst'+(k+1)); if(el)el.textContent=st[k];}
+    var t=document.getElementById('cstTotal'); if(t)t.textContent=tot;
+  })();
+  // 筛选按钮计数(与 renderTable 完全同一口径)
+  (function(){
+    var d=data.bids||[];
+    var eq=function(v,arr){return arr.indexOf(v)>=0;};
+    var nAll=d.length;
+    var nBid=d.filter(function(b){return !b.inactive&&eq(b.stageContent,['投标中','投标中 / Bidding','Bidding','Bidding / 投标中']);}).length;
+    var nTrk=d.filter(function(b){return !b.inactive&&eq(b.stageContent,['跟踪','跟踪 / Following','Following','Following / 跟踪','跟踪 / Follow up','Follow up','Follow up / 跟踪']);}).length;
+    var nPot=d.filter(function(b){return !b.inactive&&eq(b.stageContent,['潜在','潜在 / Potential','Potential','Potential / 潜在']);}).length;
+    var nCan=d.filter(function(b){return b.inactive||eq(b.stageContent,['已取消','已取消 / Cancelled','Cancelled','Cancelled / 已取消']);}).length;
+    var m={bfAll:nAll,bfBidding:nBid,bfTracking:nTrk,bfPotential:nPot,bfCancelled:nCan};
+    Object.keys(m).forEach(function(id){
+      var btn=document.getElementById(id); if(!btn)return;
+      var pill=btn.querySelector('.bfn'); if(pill)pill.textContent=m[id];
+    });
   })();
   // 统计分类(含已取消)
   c.ca = data.bids.filter(b=>b.category==='A'||b.category==='A工程').length;
