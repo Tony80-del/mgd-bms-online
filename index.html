@@ -9726,7 +9726,7 @@ function calPass(a){
   return true;
 }
 function calItems(dISO){return calAll().filter(function(a){return a.interactionDate===dISO&&calPass(a);});}
-function calInitState(){var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();if(!CAL.sel)CAL.sel=calIso(t);}
+function calInitState(){if(CAL.y)return;var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();if(!CAL.sel)CAL.sel=calIso(t);}
 function calPickDay(s){CAL.sel=s;var d=calParse(s);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();}
 function calShift(n){var d=new Date(CAL.y,CAL.m+n,1);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();}
 function calToday(){var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();CAL.sel=calIso(t);calRender();}
