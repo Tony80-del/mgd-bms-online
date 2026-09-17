@@ -2276,16 +2276,29 @@ function momGetData(){
   return data.meetingMinutes;
 }
 function momGetRec(){var d=momGetData();return d.records.filter(function(r){return r.id===momCurrentId;})[0];}
+/* 记住最后查看的 MOM + 最后使用的子标签（Meeting Minutes 页面保持上次查看的那一份） */
+function momSaveLast(id){try{if(id)localStorage.setItem('bms_mom_last',id);}catch(e){}}
+function momRestoreLast(){
+  try{
+    var id=localStorage.getItem('bms_mom_last')||'';
+    if(id){var d=momGetData();if((d.records||[]).some(function(r){return r.id===id;})){momCurrentId=id;}}
+  }catch(e){}
+  return momCurrentId;
+}
+function momSavedSub(){try{return localStorage.getItem('bms_wr_sub')||'report';}catch(e){return 'report';}}
 function wrSwitchSub(which){
   var r=document.getElementById('wrSubReport'),m=document.getElementById('wrSubMom');
   var tr=document.getElementById('wrSubTabReport'),tm=document.getElementById('wrSubTabMom');
   if(!r||!m)return;
+  try{localStorage.setItem('bms_wr_sub',which);}catch(e){}
   if(which==='mom'){
     r.style.display='none';m.style.display='block';
     tm.style.color='var(--blue)';tm.style.borderBottomColor='var(--blue)';
     tr.style.color='var(--text2)';tr.style.borderBottomColor='transparent';
     var d=momGetData();
+    if(!momCurrentId)momRestoreLast();
     if(!momCurrentId)momCurrentId=(d.records[0]||{}).id||null;
+    momSaveLast(momCurrentId);
     momRenderList();momRenderSheet();
   }else{
     m.style.display='none';r.style.display='block';
@@ -2301,9 +2314,11 @@ function momRenderList(){
       +'<div class="ti">'+momEsc(rec.title)+'</div>'
       +'<div class="mt"><span>'+momEsc(rec.date)+'</span><span>'+momCountActions(rec.actions)+' actions</span></div></div>';
   }).join('');
+  var _act=el.querySelector('.mom-mitem.act');
+  if(_act&&_act.scrollIntoView){try{_act.scrollIntoView({block:'nearest'});}catch(e){}}
 }
 function momCountActions(ac){if(!ac||!ac.length)return 0;if(ac[0]&&ac[0].items)return ac.reduce(function(s,g){return s+((g.items||[]).length);},0);return ac.length;}
-function momPick(id){momCollect();momCurrentId=id;momRenderList();momRenderSheet();}
+function momPick(id){momCollect();momCurrentId=id;momSaveLast(id);momRenderList();momRenderSheet();}
 function momNormActions(ac){
   if(!ac||!ac.length)ac=[{topic:'',items:[]}];
   var _new={task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'};
@@ -2480,7 +2495,7 @@ function momAddMeeting(){
   var nd=new Date();var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var dateStr=nd.getDate()+' '+mo[nd.getMonth()]+' '+nd.getFullYear()+' ('+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()]+')';
   d.records.unshift({id:id,title:'New Meeting',date:dateStr,time:'',project:'',location:'',chair:'',recorder:'',attendees:'',absent:'—',preparedBy:'',approvedBy:'',distribution:'',agenda:[{topic:'',items:['']}],actions:[{topic:'',items:[{task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:'—'}]}]});
-  momCurrentId=id;momRenderList();momRenderSheet();
+  momCurrentId=id;momSaveLast(id);momRenderList();momRenderSheet();
 }
 function momSave(){momCollect();saveData();momRenderList();if(typeof showToast==='function')showToast('✅ Meeting Minutes saved');else if(typeof toast==='function')toast('Meeting Minutes saved');}
 function momPrint(){
@@ -4115,6 +4130,7 @@ function sm(m){
     document.querySelector('.tc').style.display='none';
     wrUpdateDisplay();
     wrSwitchUser(wrCurrentUser);
+    wrSwitchSub(momSavedSub());
   }else if(m==='docstorage'){
     var dsC=document.getElementById('docstorageContainer');
     if(dsC){
