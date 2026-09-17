@@ -65,7 +65,8 @@
     .pfu-item.res-won:hover{border-color:rgba(34,197,94,.8)}
     .pfu-item.res-won .pb{background:rgba(34,197,94,.22)}
     .pfu-item.res-won .pb i{background:#22c55e}
-    .pfu-head{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+    .pfu-head{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:14px;position:sticky;top:123px;z-index:35;box-shadow:0 8px 20px rgba(0,0,0,.28)}
+@media print{.pfu-head{position:static!important;box-shadow:none!important}}
     .pfu-head .row1{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
     .pfu-head h2{font-size:19px;font-weight:800}
     .pfu-head .cl{font-size:11.5px;color:var(--text2);margin-top:2px}
