@@ -1084,6 +1084,141 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </div><!-- /#wrSubMom -->
     </div>
 
+    <style id="calxStyle">
+      .calx-wrap{display:grid;grid-template-columns:1fr 336px;gap:16px;align-items:start}
+      .calx-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+      .calx-main{min-width:0}
+      .calx-mhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+      .calx-mtitle{font-size:17px;font-weight:800;color:var(--text1)}
+      .calx-mcount{font-size:11.5px;color:var(--text2);margin-top:3px}
+      .calx-btn{font:inherit;font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);cursor:pointer}
+      .calx-btn:hover{border-color:var(--blue);background:var(--cardh)}
+      .calx-btn.pri{background:linear-gradient(135deg,var(--blue),var(--cyan));border:none;color:#02121f}
+      .calx-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+      .calx-dow div{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);text-align:center}
+      .calx-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+      .calx-day{min-height:80px;border:1px solid var(--border);border-radius:11px;padding:6px 7px;background:var(--bg2);cursor:pointer;overflow:hidden}
+      .calx-day:hover{border-color:var(--blue);background:var(--cardh)}
+      .calx-day.out{opacity:.34}
+      .calx-day.today{border-color:var(--cyan);box-shadow:inset 0 0 0 1px rgba(6,214,199,.35)}
+      .calx-day.sel{border-color:var(--blue);background:rgba(0,180,216,.10)}
+      .calx-dn{font-size:11.5px;font-weight:700;color:var(--text2);display:flex;justify-content:space-between}
+      .calx-day.today .calx-dn .num{background:var(--cyan);color:#02121f;border-radius:6px;padding:0 5px}
+      .calx-chip{display:block;width:100%;text-align:left;margin-top:4px;font-size:10px;padding:2px 6px;border-radius:6px;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.06);border-left:3px solid var(--muted);color:var(--text1)}
+      .calx-chip.done{opacity:.5;text-decoration:line-through}
+      .calx-chip.overdue{background:rgba(239,68,68,.14);border-left-color:#ef4444}
+      .calx-chip.logged{opacity:.72;border-left-color:#94a3b8}
+      .calx-more{font-size:9.5px;color:var(--text2);margin-top:2px}
+      .calx-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--text2)}
+      .calx-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+      .calx-side{display:flex;flex-direction:column;gap:12px}
+      .calx-ct{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:9px}
+      .calx-lab{display:block;font-size:10.5px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin:9px 0 5px}
+      .calx-navrow{display:flex;gap:7px;align-items:center}
+      .calx-nav{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);font-size:15px;cursor:pointer;flex:0 0 auto}
+      .calx-nav:hover{border-color:var(--blue);background:var(--cardh)}
+      .calx-mrow{flex:1;text-align:center;font-size:13px;font-weight:700;color:var(--text1)}
+      .calx-inp{width:100%;font:inherit;font-size:12.5px;background:var(--bg2);color:var(--text1);border:1px solid var(--border);border-radius:9px;padding:7px 9px;outline:none}
+      .calx-inp:focus{border-color:var(--blue)}
+      .calx-inp option{background:#0b1e3d;color:#E8F4FF}
+      .calx-chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text1);margin:7px 0;cursor:pointer}
+      .calx-chk input{accent-color:var(--blue);width:15px;height:15px}
+      .calx-krow{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(15,45,80,.6)}
+      .calx-krow:last-child{border-bottom:none}
+      .calx-krow b{font-weight:800;color:var(--text1)}
+      .calx-dayTitle{font-size:14.5px;font-weight:800;color:var(--text1)}
+      .calx-daySub{font-size:11px;color:var(--text2);margin:3px 0 9px}
+      .calx-item{border:1px solid var(--border);border-radius:10px;padding:7px 9px;margin-bottom:7px;background:var(--bg2);cursor:pointer}
+      .calx-item:hover{border-color:var(--blue)}
+      .calx-item .r1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+      .calx-item .cu{font-size:12.5px;font-weight:700;color:var(--text1)}
+      .calx-item .meta{font-size:10.5px;color:var(--text2);margin-top:3px;white-space:normal}
+      .calx-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid var(--border);white-space:nowrap}
+      .calx-tag.planned{color:#93c5fd;border-color:#1e40af;background:rgba(59,130,246,.12)}
+      .calx-tag.done{color:#86efac;border-color:#166534;background:rgba(34,197,94,.12)}
+      .calx-tag.overdue{color:#fca5a5;border-color:#7f1d1d;background:rgba(239,68,68,.12)}
+      .calx-tag.logged{color:#cbd5e1;border-color:#334155;background:rgba(148,163,184,.12)}
+      .calx-empty{font-size:11.5px;color:var(--muted);padding:10px 0;text-align:center}
+      .calx-agenda{padding:0;margin:0}
+      .calx-ago{display:flex;gap:9px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(15,45,80,.6);font-size:12px;list-style:none;cursor:pointer;color:var(--text1)}
+      .calx-ago:hover{color:var(--cyan)}
+      .calx-ago .d{font-size:10.5px;color:var(--text2);min-width:54px}
+      .calx-ago .c{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      @media(max-width:1080px){.calx-wrap{grid-template-columns:1fr}}
+      @media print{.calx-side{display:none!important}}
+    </style>
+    <!-- ==== Customer Interactions: Records | Calendar sub-tabs ==== -->
+    <div id="custSubTabsRow" style="display:none;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);position:sticky;top:81px;z-index:40;background:var(--bg1);">
+      <button id="custSubTabRecords" onclick="custSwitchView('records')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--blue);background:transparent;border:none;border-bottom:2px solid var(--blue);cursor:pointer;margin-bottom:-1px;">📇 Records</button>
+      <button id="custSubTabCalendar" onclick="custSwitchView('calendar')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📅 Calendar</button>
+    </div>
+    <div id="custCalContainer" style="display:none">
+      <div class="calx-wrap">
+        <div class="calx-card calx-main">
+          <div class="calx-mhead">
+            <div>
+              <div class="calx-mtitle" id="calxTitle">—</div>
+              <div class="calx-mcount" id="calxCount"></div>
+            </div>
+            <button class="calx-btn" onclick="calToday()">Today</button>
+          </div>
+          <div class="calx-dow"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
+          <div class="calx-grid" id="calxGrid"></div>
+          <div class="calx-legend">
+            <span><i style="background:#a78bfa"></i>🤝 Meeting</span><span><i style="background:#fbbf24"></i>🚶 Visit</span>
+            <span><i style="background:#38bdf8"></i>📞 Phone</span><span><i style="background:#34d399"></i>✉️ Email</span>
+            <span><i style="background:#94a3b8"></i>📌 Other</span>
+            <span><i style="background:#ef4444"></i>Overdue (was planned, date passed)</span>
+            <span><i style="background:#22c55e"></i>Completed (struck)</span>
+            <span><i style="background:#94a3b8"></i>Logged (interaction done / follow-up open)</span>
+          </div>
+        </div>
+        <div class="calx-side">
+          <div class="calx-card">
+            <div class="calx-ct">⚙️ Settings</div>
+            <label class="calx-lab">Month</label>
+            <div class="calx-navrow">
+              <button class="calx-nav" onclick="calShift(-1)">‹</button>
+              <div class="calx-mrow" id="calxMonth">—</div>
+              <button class="calx-nav" onclick="calShift(1)">›</button>
+            </div>
+            <label class="calx-lab">PIC</label>
+            <select class="calx-inp" id="calxPic" onchange="calRender()"><option value="all">All PIC</option></select>
+            <label class="calx-lab">Type</label>
+            <select class="calx-inp" id="calxType" onchange="calRender()">
+              <option value="all">All types</option>
+              <option value="Meeting">🤝 Meeting</option><option value="Visit">🚶 Visit</option>
+              <option value="Phone">📞 Phone</option><option value="Email">✉️ Email</option><option value="Other">📌 Other</option>
+            </select>
+            <label class="calx-lab">Status</label>
+            <select class="calx-inp" id="calxStat" onchange="calRender()">
+              <option value="all">All statuses</option><option value="planned">Planned</option>
+              <option value="overdue">Overdue</option><option value="done">Completed</option>
+              <option value="logged">Logged</option>
+            </select>
+            <div style="margin-top:9px">
+              <label class="calx-chk"><input type="checkbox" id="calxDone" checked onchange="calRender()">Show logged / completed</label>
+              <label class="calx-chk"><input type="checkbox" id="calxOv" checked onchange="calRender()">Show overdue</label>
+            </div>
+            <div class="calx-ct" style="margin-top:12px">This month</div>
+            <div class="calx-krow"><span>Interactions</span><b id="calxK1">0</b></div>
+            <div class="calx-krow"><span>Today</span><b id="calxK2">0</b></div>
+            <div class="calx-krow"><span>Planned (future)</span><b id="calxK5" style="color:#93c5fd">0</b></div>
+            <div class="calx-krow"><span>Overdue</span><b id="calxK3" style="color:#ef4444">0</b></div>
+            <div class="calx-krow"><span>Completed</span><b id="calxK4" style="color:#22c55e">0</b></div>
+            <div class="calx-krow"><span>Logged (open)</span><b id="calxK6" style="color:#94a3b8">0</b></div>
+          </div>
+          <div class="calx-card" id="calxDay"></div>
+          <div class="calx-card">
+            <div class="calx-ct">⏰ Upcoming · 30 days</div>
+            <ul class="calx-agenda" id="calxUp"></ul>
+            <div class="calx-ct" style="margin-top:10px">⚠️ Overdue follow-up</div>
+            <ul class="calx-agenda" id="calxOvList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="tc ai" style="animation-delay:.6s"><table id="dt"><thead></thead><tbody id="tb"></tbody></table></div>
   </div>
 <div id="docstorageContainer" class="mb-6" style="display:none;">
@@ -1348,6 +1483,7 @@ function updateUI(){
   const validMods=['summary','bids','customers','projects','chambers','quarterly','plan2026','weeklyreport','docstorage','docscollect'];
   const safeMod=validMods.includes(mod)?mod:'summary';
   ['ttl','sub','nd','nb','nc','ni','nch','nquarterly','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
+  if(typeof bkSyncAddBtn==='function')bkSyncAddBtn();
   document.getElementById('si').placeholder=t('sp');
   const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc'],docscollect:['ptDC','psDC']};
   document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
@@ -4066,6 +4202,7 @@ function sm(m){
     window.dcPrevModule = (typeof mod==='string' && mod) ? mod : 'summary';
   }
   mod=m;
+  if(typeof bkSyncAddBtn==='function')bkSyncAddBtn();
 
   // 更新菜单激活状态
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
@@ -4083,6 +4220,8 @@ function sm(m){
   var _bst=document.getElementById('bidsSubTabsRow'); if(_bst)_bst.style.display='none';
   var _btc=document.getElementById('bidsTrackingContainer'); if(_btc)_btc.style.display='none';
   var _bvc=document.getElementById('bidsVerifyContainer'); if(_bvc)_bvc.style.display='none';
+  var _cst=document.getElementById('custSubTabsRow'); if(_cst)_cst.style.display='none';
+  var _ccc=document.getElementById('custCalContainer'); if(_ccc)_ccc.style.display='none';
   document.getElementById('sum').style.display='none';
   document.getElementById('win123Container').style.display='none';
   document.getElementById('plan2026Section').style.display='none';
@@ -4195,7 +4334,8 @@ function sm(m){
     // Double-safety: re-scroll after render/layout settles
     setTimeout(function(){ window.scrollTo(0,0); }, 100);
   }else if(m==='projects'){
-    document.querySelector('.tc').style.display='block';
+    var _cstRow=document.getElementById('custSubTabsRow'); if(_cstRow)_cstRow.style.display='flex';
+    if(typeof custApplyView==='function'){custApplyView();}else{document.querySelector('.tc').style.display='block';}
     ['exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
   }else{
     document.querySelector('.tc').style.display='block';
@@ -5231,6 +5371,7 @@ function doSave(){
     updateSummary();
     renderTable();
     console.log('[SAVE] Table rendered');
+    if(typeof calSyncAfterSave==='function')calSyncAfterSave();
 
     eid = null;
     cm();
@@ -9550,5 +9691,144 @@ Project is at PQ stage. BOD to decide contractors go to bidding stage</textarea>
     </div>
   </div>
 </div>
+<script>
+/* ===================== Customer Interactions · Calendar (read-only view over data.projects) ===================== */
+var CAL={y:0,m:0,sel:'',view:'records'};
+var CAL_TYPE={Meeting:{ic:'\uD83E\uDD1D',n:'Meeting',c:'#a78bfa'},Visit:{ic:'\uD83D\uDEB6',n:'Visit',c:'#fbbf24'},
+              Phone:{ic:'\uD83D\uDCDE',n:'Phone',c:'#38bdf8'},Email:{ic:'\u2709\uFE0F',n:'Email',c:'#34d399'},
+              Other:{ic:'\uD83D\uDCCC',n:'Other',c:'#94a3b8'}};
+var CAL_MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var CAL_MON3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var CAL_WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function calIso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function calParse(s){var p=String(s||'').split('-');return new Date(+p[0]||1970,(+p[1]||1)-1,+p[2]||1);}
+function calToday0(){var d=new Date();d.setHours(0,0,0,0);return d;}
+function calEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function calType(a){var t=String((a&&a.interactionType)||'');
+  if(/Meeting|\u4f1a\u8bae/i.test(t))return 'Meeting';if(/Visit|\u62dc\u8bbf/i.test(t))return 'Visit';
+  if(/Phone|\u7535\u8bdd/i.test(t))return 'Phone';if(/Email|\u90ae\u4ef6/i.test(t))return 'Email';return 'Other';}
+function calStat(a){var st=String((a&&a.status)||'');
+  if(/\u5f85\u8ddf\u8fdb|Pending/i.test(st))return (calParse(a.interactionDate)<calToday0())?'overdue':'planned';
+  if(/\u5df2\u5b8c\u6210|Completed/i.test(st))return 'done';
+  // \u8fdb\u884c\u4e2d / \u7a7a\uff1a\u4e92\u52a8\u5df2\u53d1\u751f\uff08\u8ddf\u8fdb\u4ecd\u5f00\u653e\uff09\u2192 logged\uff08\u4e0d\u7b97\u903e\u671f\uff09
+  return (calParse(a.interactionDate)<calToday0())?'logged':'planned';}
+function calAll(){return (typeof data!=='undefined'&&data&&data.projects)?data.projects.filter(function(a){return a&&a.interactionDate;}):[];}
+function calPass(a){
+  var gv=function(id,d){var e=document.getElementById(id);return e?e.value:d;};
+  var gc=function(id,d){var e=document.getElementById(id);return e?!!e.checked:d;};
+  var fp=gv('calxPic','all'),ft=gv('calxType','all'),fs=gv('calxStat','all'),sd=gc('calxDone',true),so=gc('calxOv',true);
+  var st=calStat(a);
+  if(!sd&&(st==='done'||st==='logged'))return false;
+  if(!so&&st==='overdue')return false;
+  if(fp!=='all'&&String(a.personInCharge||'').trim()!==fp)return false;
+  if(ft!=='all'&&calType(a)!==ft)return false;
+  if(fs!=='all'&&st!==fs)return false;
+  return true;
+}
+function calItems(dISO){return calAll().filter(function(a){return a.interactionDate===dISO&&calPass(a);});}
+function calInitState(){var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();if(!CAL.sel)CAL.sel=calIso(t);}
+function calPickDay(s){CAL.sel=s;var d=calParse(s);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();}
+function calShift(n){var d=new Date(CAL.y,CAL.m+n,1);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();}
+function calToday(){var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();CAL.sel=calIso(t);calRender();}
+function calAddAt(s){ if(typeof openAddModal!=='function')return;
+  CAL.sel=s||CAL.sel; openAddModal();
+  setTimeout(function(){ var el=document.querySelector('#mf [data-k="interactionDate"]');
+    if(el){ el.value=CAL.sel; if(el._flatpickr){try{el._flatpickr.setDate(CAL.sel,false);}catch(e){}} } },80);
+}
+function calEdit(id){ if(typeof editItem==='function')editItem(id); }
+function calSyncAfterSave(){var c=document.getElementById('custCalContainer');if(c&&c.style.display!=='none')calRender();}
+function calPICList(){
+  var seen={},out=[],arr=calAll();
+  for(var i=0;i<arr.length;i++){var p=String(arr[i].personInCharge||'').trim();if(p&&!seen[p]){seen[p]=1;out.push(p);}}
+  return out.sort();
+}
+function calRender(){
+  var g=document.getElementById('calxGrid'); if(!g)return;
+  calInitState();
+  var y=CAL.y,m=CAL.m,first=new Date(y,m,1),lead=(first.getDay()+6)%7,start=new Date(y,m,1-lead),t0=calToday0(),h='';
+  for(var i=0;i<42;i++){
+    var d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),s=calIso(d);
+    var out=(d.getMonth()!==m),isT=(d.getTime()===t0.getTime()),its=calItems(s);
+    h+='<div class="calx-day'+(out?' out':'')+(isT?' today':'')+(s===CAL.sel?' sel':'')+'" onclick="calPickDay(\''+s+'\')">';
+    h+='<div class="calx-dn"><span class="num">'+d.getDate()+'</span>'+(its.length?'<span>'+its.length+'</span>':'')+'</div>';
+    its.slice(0,3).forEach(function(a){var st=calStat(a),tk=calType(a);
+      h+='<span class="calx-chip '+st+'" title="'+calEsc(a.customerName+' \u00b7 '+CAL_TYPE[tk].n+' \u00b7 '+(a.interactionType||''))+'">'+
+         '<span style="color:'+CAL_TYPE[tk].c+'">'+CAL_TYPE[tk].ic+'</span> '+calEsc(String(a.customerName||'').slice(0,16))+'</span>';});
+    if(its.length>3)h+='<div class="calx-more">+'+(its.length-3)+' more</div>';
+    h+='</div>';
+  }
+  g.innerHTML=h;
+  var tt=document.getElementById('calxTitle'),mm=document.getElementById('calxMonth');
+  if(tt)tt.textContent=CAL_MON[m]+' '+y;
+  if(mm)mm.textContent=CAL_MON3[m]+' '+y;
+  var A=calAll().filter(calPass);
+  var mo=A.filter(function(a){var d=calParse(a.interactionDate);return d.getFullYear()===y&&d.getMonth()===m;});
+  var cnt=document.getElementById('calxCount');
+  if(cnt)cnt.textContent=mo.length+' interactions this month \u00b7 click a day to see the details';
+  var setK=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  setK('calxK1',mo.length);
+  setK('calxK2',A.filter(function(a){return a.interactionDate===calIso(t0);}).length);
+  setK('calxK3',A.filter(function(a){return calStat(a)==='overdue';}).length);
+  setK('calxK4',A.filter(function(a){return calStat(a)==='done';}).length);
+  setK('calxK5',A.filter(function(a){return calStat(a)==='planned';}).length);
+  setK('calxK6',A.filter(function(a){return calStat(a)==='logged';}).length);
+  // PIC 下拉
+  var ps=document.getElementById('calxPic');
+  if(ps){
+    var cur=ps.value,opts=calPICList();
+    ps.innerHTML='<option value="all">All PIC</option>'+opts.map(function(p){return '<option value="'+calEsc(p)+'">'+calEsc(p)+'</option>';}).join('');
+    ps.value=(opts.indexOf(cur)>=0)?cur:'all';
+  }
+  // 选中日
+  var el=document.getElementById('calxDay');
+  if(el){
+    var its=calItems(CAL.sel),dd=calParse(CAL.sel);
+    var dh='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
+      +'<div><div class="calx-dayTitle">'+CAL_WD[dd.getDay()]+', '+dd.getDate()+' '+CAL_MON3[dd.getMonth()]+' '+dd.getFullYear()+'</div>'
+      +'<div class="calx-daySub">'+its.length+' interaction(s)</div></div>'
+      +'<button class="calx-btn pri" onclick="calAddAt(\''+CAL.sel+'\')">+ New interaction</button></div>';
+    if(!its.length)dh+='<div class="calx-empty">No interaction on this day \u2014 use \u201c+ New interaction\u201d above</div>';
+    its.forEach(function(a){var tk=calType(a),st=calStat(a);
+      dh+='<div class="calx-item" onclick="calEdit(\''+a.id+'\')" title="Open this record">'
+        +'<div class="r1"><span class="cu">'+CAL_TYPE[tk].ic+' '+calEsc(a.customerName||'-')+'</span>'
+        +'<span class="calx-tag '+st+'">'+(st==='done'?'Completed':st==='overdue'?'Overdue':st==='logged'?'Logged':'Planned')+'</span></div>'
+        +'<div class="meta">'+calEsc(a.interactionType||'-')+' \u00b7 PIC '+calEsc(a.personInCharge||'-')+' \u00b7 '+calEsc(a.interactionDate||'')+'</div>'
+        +(a.content?'<div class="meta">\uD83D\uDCDD '+calEsc(String(a.content).slice(0,80))+'</div>':'')
+        +(a.nextStep?'<div class="meta">\u27A1\uFE0F Next: '+calEsc(String(a.nextStep).slice(0,70))+'</div>':'')+'</div>';});
+    el.innerHTML=dh;
+  }
+  // 列表
+  var up=A.filter(function(a){var diff=(calParse(a.interactionDate)-t0)/86400000;return calStat(a)==='planned'&&diff>=0&&diff<=30;})
+    .sort(function(x,y){return String(x.interactionDate).localeCompare(String(y.interactionDate));});
+  var ovl=A.filter(function(a){return calStat(a)==='overdue';}).sort(function(x,y){return String(y.interactionDate).localeCompare(String(x.interactionDate));});
+  var rows=function(arr){
+    if(!arr.length)return '<li class="calx-empty">none</li>';
+    return arr.slice(0,4).map(function(a){var dd=calParse(a.interactionDate),tk=calType(a);
+      return '<li class="calx-ago" onclick="calPickDay(\''+a.interactionDate+'\')"><span class="d">'+dd.getDate()+' '+CAL_MON3[dd.getMonth()]+'</span>'
+        +'<span class="c">'+CAL_TYPE[tk].ic+' '+calEsc(String(a.customerName||'').slice(0,18))+'</span></li>';}).join('');};
+  var u=document.getElementById('calxUp'); if(u)u.innerHTML=rows(up);
+  var o=document.getElementById('calxOvList'); if(o)o.innerHTML=rows(ovl);
+}
+function custSwitchView(v){
+  CAL.view=(v==='calendar')?'calendar':'records';
+  try{localStorage.setItem('bms_cust_view',CAL.view);}catch(e){}
+  var rec=(CAL.view!=='calendar');
+  var tc=document.querySelector('.tc'); if(tc)tc.style.display=rec?'block':'none';
+  var cc=document.getElementById('custCalContainer'); if(cc)cc.style.display=rec?'none':'block';
+  var br=document.getElementById('custSubTabRecords'),bc=document.getElementById('custSubTabCalendar');
+  if(br){br.style.color=rec?'var(--blue)':'var(--text2)';br.style.borderBottomColor=rec?'var(--blue)':'transparent';}
+  if(bc){bc.style.color=rec?'var(--text2)':'var(--blue)';bc.style.borderBottomColor=rec?'transparent':'var(--blue)';}
+  if(!rec)calRender();
+}
+function custApplyView(){
+  try{
+    var v='records'; try{v=localStorage.getItem('bms_cust_view')||'records';}catch(e){}
+    custSwitchView(v==='calendar'?'calendar':'records');
+  }catch(e){var tc=document.querySelector('.tc');if(tc)tc.style.display='block';}
+}
+function bkSyncAddBtn(){try{var b=document.getElementById('ba');if(!b)return;
+  var lbl='New Interactions'; if(!(typeof mod!=='undefined'&&mod==='projects')){lbl=(typeof t==='function')?t('ba'):'Add';}
+  b.textContent=lbl;}catch(e){}}
+</script>
 </body>
 </html>
