@@ -1521,7 +1521,8 @@ function loadData(){
   document.getElementById('lzh').classList.toggle('active',lang==='zh');
   document.getElementById('len').classList.toggle('active',lang==='en');
   const sd=localStorage.getItem('bms_data');
-  if(sd){data=JSON.parse(sd);if(!data.chambers)data.chambers=[];if(!data.planTracking)data.planTracking=null;
+  if(sd){data=JSON.parse(sd);if(data.quarterly)delete data.quarterly;// strip removed Quarterly Report leftovers
+    if(!data.chambers)data.chambers=[];if(!data.planTracking)data.planTracking=null;
   // 数据迁移:给 projects 添加 interactionCount 字段
   if(data.projects && Array.isArray(data.projects)){
     var migrated=0;
