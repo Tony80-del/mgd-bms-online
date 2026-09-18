@@ -673,7 +673,6 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div class="ni" onclick="sm('customers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span id="nc">客户管理</span></div>
     <div class="ni" onclick="sm('projects')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span id="ni">客户互动</span></div>
     <div class="ni" onclick="sm('chambers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span id="nch">商会信息</span></div>
-    <div class="ni" onclick="sm('quarterly')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span id="nquarterly"></span></div>
     <div class="ni" onclick="sm('plan2026')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg><span id="nplan"></span></div>
     <div class="ni" onclick="sm('weeklyreport')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Weekly Report</span></div>
     <div class="ni" onclick="sm('docstorage')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg><span>Documentation Storage</span></div>
@@ -965,35 +964,6 @@ input[type="date"]::-moz-calendar-picker-indicator {
         <button onclick="savePlanTracking()" id="planSaveBtn" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;gap:6px" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">💾 <span>保存 / Save</span></button>
       </div>
       <div id="planTrackingContainer" style="max-height:70vh;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:8px"></div>
-    </div>
-
-    <!-- Quarterly Report Page -->
-    <div id="quarterlyContainer" class="hidden mb-6">
-      <div id="quarterlyTabBar" style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:8px">
-        <button class="qrtab" data-q="Q1" onclick="switchQuarter('Q1')" style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--blue);color:#fff">Q1 <span id="q1BadgeTab"></span></button>
-        <button class="qrtab" data-q="Q2" onclick="switchQuarter('Q2')" style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text2)">Q2 <span id="q2BadgeTab"></span></button>
-        <button class="qrtab" data-q="Q3" onclick="switchQuarter('Q3')" style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text2)">Q3 <span id="q3BadgeTab"></span></button>
-        <button class="qrtab" data-q="Q4" onclick="switchQuarter('Q4')" style="padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text2)">Q4 <span id="q4BadgeTab"></span></button>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-          <span id="quarterlySaveStatus" style="font-size:11px;color:var(--muted)"></span>
-          <button onclick="saveQuarterlyActual(currentQuarterQ)" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s;white-space:nowrap" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">💾 保存 / Save</button>
-        </div>
-      </div>
-      <div id="quarterlyGrid">
-        <!-- rendered by renderQuarterly() -->
-      </div>
-      <!-- Quarterly Review box (kept outside renderQuarterly so quarter switches don't destroy input) -->
-      <div id="quarterlyReviewWrap" style="display:none;margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:15px">📝</span>
-            <span style="font-weight:700;font-size:14px" id="qrReviewTitle">Quarterly Review</span>
-            <span id="qrReviewQuarterTag" style="font-size:11px;background:var(--blue);color:#fff;padding:2px 10px;border-radius:10px">Q1</span>
-          </div>
-          <span style="font-size:11px;color:var(--muted)" id="qrReviewHint"></span>
-        </div>
-        <textarea id="qrReviewText" rows="5" placeholder="" style="width:100%;box-sizing:border-box;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text1);resize:vertical;outline:none;line-height:1.6" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-      </div>
     </div>
 
     <!-- Weekly Report Section -->
@@ -1433,7 +1403,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 </div>
 
 <script>
-const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nch:'商会信息',nq1:'季度1',nq2:'季度2',nquarterly:'季度报告',nq3:'季度3',nq4:'季度4',qt1:'第一季',qt2:'第二季',qt3:'第三季',qt4:'第四季',nplan:'计划2026',ptPlan:'计划2026',psPlan:'系统追踪清单 2026',ptQuarterly:'季度报告',psQuarterly:'Q1-Q4 季度销售与进度报告',ptWR:'Weekly Report',psWR:'业务部周报',ptDoc:'文档管理系统',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'季度1',q2Label:'季度2',q3Label:'季度3',q4Label:'季度4',qkMetric:'指标 / Metric',qkAnnual:'Q2目标\nAnnual',qkTarget:'季度目标\nQ Target',qkActual:'实际\nActual',qkNotes:'备注\nNotes',qkCompSales:'公司年营收\nCompany Sales',qkSmDept:'营销部营收\nS&M Dept',qkDirectProj:'直售项目\nDirect Projects',qkSupportProj:'支持项目\nSupporting Proj',qkNewContacts:'新联系人\nNew Contacts',qkConsultant:'顾问公司\nConsultant Firms',qkIndPark:'工业园\nIndustrial Parks',qkNewPartner:'新合作\nNew Partnerships',qkEvents:'活动参与\nEvent Participation',qkInteractions:'活跃互动\nActive Interactions',qkSystem:'系统采用\nSystem Adoption',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',s9:'潜在 / Potential',s10:'已取消 / Cancelled',s11:'跟踪 / Follow up',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollow-Up',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'···',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标',ncTarget:'年度目标: 160 · 2025 总计: 57'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nch:'Chambers',nq1:'Quarter 1',nq2:'Quarter 2',nquarterly:'Quarterly Report',nq3:'Quarter 3',nq4:'Quarter 4',qt1:'Quarter 1',qt2:'Quarter 2',qt3:'Quarter 3',qt4:'Quarter 4',nplan:'PLAN 2026',ptPlan:'PLAN 2026',psPlan:'System Tracking List 2026',ptQuarterly:'Quarterly Report',psQuarterly:'Q1-Q4 Quarterly Sales & Progress Report',ptWR:'Weekly Report',psWR:'Business Dept Weekly Report',ptDoc:'Documentation Storage',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',q1Badge:'Q1',q2Badge:'Q2',q3Badge:'Q3',q4Badge:'Q4',q1Label:'Quarter 1',q2Label:'Quarter 2',q3Label:'Quarter 3',q4Label:'Quarter 4',qkMetric:'Metric / 指标',qkAnnual:'Annual\nTarget',qkTarget:'Q Target\n(25%)',qkActual:'Actual',qkNotes:'Notes',qkCompSales:'Company Sales\n公司年营收',qkSmDept:'S&M Dept\n营销部营收',qkDirectProj:'Direct Projects\n直售项目',qkSupportProj:'Supporting Proj\n支持项目',qkNewContacts:'New Contacts\n新联系人',qkConsultant:'Consultant Firms\n顾问公司',qkIndPark:'Industrial Parks\n工业园',qkNewPartner:'New Partnerships\n新合作',qkEvents:'Event Participation\n活动参与',qkInteractions:'Active Interactions\n活跃互动',qkSystem:'System Adoption\n系统采用',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',s9:'Potential / 潜在',s10:'Cancelled / 已取消',s11:'Follow up / 跟踪',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Follow-Up',bidLegActive:'Bidding',bidLegWon:'Follow-Up',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'···',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List'
+const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nch:'商会信息',nplan:'计划2026',ptPlan:'计划2026',psPlan:'系统追踪清单 2026',ptWR:'Weekly Report',psWR:'业务部周报',ptDoc:'文档管理系统',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',s9:'潜在 / Potential',s10:'已取消 / Cancelled',s11:'跟踪 / Follow up',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollow-Up',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'···',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标',ncTarget:'年度目标: 160 · 2025 总计: 57'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nch:'Chambers',nplan:'PLAN 2026',ptPlan:'PLAN 2026',psPlan:'System Tracking List 2026',ptWR:'Weekly Report',psWR:'Business Dept Weekly Report',ptDoc:'Documentation Storage',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',s9:'Potential / 潜在',s10:'Cancelled / 已取消',s11:'Follow up / 跟踪',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Follow-Up',bidLegActive:'Bidding',bidLegWon:'Follow-Up',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'···',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List'
 ,win1t1:'Revenue 2026',win1t1_en:'Revenue 2026',win1t2:'Sale Dept revenue',win1t2_en:'Sale Dept revenue',win1t3:'Project Est. Value',win1t4:'Actual Target',ncTarget:'Annual target: 160 · 2025 total: 57',kpiGuide:'📊 KPI指标说明',kpiGuideEn:'KPI Metrics Guide',kpiAnnual:'Q2目标',kpiQTarget:'Q1目标',kpiRateGuide:'🎯 完成率标识',kpiRateOn:'🟢 ≥100% 达标',kpiRateNear:'🟡 80-99% 接近',kpiRateOff:'🔴 <80% 需改进'}};
 
 let lang='zh',data={bids:[],customers:[],projects:[],chambers:[]},mod='summary',eid=null,custYearFilter='all',custCountryFilter='all',chamberDateFilter='all',chamberMonthFilter='all',custSearchFilter='',custDateFilter='',bidsFilter='all';
@@ -1464,7 +1434,7 @@ function sl(l){
   lang=l;localStorage.setItem('bms_lang',l);
   document.getElementById('lzh').classList.toggle('active',l==='zh');
   document.getElementById('len').classList.toggle('active',l==='en');
-  updateUI();if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
+  updateUI();if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
   if(document.getElementById('md').classList.contains('active')){eid?editItem(eid):openAddModal();}
 }
 
@@ -1480,12 +1450,12 @@ function toggleWin1Lang(){
 
 function updateUI(){
   // 安全防护: 确保 mod 是有效值
-  const validMods=['summary','bids','customers','projects','chambers','quarterly','plan2026','weeklyreport','docstorage','docscollect'];
+  const validMods=['summary','bids','customers','projects','chambers','plan2026','weeklyreport','docstorage','docscollect'];
   const safeMod=validMods.includes(mod)?mod:'summary';
-  ['ttl','sub','nd','nb','nc','ni','nch','nquarterly','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
+  ['ttl','sub','nd','nb','nc','ni','nch','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
   if(typeof bkSyncAddBtn==='function')bkSyncAddBtn();
   document.getElementById('si').placeholder=t('sp');
-  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],quarterly:['ptQuarterly','psQuarterly'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc'],docscollect:['ptDC','psDC']};
+  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc'],docscollect:['ptDC','psDC']};
   document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
   // Freeze PLAN 2026 subtitle as English "System Tracking List 2026" (per user request)
   if(safeMod==='plan2026'){
@@ -1551,7 +1521,7 @@ function loadData(){
   document.getElementById('lzh').classList.toggle('active',lang==='zh');
   document.getElementById('len').classList.toggle('active',lang==='en');
   const sd=localStorage.getItem('bms_data');
-  if(sd){data=JSON.parse(sd);if(!data.chambers)data.chambers=[];if(!data.quarterly)data.quarterly={};if(!data.planTracking)data.planTracking=null;['Q1','Q2','Q3','Q4'].forEach(function(q){if(!data.quarterly[q])data.quarterly[q]={actual:{},qTarget:{},notes:{}};if(!data.quarterly[q].actual)data.quarterly[q].actual={};if(!data.quarterly[q].qTarget)data.quarterly[q].qTarget={};if(!data.quarterly[q].notes)data.quarterly[q].notes={};});
+  if(sd){data=JSON.parse(sd);if(!data.chambers)data.chambers=[];if(!data.planTracking)data.planTracking=null;
   // 数据迁移:给 projects 添加 interactionCount 字段
   if(data.projects && Array.isArray(data.projects)){
     var migrated=0;
@@ -1862,508 +1832,6 @@ function updateSummary(){
 }
 
 
-
-// ===================== QUARTERLY REPORT =====================
-var currentQuarterQ=localStorage.getItem('qr_last_q')||'Q1';
-
-function initQuarterlyGlobal(){
-  if(!data.quarterly)data.quarterly={};
-  ['Q1','Q2','Q3','Q4'].forEach(function(q){
-    if(!data.quarterly[q])data.quarterly[q]={actual:{},qTarget:{},notes:{}};
-    if(!data.quarterly[q].actual)data.quarterly[q].actual={};
-    if(!data.quarterly[q].qTarget)data.quarterly[q].qTarget={};
-    if(!data.quarterly[q].notes)data.quarterly[q].notes={};
-  });
-}
-
-function saveQuarterlyActual(q){
-  q=q||currentQuarterQ;
-  var pf='qr_'+q+'_';
-  function gv(id){return parseFloat(document.getElementById(id)?document.getElementById(id).value:0)||0;}
-  if(!data.quarterly)data.quarterly={};
-  if(!data.quarterly[q])data.quarterly[q]={actual:{},qTarget:{},notes:{}};
-  data.quarterly[q].actual={
-    compSales:gv(pf+'compSales'),
-    smDept:gv(pf+'smDept'),
-    newContacts:gv(pf+'newContacts'),
-    interactions:gv(pf+'interactions')
-  };
-  // Quarterly Review note
-  var rv=document.getElementById('qrReviewText');
-  if(rv){
-    if(!data.quarterly[q].notes)data.quarterly[q].notes={};
-    data.quarterly[q].notes.review=rv.value;
-  }
-  saveData();
-  var st=document.getElementById('quarterlySaveStatus');
-  if(st){st.textContent='✅ '+q+' '+((typeof lang!=='undefined'&&lang==='zh')?'已保存':'Saved');setTimeout(function(){st.textContent='';},2000);}
-}
-
-function loadQuarterlyReview(q){
-  q=q||currentQuarterQ;
-  var wrap=document.getElementById('quarterlyReviewWrap');
-  if(!wrap)return;
-  wrap.style.display='block';
-  var tag=document.getElementById('qrReviewQuarterTag');
-  if(tag)tag.textContent=q;
-  var title=document.getElementById('qrReviewTitle');
-  if(title)title.textContent=lang==='zh'?'季度评审 / Quarterly Review':'Quarterly Review';
-  var hint=document.getElementById('qrReviewHint');
-  if(hint)hint.textContent=lang==='zh'?'评审要点将随 💾 保存 按钮一并保存':'Review notes are saved together with 💾 Save';
-  var ta=document.getElementById('qrReviewText');
-  if(!ta)return;
-  var qd=data.quarterly&&data.quarterly[q];
-  var note=(qd&&qd.notes&&qd.notes.review)||'';
-  if(document.activeElement!==ta){
-    ta.value=note;
-    ta.placeholder=lang==='zh'?'在此输入 '+q+' 评审要点（目标达成、亮点、问题、下一步…）':'Type '+q+' review notes here (achievements, issues, next steps…)';    
-  }
-}
-
-function renderQuarterly(){
-  initQuarterlyGlobal();
-  var q=currentQuarterQ;
-  var container=document.getElementById('quarterlyGrid');
-  if(!container)return;
-  var isZh=lang==='zh';
-  var qd=data.quarterly[q]||{actual:{},qTarget:{},notes:{}};
-  var ac=qd.actual||{};
-
-  var qMonths={Q1:{mn:1,mx:3,label:'Jan-Mar',pref:['2026-01','2026-02','2026-03'],mn3:['Jan','Feb','Mar']},Q2:{mn:4,mx:6,label:'Apr-Jun',pref:['2026-04','2026-05','2026-06'],mn3:['Apr','May','Jun']},Q3:{mn:7,mx:9,label:'Jul-Sep',pref:['2026-07','2026-08','2026-09'],mn3:['Jul','Aug','Sep']},Q4:{mn:10,mx:12,label:'Oct-Dec',pref:['2026-10','2026-11','2026-12'],mn3:['Oct','Nov','Dec']}};
-  var qm=qMonths[q]||qMonths.Q1;
-  var pf='qr_'+q+'_';
-
-  function pctColor(p){if(p>=100)return'#10b981';if(p>=70)return'#f59e0b';return'#ef4444';}
-  function pctText(p){return p>=100?(isZh?'达标':'On Track'):p>=70?(isZh?'接近':'Close'):(isZh?'落后':'Behind');}
-  function pctBadge(v,tgt){
-    var vp=parseFloat(v),tp=parseFloat((''+tgt).replace(/,/g,''));
-    if(isNaN(vp)||isNaN(tp)||tp<=0)return'<span style="font-size:9px;color:var(--text2);background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">--</span>';
-    var p=Math.round(vp/tp*100);
-    return'<span style="font-size:9px;color:'+pctColor(p)+';background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:10px">'+pctText(p)+'</span>';
-  }
-
-  var compSales=parseFloat(ac.compSales)||0;
-  var smDept=parseFloat(ac.smDept)||0;
-  var newContacts=parseFloat(ac.newContacts)||0;
-  var interactions=parseFloat(ac.interactions)||0;
-
-  var chamberAtt=(data.chambers||[]).filter(function(ch){
-    if(!ch.attendanceDate)return false;
-    var dt=new Date(ch.attendanceDate);
-    var m=dt.getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx&&dt<=new Date();
-  }).length;
-  var chamberUpc=(data.chambers||[]).filter(function(ch){
-    if(!ch.attendanceDate)return false;
-    var d=new Date(ch.attendanceDate),now=new Date();
-    var m=d.getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx&&d>now;
-  }).length;
-
-  var bidsWonQ=(data.bids||[]).filter(function(b){
-    if(!b.trackDate)return false;
-    var m=new Date(b.trackDate).getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx&&(b.stage==='Won'||b.stage==='中标');
-  }).length;
-  var totalBids=(data.bids||[]).length;
-  var bidsActiveQ=(data.bids||[]).filter(function(b){
-    if(!b.trackDate)return false;
-    var m=new Date(b.trackDate).getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx&&(b.stage==='Bidding'||b.stage==='投标中');
-  }).length;
-
-  var projQ=(data.projects||[]).filter(function(p){
-    if(!p.interactionDate||!p.customerName)return false;
-    var m=new Date(p.interactionDate).getMonth()+1;
-    return m>=qm.mn&&m<=qm.mx;
-  }).length;
-
-  var bidPipeline=(data.bids||[]).reduce(function(a,b){
-    if(!b.estValue)return a;
-    var sc=(b.stageContent||'').toLowerCase();
-    var v=parseFloat((''+b.estValue).replace(/,/g,''))||0;
-    if(sc==='bidding'||b.stage==='Bidding')a.bidding+=v;
-    if(sc==='following'||sc.indexOf('follow up')!==-1||b.stage==='Following')a.following+=v;
-    if(sc==='potential')a.potential+=v;
-    return a;
-  },{bidding:0,following:0,potential:0});
-  var totalPipeline=bidPipeline.bidding+bidPipeline.following+bidPipeline.potential;
-  function fmt(b){return b>=1000?((b/1000).toFixed(1)+'B'):(Math.round(b)+'B');}
-  var pipCoverage=(bidPipeline.bidding+bidPipeline.following)>0?((bidPipeline.bidding+bidPipeline.following)/1400).toFixed(1):'0';
-
-  var bidCounts={bidding:0,following:0,potential:0,cancelled:0,won:0};
-  (data.bids||[]).forEach(function(b){
-    var sc=(b.stageContent||'').toLowerCase();
-    if(sc==='bidding'||b.stage==='Bidding')bidCounts.bidding++;
-    else if(sc==='following'||sc.indexOf('follow up')!==-1||b.stage==='Following')bidCounts.following++;
-    else if(sc==='potential')bidCounts.potential++;
-    else if(sc==='cancelled'||b.stage==='Cancelled')bidCounts.cancelled++;
-    else if(b.stage==='Won'||b.stage==='中标')bidCounts.won++;
-  });
-
-  var planData=data.planTracking||[];
-
-  // Helper for quarterly pipeline tab switching
-  function switchQuarterlyTab(btn,key){
-    document.querySelectorAll('.tab2').forEach(function(t){t.classList.remove('act')});
-    btn.classList.add('act');
-    document.querySelectorAll('[id^=p_]').forEach(function(t){t.style.display='none'});
-    document.getElementById('p_'+key).style.display='block';
-  }
-  var planTotal=planData.filter(function(p){return p.pct!==undefined&&p.pct!=='';}).length;
-  var planPctTotal=planData.reduce(function(s,p){return s+(parseFloat(p.pct)||0);},0);
-  var planAvgPct=planTotal>0?Math.round(planPctTotal/planTotal):0;
-
-  var custTotal=(data.customers||[]).length;
-  var custYTD=(data.customers||[]).filter(function(c){
-    if(!c.createdDate)return false;
-    return new Date(c.createdDate).getFullYear()===2026;
-  }).length;
-  var custQ=(data.customers||[]).filter(function(c){
-    if(!c.createdDate)return false;
-    var d=new Date(c.createdDate);
-    return d.getFullYear()===2026&&(d.getMonth()+1)>=qm.mn&&(d.getMonth()+1)<=qm.mx;
-  }).length;
-
-  var countries={};
-  (data.customers||[]).forEach(function(c){
-    var ct=c.country||'--';countries[ct]=(countries[ct]||0)+1;
-  });
-  var sortedCountries=Object.keys(countries).sort(function(a,b){return countries[b]-countries[a];});
-  var maxCtry=Math.max.apply(null,Object.values(countries));
-  var flagEmoji={'Vietnam':'🇻🇳','China':'🇨🇳','Singapore':'🇸🇬','Hong Kong':'🇭🇰','Taiwan':'🇹🇼','Germany':'🇩🇪','Malaysia':'🇲🇾','Australia':'🇦🇺','Japan':'🇯🇵','France':'🇫🇷','Canada':'🇨🇦','Thailand':'🇹🇭','Korea':'🇰🇷','United Kingdom':'🇬🇧','United States':'🇺🇸','India':'🇮🇳','Indonesia':'🇮🇩','New Zealand':'🇳🇿','Austria':'🇦🇹'};
-
-  var monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var monthlyCounts={};
-  (data.customers||[]).filter(function(c){
-    if(!c.createdDate)return false;
-    var d=new Date(c.createdDate);
-    return d.getFullYear()===2026&&(d.getMonth()+1)>=qm.mn&&(d.getMonth()+1)<=qm.mx;
-  }).forEach(function(c){
-    var m=new Date(c.createdDate).getMonth();
-    monthlyCounts[m]=(monthlyCounts[m]||0)+1;
-  });
-
-  function inp(id,v,unit){
-    return'<input type="number" id="'+id+'" value="'+(v||'')+'" min="0" step="0.1" style="width:65px;font-size:20px;font-weight:700;color:var(--text1);background:transparent;border:none;border-bottom:2px solid var(--blue);text-align:center;outline:none;padding:0;line-height:1" onfocus="this.style.borderBottomColor=\'#60a5fa\'" onblur="this.style.borderBottomColor=\'var(--blue)\'"><span style="font-size:10px;color:var(--text2);margin-left:2px">'+unit+'</span>';
-  }
-  function tag(text,cls){
-    var cMap={b:'background:#1e3a5f;color:#60a5fa',g:'background:#1a3a2a;color:#34d399',r:'background:#3a1a1a;color:#f87171',a:'background:#3a2a1a;color:#fbbf24',p:'background:#2a1a3a;color:#c084fc',gy:'background:#2a2a2a;color:#9ca3af'};
-    var s=cMap[cls]||cMap.gy;
-    return'<span style="display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500;'+s+'">'+text+'</span>';
-  }
-  function tblRow(cells,isHeader){
-    var tag=isHeader?'th':'td';
-    var sty=isHeader?'font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:var(--text2);padding:6px 10px;border-bottom:1px solid var(--border);background:var(--bg);font-weight:600':'padding:6px 10px;border-bottom:1px solid var(--border);font-size:12px';
-    return'<tr>'+cells.map(function(c){return'<'+tag+' style="'+sty+'">'+c+'</'+tag+'>';}).join('')+'</tr>';
-  }
-  function card(body){
-    return'<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;animation:fadeInUp .3s ease both">'+body+'</div>';
-  }
-  function progressBar(p,color){
-    color=color||pctColor(p);
-    return'<div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:6px 0"><div style="height:100%;width:'+Math.min(100,p)+'%;background:'+color+';border-radius:3px"></div></div>';
-  }
-
-  // ===== BRANCH: Q2/Q3/Q4 get full dashboard (Q4 upgraded 2026-09-08), Q1 keeps compact =====
-  if(q==='Q2'||q==='Q3'||q==='Q4'){
-    // Dynamic pipeline vars
-    var _sc=function(b,k){var s=(b.stageContent||'').toLowerCase();return k.some(function(x){return s.indexOf(x.toLowerCase())!==-1;});};
-    var _pa=function(v){if(!v||v==='-'||v==='—')return 0;var s=(''+v).replace(/,/g,'').trim();return /[bB]/.test(s)?(parseFloat(s.replace(/[^0-9.]/g,''))||0):((parseFloat(s)||0)/1e9);};
-    var _fa=function(v){return v<=0?'—':(v>=100?Math.round(v):v.toFixed(1))+'B';};
-    var _tr=function(it){if(!it||!it.length)return'<tr><td colspan="4" style="padding:24px;text-align:center;color:var(--t2)">No projects</td></tr><tr><td colspan="4" style="padding:0"><div class="q26footer"><span>0 Projects</span><span style="font-weight:700">— VND</span></div></td></tr>';
-    var r=it.map(function(b,i){var a=_pa(b.estimatedValue);return '<tr'+(i%2===1?' style="background:rgba(0,0,0,0.02)"':'')+'><td><strong>'+(b.customerName||'—')+'</strong></td><td>'+(b.projectName||'—')+'</td><td class="r">'+(a>0?_fa(a):'—')+'</td><td>'+(b.personInCharge||'—')+'</td></tr>';}).join('');
-    var t=it.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);return r+'<tr style="background:var(--bg)"><td colspan="4" style="padding:0"><div class="q26footer"><span>'+it.length+' Projects</span><span style="font-weight:700">'+(t>0?_fa(t):'—')+' VND</span></div></td></tr>';};
-    var _b=(data.bids||[]);
-    var _bl=_b.filter(function(b){return _sc(b,['Bidding','投标中']);});
-    var _tl=_b.filter(function(b){return _sc(b,['Following','Follow up','跟踪']);});
-    var _pl=_b.filter(function(b){return _sc(b,['Potential','潜在']);});
-    var _cl=_b.filter(function(b){return _sc(b,['Cancelled','已取消']);});
-    var _ba=_bl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
-    var _ta=_tl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
-    var _pa_amt=_pl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
-    var _ca=_cl.reduce(function(s,b){return s+_pa(b.estimatedValue);},0);
-    var _aa=_ba+_pa_amt;var _ac=_bl.length+_pl.length;var _bt=_b.length;var _cv=_aa/1400;
-    var _btr=_tr(_bl);var _ttr=_tr(_tl);var _ptr=_tr(_pl);var _ctr=_tr(_cl);
-    container.innerHTML=`<style>.q26page{--bg:#eef0f4;--card:#fff;--border:#e0e2e6;--text:#141517;--t2:#656d78;--t3:#9098a3;--blue:#2266cc;--green:#1e8e3e;--red:#d93025;--amber:#e37400;--purple:#7c3aed;--radius:10px;font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:24px;min-height:100vh}
-.q26page{max-width:1280px;margin:0 auto}
-.q26hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;padding:0 2px}
-.hdr-l h1{font-size:26px;font-weight:700;letter-spacing:-.4px}
-.hdr-l .q26sub{color:var(--t2);font-size:13px;margin-top:2px}
-.q26hdr-r{font-size:12px;color:var(--t3)}
-.q26tag-q2{display:inline-flex;align-items:center;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:600;background:#e6f4ea;color:var(--green);margin-left:8px}
-.q26grid{display:grid;gap:12px;margin-bottom:12px}
-.q26g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.q26g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.q26card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px}
-.q26t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;gap:4px}
-.q26v{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.1}
-.q26vs{font-size:20px;font-weight:700;letter-spacing:-.3px}
-.q26sub{font-size:12px;color:var(--t2);margin-top:2px}
-.q26sm{font-size:11px;color:var(--t3)}
-.q26bar{height:5px;background:var(--border);border-radius:3px;margin:6px 0;overflow:hidden}
-.q26bar-f{height:100%;border-radius:3px}
-.q26mt-4{margin-top:4px}.q26mt-8{margin-top:8px}
-.q26flex{display:flex;align-items:center;gap:8px}
-.q26data-source{font-size:10px;color:var(--t3);margin-top:6px;border-top:1px solid var(--border);padding-top:6px}
-.q26tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
-.q26tag-b{background:#e8f0fe;color:var(--blue)}.q26tag-g{background:#e6f4ea;color:var(--green)}.q26tag-r{background:#fce8e6;color:var(--red)}.q26tag-a{background:#fef7e0;color:var(--amber)}.q26tag-p{background:#f3e8ff;color:var(--purple)}.q26tag-gy{background:#f2f3f5;color:var(--t2)}.q26tag-o{background:#fef3e2;color:#c55600}
-.q26page table{width:100%;border-collapse:collapse;font-size:13px}
-.q26page th{text-align:left;padding:8px 12px;background:var(--bg);font-weight:600;color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border)}
-.q26page td{padding:8px 12px;border-bottom:1px solid var(--border)}
-.q26page tr:last-child td{border-bottom:none}.r{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.q26footer{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-top:1px solid var(--border);font-size:13px}
-.q26tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.q26tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--t2)}
-.tab.q26act{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:600}
-.q26pr{display:flex;align-items:center;gap:8px;margin:4px 0}
-.q26pr-l{font-size:12px;font-weight:500;width:130px;flex-shrink:0;text-align:right}
-.q26pr-b{flex:1;height:5px;background:var(--border);border-radius:3px}
-.q26pr-f{height:100%;border-radius:3px}.q26pr-p{font-size:12px;font-weight:600;width:32px;text-align:right}
-.q26ft{padding:14px 16px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--t2);margin-top:12px}
-@media(max-width:680px){.q26g3{grid-template-columns:1fr 1fr}}
-@media(max-width:480px){.q26g3,.q26g2{grid-template-columns:1fr}.q26page{padding:14px}}</style><div class="q26page">
-
-<!-- ===== HEADER ===== -->
-<div class="q26hdr">
-  <div class="q26hdr-l">
-    <h1>MGD ${q} · 2026</h1>
-    <div class="q26sub">Quarterly Sales Report<span class="q26tag-q2">📅 ${qm.label} 2026</span></div>
-  </div>
-  <div class="q26hdr-r">Dynamic · live BMS data</div>
-</div>
-
-<!-- ===== ROW 1: TOP 3 ===== -->
-<div class="q26g3">
-  <div class="q26card">
-    <div class="q26t">🎯 Company Sales Target (FY 2026)</div>
-    <div class="q26v">1,400B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="q26sub">${q} Actual: <span class="tag tag-r">0 VND</span></div>
-    <div class="q26sub" style="color:var(--t3);font-size:11px">ℹ️ No quarterly actual data entered in BMS</div>
-    <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
-  </div>
-  <div class="q26card">
-    <div class="q26t">📈 S&M Revenue Target (FY 2026)</div>
-    <div class="q26v">250B <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="q26sub">${q} Actual: <span class="tag tag-r">0 VND</span></div>
-    <div class="q26sub" style="color:var(--t3);font-size:11px">ℹ️ No quarterly actual data entered in BMS</div>
-    <div class="q26bar"><div class="q26bar-f" style="width:0%;background:var(--border)"></div></div>
-  </div>
-  <div class="q26card" style="border-left:3px solid var(--blue)">
-    <div class="q26t">🏗️ Active Pipeline (${q} snapshot)</div>
-    <div class="q26v">${_fa(_aa)} <span style="font-size:14px;font-weight:400;color:var(--t2)">VND</span></div>
-    <div class="q26sub" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-      <span class="tag tag-b">Bidding ${_fa(_ba)}</span>
-      <span class="tag tag-g">Tracking ${_fa(_ta)}</span>
-      <span class="tag tag-a">Potential ${_fa(_pa_amt)}</span>
-    </div>
-    <div class="flex mt-4">
-      <span class="tag tag-b">${_cv.toFixed(1)}×</span>
-      <span class="q26sm">(Bidding+Tracking) vs 1,400B FY target</span>
-    </div>
-    <div class="q26data-source">${_ac} active projects · ${_bt} total bids · ${_cl.length} cancelled</div>
-  </div>
-</div>
-
-<!-- ===== ROW 2: Q SPECIFIC CARDS ===== -->
-<div class="q26g3">
-  <div class="q26card">
-    <div class="q26t">👥 New Contacts (${q} · ${qm.label})</div>
-    <div class="q26flex">
-      <div class="q26v" style="color:var(--green)">${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</div>
-      <div style="margin-left:auto"><span class="tag tag-g">YTD: ${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()}</span></div>
-    </div>
-    <div class="q26sub">${t('ncTarget')}</div>
-    <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      ${function(){var _c=data.customers||[];return qm.mn3.map(function(mn,i){var cnt=_c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf(qm.pref[i])===0;}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
-    </div>
-    <div class="q26bar"><div class="q26bar-f" style="width:113%;background:var(--green)"></div></div>
-    <div class="q26data-source">${(data.customers||[]).length} customers in database · ${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()} with 2026 dates</div>
-  </div>
-  <div class="q26card">
-    <div class="q26t">✅ Project Won (${q} · ${qm.label})</div>
-    <div class="q26v" style="color:var(--t3)">0</div>
-    <div class="q26sub">No project won in ${qm.label} 2026</div>
-    <div class="q26data-source">PROMEA-KCP (9B) — Won 2025, excluded</div>
-  </div>
-  <div class="q26card">
-    <div class="q26t">📋 ${qm.label} Chamber Events <span class="tag tag-a" style="margin-left:4px">${function(){var _now=new Date(),_cnt=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=_now&&dt.getMonth()+1>=qm.mn&&dt.getMonth()+1<=qm.mx;}catch(e){return false;}}).length;return _cnt+' '+q+' 2026';}()}</span></div>
-    <div class="q26flex">
-      <div class="q26v" style="color:var(--purple)">${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()}</div>
-      <div style="margin-left:auto"><span class="tag tag-g">${16} target</span></div>
-    </div>
-    <div class="q26sub">Annual target: 16 events · ${q} Attended: ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()}</div>
-    <div class="q26sm" style="line-height:1.5;margin-top:4px">
-      ${function(){var _ch=data.chambers||[];var _now=new Date();return qm.mn3.map(function(mn,i){var cnt=_ch.filter(function(c){var d=c.attendanceDate||'';try{return d.indexOf(qm.pref[i])===0&&new Date(d)<=_now;}catch(e){return false;}}).length;return'<strong>'+mn+':</strong> '+cnt;}).join(' · ');}()}
-    </div>
-    <div class="q26bar"><div class="q26bar-f" style="width:${function(){var _ytd=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}});return Math.min(100,(_ytd.length/16*100)).toFixed(0);}()}%;background:var(--purple)"></div></div>
-    <div class="q26data-source">${(function(){return (data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d);return dt.getFullYear()===2026&&dt<=new Date();}catch(e){return false;}}).length;})()} chambers tracked YTD · annual target ${16} · ${function(){var _ch=(data.chambers||[]).filter(function(c){var d=c.attendanceDate;if(!d)return false;try{var dt=new Date(d),m=dt.getMonth()+1;return m>=qm.mn&&m<=qm.mx&&dt<=new Date();}catch(e){return false;}});return _ch.length;}()} ${q} attended</div>
-  </div>
-</div>
-
-<!-- ===== ROW 3: PLAN 2026 ===== -->
-<div class="q26g2">
-  <div class="q26card">
-    <div class="q26t">📋 PLAN 2026 <span class="q26sm">· ${q} progress snapshot</span></div>
-    <div class="q26pr"><span class="q26pr-l">A. System Tender</span><div class="q26pr-b"><div class="q26pr-f" style="width:45%;background:var(--amber)"></div></div><span class="q26pr-p" style="color:var(--amber)">45%</span></div>
-    <div class="q26pr"><span class="q26pr-l">B. Build Database</span><div class="q26pr-b"><div class="q26pr-f" style="width:50%;background:var(--amber)"></div></div><span class="q26pr-p" style="color:var(--amber)">50%</span></div>
-    <div class="q26pr"><span class="q26pr-l">C. Training</span><div class="q26pr-b"><div class="q26pr-f" style="width:0%;background:var(--red)"></div></div><span class="q26pr-p" style="color:var(--red)">0%</span></div>
-    <div class="q26pr"><span class="q26pr-l">D. BMS System</span><div class="q26pr-b"><div class="q26pr-f" style="width:79%;background:var(--green)"></div></div><span class="q26pr-p" style="color:var(--green)">79%</span></div>
-    <div class="sm mt-8" style="line-height:1.6">
-      <strong>D.1 Online:</strong> Bid 100% · Customers 100% · Event 100% · Weekly 100% · Q Rep 50% · Sales 100%<br>
-      <strong>D.2 Mobile:</strong> All 5 modules 100%<br>
-      <strong>D.3 Ind. Park:</strong> Input 80% · Land Price 10%
-    </div>
-  </div>
-  <div class="q26card">
-    <div class="q26t">📊 ${q} Key Figures</div>
-    <table style="font-size:13px">
-      <tr><td>Active Pipeline (total)</td><td class="r"><strong>${_fa(_aa)}</strong></td></tr>
-      <tr><td>Bidding</td><td class="r">${_bl.length} projects · ${_fa(_ba)}</td></tr>
-      <tr><td>Tracking</td><td class="r">${_tl.length} projects · ${_fa(_ta)}</td></tr>
-      <tr><td>Potential</td><td class="r">${_pl.length} projects · ${_fa(_pa_amt)}</td></tr>
-      <tr><td>New Contacts (${q})</td><td class="r">${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</td></tr>
-      <tr><td>New Contacts (YTD)</td><td class="r">${function(){var _c=(data.customers||[]);return _c.filter(function(x){var d=x.createdDate||x.f23||'';return d.indexOf('2026')===0;}).length;}()}</td></tr>
-      <tr><td>Customers Database</td><td class="r">${(data.customers||[]).length}</td></tr>
-      <tr><td>Chambers (${q}·${qm.label})</td><td class="r">${(function(){var _now=new Date();return (data.chambers||[]).filter(function(c){if(!c.attendanceDate)return false;try{var _d=new Date(c.attendanceDate);return _d.getFullYear()===2026&&_d<=_now&&_d.getMonth()+1>=qm.mn&&_d.getMonth()+1<=qm.mx;}catch(e){return false;}}).length;})()}</td></tr>
-      <tr><td>Projects Tracked</td><td class="r">${(data.projects||[]).length}</td></tr>
-      <tr><td>${q} Realized Sales</td><td class="r"><span class="tag tag-r">${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0':((a/1e9).toFixed(1))+'B';}()}</span></td></tr>
-    </table>
-  </div>
-</div>
-
-<!-- ===== ROW 4: PIPELINE DETAIL ===== -->
-<div class="q26card" style="margin-bottom:12px">
-  <div class="q26t" style="margin-bottom:12px">Pipeline Detail <span class="q26sm">· ${q} snapshot by stage</span></div>
-
-  <div class="q26tabs">
-    <button class="tab act" onclick="q26sw('q26p1')">📋 Bidding<span class="tag tag-b" style="margin-left:4px">${_bl.length}</span></button>
-    <button class="q26tab" onclick="q26sw('q26p2')">📎 Tracking<span class="tag tag-g" style="margin-left:4px">${_tl.length}</span></button>
-    <button class="q26tab" onclick="q26sw('q26p3')">📭 Potential<span class="tag tag-a" style="margin-left:4px">${_pl.length}</span></button>
-    <button class="q26tab" onclick="q26sw('q26p4')">🚫 Cancelled<span class="tag tag-r" style="margin-left:4px">${_cl.length}</span></button>
-  </div>
-
-  <!-- Tab 1: Bidding -->
-  <div id="q26p1">
-    <table>
-      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      ${_btr}
-    </table>
-  </div>
-
-  <!-- Tab 2: Tracking -->
-  <div id="q26p2" style="display:none">
-    <table>
-      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      ${_ttr}
-    </table>
-  </div>
-
-  <!-- Tab 3: Potential -->
-  <div id="q26p3" style="display:none">
-    <table>
-      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      ${_ptr}
-    </table>
-  </div>
-
-  <!-- Tab 4: Cancelled -->
-  <div id="q26p4" style="display:none">
-    <table>
-      <thead><tr><th>Client</th><th>Project</th><th class="r">Amount</th><th>PIC</th></tr></thead>
-      ${_ctr}
-    </table>
-  </div>
-</div>
-
-<!-- ===== ROW 5: TOP CLIENTS + SUMMARY ===== -->
-<div class="q26g2">
-  <div class="q26card">
-    <div class="q26t">🌍 Top Client Countries <span class="q26sm">(${(data.customers||[]).length} customers · ${q} snapshot)</span></div>
-    <div style="margin-top:6px">
-      ${function(){var _c=data.customers||[];var cMap={};var fl={Vietnam:'🇻🇳',China:'🇨🇳','中国':'🇨🇳',Taiwan:'🇹🇼','台湾':'🇹🇼',Singapore:'🇸🇬',HK:'🇭🇰','Hong Kong':'🇭🇰',Germany:'🇩🇪','德国':'🇩🇪',Japan:'🇯🇵','日本':'🇯🇵',Malaysia:'🇲🇾','马来西亚':'🇲🇾',Australia:'🇦🇺','澳大利亚':'🇦🇺',France:'🇫🇷','法国':'🇫🇷',Canada:'🇨🇦','加拿大':'🇨🇦',Korea:'🇰🇷','韩国':'🇰🇷',Thailand:'🇹🇭','泰国':'🇹🇭',UK:'🇬🇧','英国':'🇬🇧',US:'🇺🇸','美国':'🇺🇸',India:'🇮🇳','印度':'🇮🇳',Indonesia:'🇮🇩','印度尼西亚':'🇮🇩',Netherlands:'🇳🇱','荷兰':'🇳🇱'};var cAlias={Vietnam:['Vietnam','越南'],China:['China','中国','Chine'],Taiwan:['Taiwan','台湾','Taiwan(ROC)'],Singapore:['Singapore','新加坡'],'Hong Kong':['Hong Kong','香港','HK'],Germany:['Germany','德国'],Japan:['Japan','日本'],Malaysia:['Malaysia','马来西亚'],Australia:['Australia','澳大利亚'],France:['France','法国','Franch'],Canada:['Canada','加拿大'],UK:['UK','United Kingdom','英国','U.K.'],Korea:['Korea','韩国','South Korea'],Thailand:['Thailand','泰国'],US:['US','United States','美国','USA'],India:['India','印度'],Indonesia:['Indonesia','印度尼西亚'],Netherlands:['Netherlands','荷兰','Holland']};var cNorm={};Object.keys(cAlias).forEach(function(k){cAlias[k].forEach(function(a){cNorm[a.toLowerCase()]=k;});});var noC=0;_c.forEach(function(x){var ct=(x.country||x.f14c||x.f14b||x.f14||'').toLowerCase().trim();if(!ct||ct==='—'||ct==='-'){noC++;return;}var normalized=cNorm[ct];if(!normalized){Object.keys(cNorm).forEach(function(k){if(ct.indexOf(k)!==-1||k.indexOf(ct)!==-1)normalized=cNorm[k];});}if(!normalized){noC++;return;}cMap[normalized]=(cMap[normalized]||0)+1;});var sorted=Object.keys(cMap).sort(function(a,b){return cMap[b]-cMap[a];});var top11=sorted.slice(0,999);var maxVal=top11.length?cMap[top11[0]]:1;var rows=top11.map(function(name){var cnt=cMap[name];var pct=Math.round(cnt/maxVal*100);var emoji=fl[name]||'🌍';return'<div class="q26pr"><span class="q26pr-l" style="width:100px">'+emoji+' '+name+'</span><div class="q26pr-b"><div class="q26pr-f" style="width:'+pct+'%;background:var(--blue)"></div></div><span class="q26pr-p">'+cnt+'</span></div>';}).join('\n');var tail=(noC>0?'<div class="sm mt-8">(none) '+noC+'</div>':'');return rows+tail;;}()}
-    </div>
-  </div>
-  <div class="q26card">
-    <div class="q26t">📊 Pipeline Summary</div>
-    <table style="font-size:13px">
-      <thead><tr><th>Category</th><th class="r">Count</th><th class="r">Amount (B)</th></tr></thead>
-      <tbody>
-        <tr><td><span class="tag tag-b">Bidding</span></td><td class="r">${_bl.length}</td><td class="r">${_fa(_ba)}</td></tr>
-        <tr><td><span class="tag tag-g">Tracking</span></td><td class="r">${_tl.length}</td><td class="r">${_fa(_ta)}</td></tr>
-        <tr><td><span class="tag tag-a">Potential</span></td><td class="r">${_pl.length}</td><td class="r">${_fa(_pa_amt)}</td></tr>
-        <tr><td><strong>Active Total</strong></td><td class="r"><strong>${_ac}</strong></td><td class="r"><strong>${_fa(_aa)}</strong></td></tr>
-        <tr><td><span class="tag tag-gy">No Stage</span></td><td class="r">${_bt-_bl.length-_tl.length-_pl.length-_cl.length}</td><td class="r">—</td></tr>
-        <tr><td><span class="tag tag-r">Cancelled</span></td><td class="r">${_cl.length}</td><td class="r">${_ca>0?_fa(_ca):'—'}</td></tr>
-      </tbody>
-    </table>
-    <div class="sm mt-8" style="line-height:1.5">
-      <strong>Projects with amounts:</strong> ${_ac} active · ${_cl.length} cancelled<br>
-      <strong>Pipeline coverage:</strong> ${_cv.toFixed(1)}× (Bidding+Potential) vs 1,400B FY target<br>
-      <strong>${q} new contacts:</strong> ${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()} (target 160) · <strong>${q} realized sales:</strong> ${function(){var a=parseFloat(ac.compSales)||0;return a<=0?'0 VND':((a/1e9).toFixed(1))+'B';}()}
-    </div>
-  </div>
-</div>
-
-<!-- ===== FOOTER ===== -->
-<div class="q26ft">
-  <span>🏗️ <strong>Active Pipeline:</strong> ${_fa(_aa)} VND</span>
-  <span>·</span>
-  <span>Bidding <strong>${_fa(_ba)}</strong></span>
-  <span>·</span>
-  <span>Tracking <strong>${_fa(_ta)}</strong></span>
-  <span>·</span>
-  <span>Potential <strong>${_fa(_pa_amt)}</strong></span>
-  <span>·</span>
-  <span>${q} new contacts <strong>${function(){var _c=data.customers||[];return _c.filter(function(x){var d=x.createdDate||x.f23||'';return qm.pref.some(function(p){return d.indexOf(p)===0;});}).length;}()}</strong> · ${(function(){var _now=new Date();return (data.chambers||[]).filter(function(c){if(!c.attendanceDate)return false;try{var _d=new Date(c.attendanceDate);return _d.getFullYear()===2026&&_d<=_now&&_d.getMonth()+1>=qm.mn&&_d.getMonth()+1<=qm.mx;}catch(e){return false;}}).length;})()} chambers tracked ${q} ${qm.label}}</span>
-</div>
-
-</div>`;
-    var sc=document.createElement('script');
-    sc.textContent=`function q26sw(id){
-  document.querySelectorAll('[id^="q26p"]').forEach(t=>t.style.display="none");
-  document.querySelectorAll(".q26tab").forEach(b=>b.classList.remove("act"));
-  document.getElementById(id).style.display="block";
-  event.target.classList.add("act");
-}`;
-    document.body.appendChild(sc);
-  } else {
-    // Q1 / Q3 / Q4: compact 6-card layout
-    var cBase='background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;animation:fadeInUp .3s ease both';
-    function cb(title,body){return'<div style="'+cBase+'"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:10px">'+title+'</div>'+body+'</div>';}
-    function metric(label,v,unit){return'<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text2)">'+label+'</span><span style="font-size:13px;font-weight:700">'+v+(unit||'')+'</span></div>';}
-    function mini(v,label,color){return'<div style="text-align:center;padding:6px"><div style="font-size:20px;font-weight:700;color:'+(color||'var(--text1)')+'">'+v+'</div><div style="font-size:9px;color:var(--text2);margin-top:2px">'+label+'</div></div>';}
-    container.innerHTML='<style>@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+
-        cb(isZh?'营收目标':'Revenue',inp(pf+'compSales',compSales,'B')+' <span style="font-size:10px;color:var(--text2)">/ 1,400B</span>'+progressBar(compSales>0?Math.round(compSales/1400*100):0))+
-        cb(isZh?'营销部营收':'S&M Revenue',inp(pf+'smDept',smDept,'B')+' <span style="font-size:10px;color:var(--text2)">/ 250B</span>'+progressBar(smDept>0?Math.round(smDept/250*100):0))+
-        cb(isZh?'活跃管道':'Pipeline',metric(isZh?'投标中/跟踪/潜在':'Bid/Follow/Potential',fmt(totalPipeline),' VND'))+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">'+
-        cb(isZh?'新联系人':'New Contacts',metric(isZh?'本季':'Q',custQ,'')+'<div style="font-size:10px;color:var(--text3);margin-top:4px">'+(isZh?'年度':'YTD')+': '+custYTD+'</div>')+
-        cb(isZh?'商会':'Chambers',mini(chamberAtt,'Att.')+mini(chamberUpc,'Upcoming'))+
-        cb(isZh?'投标':'Bid Track',metric(isZh?'中标':'Won',bidsWonQ)+metric(isZh?'投标中':'Bidding',bidsActiveQ))+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">'+
-        cb(isZh?'联系&互动':'Contacts & Int.',inp(pf+'newContacts',newContacts,'')+' <span style="font-size:10px;color:var(--text2)">'+(isZh?'新联系人':'New')+'</span> &nbsp; '+inp(pf+'interactions',interactions,'')+' <span style="font-size:10px;color:var(--text2)">'+(isZh?'互动':'Interact.')+'</span>')+
-        cb(isZh?'PLAN 2026':'PLAN 2026','<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:var(--text2)">'+(isZh?'综合进度':'Avg Progress')+'</span><span style="font-size:15px;font-weight:700;color:'+pctColor(planAvgPct)+'">'+planAvgPct+'%</span></div>'+progressBar(planAvgPct))+
-      '</div>';
-  }
-}
-
-function switchQuarter(q){
-  var tabs=document.querySelectorAll('.qrtab');
-  tabs.forEach(function(t){
-    if(t.getAttribute('data-q')===q){
-      t.style.background='var(--blue)';t.style.color='#fff';
-    }else{
-      t.style.background='transparent';t.style.color='var(--text2)';
-    }
-  });
-  currentQuarterQ=q;
-  try{localStorage.setItem('qr_last_q',q);}catch(e){}
-  renderQuarterly();
-  loadQuarterlyReview(q);
-}
 
 // ===================== WEEKLY REPORT SYSTEM =====================
 var wrCurrentWeek=parseInt(localStorage.getItem('wr_last_week'))||parseInt(getWeekNumber(new Date()))||28;
@@ -3520,39 +2988,7 @@ function exportSummaryPDF(){
 }
 
 
-function saveQuarterlyData(qKey){
-  saveData();
-  var statusEl=document.getElementById('saveStatus_'+qKey);
-  if(statusEl){
-    statusEl.style.opacity='1';
-    setTimeout(function(){ statusEl.style.opacity='0'; },1500);
-  }
-}
-
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-
-function inputField(qKey,metricId,kind,value,metric){
-  var placeholder='';
-  var ph=kind==='qTarget'?metric.qDisplay:(kind==='actual'?metric.display:'');
-  return '<input type="text" value="'+escHtml(value)+'" placeholder="'+ph+'" style="width:'+(kind==='actual'?'52':'64')+'px;padding:2px 4px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;text-align:center;font-size:11px;color:var(--text1);outline:none;transition:border-color .2s,box-shadow .2s" onfocus="this.style.borderColor=\'var(--blue)\';this.style.boxShadow=\'0 0 0 2px rgba(0,180,216,0.12)\'" onblur="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'" class="qk-input" data-q="'+qKey+'" data-mid="'+metricId+'" data-kind="'+kind+'" />';
-}
-
-function calcRate(actual,annual,qTarget,mid){
-  if(actual===''||isNaN(parseFloat(actual))) return null;
-  var tgt=(qTarget!==''&&!isNaN(parseFloat(qTarget)))?parseFloat(qTarget):annual;
-  var a=parseFloat(actual);
-  if(mid==='system') return Math.min(100,Math.round(a*100/tgt));
-  return Math.min(100,Math.round(a/tgt*100));
-}
-
-function rateBadge(rate,mid,qKey){
-  if(rate===null) return '<span id="rate_'+qKey+'_'+mid+'" class="text-gray-300">-</span>';
-  var cls='px-1.5 py-0.5 rounded text-white text-xs font-bold';
-  if(rate>=80) cls+=' bg-green-500';
-  else if(rate>=50) cls+=' bg-amber-500';
-  else cls+=' bg-red-400';
-  return '<span id="rate_'+qKey+'_'+mid+'" class="'+cls+'">'+rate+'%</span>';
-}
 
 function escHtml(str){
   if(!str) return '';
@@ -4226,7 +3662,6 @@ function sm(m){
   document.getElementById('win123Container').style.display='none';
   document.getElementById('plan2026Section').style.display='none';
   ['btnAdd'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='';});
-  document.getElementById('quarterlyContainer').style.display='none';
   var wrContainer=document.getElementById('weeklyReportContainer');
   if(wrContainer)wrContainer.style.display='none';
   var dcAppEl=document.getElementById('dcApp');
@@ -4276,23 +3711,6 @@ function sm(m){
     ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderPlanTracking();
-  }else if(m==='quarterly'){
-    document.getElementById('sum').style.display='none';
-    document.getElementById('win123Container').style.display='none';
-    document.getElementById('quarterlyContainer').style.display='block';
-    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
-    document.querySelector('.tc').style.display='none';
-    // Honor last-viewed quarter (remembered in localStorage by switchQuarter)
-    var memQ=localStorage.getItem('qr_last_q')||'Q1';
-    if(['Q1','Q2','Q3','Q4'].indexOf(memQ)<0)memQ='Q1';
-    if(currentQuarterQ!==memQ)currentQuarterQ=memQ;
-    var qTabs=document.querySelectorAll('.qrtab');
-    qTabs.forEach(function(t){
-      if(t.getAttribute('data-q')===memQ){t.style.background='var(--blue)';t.style.color='#fff';}
-      else{t.style.background='transparent';t.style.color='var(--text2)';}
-    });
-    renderQuarterly();
-    loadQuarterlyReview(memQ);
   }else if(m==='weeklyreport'){
     var wrC=document.getElementById('weeklyReportContainer');
     if(wrC)wrC.style.display='block';
@@ -4352,7 +3770,6 @@ function sm(m){
     customers:{title:'客户管理',sub:'管理客户信息和跟进记录'},
     projects:{title:'客户互动',sub:'记录客户沟通和互动历史'},
     chambers:{title:'商会信息',sub:'管理商会和组织联系信息'},
-    quarterly:{title:'季度报告',sub:'Quarterly Report'},
     plan2026:{title:'计划2026',sub:'PLAN 2026'},
     weeklyreport:{title:'Weekly Report',sub:'Business Dept Weekly Report'},
     docstorage:{title:'Documentation Storage',sub:'Document Storage & Registry System'},
@@ -4386,7 +3803,7 @@ function sm(m){
 
   updateUI();
   updateCustomerStats();
-  if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
+  if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
 }
 
 function openAddModal(){
@@ -5873,8 +5290,6 @@ function addNewCategory(){
   }, 50);
 }
 
-// 季度数据由用户手动输入和保存
-
 // No automatic reset — planTracking data persists as entered
 // Previously there was a reset block here that wiped planTracking on first load (bms_plan_reset_done)
 // That code was removed because it caused periodic data loss on page refresh
@@ -6072,7 +5487,7 @@ function listenToCloud(){
             }
           }
         }catch(e){ console.log('[DocStorage] cloud->local sync error:', e.message); }
-        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
+        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
 
         // Show brief notification
         showToast('☁️ Cloud data updated!');
@@ -6095,7 +5510,7 @@ function syncFromCloud(){
         // Full sync: accept cloud data (all modules, all users merged)
         data = fbData;
         _origSave();
-        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='quarterly') renderTable();
+        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
         cloudStatus = 'synced';
         lastSyncFrom = doc.data().updatedAt ? 'cloud' : 'local';
         updateSyncStatus('☁️');
