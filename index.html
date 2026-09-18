@@ -673,6 +673,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div class="ni" onclick="sm('customers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span id="nc">客户管理</span></div>
     <div class="ni" onclick="sm('projects')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span id="ni">客户互动</span></div>
     <div class="ni" onclick="sm('chambers')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span id="nch">商会信息</span></div>
+    <div class="ni" onclick="sm('annualtarget')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span>Annual Target</span></div>
     <div class="ni" onclick="sm('plan2026')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg><span id="nplan"></span></div>
     <div class="ni" onclick="sm('weeklyreport')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span>Weekly Report</span></div>
     <div class="ni" onclick="sm('docstorage')"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg><span>Documentation Storage</span></div>
@@ -965,6 +966,1400 @@ input[type="date"]::-moz-calendar-picker-indicator {
       </div>
       <div id="planTrackingContainer" style="max-height:70vh;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:8px"></div>
     </div>
+
+    <!-- ===================== Annual Target (built from Quarterly-Report-Demo, scoped) ===================== -->
+    <style id="annualTargetStyle">
+#annualTargetPage{
+    --bg:#0a1120; --bg2:#0e1728; --panel:#121c31; --panel2:#16223b;
+    --line:#22314f; --line2:#2c3d5f;
+    --txt:#e8eefb; --mut:#8fa2c4; --mut2:#64748b;
+    --blue:#4f8cff; --cyan:#38bdf8; --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --violet:#8b5cf6;
+    --radius:14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+#annualTargetPage *{box-sizing:border-box}
+#annualTargetPage{margin:0;padding:0}
+#annualTargetPage{
+    background:
+      radial-gradient(1100px 600px at 12% -10%, rgba(79,140,255,.14), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(139,92,246,.10), transparent 55%),
+      var(--bg);
+    color:var(--txt); font-family:var(--sans); font-size:14px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+#annualTargetPage .wrap{max-width:1180px;margin:0 auto;padding:22px 22px 60px}
+#annualTargetPage .topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 0 14px}
+#annualTargetPage .brand{display:flex;align-items:center;gap:11px}
+#annualTargetPage .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--violet));
+    display:grid;place-items:center;font-weight:800;font-size:15px;color:#fff;box-shadow:0 6px 18px rgba(79,140,255,.35)}
+#annualTargetPage .brand h1{font-size:17px;margin:0;letter-spacing:.2px}
+#annualTargetPage .brand p{margin:1px 0 0;font-size:11.5px;color:var(--mut)}
+#annualTargetPage .spacer{flex:1}
+#annualTargetPage .pillrow{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px}
+#annualTargetPage .pill{border:0;background:transparent;color:var(--mut);padding:6px 13px;border-radius:7px;cursor:pointer;font-size:12.5px;font-weight:600;font-family:inherit;transition:.15s}
+#annualTargetPage .pill:hover{color:var(--txt)}
+#annualTargetPage .pill.on{background:linear-gradient(180deg,var(--blue),#3a72d8);color:#fff;box-shadow:0 3px 10px rgba(79,140,255,.4)}
+#annualTargetPage .btn-ghost{border:1px solid var(--line2);background:var(--panel);color:var(--mut);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;font-family:inherit;transition:.15s}
+#annualTargetPage .btn-ghost:hover{color:var(--txt);border-color:var(--blue)}
+#annualTargetPage .pagetabs{display:flex;gap:6px;margin:2px 0 20px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px}
+#annualTargetPage .ptab{flex:1;min-width:88px;border:0;background:transparent;color:var(--mut);padding:9px 8px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:.15s;text-align:center;line-height:1.2}
+#annualTargetPage .ptab:hover{color:var(--txt);background:rgba(255,255,255,.03)}
+#annualTargetPage .ptab.on{background:linear-gradient(180deg,var(--blue),#3a72d8);color:#fff;box-shadow:0 3px 12px rgba(79,140,255,.4)}
+#annualTargetPage .ptab .py{display:block;font-size:10px;font-weight:600;opacity:.8;margin-top:1px}
+#annualTargetPage .ptab.on .py{opacity:.95}
+#annualTargetPage .panel{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px 20px;margin-bottom:18px}
+#annualTargetPage .panel > h2{margin:0 0 2px;font-size:14px;letter-spacing:.3px}
+#annualTargetPage .panel > .sub{margin:0 0 16px;font-size:11.5px;color:var(--mut2)}
+#annualTargetPage .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+#annualTargetPage .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){#annualTargetPage .grid2, #annualTargetPage .grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){#annualTargetPage .grid2, #annualTargetPage .grid4{grid-template-columns:1fr}}
+#annualTargetPage .hero{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+@media(max-width:820px){#annualTargetPage .hero{grid-template-columns:1fr}}
+#annualTargetPage .tier{position:relative;border:1px solid var(--line);border-radius:13px;padding:18px 18px 16px;background:linear-gradient(180deg,var(--panel2),var(--panel));overflow:hidden}
+#annualTargetPage .tier.co{border-color:#2f4a7d;background:linear-gradient(180deg,#15243f,#101a2e)}
+#annualTargetPage .tier.sa{border-color:#3b2f6e;background:linear-gradient(180deg,#1a1836,#121026)}
+#annualTargetPage .tier::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+#annualTargetPage .tier.co::before{background:linear-gradient(180deg,var(--blue),var(--cyan))}
+#annualTargetPage .tier.sa::before{background:linear-gradient(180deg,var(--violet),#c084fc)}
+#annualTargetPage .tier .who{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+#annualTargetPage .tier .who .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:14px;background:#0b1526;border:1px solid var(--line2)}
+#annualTargetPage .tier .tagline{font-size:11px;color:var(--mut2);margin:2px 0 12px;padding-left:35px}
+#annualTargetPage .big{font-size:46px;font-weight:800;letter-spacing:-1.4px;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+#annualTargetPage .big small{font-size:16px;font-weight:600;color:var(--mut);letter-spacing:0}
+#annualTargetPage .big .of{font-size:15px;color:var(--mut);font-weight:600}
+#annualTargetPage .pctbadge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:20px;background:rgba(239,68,68,.14);color:#fca5a5}
+#annualTargetPage .prog{height:12px;border-radius:20px;background:#0a121f;border:1px solid var(--line);overflow:hidden;margin-top:14px}
+#annualTargetPage .prog > i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+#annualTargetPage .prog.v > i{background:linear-gradient(90deg,var(--violet),#c084fc)}
+#annualTargetPage .prog.warn > i{background:linear-gradient(90deg,var(--amber),#f97316)}
+#annualTargetPage .prog.bad  > i{background:linear-gradient(90deg,var(--red),#f43f5e)}
+#annualTargetPage .progmeta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-top:7px;font-variant-numeric:tabular-nums}
+#annualTargetPage .cover{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:var(--bg2)}
+#annualTargetPage .cover .ct{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px;gap:10px;flex-wrap:wrap}
+#annualTargetPage .coverbar{height:22px;border-radius:8px;background:#0a121f;border:1px solid var(--line);overflow:hidden;position:relative}
+#annualTargetPage .coverbar > i{display:block;height:100%;background:linear-gradient(180deg,var(--violet),#7c3aed);border-right:2px solid #0a1120}
+#annualTargetPage .coverbar span{position:absolute;top:0;bottom:0;display:flex;align-items:center;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+#annualTargetPage .coverbar .in{left:10px;color:#fff}
+#annualTargetPage .coverbar .out{right:10px;color:var(--mut)}
+#annualTargetPage .cover .lg{display:flex;gap:18px;font-size:11.5px;color:var(--mut);margin-top:10px;flex-wrap:wrap}
+#annualTargetPage .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#annualTargetPage .cmprow{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#annualTargetPage .cmprow:last-child{border-bottom:0}
+#annualTargetPage .cmpnum{width:26px;height:26px;border-radius:8px;background:#0b1526;border:1px solid var(--line2);display:grid;place-items:center;font-weight:800;font-size:12px;color:var(--blue);flex:none}
+#annualTargetPage .cmplbl{font-size:13.5px;font-weight:600;min-width:210px;flex:1}
+#annualTargetPage .cmplbl span{display:block;font-size:11px;color:var(--mut2);font-weight:500;margin-top:1px}
+#annualTargetPage .cmpval{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#annualTargetPage .chip{display:inline-flex;align-items:center;gap:9px;border-radius:10px;padding:7px 13px;font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+#annualTargetPage .chip .t{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;opacity:.95}
+#annualTargetPage .chip.a{background:rgba(79,140,255,.13);border:1px solid #2f4a7d;color:#bfd6ff}
+#annualTargetPage .chip.b{background:rgba(139,92,246,.15);border:1px solid #3b2f6e;color:#d9c9ff}
+#annualTargetPage .chip.single{background:var(--panel2);border:1px solid var(--line2);color:var(--txt)}
+#annualTargetPage .eq{font-size:11px;font-weight:800;color:#5ee98a;background:rgba(34,197,94,.13);padding:3px 9px;border-radius:20px}
+#annualTargetPage .coretbl{width:100%;border-collapse:collapse;font-size:12.5px}
+#annualTargetPage .coretbl th{padding:9px 10px;text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700;border-bottom:1px solid var(--line2)}
+#annualTargetPage .coretbl td{padding:11px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+#annualTargetPage .coretbl th:first-child, #annualTargetPage .coretbl td:first-child{text-align:left;font-family:var(--sans)}
+#annualTargetPage .coretbl tbody tr:hover{background:rgba(79,140,255,.05)}
+#annualTargetPage .coretbl .cblk{font-weight:600;color:var(--txt);border-right:1px solid var(--line);vertical-align:top}
+#annualTargetPage .cbn{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#0b1526;border:1px solid var(--line2);color:var(--blue);font-size:11px;font-weight:800;margin-right:8px;vertical-align:-4px}
+#annualTargetPage .cbsub{display:block;font-size:10.5px;color:var(--mut2);font-weight:500;margin-top:4px;padding-left:28px}
+#annualTargetPage .coretbl .ann{color:var(--mut);background:rgba(255,255,255,.015)}
+#annualTargetPage .coretbl .qcol{color:var(--txt);font-weight:700}
+#annualTargetPage .lnlbl{display:block;font-size:9.5px;color:var(--mut2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+#annualTargetPage .note{margin-top:12px;font-size:11.5px;color:var(--mut2);display:flex;gap:8px;align-items:flex-start}
+#annualTargetPage .note b{color:var(--mut)}
+#annualTargetPage .qcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:1000px){#annualTargetPage .qcards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){#annualTargetPage .qcards{grid-template-columns:1fr}}
+#annualTargetPage .qcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 14px 13px;position:relative;overflow:hidden}
+#annualTargetPage .qcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--blue),var(--cyan))}
+#annualTargetPage .qcard .qh{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:800;display:flex;align-items:center;gap:6px;min-height:26px}
+#annualTargetPage .qcard .qh i{font-style:normal;display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;background:#0b1526;border:1px solid var(--line2);color:var(--blue);font-size:10px;font-weight:800;flex:none}
+#annualTargetPage .qcard .qv{font-size:27px;font-weight:800;margin-top:9px;font-variant-numeric:tabular-nums;line-height:1}
+#annualTargetPage .qcard .qv small{font-size:12px;color:var(--mut);font-weight:600}
+#annualTargetPage .qcard .qline{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}
+#annualTargetPage .qcard .qline:last-of-type{border-bottom:0}
+#annualTargetPage .qcard .qline .ln{font-size:10.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+#annualTargetPage .qcard .qline b{font-variant-numeric:tabular-nums;font-size:15px}
+#annualTargetPage .carrytag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.3px;padding:2px 7px;border-radius:20px;background:rgba(148,163,184,.14);margin-left:7px;vertical-align:middle;white-space:nowrap}
+#annualTargetPage .qline .qright{display:inline-flex;align-items:baseline;gap:6px}
+#annualTargetPage .qcard .qs{font-size:10.5px;color:var(--mut2);margin-top:6px}
+#annualTargetPage .achrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:#b8c6e6;margin-top:8px}
+#annualTargetPage .achrow b{color:#eef3ff}
+#annualTargetPage .achnote{font-size:11.5px;color:#b8c6e6;margin-top:5px;line-height:1.45}
+#annualTargetPage .achnote b{color:#eef3ff}
+#annualTargetPage .metnote{font-size:11px;color:#9fe6b8;margin-top:6px;line-height:1.45}
+#annualTargetPage .sumstrip{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 14px}
+#annualTargetPage .sumchip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:12px;color:#c7d3ea}
+#annualTargetPage .sumchip b{font-size:16px;line-height:1}
+#annualTargetPage .attrow{display:grid;grid-template-columns:200px 1fr 150px 104px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+#annualTargetPage .attrow:last-child{border-bottom:0}
+#annualTargetPage .attrow .anm{font-size:12.5px;color:#dbe4f5;font-weight:600}
+#annualTargetPage .attrow .anm span{display:block;font-size:10.5px;color:#8fa2c4;font-weight:400;margin-top:1px}
+#annualTargetPage .attbar{height:9px;border-radius:20px;background:rgba(148,163,184,.14);overflow:hidden}
+#annualTargetPage .attbar i{display:block;height:100%;border-radius:20px}
+#annualTargetPage .attpct{font-size:12px;text-align:right;color:#cdd9f0;font-variant-numeric:tabular-nums}
+#annualTargetPage .heatwrap{overflow-x:auto}
+#annualTargetPage .heatwrap table{width:100%;border-collapse:separate;border-spacing:5px}
+#annualTargetPage .heatwrap th{font-size:11px;color:#8fa2c4;font-weight:700;text-align:center;padding:2px 4px}
+#annualTargetPage .heatwrap td{font-size:11.5px;padding:7px 8px;text-align:center}
+#annualTargetPage .heatwrap td:first-child{text-align:left;white-space:nowrap;color:#dbe4f5}
+#annualTargetPage .hb{font-weight:800;border-radius:7px}
+#annualTargetPage .hok{background:rgba(34,197,94,.18);color:#5ee98a}
+#annualTargetPage .hwarn{background:rgba(245,158,11,.16);color:#fbbf24}
+#annualTargetPage .hbad{background:rgba(239,68,68,.16);color:#fca5a5}
+#annualTargetPage .hpend{background:rgba(148,163,184,.10);color:#64748b}
+#annualTargetPage .hmet{background:rgba(56,189,248,.14);color:#7ec3ff}
+#annualTargetPage .metnote{font-size:11px;color:#9fe6b8;margin-top:6px;line-height:1.45}
+#annualTargetPage .metnote b{color:#5ee98a}
+#annualTargetPage .pempty{padding:16px;color:#64748b;font-size:12.5px;text-align:center;border:1px dashed var(--line);border-radius:10px}
+#annualTargetPage .pchip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+#annualTargetPage .carrybadge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:800;background:rgba(251,191,36,.14);color:#fbbf24;white-space:nowrap}
+#annualTargetPage .newbadge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:800;background:rgba(56,189,248,.14);color:#7ec3ff;white-space:nowrap}
+#annualTargetPage .callout{border:1px solid #2f4a7d;background:rgba(79,140,255,.08);border-radius:11px;padding:11px 14px;font-size:12.5px;color:#cdd9f0;margin-bottom:12px;line-height:1.6}
+#annualTargetPage .callout b{color:#7ec3ff}
+#annualTargetPage .callout .cv{color:#fbbf24;font-weight:800}
+#annualTargetPage #projBody table{width:100%;border-collapse:collapse;margin-top:2px}
+#annualTargetPage #projBody th, #annualTargetPage #projBody td{padding:9px 10px;font-size:12px;border-bottom:1px solid var(--line);text-align:left}
+#annualTargetPage #projBody th{color:#8fa2c4;font-weight:700;font-size:11px}
+#annualTargetPage #projBody td{white-space:normal}
+#annualTargetPage #projBody td:first-child{color:#e8eefb}
+#annualTargetPage .ayrow{display:grid;grid-template-columns:200px 1fr 170px 92px 104px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+#annualTargetPage .ayrow:last-child{border-bottom:0}
+#annualTargetPage .ayrow .anm{font-size:12.5px;color:#dbe4f5;font-weight:600}
+#annualTargetPage .ayrow .anm span{display:block;font-size:10.5px;color:#8fa2c4;font-weight:400;margin-top:1px}
+#annualTargetPage .ayannc{text-align:right;font-size:12.5px;color:#cdd9f0;font-variant-numeric:tabular-nums}
+#annualTargetPage .ayannc .aylbl{display:block;font-size:9.5px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
+#annualTargetPage .qwin{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 14px;border-radius:10px;font-size:12.5px;margin:0 0 16px;border:1px solid var(--line);background:rgba(148,163,184,.05)}
+#annualTargetPage .qwin b{font-size:13px;letter-spacing:.3px}
+#annualTargetPage .qwin span{color:#c7d3ea}
+#annualTargetPage .win-past{background:rgba(148,163,184,.07);border-color:#3a4358}
+#annualTargetPage .win-now{background:rgba(34,197,94,.08);border-color:#2f6b45}
+#annualTargetPage .win-now b{color:#5ee98a}
+#annualTargetPage .win-fcast{background:rgba(79,140,255,.07);border-color:#2f4a7d}
+#annualTargetPage .win-fcast b{color:#7ec3ff}
+#annualTargetPage .qdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:5px;vertical-align:middle}
+#annualTargetPage .qd-past{background:#54627f}
+#annualTargetPage .qd-now{background:#22c55e;box-shadow:0 0 7px rgba(34,197,94,.85)}
+#annualTargetPage .qd-fut{background:#39496a}
+#annualTargetPage .chipmini{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:20px}
+#annualTargetPage .badge-ok{background:rgba(34,197,94,.14);color:#5ee98a}
+#annualTargetPage .badge-warn{background:rgba(245,158,11,.15);color:#fbbf24}
+#annualTargetPage .badge-bad{background:rgba(239,68,68,.15);color:#fca5a5}
+#annualTargetPage .badge-pending{background:rgba(148,163,184,.16);color:#cbd5e1}
+#annualTargetPage .carrymark{font-size:9px;color:#fbbf24;margin-left:3px}
+#annualTargetPage .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px}
+#annualTargetPage .stat .k{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+#annualTargetPage .stat .v{font-size:25px;font-weight:800;margin:7px 0 2px;font-variant-numeric:tabular-nums}
+#annualTargetPage .stat .v small{font-size:13px;color:var(--mut);font-weight:600}
+#annualTargetPage .stat .h{font-size:11.5px;color:var(--mut2)}
+#annualTargetPage .rings{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+#annualTargetPage .ringwrap{flex:1;min-width:120px;text-align:center;position:relative}
+#annualTargetPage .ring{width:128px;height:128px;transform:rotate(-90deg)}
+#annualTargetPage .ringbg{fill:none;stroke:#0b1526;stroke-width:11}
+#annualTargetPage .ringfg{fill:none;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+#annualTargetPage .ringval{position:absolute;top:0;left:0;right:0;height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+#annualTargetPage .ringval b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+#annualTargetPage .ringval span{font-size:10.5px;color:var(--mut)}
+#annualTargetPage .ringlbl{font-size:11.5px;color:var(--mut);font-weight:600;margin-top:2px}
+#annualTargetPage .chart{width:100%;height:auto;display:block}
+#annualTargetPage .chart .grid{stroke:#1b2740;stroke-width:1}
+#annualTargetPage .chart .ax{fill:#64748b;font-size:11px;font-family:var(--sans)}
+#annualTargetPage .barT{fill:#2f4a7d}
+#annualTargetPage .barA{fill:url(#ga)}
+#annualTargetPage .legend{display:flex;gap:16px;font-size:11.5px;color:var(--mut);margin-top:6px;flex-wrap:wrap}
+#annualTargetPage .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#annualTargetPage table{width:100%;border-collapse:collapse;font-size:12.5px}
+#annualTargetPage th, #annualTargetPage td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+#annualTargetPage th{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut);font-weight:700}
+#annualTargetPage td.n, #annualTargetPage th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+#annualTargetPage tbody tr:hover{background:rgba(79,140,255,.05)}
+#annualTargetPage .mini{height:7px;border-radius:20px;background:#0a121f;overflow:hidden;min-width:70px}
+#annualTargetPage .mini > i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+#annualTargetPage .mini.warn > i{background:linear-gradient(90deg,var(--amber),#f97316)}
+#annualTargetPage .mini.bad > i{background:linear-gradient(90deg,var(--red),#f43f5e)}
+#annualTargetPage .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:20px}
+#annualTargetPage .t-ok{background:rgba(34,197,94,.14);color:#5ee98a}
+#annualTargetPage .t-warn{background:rgba(245,158,11,.15);color:#fbbf24}
+#annualTargetPage .t-bad{background:rgba(239,68,68,.15);color:#fca5a5}
+#annualTargetPage .st-closed{background:rgba(34,197,94,.14);color:#5ee98a}
+#annualTargetPage .st-open{background:rgba(245,158,11,.15);color:#fbbf24}
+#annualTargetPage .st-fcast{background:rgba(139,92,246,.16);color:#b39bfb}
+#annualTargetPage .qs{font-size:10.5px;margin-top:4px;display:inline-block;padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:.3px}
+#annualTargetPage footer{color:var(--mut2);font-size:11px;text-align:center;margin-top:26px;line-height:1.7}
+@media print{#annualTargetPage{--bg:#fff;--bg2:#fff;--panel:#fff;--panel2:#fff;--line:#d8dee9;--line2:#c3ccda;--txt:#0f172a;--mut:#475569;--mut2:#64748b}
+#annualTargetPage{background:#fff}
+#annualTargetPage .topbar .btn-ghost, #annualTargetPage .pillrow, #annualTargetPage .pagetabs{display:none}
+#annualTargetPage .panel, #annualTargetPage .stat, #annualTargetPage .qcard, #annualTargetPage .tier{break-inside:avoid;box-shadow:none}
+#annualTargetPage .tier.co{background:#f4f8ff}
+#annualTargetPage .tier.sa{background:#f7f4ff}
+#annualTargetPage .pctbadge{background:#fdecec;color:#b91c1c}}
+    </style>
+    <div id="annualTargetContainer" class="hidden mb-6" style="display:none;">
+      <div id="annualTargetPage">
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">QR</div>
+      <div>
+        <h1>Quarterly Report — Sales Target &amp; KPI</h1>
+        <p>Sales performance dashboard</p>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="pillrow" id="yearRow"></div>
+    <button class="btn-ghost" onclick="window.print()">🖨 Print / PDF</button>
+  </div>
+
+  <!-- ============ PAGE SWITCH ============ -->
+  <div class="pagetabs" id="pageTabs"></div>
+
+  <!-- ==================================================================== -->
+  <!-- =======================  PAGE: ANNUAL  ============================= -->
+  <!-- ==================================================================== -->
+  <div id="pageAnnual">
+
+    <!-- Annual Revenue (MGD vs Sales Dept) -->
+    <div class="panel">
+      <h2>Revenue Achieved vs Target</h2>
+      <p class="sub">Two levels · MGD full-year target, and the Sales Department's committed portion of it · values in VND bn</p>
+      <div class="hero">
+        <div class="tier co">
+          <div class="who"><span class="ic">🏢</span> MGD Revenue</div>
+          <div class="tagline">Company — full-year revenue target</div>
+          <div class="big"><span id="coAch">0</span><span class="of">/</span><small id="coTgt">1,400 B VND</small></div>
+          <div style="margin-top:10px"><span class="pctbadge" id="coPct">▼ 0% achieved</span></div>
+          <div class="prog"><i id="coBar" style="width:0%"></i></div>
+          <div class="progmeta"><span>Achieved <b id="coAch2">0</b> B</span><span>Target <b id="coTgt2">1,400</b> B</span></div>
+        </div>
+        <div class="tier sa">
+          <div class="who"><span class="ic">👥</span> Sales Department</div>
+          <div class="tagline">Committed portion of company target</div>
+          <div class="big"><span id="saAch">0</span><span class="of">/</span><small id="saTgt">250 B VND</small></div>
+          <div style="margin-top:10px"><span class="pctbadge" id="saPct">▼ 0% achieved</span></div>
+          <div class="prog v"><i id="saBar" style="width:0%"></i></div>
+          <div class="progmeta"><span>Achieved <b id="saAch2">0</b> B</span><span>Target <b id="saTgt2">250</b> B</span></div>
+        </div>
+      </div>
+      <div class="cover">
+        <div class="ct"><span>Sales Dept share of Company target</span><span id="covTxt">250 / 1,400 B = 17.9%</span></div>
+        <div class="coverbar">
+          <i id="covBar" style="width:17.86%"></i>
+          <span class="in" id="covIn">Sales 250 B (17.9%)</span>
+          <span class="out" id="covOut">Other 1,150 B (82.1%)</span>
+        </div>
+        <div class="lg">
+          <span><i class="dot" style="background:linear-gradient(180deg,#8b5cf6,#c084fc)"></i>Sales Department's committed portion</span>
+          <span><i class="dot" style="background:#2c3d5f"></i>Remainder of company target</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="panel">
+      <h2>Comparison — Annual Targets</h2>
+      <p class="sub">A = Company &nbsp;·&nbsp; B = Sales Dept &nbsp;·&nbsp; annual targets for <span id="cmpYear">2026</span></p>
+      <div class="cmp" id="cmpBody"></div>
+    </div>
+
+    <!-- Core blocks matrix -->
+    <div class="panel">
+      <h2>Core Blocks — Quarterly Target</h2>
+      <p class="sub">Annual target ÷ 4 → even split across Q1–Q4 · <span id="coreYear">2026</span></p>
+      <table class="coretbl">
+        <thead><tr><th>Core Block</th><th>Annual</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th></tr></thead>
+        <tbody id="coreBody"></tbody>
+      </table>
+      <div class="note"><span>i</span><span><b>÷4 rule:</b> each block's Annual target is split evenly across Q1–Q4 (Event Participating: 4/4/3/3).</span></div>
+    </div>
+
+    <!-- Quarterly overview -->
+    <div class="panel">
+      <h2>Quarterly Overview — All Quarters</h2>
+      <p class="sub" id="ovSub">Across the selected year</p>
+      <table>
+        <thead><tr><th>Quarter</th><th class="n">Target</th><th class="n">Actual</th><th class="n">Att.</th><th class="n">Won</th><th class="n">Running</th><th>Status</th></tr></thead>
+        <tbody id="ovBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ===== ANNUAL ANALYSIS — year-end roll-up of the six core blocks ===== -->
+    <div class="panel">
+      <h2>Annual Analysis — <span id="anAYear" style="color:var(--cyan)"></span></h2>
+      <p class="sub">Based on <b>Q1–Q3 actuals</b> (Q4 not started yet, excluded) · period target on the <b>original plan</b> (annual ÷ 4, no carry) · Period % = Q1–Q3 achieved ÷ period target · Annual % = Q1–Q3 achieved ÷ annual target · sorted worst-first</p>
+      <div class="sumstrip" id="anASummary"></div>
+      <div id="anABoard"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Annual Attainment Matrix</h2>
+      <p class="sub">Rows = blocks · cells = attainment % per quarter · YTD vs annual target · <span style="color:#5ee98a">green ≥ 100%</span> · <span style="color:#fbbf24">amber 80–99%</span> · <span style="color:#fca5a5">red &lt; 80%</span> · grey = pending</p>
+      <div class="heatwrap" id="anAHeat"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Projects Register — Year Summary <span id="projYearYr" style="color:var(--cyan)"></span></h2>
+      <p class="sub">Per quarter · live BMS register · ✅ Won · 🔵 Ongoing Bidding · 🟣 Follow-up · 🟡 Potential · ⚫ Cancel · 🟢 Close · amounts in B VND</p>
+      <div id="projYearTable"></div>
+      <div id="projYearLists" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- =======================  PAGE: QUARTER  ============================ -->
+  <!-- ==================================================================== -->
+  <div id="pageQuarter" style="display:none">
+
+    <!-- Quarter targets (5 core blocks) -->
+    <div class="panel">
+      <h2 id="qTitle">Q3 2026 — Targets</h2>
+      <p class="sub" id="qSub">Core blocks · this quarter's target (annual ÷ 4)</p>
+      <div class="qwin" id="qWin"></div>
+      <div class="qcards" id="qCards"></div>
+    </div>
+
+    <!-- ===== PERFORMANCE ANALYSIS — auto-computed from the 6 core blocks ===== -->
+    <div class="panel">
+      <h2>Performance Analysis — <span id="anQ" style="color:var(--cyan)"></span></h2>
+      <p class="sub">Auto-computed from the six core blocks · attainment = achieved ÷ effective target · sorted worst-first</p>
+      <div class="sumstrip" id="anSummary"></div>
+      <div class="attlist" id="anBoard"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Full-Year Attainment Heatmap</h2>
+      <p class="sub">Rows = blocks · cells = attainment % · <span style="color:#5ee98a">green ≥ 100%</span> · <span style="color:#fbbf24">amber 80–99%</span> · <span style="color:#fca5a5">red &lt; 80%</span> · grey = pending · YTD = cumulative achieved ÷ annual target</p>
+      <div class="heatwrap" id="anHeat"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Carry-over Flow — <span id="anQ2" style="color:var(--cyan)"></span></h2>
+      <p class="sub">Where this quarter's target came from, and what rolls into the next quarter</p>
+      <table>
+        <thead><tr><th>Block</th><th class="n">Base</th><th class="n">+ Carry-in</th><th class="n">= Effective</th><th class="n">Achieved</th><th class="n">Gap</th><th class="n">→ Carry-out</th><th>Status</th></tr></thead>
+        <tbody id="anFlow"></tbody>
+      </table>
+    </div>
+
+    <!-- ===== PROJECTS REGISTER — carry-over of bidding / follow-up projects ===== -->
+    <div class="panel" id="projPanel">
+      <h2>Projects Register — <span id="projQ" style="color:var(--cyan)"></span></h2>
+      <p class="sub">Projects carried across quarters · <b>Ongoing Bidding</b> · <b>Project Info (Follow-up)</b> · <b>Potential</b> · <b>Cancel</b> · <i>live BMS data</i></p>
+      <div id="projCallout"></div>
+      <div class="sumstrip" id="projSummary"></div>
+      <div id="projBody"></div>
+    </div>
+  </div>
+
+  <footer>
+    Annual Target — Sales Target &amp; KPI · data from BMS (Bid Tracking + Project Follow-up).<br>
+    Generated <span id="genDate"></span> · switch pages above (Annual 2026 / Q1–Q4) · 🖨 Print / PDF for a clean handout.
+  </footer>
+</div>
+      </div>
+    </div>
+    <script id="annualTargetScript">
+(function(){
+
+/* ============================================================
+   ANNUAL ANCHORS — Tony's figures (VND bn)
+   1400B = MGD full-year target · 250B = sales dept committed portion
+   ============================================================ */
+const ANCHOR = {
+  2026: { company:{ target:1400, achieved:0 }, sales:{ target:250, achieved:0 } },
+  2025: { company:{ target:1200, achieved:0 }, sales:{ target:220, achieved:0 }, sample:true }
+};
+
+/* ============================================================
+   COMPARISON ANCHORS — annual KPI targets
+   ============================================================ */
+const COMPARE = {
+  2026: {
+    bidProjects: { a:16, b:16 },       // A = Company, B = Sales Dept
+    newContacts: { v:160 },
+    events:      { v:14 },
+    bms:         { v:100, isPct:true }, // MGD BMS system
+    customerInteractions: { v:600 }     // annual total — times
+  }
+};
+
+/* ============================================================
+   CORE BLOCKS — 5 modules; annual ÷ 4 (or custom split)
+   ============================================================ */
+const CORE = {
+  2026: [
+    { key:"revenue", n:1, name:"Revenue Achieved vs Target", note:"MGD 1,400 B · Sales Dept 250 B",
+      lines:[ {label:"MGD Revenue", annual:1400, unit:"B VND"},
+              {label:"Sales Dept",  annual:250,  unit:"B VND"} ] },
+    { key:"bidding", n:2, name:"Projects Requiring Bidding", note:"A · Company 16 · B · Sales Dept 16",
+      lines:[ {label:"A · Company",    annual:16, unit:""},
+              {label:"B · Sales Dept", annual:16, unit:""} ] },
+    { key:"newContacts", n:3, name:"New Contacts", note:"annual total", lines:[ {label:"", annual:160, unit:""} ] },
+    { key:"events", n:4, name:"Event Participating", note:"annual total · split 4/4/3/3", lines:[ {label:"", annual:14, unit:"", quarters:[4,4,3,3]} ] },
+    { key:"bms", n:5, name:"MGD BMS System", note:"annual", lines:[ {label:"", annual:100, unit:"%"} ] },
+    { key:"customerInteractions", n:6, name:"Customer Interactions", note:"annual total · 600 times", lines:[ {label:"", annual:600, unit:""} ] }
+  ]
+};
+
+/* ============================================================
+   ACHIEVED — real/assumed actuals per quarter (missing = no data)
+   Tony's example: Q1 New Contacts achieved = 22 (Jan–Mar)
+   ============================================================ */
+const ACH = {
+  2026: {
+    revenue:              [ {Q1:0,Q2:35}, {Q1:0,Q2:0} ],   // line0 = MGD Revenue, line1 = Sales Dept
+    bidding:              [ {Q1:1,Q2:5}, {Q1:1,Q2:0} ],     // line0 = A Company,  line1 = B Sales Dept
+    newContacts:          [ {Q1:22,Q2:18} ],
+    events:               [ {Q1:5,Q2:15} ],
+    bms:                  [ {Q1:25,Q2:10} ],
+    customerInteractions: [ {Q1:30,Q2:200} ]
+  }
+};
+
+/* ============================================================
+   QUARTERLY SAMPLE DATA (demo only)
+   ============================================================ */
+const DB = {
+  2026: {
+    Q1:{status:"closed", revT:300, revA:268, contractsT:9, contractsWon:7, winRate:53, avgDeal:38.3, margin:17.5, pipeline:1520, leads:172,
+        months:[{m:"Jan",t:94,a:82},{m:"Feb",t:98,a:88},{m:"Mar",t:108,a:98}],
+        segs:[{n:"Industrial Factory",t:150,a:132},{n:"EPC & MEP",t:80,a:71},{n:"Civil & Infrastructure",t:45,a:40},{n:"Renovation",t:25,a:25}],
+        owners:[{n:"Alex",t:95,c:88,d:2},{n:"Bella",t:85,c:74,d:2},{n:"Chris",t:70,c:61,d:2},{n:"Dana",t:50,c:45,d:1}]},
+    Q2:{status:"closed", revT:340, revA:352, contractsT:10, contractsWon:11, winRate:62, avgDeal:32.0, margin:19.2, pipeline:1810, leads:196,
+        months:[{m:"Apr",t:108,a:112},{m:"May",t:112,a:121},{m:"Jun",t:120,a:119}],
+        segs:[{n:"Industrial Factory",t:170,a:184},{n:"EPC & MEP",t:90,a:96},{n:"Civil & Infrastructure",t:52,a:48},{n:"Renovation",t:28,a:24}],
+        owners:[{n:"Alex",t:105,c:116,d:3},{n:"Bella",t:95,c:99,d:3},{n:"Chris",t:80,c:78,d:3},{n:"Dana",t:60,c:59,d:2}]},
+    Q3:{status:"open",  revT:380, revA:305, contractsT:11, contractsWon:8, winRate:51, avgDeal:38.1, margin:16.8, pipeline:1640, leads:214,
+        months:[{m:"Jul",t:122,a:96},{m:"Aug",t:126,a:103},{m:"Sep",t:132,a:106}],
+        segs:[{n:"Industrial Factory",t:190,a:158},{n:"EPC & MEP",t:100,a:82},{n:"Civil & Infrastructure",t:58,a:42},{n:"Renovation",t:32,a:23}],
+        owners:[{n:"Alex",t:118,c:98,d:3},{n:"Bella",t:104,c:84,d:2},{n:"Chris",t:88,c:71,d:2},{n:"Dana",t:70,c:52,d:1}]},
+    Q4:{status:"fcast", revT:420, revA:398, contractsT:12, contractsWon:11, winRate:59, avgDeal:36.2, margin:18.4, pipeline:1980, leads:232,
+        months:[{m:"Oct",t:134,a:128},{m:"Nov",t:140,a:134},{m:"Dec",t:146,a:136}],
+        segs:[{n:"Industrial Factory",t:210,a:198},{n:"EPC & MEP",t:112,a:108},{n:"Civil & Infrastructure",t:62,a:56},{n:"Renovation",t:36,a:36}],
+        owners:[{n:"Alex",t:130,c:126,d:3},{n:"Bella",t:116,c:112,d:3},{n:"Chris",t:98,c:92,d:3},{n:"Dana",t:76,c:68,d:2}]}
+  }
+};
+
+/* ============================================================
+   helpers
+   ============================================================ */
+const state = { year:2026, page:"annual" };   // page: "annual" | "Q1".."Q4"
+const $  = id => document.getElementById(id);
+const money = n => (n==null?"—":Number(n).toLocaleString("en-US",{maximumFractionDigits:1}));
+const pct   = n => (n==null?"—":n.toFixed(0)+"%");
+const att   = (a,t) => t ? (a/t*100) : 0;
+const qOfPage = () => state.page === "annual" ? null : state.page;
+const quarterVal = (ln, qi) => ln.annual == null ? null : (ln.quarters ? ln.quarters[qi] : ln.annual / 4);
+const hasAch = () => !!(ACH[state.year] && Object.keys(ACH[state.year]).length);
+/* year-to-date achieved for one block line (sums across quarters with data) */
+function ytdAch(key, li){
+  const all = (ACH[state.year] || {})[key] || [];
+  const a = Array.isArray(all) ? (all[li || 0] || {}) : all;
+  return ["Q1","Q2","Q3","Q4"].reduce((s,q) => s + (typeof a[q] === "number" ? a[q] : 0), 0);
+}
+
+/* rolling target: base + carry-over of previous shortfalls */
+function rollingFor(key, li){
+  const list = CORE[state.year] || CORE[2026];
+  const b = list.find(x => x.key === key);
+  if(!b) return null;
+  const ln = b.lines[li || 0];
+  const annual = ln.annual;
+  const achAll = (ACH[state.year] || {})[key] || [];
+  const ach = Array.isArray(achAll) ? (achAll[li || 0] || {}) : achAll;
+  const out = []; let carry = 0, cum = 0;
+  ["Q1","Q2","Q3","Q4"].forEach((q, i) => {
+    const base = quarterVal(ln, i);
+    const metBefore = annual != null && cum >= annual;      // annual already reached
+    const eff = metBefore ? 0 : Math.max(0, base + carry);  // no target once met; never below 0
+    const a = ach[q];
+    const deficit = (a == null || metBefore) ? null : (eff - a);
+    out.push({ q, base, carryIn:carry, eff, achieved:(a==null?null:a), deficit, annual, metBefore });
+    carry = (metBefore || deficit == null) ? 0 : deficit;
+    if(a != null) cum += a;
+  });
+  return out;
+}
+const fmtVal = (v, unit) => unit === "%" ? money(v) + "%" : money(v);
+function band(p){ return p>=100?"ok" : p>=80?"warn" : "bad"; }
+function bandColor(p){ return p>=100?"#22c55e" : p>=80?"#f59e0b" : "#ef4444"; }
+function tagOf(p){ return p>=100?'<span class="tag t-ok">On / Above</span>' : p>=80?'<span class="tag t-warn">Behind</span>' : '<span class="tag t-bad">At Risk</span>'; }
+function stLabel(s){ return s==="closed"?'<span class="qs st-closed">Closed</span>' : s==="open"?'<span class="qs st-open">In Progress</span>' : '<span class="qs st-fcast">Forecast</span>'; }
+
+/* ============================================================
+   renderers
+   ============================================================ */
+function renderAnnual(){
+  const a = ANCHOR[state.year] || ANCHOR[2026], co = a.company, sa = a.sales;
+  /* achieved is derived from the quarterly actuals (Q1/Q2 so far), not hard-coded */
+  co.achieved = ytdAch("revenue", 0);
+  sa.achieved = ytdAch("revenue", 1);
+
+  const coP = att(co.achieved, co.target);
+  $("coAch").textContent = money(co.achieved);
+  $("coTgt").textContent = money(co.target) + " B VND";
+  $("coAch2").textContent = money(co.achieved);
+  $("coTgt2").textContent = money(co.target);
+  $("coBar").style.width = Math.min(coP,100) + "%";
+  $("coPct").textContent = (coP<=0 ? "▼ " : coP>=100 ? "▲ " : "▬ ") + coP.toFixed(0) + "% achieved";
+
+  const saP = att(sa.achieved, sa.target);
+  $("saAch").textContent = money(sa.achieved);
+  $("saTgt").textContent = money(sa.target) + " B VND";
+  $("saAch2").textContent = money(sa.achieved);
+  $("saTgt2").textContent = money(sa.target);
+  $("saBar").style.width = Math.min(saP,100) + "%";
+  $("saPct").textContent = (saP<=0 ? "▼ " : saP>=100 ? "▲ " : "▬ ") + saP.toFixed(0) + "% achieved";
+
+  const cov = att(sa.target, co.target), other = co.target - sa.target;
+  $("covBar").style.width = Math.min(cov,100) + "%";
+  $("covTxt").textContent = `${money(sa.target)} / ${money(co.target)} B = ${cov.toFixed(1)}%`;
+  $("covIn").textContent  = `Sales ${money(sa.target)} B (${cov.toFixed(1)}%)`;
+  $("covOut").textContent = `Other ${money(other)} B (${(100-cov).toFixed(1)}%)`;
+  $("covIn").style.display = cov < 26 ? "none" : "";
+}
+
+function renderCompare(){
+  const c = COMPARE[state.year] || COMPARE[2026];
+  const row = (n, lbl, sub, chips, eq) => `
+    <div class="cmprow">
+      <div class="cmpnum">${n}</div>
+      <div class="cmplbl">${lbl}<span>${sub}</span></div>
+      <div class="cmpval">${chips}${eq?'<span class="eq">= Equal</span>':''}</div>
+    </div>`;
+  const chipA = v => `<span class="chip a"><span class="t">A · Company</span>${v}</span>`;
+  const chipB = v => `<span class="chip b"><span class="t">B · Sales Dept</span>${v}</span>`;
+  const chipS = v => `<span class="chip single">${v==null?"—":v}</span>`;
+  const eq = c.bidProjects.a === c.bidProjects.b;
+  $("cmpYear").textContent = state.year;
+  $("cmpBody").innerHTML =
+    row(1, "Projects Requiring Bidding", "Annual · projects requiring bidding", chipA(c.bidProjects.a) + chipB(c.bidProjects.b), eq) +
+    row(2, "New Contacts", "Annual total · new contacts", chipS(c.newContacts.v)) +
+    row(3, "Event Participating", "Annual total · events", chipS(c.events.v)) +
+    row(4, "MGD BMS System", "Annual · MGD BMS system", chipS(c.bms.isPct ? c.bms.v + "%" : c.bms.v)) +
+    row(5, "Customer Interactions", "Annual total · interactions", chipS(c.customerInteractions ? c.customerInteractions.v : null));
+}
+
+function renderCore(){
+  const list = CORE[state.year] || CORE[2026];
+  let html = "";
+  list.forEach(b => {
+    b.lines.forEach((ln, i) => {
+      html += "<tr>";
+      if(i === 0){
+        html += `<td rowspan="${b.lines.length}" class="cblk"><span class="cbn">${b.n}</span>${b.name}<span class="cbsub">${b.note || ""}</span></td>`;
+      }
+      html += `<td class="ann">${ln.label ? '<span class="lnlbl">' + ln.label + '</span>' : ''}${fmtVal(ln.annual, ln.unit)}${ln.unit && ln.unit !== "%" ? " " + ln.unit : ""}</td>`;
+      const roll = (b.key && (ACH[state.year]||{})[b.key]) ? rollingFor(b.key, i) : null;
+      for(let q = 0; q < 4; q++){
+        const r = roll ? roll[q] : null;
+        const v = r ? r.eff : quarterVal(ln, q);
+        const mk = r && r.carryIn > 0 ? '<span class="carrymark">↑</span>' : (r && r.carryIn < 0 ? '<span class="carrymark" style="color:#5ee98a">↓</span>' : "");
+        html += `<td class="qcol">${fmtVal(v, ln.unit)}${mk}</td>`;
+      }
+      html += "</tr>";
+    });
+  });
+  $("coreBody").innerHTML = html;
+  $("coreYear").textContent = state.year;
+}
+
+function renderQuarterTargets(){
+  const list = CORE[state.year] || CORE[2026];
+  const qi = ["Q1","Q2","Q3","Q4"].indexOf(state.page);
+  $("qTitle").textContent = `${state.page} ${state.year} — Targets`;
+  $("qSub").textContent = `Core blocks · this quarter's target (annual ÷ 4` + (hasAch() ? " · with carry-over" : "") + ") · 3 months per quarter, stops at expiry";
+  $("qCards").innerHTML = list.map(b => {
+    const hasA = !!(b.key && (ACH[state.year] || {})[b.key]);
+    let body;
+    if(b.lines.length === 1){
+      const ln = b.lines[0];
+      const roll = hasA ? rollingFor(b.key, 0) : null;
+      const eff = roll ? roll[qi].eff : quarterVal(ln, qi);
+      const unitS = ln.unit && ln.unit !== "%" ? ' <small>' + ln.unit + '</small>' : "";
+      let inl = "";
+      if(roll && !roll[qi].metBefore){
+        const r = roll[qi];
+        if(r.carryIn !== 0){
+          const c = r.carryIn, cc = c > 0 ? "#fbbf24" : "#5ee98a";
+          inl = '<span class="carrytag" style="color:' + cc + '">carry ' + (c>0?"+":"") + money(c) + '</span>';
+        }
+      } else if(roll && roll[qi].metBefore && roll[qi].achieved != null){
+        inl = '<span class="carrytag" style="color:#5ee98a;background:rgba(34,197,94,.16)">Done ' + money(roll[qi].achieved) + (ln.unit === "%" ? "%" : "") + '</span>';
+      }
+      body = '<div class="qv">' + fmtVal(eff, ln.unit) + unitS + inl + '</div>';
+      if(roll){
+        const r = roll[qi];
+        if(r.metBefore){
+          body += '<div class="metnote"><b>✓ Annual ' + (ln.annual != null ? money(ln.annual) + (ln.unit === "%" ? "%" : "") : "") + ' met</b> · extra counts as bonus</div>';
+        } else if(r.achieved != null){
+          const us = ln.unit === "%" ? "%" : "";
+          const p = att(r.achieved, r.eff);
+          const isShort = r.deficit > 0, isOver = r.deficit < 0;
+          const col = isShort ? "#fca5a5" : (isOver ? "#5ee98a" : "#8fa2c4");
+          const lbl = isShort ? "Shortfall" : (isOver ? "Surplus" : "On target");
+          const val = isShort ? (money(r.deficit) + us) : (isOver ? ("+" + money(-r.deficit) + us) : "0");
+          body += '<div class="achrow"><span>Achieved <b>' + money(r.achieved) + us + '</b></span><span>' + lbl + ' <b style="color:' + col + '">' + val + '</b></span>' +
+                  '<span class="chipmini ' + (p>=100?'badge-ok':p>=80?'badge-warn':'badge-bad') + '">' + p.toFixed(0) + '%</span></div>';
+        }
+      }
+    } else {
+      body = b.lines.map((ln, i) => {
+        const roll = hasA ? rollingFor(b.key, i) : null;
+        const v = roll ? roll[qi].eff : quarterVal(ln, qi);
+        let inl = "", note = "";
+        if(roll){
+          const r = roll[qi];
+          if(r.metBefore){
+            note = '<b style="color:#5ee98a">✓ Annual ' + (ln.annual != null ? money(ln.annual) + (ln.unit === "%" ? "%" : "") : "") + ' met</b>' + (r.achieved != null ? ' · this quarter done <b>' + money(r.achieved) + (ln.unit === "%" ? "%" : "") + '</b> (extra counts as bonus)' : ' · none this quarter, extra counts as bonus');
+          } else {
+            if(r.carryIn !== 0){
+              const c = r.carryIn, cc = c > 0 ? "#fbbf24" : "#5ee98a";
+              inl = '<span class="carrytag" style="color:' + cc + '">carry ' + (c>0?"+":"") + money(c) + '</span>';
+            }
+            if(r.achieved != null){
+              const p = att(r.achieved, r.eff);
+              const isShort = r.deficit > 0, isOver = r.deficit < 0;
+              const lbl = isShort ? "short" : (isOver ? "surplus" : "on target");
+              const col = isShort ? "#fca5a5" : (isOver ? "#5ee98a" : "#8fa2c4");
+              const val = isShort ? money(r.deficit) : (isOver ? "+" + money(-r.deficit) : "0");
+              note = 'ach <b>' + money(r.achieved) + '</b> · ' + lbl + ' <b style="color:' + col + '">' + val + '</b> · ' + p.toFixed(0) + '%';
+            }
+          }
+        }
+        return '<div class="qline"><span class="ln">' + ln.label + '</span><span class="qright"><b>' + fmtVal(v, ln.unit) + '</b>' + inl + '</span></div>' + (note ? '<div class="achnote">' + note + '</div>' : "");
+      }).join("");
+    }
+    return `<div class="qcard"><div class="qh"><i>${b.n}</i>${b.name}</div>${body}<div class="qs">${b.note || ""}</div></div>`;
+  }).join("");
+}
+
+/* carry-over analysis tables (one tbody per block with achieved data) */
+function renderRolling(){
+  const list = CORE[state.year] || CORE[2026];
+  list.forEach(b => {
+    if(!b.key) return;
+    const el = document.getElementById("roll_" + b.key);
+    if(!el) return;
+    const roll = rollingFor(b.key, 0);
+    if(!roll) return;
+    el.innerHTML = roll.map(x => {
+      const p = x.achieved != null ? att(x.achieved, x.eff) : null;
+      const st = x.achieved == null ? '<span class="tag badge-pending">Pending</span>' : tagOf(p);
+      const isCur = x.q === state.page;
+      return `<tr${isCur?' style="background:rgba(79,140,255,.07)"':''}>` +
+        `<td><b>${x.q}</b></td>` +
+        `<td class="n">${money(x.base)}</td>` +
+        `<td class="n">${x.carryIn > 0 ? '<span style="color:#fbbf24">+'+money(x.carryIn)+'</span>' : (x.carryIn < 0 ? '<span style="color:#5ee98a">'+money(x.carryIn)+'</span>' : '—')}</td>` +
+        `<td class="n"><b>${money(x.eff)}</b></td>` +
+        `<td class="n">${x.achieved != null ? money(x.achieved) : '—'}</td>` +
+        `<td class="n">${x.deficit != null ? (x.deficit > 0 ? '<span style="color:#fca5a5">'+money(x.deficit)+'</span>' : '<span style="color:#5ee98a">0</span>') : '—'}</td>` +
+        `<td class="n">${p != null ? p.toFixed(0)+'%' : '—'}</td>` +
+        `<td>${st}</td></tr>`;
+    }).join("");
+  });
+}
+
+function renderQuarter(){
+  const y = DB[state.year], d = y[state.page];
+
+  $("kCw").innerHTML = `${d.contractsWon} <small>/ ${d.contractsT}</small>`;
+  $("kCwH").textContent = "contracts won vs target";
+  $("kWr").innerHTML = `${d.winRate}<small>%</small>`;
+  $("kWrH").textContent = "bids won ÷ bids submitted";
+  $("kAd").innerHTML = `${money(d.avgDeal)}<small> bn</small>`;
+  $("kAdH").textContent = "average closed deal";
+  const cov = d.pipeline / d.revT;
+  $("kPc").innerHTML = `${cov.toFixed(1)}<small>×</small>`;
+  $("kPcH").textContent = "pipeline ÷ target";
+
+  const ringDefs = [
+    {lbl:"Revenue",      a:d.revA,        t:d.revT},
+    {lbl:"Contracts",    a:d.contractsWon,t:d.contractsT},
+    {lbl:"Win Rate",     a:d.winRate,     t:60,  raw:"%"},
+    {lbl:"Gross Margin", a:d.margin,      t:20,  raw:"%"},
+    {lbl:"Pipeline Cov.",a:cov,           t:4,   raw:"×"}
+  ];
+  $("rings").innerHTML = ringDefs.map(r => {
+    const p = att(r.a, r.t);
+    const shown = r.raw==="%" ? r.a+"%" : r.raw==="×" ? r.a.toFixed(1)+"×" : money(r.a);
+    return ring(p, r.lbl, shown, "tgt " + (r.raw==="%" ? r.t+"%" : r.raw==="×" ? r.t+"×" : money(r.t)), bandColor(p));
+  }).join("");
+
+  drawMonths(d.months);
+
+  $("segBody").innerHTML = d.segs.map(s => {
+    const p = att(s.a, s.t);
+    return `<tr><td>${s.n}</td><td class="n">${money(s.t)}</td><td class="n">${money(s.a)}</td>
+      <td class="n">${pct(p)}</td><td><div class="mini ${band(p)}"><i style="width:${Math.min(p,100)}%"></i></div></td></tr>`;
+  }).join("");
+
+  const kpis = [
+    {n:"Revenue (VND bn)",  t:d.revT,       a:d.revA,         f:money},
+    {n:"Contracts Won",     t:d.contractsT, a:d.contractsWon, f:v=>v},
+    {n:"Win Rate (%)",      t:60,           a:d.winRate,      f:v=>v+"%"},
+    {n:"Average Deal (bn)", t:34,           a:d.avgDeal,      f:money},
+    {n:"Gross Margin (%)",  t:20,           a:d.margin,       f:v=>v+"%"},
+    {n:"Pipeline (bn)",     t:d.revT*4,     a:d.pipeline,     f:money},
+    {n:"New Leads",         t:200,          a:d.leads,        f:v=>v}
+  ];
+  $("kpiBody").innerHTML = kpis.map(k => {
+    const p = att(k.a, k.t), varr = k.a - k.t;
+    return `<tr><td>${k.n}</td><td class="n">${k.f(k.t)}</td><td class="n">${k.f(k.a)}</td>
+      <td class="n" style="color:${varr>=0?'#5ee98a':'#fca5a5'}">${varr>=0?"+":""}${k.f(varr)}</td>
+      <td><div class="mini ${band(p)}"><i style="width:${Math.min(p,100)}%"></i></div></td>
+      <td>${tagOf(p)}</td></tr>`;
+  }).join("");
+
+  $("ownerBody").innerHTML = d.owners.map(o => {
+    const p = att(o.c, o.t);
+    return `<tr><td>${o.n}</td><td class="n">${money(o.t)}</td><td class="n">${money(o.c)}</td>
+      <td class="n">${o.d}</td><td class="n">${pct(p)}</td>
+      <td><div class="mini ${band(p)}"><i style="width:${Math.min(p,100)}%"></i></div></td>
+      <td>${tagOf(p)}</td></tr>`;
+  }).join("");
+
+  $("monthSub").textContent = `${state.page} ${state.year} · VND bn`;
+}
+
+function renderOverview(){
+  /* live roll-up: revenue plan (annual ÷ 4) + achieved, project counts from the register */
+  const revBlk = (CORE[state.year] || []).filter(b => b.key === "revenue")[0];
+  const plan = revBlk ? (revBlk.lines[0].annual / 4) : null;
+  const aRev = ((ACH[state.year] || {}).revenue || [])[0] || {};
+  $("ovSub").textContent = `All quarters · ${state.year} · revenue in VND bn · project counts from the register`;
+  $("ovBody").innerHTML = QORDER.map(q => {
+    const reg = registerFor(q);
+    const won = reg.filter(p => p.tl[q] === "won").length;
+    const run = reg.filter(p => ["bidding","followup","potential"].indexOf(p.tl[q]) >= 0).length;
+    const future = (state.year === new Date().getFullYear()) && (QORDER.indexOf(q) > QORDER.indexOf(curQuarter()));
+    const a = (!future && aRev[q] != null) ? aRev[q] : null;
+    const p = (a != null && plan) ? att(a, plan) : null;
+    const st = p == null ? '<span class="tag badge-pending">' + (future ? 'Forecast' : 'No data') + '</span>' : tagOf(p);
+    return '<tr><td><b>' + q + '</b></td><td class="n">' + (plan != null ? money(plan) : "—") + '</td>' +
+      '<td class="n">' + (a != null ? money(a) : "—") + '</td><td class="n">' + (p != null ? pct(p) : "—") + '</td>' +
+      '<td class="n">' + won + '</td><td class="n">' + run + '</td><td>' + st + '</td></tr>';
+  }).join("");
+}
+
+/* ------- month bar chart (hand-rolled SVG) ------- */
+function drawMonths(months){
+  const W=760,H=260,P={l:52,r:14,t:16,b:34};
+  const iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const max=Math.max(1, ...months.flatMap(m=>[m.t,m.a])) * 1.12;
+  const step=iw/months.length;
+  const bw=Math.min(34, step/3.4);
+  let svg="";
+  for(let g=0; g<=4; g++){
+    const y=P.t+ih-ih*g/4, val=max*g/4;
+    svg+=`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" class="grid"/>`;
+    svg+=`<text x="${P.l-8}" y="${y+4}" class="ax" text-anchor="end">${Math.round(val)}</text>`;
+  }
+  months.forEach((m,i)=>{
+    const cx=P.l+step*i+step/2;
+    const th=ih*m.t/max, ah=ih*m.a/max;
+    svg+=`<rect x="${cx-bw-3}" y="${P.t+ih-th}" width="${bw}" height="${th}" rx="3" class="barT"/>`;
+    svg+=`<rect x="${cx+3}"     y="${P.t+ih-ah}" width="${bw}" height="${ah}" rx="3" class="barA"/>`;
+    svg+=`<text x="${cx}" y="${P.t+ih+22}" class="ax" text-anchor="middle">${m.m}</text>`;
+    svg+=`<text x="${cx-bw/2-3}" y="${P.t+ih-th-5}" class="ax" text-anchor="middle" fill="#7f8db0">${m.t}</text>`;
+    svg+=`<text x="${cx+bw/2+3}" y="${P.t+ih-ah-5}" class="ax" text-anchor="middle" fill="#7ec3ff">${m.a}</text>`;
+  });
+  $("monthChart").innerHTML =
+    `<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0%" stop-color="#4f8cff"/><stop offset="100%" stop-color="#38bdf8"/>
+     </linearGradient></defs>` + svg;
+}
+
+/* ------- ring gauge ------- */
+function ring(p, label, value, sub, color){
+  const r=52, c=2*Math.PI*r;
+  const off=c*(1-Math.min(p,100)/100);
+  return `<div class="ringwrap">
+    <svg viewBox="0 0 130 130" class="ring">
+      <circle cx="65" cy="65" r="${r}" class="ringbg"/>
+      <circle cx="65" cy="65" r="${r}" class="ringfg" stroke="${color}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+    </svg>
+    <div class="ringval"><b style="color:${color}">${value}</b><span>${sub}</span></div>
+    <div class="ringlbl">${label}</div>
+  </div>`;
+}
+
+/* ------- performance analysis (driven by the 6 core blocks) ------- */
+function analysisLines(){
+  const list = CORE[state.year] || CORE[2026];
+  const out = [];
+  list.forEach(b => b.lines.forEach((ln, i) => out.push({
+    b, ln, li:i,
+    roll: (b.key && (ACH[state.year] || {})[b.key]) ? rollingFor(b.key, i) : null
+  })));
+  return out;
+}
+function anMain(x){ return x.ln.label || x.b.name; }
+function anSub(x){ return (x.ln.label ? x.b.name + " · " : "") + "Annual " + fmtVal(x.ln.annual, x.ln.unit) + (x.ln.unit && x.ln.unit !== "%" ? " " + x.ln.unit : ""); }
+function anChip(ico, lbl, n, col){ return '<span class="sumchip"><span style="font-size:15px">' + ico + '</span><b style="color:' + col + '">' + n + '</b>' + lbl + '</span>'; }
+
+function renderAnalysis(){
+  const qi = ["Q1","Q2","Q3","Q4"].indexOf(state.page);
+  if(qi < 0) return;
+  const q = state.page;
+  $("anQ").textContent = q + " " + state.year;
+  $("anQ2").textContent = q + " " + state.year;
+
+  const lines = analysisLines();
+
+  /* ---- summary + attainment board ---- */
+  let met=0, watch=0, risk=0, pend=0;
+  const rows = lines.map(x => {
+    const r = x.roll ? x.roll[qi] : null;
+    const eff = r ? r.eff : quarterVal(x.ln, qi);
+    const a = r ? r.achieved : null;
+    const metB = r ? r.metBefore : false;
+    let p = null, cat;
+    if(metB){ cat = "met"; met++; }
+    else if(a == null){ cat = "pend"; pend++; }
+    else { p = att(a, eff); if(p >= 100){ cat="met"; met++; } else if(p >= 80){ cat="watch"; watch++; } else { cat="risk"; risk++; } }
+    return { x, eff, a, p, cat, metB };
+  });
+
+  $("anSummary").innerHTML =
+    anChip("✅","Met",met,"#5ee98a") + anChip("🟡","Watch 80–99%",watch,"#fbbf24") +
+    anChip("🔴","At risk < 80%",risk,"#fca5a5") + anChip("⚪","Pending",pend,"#94a3b8");
+
+  const ord = { risk:0, watch:1, met:2, pend:3 };
+  const sorted = rows.slice().sort((A,B) => ord[A.cat] !== ord[B.cat] ? ord[A.cat]-ord[B.cat] : ((A.p==null?999:A.p)-(B.p==null?999:B.p)));
+  $("anBoard").innerHTML = sorted.map(o => {
+    const x = o.x, us = x.ln.unit === "%" ? "%" : "";
+    let bar, right, chip;
+    if(o.cat === "pend"){
+      bar = '<i style="width:0%"></i>';
+      right = '<span style="color:#64748b">— / ' + fmtVal(o.eff, x.ln.unit) + '</span>';
+      chip = '<span class="tag badge-pending">Pending</span>';
+    } else if(o.metB){
+      bar = '<i style="width:100%;background:#38bdf8"></i>';
+      right = '<span style="color:#7ec3ff">' + money(o.a) + us + ' · annual met</span>';
+      chip = '<span class="tag t-ok">Met ✓</span>';
+    } else {
+      const col = bandColor(o.p);
+      bar = '<i style="width:' + Math.min(o.p,100).toFixed(1) + '%;background:' + col + '"></i>';
+      right = money(o.a) + us + ' / ' + fmtVal(o.eff, x.ln.unit) + ' <b style="color:' + col + '">' + o.p.toFixed(0) + '%</b>';
+      chip = tagOf(o.p);
+    }
+    return '<div class="attrow"><div class="anm">' + anMain(x) + '<span>' + anSub(x) + '</span></div>' +
+           '<div class="attbar">' + bar + '</div><div class="attpct">' + right + '</div><div>' + chip + '</div></div>';
+  }).join("");
+
+  /* ---- full-year heatmap ---- */
+  const qs = ["Q1","Q2","Q3","Q4"];
+  let h = '<table><thead><tr><th style="text-align:left">Block</th>' + qs.map(x => '<th>' + x + '</th>').join("") + '<th>YTD</th></tr></thead><tbody>';
+  lines.forEach(x => {
+    h += '<tr><td style="text-align:left"><b>' + anMain(x) + '</b>' + (x.ln.label ? '<span style="color:#64748b"> · ' + x.b.name + '</span>' : '') + '</td>';
+    let sumA = 0, hasA = false;
+    qs.forEach((qq, k) => {
+      const r = x.roll ? x.roll[k] : null;
+      const eff = r ? r.eff : quarterVal(x.ln, k);
+      const a = r ? r.achieved : null;
+      const metB = r ? r.metBefore : false;
+      let cls = "hpend", txt = "—";
+      if(metB){ cls = "hmet"; txt = "met"; }
+      else if(a != null){ const p = att(a, eff); cls = p>=100?"hok":p>=80?"hwarn":"hbad"; txt = p.toFixed(0) + "%"; sumA += a; hasA = true; }
+      h += '<td class="hb ' + cls + '">' + txt + '</td>';
+    });
+    const ytd = (hasA && x.ln.annual) ? att(sumA, x.ln.annual) : null;
+    h += '<td class="hb ' + (ytd==null?"hpend":ytd>=100?"hok":ytd>=80?"hwarn":"hbad") + '">' + (ytd==null?"—":ytd.toFixed(0) + "%") + '</td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  $("anHeat").innerHTML = h;
+
+  /* ---- carry-over flow ---- */
+  $("anFlow").innerHTML = lines.map(x => {
+    const r = x.roll ? x.roll[qi] : null;
+    const nxt = x.roll ? x.roll[qi+1] : null;
+    const us = x.ln.unit === "%" ? "%" : "";
+    const base = r ? r.base : quarterVal(x.ln, qi);
+    const cIn  = r ? r.carryIn : 0;
+    const eff  = r ? r.eff : quarterVal(x.ln, qi);
+    const a    = r ? r.achieved : null;
+    const gap  = r ? r.deficit : null;
+    const cOut = nxt ? nxt.carryIn : null;
+    let st;
+    if(r && r.metBefore) st = '<span class="tag t-ok">Met ✓</span>';
+    else if(a == null) st = '<span class="tag badge-pending">Pending</span>';
+    else st = tagOf(att(a, eff));
+    const signed = v => v == null ? '—' : (v > 0 ? '<span style="color:#fbbf24">+' + money(v) + us + '</span>' : (v < 0 ? '<span style="color:#5ee98a">' + money(v) + us + '</span>' : '0'));
+    const gapped = v => v == null ? '—' : (v > 0 ? '<span style="color:#fca5a5">' + money(v) + us + '</span>' : (v < 0 ? '<span style="color:#5ee98a">' + money(v) + us + '</span>' : '0'));
+    return '<tr>' +
+      '<td>' + anMain(x) + (x.ln.label ? ' <span style="color:#64748b">· ' + x.b.name + '</span>' : '') + '</td>' +
+      '<td class="n">' + fmtVal(base, x.ln.unit) + '</td>' +
+      '<td class="n">' + signed(cIn) + '</td>' +
+      '<td class="n"><b>' + fmtVal(eff, x.ln.unit) + '</b></td>' +
+      '<td class="n">' + (a == null ? '—' : money(a) + us) + '</td>' +
+      '<td class="n">' + gapped(gap) + '</td>' +
+      '<td class="n">' + signed(cOut) + '</td>' +
+      '<td>' + st + '</td></tr>';
+  }).join("");
+}
+
+/* ------- Projects register (timeline per quarter, demo Q1–Q4) ------- */
+const PROJECTS = [
+  { name:"VSIP Factory – Warehouse Block C", from:"Q1", tl:{Q1:"bidding",Q2:"bidding",Q3:"bidding",Q4:"won"},  note:"Bidding Q1–Q3 → signed Q4" },
+  { name:"Long Hau Industrial – Factory A",  from:"Q1", tl:{Q1:"followup",Q2:"followup",Q3:"followup",Q4:"won"}, note:"Project Info / follow-up → signed Q4" },
+  { name:"Hiep Phuoc – MEP Package",         from:"Q2", tl:{Q2:"followup",Q3:"followup",Q4:"close"},          note:"Follow-up → closed Q4" },
+  { name:"Amata Park – Factory Extension",   from:"Q2", tl:{Q2:"potential",Q3:"potential",Q4:"bidding"},      note:"Potential → bidding Q4" },
+  { name:"Becamex – Factory Block D",        from:"Q3", tl:{Q3:"bidding",Q4:"bidding"},                       note:"New bid opened Q3" },
+  { name:"Long An – Logistic Warehouse",     from:"Q4", tl:{Q4:"potential"},                                  note:"New enquiry Q4" },
+  { name:"Phytopharma Ltd. Co",          from:"Q2", tl:{Q2:"won"}, val:35, note:"Signed Q2 · 35B VND" },
+  { name:"Sembcorp – LMX Warehouse",         from:"Q1", tl:{Q1:"won"},                                        note:"Signed Q1" },
+  { name:"Dong Xuyen – Anodizing Line",      from:"Q1", tl:{Q1:"cancel"},                                     note:"Cancelled Q1" }
+];
+const PTYPE = {
+  won:       { lbl:"Won",       col:"#5ee98a", bg:"rgba(34,197,94,.16)" },
+  bidding:   { lbl:"Ongoing Bidding", col:"#7ec3ff", bg:"rgba(56,189,248,.14)" },
+  followup:  { lbl:"Follow-up", col:"#c084fc", bg:"rgba(139,92,246,.16)" },
+  potential: { lbl:"Potential",       col:"#fbbf24", bg:"rgba(245,158,11,.16)" },
+  cancel:    { lbl:"Cancel",    col:"#94a3b8", bg:"rgba(148,163,184,.12)" },
+  close:     { lbl:"Close",           col:"#38bdf8", bg:"rgba(56,189,248,.10)" }
+};
+const QORDER = ["Q1","Q2","Q3","Q4"];
+const qIdx = q => QORDER.indexOf(q);
+const prevQ = q => { const i = qIdx(q); return i > 0 ? QORDER[i-1] : null; };
+const nextQof = (p, q) => { const ks = QORDER.filter(k => p.tl[k]); const j = ks.indexOf(q); return (j >= 0 && j < ks.length-1) ? ks[j+1] : null; };
+
+/* ------- quarter time windows: each Q = 3 months, expires after its window ------- */
+const QWIN = { Q1:"Jan \u2013 Mar", Q2:"Apr \u2013 Jun", Q3:"Jul \u2013 Sep", Q4:"Oct \u2013 Dec" };
+function curQuarter(){
+  const m = new Date().getMonth();                       /* 0 = Jan */
+  return ["Q1","Q1","Q1","Q2","Q2","Q2","Q3","Q3","Q3","Q4","Q4","Q4"][m];
+}
+function renderQuarterWin(){
+  const el = $("qWin"); if(!el) return;
+  const q = state.page;
+  if(q === "annual"){ el.innerHTML = ""; el.style.display = "none"; return; }
+  el.style.display = "";
+  const i = qIdx(q), c = qIdx(curQuarter());
+  const win = QWIN[q] + " " + state.year;
+  let cls, msg;
+  if(i < c){ cls = "win-past"; msg = "🔒 Closed · past its window · data frozen"; }
+  else if(i === c){ cls = "win-now"; msg = "🟢 In progress · record this quarter's data here"; }
+  else { cls = "win-fcast"; msg = "🔵 Not started · Forecast"; }
+  el.className = "qwin " + cls;
+  el.innerHTML = '<b>' + win + '</b><span>' + msg + '</span>';
+}
+
+function renderProjects(){
+  const q = state.page;
+  $("projQ").textContent = q + " " + state.year;
+  const pv = prevQ(q);
+  const src = registerFor(q);
+  const active = src.filter(p => p.tl[q]);
+  const isCarry = p => pv ? !!p.tl[pv] : (p.from !== q);
+  const cnt = t => active.filter(p => p.tl[q] === t).length;
+
+  $("projSummary").innerHTML =
+    anChip("✅", "Won", cnt("won"), PTYPE.won.col) +
+    anChip("🔵", "Ongoing Bidding", cnt("bidding"), PTYPE.bidding.col) +
+    anChip("🟣", "Follow-up", cnt("followup"), PTYPE.followup.col) +
+    anChip("🟡", "Potential", cnt("potential"), PTYPE.potential.col) +
+    anChip("⚫", "Cancel", cnt("cancel"), PTYPE.cancel.col) +
+    anChip("🟢", "Close", cnt("close"), PTYPE.close.col);
+
+  const carried = active.filter(isCarry);
+  const fresh = active.filter(p => !isCarry(p));
+  const wonNow = active.filter(p => p.tl[q] === 'won');
+  if(pv){
+    $("projCallout").innerHTML = '<div class="callout"><b>Carried from ' + pv + ' to ' + q + ':</b><span class="cv">' + carried.length + ' projects</span> — ' +
+      (carried.length ? carried.map(p => p.name + ' (' + PTYPE[p.tl[q]].lbl + ')').join("; ") : '—') +
+      (fresh.length ? '<br>' + q + ' new <b>' + fresh.length + '</b>: ' + fresh.map(p => p.name).join(", ") : '') +
+      (wonNow.length ? '<br>✅ <b>Won this quarter: ' + wonNow.length + ':</b>' + wonNow.map(p => p.name + (p.val ? ' (' + money(p.val) + ' B VND)' : '')).join('; ') : '') + '</div>';
+  } else {
+    $("projCallout").innerHTML = '<div class="callout"><b>' + q + ' running: ' + active.length + ' projects</b> (new: ' + fresh.length + ')' +
+      (wonNow.length ? '<br>✅ <b>Won this quarter: ' + wonNow.length + ':</b>' + wonNow.map(p => p.name + (p.val ? ' (' + money(p.val) + ' B VND)' : '')).join('; ') : '') + '</div>';
+  }
+
+  const rows = active.slice().sort((a,b) => { const d = qIdx(a.from) - qIdx(b.from); return d !== 0 ? d : (a.name < b.name ? -1 : 1); });
+  $("projBody").innerHTML = '<table><thead><tr><th style="width:28%">Project</th><th>Type (this quarter)</th><th>Value (B VND)</th><th>Since</th><th>Carry to</th><th style="width:24%">Note</th></tr></thead><tbody>' +
+    rows.map(p => {
+      const t = PTYPE[p.tl[q]];
+      const badge = isCarry(p) ? '<span class="carrybadge">carry</span>' : '<span class="newbadge">new</span>';
+      const nq = nextQof(p, q);
+      const carryTo = nq ? ('→ <b style="color:#fbbf24">' + nq + '</b>') : '—';
+      return '<tr>' +
+        '<td><b>' + p.name + '</b></td>' +
+        '<td><span class="pchip" style="color:' + t.col + ';background:' + t.bg + '">' + t.lbl + '</span></td>' +
+        '<td class="n" style="color:' + (p.val ? '#5ee98a' : '#64748b') + '">' + (p.val ? money(p.val) + ' B' : '—') + '</td>' +
+        '<td>' + p.from + ' ' + badge + '</td>' +
+        '<td>' + carryTo + '</td>' +
+        '<td style="color:#b8c6e6">' + p.note + '</td></tr>';
+    }).join("") + '</tbody></table>';
+}
+
+/* ------- annual analysis (year-end roll-up of the 6 blocks) ------- */
+function yearAgg(x){
+  let eff = 0, ach = 0, has = false;
+  if(x.roll) x.roll.forEach(r => { if(r.achieved != null){ ach += r.achieved; eff += (r.eff || 0); has = true; } });
+  return { eff, ach, has };
+}
+function renderAnnualAnalysis(){
+  $("anAYear").textContent = state.year;
+  const lines = analysisLines();
+  const QS = ["Q1","Q2","Q3"];            /* quarters that actually have data — Q4 ignored */
+  let met=0, watch=0, risk=0, pend=0;
+
+  const data = lines.map(x => {
+    let pEff = 0, pAch = 0, has = false;
+    QS.forEach(q => {
+      const r = x.roll ? x.roll[qIdx(q)] : null;
+      if(r && r.achieved != null){ pEff += (quarterVal(x.ln, qIdx(q)) || 0); pAch += r.achieved; has = true; }
+    });
+    const a = x.ln.annual;
+    const pAtt = (has && pEff) ? att(pAch, pEff) : null;   /* attainment over the period with data */
+    const annPct = (has && a) ? att(pAch, a) : null;       /* progress against the annual target   */
+    let cat;
+    if(!has){ cat = "pend"; pend++; }
+    else if(pAtt >= 100){ cat = "met"; met++; }
+    else if(pAtt >= 80){ cat = "watch"; watch++; }
+    else { cat = "risk"; risk++; }
+    return { x, pEff, pAch, has, a, pAtt, annPct, cat };
+  });
+
+  $("anASummary").innerHTML =
+    anChip("✅","On / Above plan",met,"#5ee98a") + anChip("🟡","Watch 80–99%",watch,"#fbbf24") +
+    anChip("🔴","At risk < 80%",risk,"#fca5a5") + anChip("⚪","Pending",pend,"#94a3b8");
+
+  const ord = { risk:0, watch:1, met:2, pend:3 };
+  const sorted = data.slice().sort((A,B) => ord[A.cat] !== ord[B.cat] ? ord[A.cat]-ord[B.cat] : ((A.pAtt==null?999:A.pAtt)-(B.pAtt==null?999:B.pAtt)));
+  $("anABoard").innerHTML = sorted.map(o => {
+    const x = o.x, us = x.ln.unit === "%" ? "%" : "";
+    let bar, right, ann, chip;
+    if(!o.has){
+      bar = '<i style="width:0%"></i>';
+      right = '<span style="color:#64748b">— / ' + fmtVal(x.ln.annual, x.ln.unit) + '</span>';
+      ann = '<span style="color:#64748b">—</span>';
+      chip = '<span class="tag badge-pending">Pending</span>';
+    } else {
+      const col = bandColor(o.pAtt);
+      bar = '<i style="width:' + Math.min(o.pAtt,100).toFixed(1) + '%;background:' + col + '"></i>';
+      right = money(o.pAch) + us + ' / ' + fmtVal(o.pEff, x.ln.unit) + ' <b style="color:' + col + '">' + o.pAtt.toFixed(0) + '%</b>';
+      ann = '<b style="color:#9fb4dd">' + o.annPct.toFixed(0) + '%</b>';
+      chip = o.cat === "met" ? '<span class="tag t-ok">On / Above</span>' : tagOf(o.pAtt);
+    }
+    return '<div class="ayrow"><div class="anm">' + anMain(x) + '<span>' + anSub(x) + '</span></div>' +
+           '<div class="attbar">' + bar + '</div><div class="attpct">' + right + '</div>' +
+           '<div class="ayannc"><span class="aylbl">Annual %</span>' + ann + '</div><div>' + chip + '</div></div>';
+  }).join("");
+
+  /* matrix: Q1 / Q2 / Q3 / Q1–Q3 (actual ÷ plan) / Annual % */
+  let h = '<table><thead><tr><th style="text-align:left">Block</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q1–Q3 actual/plan</th><th>Annual %</th></tr></thead><tbody>';
+  data.forEach(o => {
+    const x = o.x;
+    h += '<tr><td style="text-align:left"><b>' + anMain(x) + '</b>' + (x.ln.label ? '<span style="color:#64748b"> · ' + x.b.name + '</span>' : '') + '</td>';
+    ["Q1","Q2","Q3"].forEach(qq => {
+      const k = qIdx(qq);
+      const r = x.roll ? x.roll[k] : null;
+      const eff = quarterVal(x.ln, k);          /* plan basis (annual ÷ 4) */
+      const a = r ? r.achieved : null;
+      let cls = "hpend", txt = "—";
+      if(a != null){ const p = att(a, eff); cls = p>=100?"hok":p>=80?"hwarn":"hbad"; txt = p.toFixed(0) + "%"; }
+      h += '<td class="hb ' + cls + '">' + txt + '</td>';
+    });
+    const h1cls = o.pAtt==null ? "hpend" : (o.pAtt>=100?"hok":o.pAtt>=80?"hwarn":"hbad");
+    h += '<td class="hb ' + h1cls + '" style="outline:1px solid var(--line2)">' + (o.pAtt==null?"—":o.pAtt.toFixed(0)+"%") + '</td>';
+    const acls = o.annPct==null ? "hpend" : (o.annPct>=100?"hok":o.annPct>=80?"hwarn":"hbad");
+    h += '<td class="hb ' + acls + '">' + (o.annPct==null?"—":o.annPct.toFixed(0)+"%") + '</td></tr>';
+  });
+  h += '</tbody></table>';
+  $("anAHeat").innerHTML = h;
+}
+
+/* ------- projects: year summary table ------- */
+function renderProjectYear(){
+  const cats = ["won","bidding","followup","potential","cancel","close"];
+  const head = ['✅ Won','🔵 Bidding','🟣 Follow-up','🟡 Potential','⚫ Cancel','🟢 Close'];
+  $("projYearYr").textContent = state.year;
+  const perQ = {}; QORDER.forEach(q => perQ[q] = registerFor(q));   /* live lifecycle register */
+  const totals = {}; let all = 0;
+  let body = "";
+  QORDER.forEach(q => {
+    const active = perQ[q];
+    all += active.length;
+    body += '<tr><td style="text-align:left"><b>' + q + '</b></td>';
+    cats.forEach(t => {
+      const n = active.filter(p => p.tl[q] === t).length;
+      totals[t] = (totals[t] || 0) + n;
+      body += '<td class="hb" style="color:' + PTYPE[t].col + '">' + (n || '·') + '</td>';
+    });
+    body += '<td><b>' + active.length + '</b></td></tr>';
+  });
+  $("projYearTable").innerHTML = '<div class="heatwrap"><table><thead><tr><th style="text-align:left">Quarter</th>' +
+    head.map(z => '<th>' + z + '</th>').join("") + '<th>Total</th></tr></thead><tbody>' + body + '</tbody></table></div>';
+
+  const listOf = t => { const it = []; QORDER.forEach(q => perQ[q].filter(p => p.tl[q] === t).forEach(p => it.push(q + ': ' + p.name))); return it; };
+  $("projYearLists").innerHTML =
+    '<div class="callout"><b>✅ Won:</b>' + (listOf("won").join("; ") || "—") + '</div>' +
+    '<div class="callout" style="border-color:#3a4358;background:rgba(148,163,184,.06)"><b>⚫ Cancel:</b>' + (listOf("cancel").join("; ") || "—") +
+    ' &nbsp;·&nbsp; <b>🟢 Close:</b>' + (listOf("close").join("; ") || "—") + '</div>' +
+    '<div class="callout" style="border-color:#2f6b45;background:rgba(34,197,94,.07)"><b>💰 Won value (B VND):</b>' +
+      (QORDER.map(q => { const s = perQ[q].filter(p => p.tl[q] === "won" && p.val).reduce((a,p) => a + (p.val || 0), 0); return s ? q + ': ' + money(s) + ' B' : null; }).filter(Boolean).join(" · ") || "—") +
+      ' · Total <b>' + money(QORDER.reduce((a,q) => a + perQ[q].filter(p => p.tl[q] === "won" && p.val).reduce((x,p) => x + (p.val || 0), 0), 0)) + ' B</b></div>';
+}
+
+/* ------- page tabs + main render ------- */
+function renderTabs(){
+  const pages = [
+    { k:"annual", t:"Annual", y:state.year },
+    { k:"Q1", t:"Q1", y:state.year },
+    { k:"Q2", t:"Q2", y:state.year },
+    { k:"Q3", t:"Q3", y:state.year },
+    { k:"Q4", t:"Q4", y:state.year }
+  ];
+  const cQ = qIdx(curQuarter());
+  $("pageTabs").innerHTML = pages.map(p => {
+    let dot = "";
+    if(p.k !== "annual"){
+      const i = qIdx(p.k);
+      dot = '<span class="qdot ' + (i < cQ ? "qd-past" : i === cQ ? "qd-now" : "qd-fut") + '"></span>';
+    }
+    return `<button class="ptab ${state.page===p.k?"on":""}" onclick="atSetPage('${p.k}')">${p.t}${dot}<span class="py">${p.y}</span></button>`;
+  }).join("");
+}
+
+/* ---- Q-n Bid Tracking: real BMS data (Task Establish Date within the quarter) ---- */
+var _QMON = { Q1:[1,3], Q2:[4,6], Q3:[7,9], Q4:[10,12] };
+function qCat(b){
+  var sc = (b && typeof b === 'object') ? String(b.stageContent||'') : String(b||'');
+  var st = (b && typeof b === 'object') ? String(b.stage||'') : '';
+  if(sc.indexOf('Cancelled')>-1 || sc.indexOf('已取消')>-1) return 'Cancelled';
+  if(sc.indexOf('Bidding')>-1   || sc.indexOf('投标中')>-1) return 'Bidding';
+  if(sc.indexOf('Following')>-1 || sc.indexOf('Follow up')>-1 || sc.indexOf('跟踪')>-1) return 'Follow-up';
+  if(sc.indexOf('Potential')>-1 || sc.indexOf('潜在')>-1)   return 'Potential';
+  if(sc.indexOf('Won')>-1       || sc.indexOf('中标')>-1)   return 'Won';
+  if(st.indexOf('Result')>-1) return 'Won';   /* bid stage "6 · Result" = won */
+  return 'Other';
+}
+/* ---- Q1 real data from Bid Tracking (Task Establish Date within Jan–Mar) ---- */
+function bVal(v){
+  var s = String(v==null?'':v).replace(/,/g,'').trim();
+  if(!/^\d+(\.\d+)?$/.test(s)) return null;      /* ignore junk like "90,000,000, Million" */
+  var n = parseFloat(s);
+  if(!isFinite(n) || n <= 0) return null;
+  return n >= 1e6 ? Math.round(n/1e9*10)/10 : n;  /* VND -> VND bn (B) */
+}
+/* ---- Real Projects Register from Bid Tracking (Task Establish Date) + carry rule ---- */
+/*  Q-n register = (a) projects from EARLIER quarters still ACTIVE (Bidding / Follow-up / Potential) -> carried
+ *                 (b) projects registered INSIDE this quarter (any status, incl. Cancelled)
+ *  Cancelled / Won / other from earlier quarters do NOT carry.                          */
+function qOfMonth(mo){ return 'Q' + Math.ceil(mo/3); }
+var _CATKEY = { 'Bidding':'bidding', 'Follow-up':'followup', 'Potential':'potential', 'Cancelled':'cancel', 'Won':'won' };
+/* ---- Project resolution: process (Bid Tracking date) vs result (PFU Target Result date) ---- */
+function pfuIndex(){
+  var idx = { byBid:{}, byName:{} };
+  var pt = [];
+  try { pt = (data && data.projectTracking) || []; } catch(e){ pt = []; }
+  pt.forEach(function(p){
+    if(p.filledFromBid) idx.byBid[String(p.filledFromBid).trim()] = p;
+    if(p.name)          idx.byName[String(p.name).trim()] = p;
+  });
+  return idx;
+}
+var _MON = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,otc:10,nov:11,dec:12 };
+function pfuMonthOf(s, yr){
+  s = String(s||'').trim();
+  if(!s || s === '—' || s === '-') return null;
+  var m = s.match(/^(\d{4})-(\d{2})/); if(m) return (+m[1] === yr) ? (+m[2]) : null;
+  m = s.match(/(\d{1,2})\s*([A-Za-z]{3,})/); if(m){ var a = _MON[m[2].toLowerCase().slice(0,3)]; if(a) return a; }
+  m = s.match(/([A-Za-z]{3,})\s*(\d{1,2})/); if(m){ var b = _MON[m[1].toLowerCase().slice(0,3)]; if(b) return b; }
+  return null;
+}
+/* classify one bid -> { name, startQ, resultKey, resQ, procKey, val, note } */
+function resolveProj(b, idx, yr){
+  var sm = String(b.startDate||'').trim().match(/^(\d{4})-(\d{2})/);
+  if(sm && (+sm[1] !== yr)) sm = null;
+  var startMo = sm ? (+sm[2]) : null;
+  var p = idx.byBid[String(b.projectName||'').trim()] || idx.byName[String(b.customerName||'').trim()];
+  var rs = (p && p.result) ? String(p.result.status||'') : '';
+  var resultKey = null;
+  if(/won/i.test(rs))         resultKey = 'won';
+  else if(/cancel/i.test(rs)) resultKey = 'cancel';
+  else if(/close/i.test(rs))  resultKey = 'close';
+  var cat = qCat(b);
+  if(!resultKey){
+    if(cat === 'Cancelled') resultKey = 'cancel';
+    else if(cat === 'Won')  resultKey = 'won';
+  }
+  var resMo = null;
+  if(p && p.target) resMo = pfuMonthOf(p.target, yr);   /* result quarter from PFU Target Result */
+  if(resMo == null) resMo = startMo;                    /* fallback: bid start month */
+  if(resMo == null) return null;                        /* nowhere to place it */
+  var sMo = startMo;
+  if(sMo == null && p && p.start) sMo = pfuMonthOf(p.start, yr);
+  if(sMo == null) sMo = resMo;
+  var procKey = 'potential';
+  if(cat === 'Bidding')       procKey = 'bidding';
+  else if(cat === 'Follow-up') procKey = 'followup';
+  return {
+    name: (b.projectName||'').trim() || (b.customerName||'').trim() || '(untitled)',
+    startQ: qOfMonth(sMo), resultKey: resultKey, resQ: qOfMonth(resMo), procKey: procKey,
+    val: bVal(b.estimatedValue), note: (b.customerName||'').trim()
+  };
+}
+function allProjects(yr){
+  var idx = pfuIndex();
+  var items = [];
+  var bids = []; try { bids = (data && data.bids) || []; } catch(e){ bids = []; }
+  var matched = {};
+  bids.forEach(function(b){
+    var p = idx.byBid[String(b.projectName||'').trim()] || idx.byName[String(b.customerName||'').trim()];
+    if(p && p.id) matched[p.id] = 1;
+    var r = resolveProj(b, idx, yr);
+    if(r) items.push(r);
+  });
+  /* Project Follow-up results that have no Bid Tracking record */
+  var pt = []; try { pt = (data && data.projectTracking) || []; } catch(e){ pt = []; }
+  pt.forEach(function(p){
+    if(p.id && matched[p.id]) return;
+    var rs = (p.result && p.result.status) ? String(p.result.status) : '';
+    var key = /won/i.test(rs) ? 'won' : (/cancel/i.test(rs) ? 'cancel' : (/close/i.test(rs) ? 'close' : null));
+    if(!key) return;
+    var resMo = p.target ? pfuMonthOf(p.target, yr) : null;
+    var sMo   = p.start  ? pfuMonthOf(p.start, yr) : null;
+    if(resMo == null) resMo = sMo;
+    if(resMo == null) return;                      /* no date anywhere → can't place */
+    if(sMo == null) sMo = resMo;
+    items.push({
+      name: (p.name||'').trim() || '(untitled)', startQ: qOfMonth(sMo), resultKey: key, resQ: qOfMonth(resMo),
+      procKey: 'potential', val: bVal(p.estValue), note: (p.client||'').trim()
+    });
+  });
+  return items;
+}
+function realRegisterFor(q){
+  var yr = state.year;
+  var out = [];
+  allProjects(yr).forEach(function(r){
+    var key;
+    if(r.resultKey){
+      if(r.resQ === q) key = r.resultKey;                      /* result lands in its result quarter */
+      else if(r.resQ > q && r.startQ <= q) key = r.procKey;    /* still active in this earlier quarter */
+      else return;                                             /* before start, or already done */
+    } else {
+      if(r.startQ > q) return;
+      key = r.procKey;                                         /* active, carried forward */
+    }
+    var tl = {};
+    var ai = qIdx(r.startQ), bi = qIdx(q);
+    for(var i = ai; i <= bi; i++) tl[QORDER[i]] = (i === bi) ? key : r.procKey;
+    out.push({ name: r.name, from: r.startQ, tl: tl, val: r.val, note: r.note });
+  });
+  return out;
+}
+
+/* ---- Achieved from BMS data, same logic as the Summary page ---- */
+/*  New Contacts        = data.customers with createdDate  in that quarter  (Summary “2026 Customer Stats”)  */
+/*  Event Participating  = data.chambers  with attendanceDate in that quarter  (Summary “Chamber Stats”)     */
+function syncQ1Achieved(){
+  try {
+    if(!data) return;
+    var yr = state.year;
+    if(!ACH[yr]) return;
+    var QM = { Q1:[0,2], Q2:[3,5], Q3:[6,8], Q4:[9,11] };
+    function quarterOf(dateStr){
+      if(!dateStr) return null;
+      var d = new Date(dateStr);
+      if(d.getFullYear() !== yr) return null;
+      var m = d.getMonth();
+      for(var q in QM){ if(m >= QM[q][0] && m <= QM[q][1]) return q; }
+      return null;
+    }
+    var nC = { Q1:0, Q2:0, Q3:0, Q4:0 }, nE = { Q1:0, Q2:0, Q3:0, Q4:0 };
+    (data.customers||[]).forEach(function(c){ var q = quarterOf(c.createdDate);    if(q) nC[q]++; });
+    (data.chambers||[]).forEach(function(c){ var q = quarterOf(c.attendanceDate); if(q) nE[q]++; });
+    if(ACH[yr].newContacts && ACH[yr].newContacts[0]){ var o = ACH[yr].newContacts[0]; for(var k1 in nC) o[k1] = nC[k1]; }
+    if(ACH[yr].events      && ACH[yr].events[0])      { var o2 = ACH[yr].events[0];     for(var k2 in nE) o2[k2] = nE[k2]; }
+  } catch(e){}
+}
+
+/* ---- Revenue Achieved: sum of the quarter's WON projects (register) ---- */
+/*  line 0 = MGD Revenue  = Σ value of projects marked “won” in that quarter   */
+/*  line 1 = Sales Dept   = always 0 (per Tony, 2026-09-18)                      */
+function registerFor(q){ return realRegisterFor(q); }
+/* ---- Revenue Achieved (line A) = Σ estValue of WON projects, quarter = PFU Target Result month ---- */
+function syncRevenueAchieved(){
+  try {
+    var yr = state.year;
+    if(!ACH[yr] || !ACH[yr].revenue) return;
+    var line0 = { Q1:0, Q2:0, Q3:0, Q4:0 }, line1 = { Q1:0, Q2:0, Q3:0, Q4:0 };
+    allProjects(yr).forEach(function(r){
+      if(r.resultKey !== 'won') return;
+      line0[r.resQ] += (r.val || 0);
+    });
+    ACH[yr].revenue[0] = line0;
+    ACH[yr].revenue[1] = line1;
+  } catch(e){}
+}
+
+/* ---- Projects Requiring Bidding (A/B) = bids that STARTED BIDDING, split by category A/B ---- */
+/*  Follow-up / Potential are NOT counted here (they live in the Projects Register only).     */
+function syncBiddingAchieved(){
+  try {
+    var yr = state.year;
+    if(!ACH[yr] || !ACH[yr].bidding) return;
+    var A = { Q1:0, Q2:0, Q3:0, Q4:0 }, B = { Q1:0, Q2:0, Q3:0, Q4:0 };
+    var bids = []; try { bids = (data && data.bids) || []; } catch(e){ bids = []; }
+    bids.forEach(function(b){
+      var sm = String(b.startDate||'').trim().match(/^(\d{4})-(\d{2})/);
+      if(!sm || (+sm[1] !== yr)) return;
+      var sc = String(b.stageContent||'');
+      var started = sc.indexOf('Bidding') > -1 || sc.indexOf('投标中') > -1;   /* start of bidding (data may contain CN) */
+      if(!started) return;
+      var q = 'Q' + Math.ceil((+sm[2]) / 3);
+      var c = String(b.category||'').trim().toUpperCase();
+      if(c === 'A') A[q]++; else if(c === 'B') B[q]++;
+    });
+    ACH[yr].bidding[0] = A;
+    ACH[yr].bidding[1] = B;
+  } catch(e){}
+}
+
+function renderAll(){
+  $("yearRow").innerHTML = Object.keys(DB).map(yr =>
+    `<button class="pill ${+yr===state.year?"on":""}" onclick="atSetYear(${yr})">${yr}</button>`).join("");
+
+  renderTabs();
+  syncQ1Achieved();
+  syncRevenueAchieved();
+  syncBiddingAchieved();
+
+  const isAnnual = state.page === "annual";
+  $("pageAnnual").style.display = isAnnual ? "" : "none";
+  $("pageQuarter").style.display = isAnnual ? "none" : "";
+
+  renderAnnual();
+  renderCompare();
+  renderCore();
+  renderOverview();
+  renderAnnualAnalysis();
+  renderProjectYear();
+  renderQuarterWin();
+  if(!isAnnual){ renderQuarterTargets(); renderAnalysis(); renderProjects(); }
+
+  $("genDate").textContent = new Date().toLocaleString("en-GB",{year:"numeric",month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+
+/* ------- interactivity ------- */
+function setYear(y){ state.year = y; renderAll(); }
+function setPage(p){ state.page = p; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+renderAll();
+
+/* expose only what the demo's inline handlers need */
+window.atSetPage = setPage;
+window.atSetYear = setYear;
+window.atRenderAll = renderAll;
+})();
+    </script>
 
     <!-- Weekly Report Section -->
     <div id="weeklyReportContainer" class="hidden mb-6" style="display:none;">
@@ -1403,7 +2798,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 </div>
 
 <script>
-const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nch:'商会信息',nplan:'计划2026',ptPlan:'计划2026',psPlan:'系统追踪清单 2026',ptWR:'Weekly Report',psWR:'业务部周报',ptDoc:'文档管理系统',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',s9:'潜在 / Potential',s10:'已取消 / Cancelled',s11:'跟踪 / Follow up',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollow-Up',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'···',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标',ncTarget:'年度目标: 160 · 2025 总计: 57'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nch:'Chambers',nplan:'PLAN 2026',ptPlan:'PLAN 2026',psPlan:'System Tracking List 2026',ptWR:'Weekly Report',psWR:'Business Dept Weekly Report',ptDoc:'Documentation Storage',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',s9:'Potential / 潜在',s10:'Cancelled / 已取消',s11:'Follow up / 跟踪',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Follow-Up',bidLegActive:'Bidding',bidLegWon:'Follow-Up',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'···',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List'
+const i18n={zh:{ttl:'业务管理系统',sub:'Business Management System',mf:'主要功能',nd:'综合统计',nb:'投标项目追踪',nc:'客户管理',ni:'客户互动',nch:'商会信息',nplan:'计划2026',ptPlan:'计划2026',psPlan:'系统追踪清单 2026',ptAT:'年度指标',psAT:'销售目标与 KPI',ptWR:'Weekly Report',psWR:'业务部周报',ptDoc:'文档管理系统',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',ds:'数据统计',stl1:'投标',stl2:'客户',stl3:'互动',sp:'搜索...',ba:'新增',bc:'取消',bs:'保存',be:'导出',bi:'导入',pt1:'投标项目追踪',ps1:'管理和追踪所有投标项目进度',pt2:'客户管理',ps2:'管理客户信息和跟进记录',pt3:'客户互动',ps3:'记录客户沟通和互动历史',pt5:'综合统计',ps5:'汇总三大模块的关键数据',ma:'新增',me:'编辑',ndd:'暂无数据',ndh:'点击"新增"按钮添加数据',nm:'未找到匹配记录',cd:'确定删除这条记录吗?',es:'导出成功!文件已下载',ic:'导入将覆盖当前数据,确定继续吗?',is:'导入成功!',ie:'导入失败:文件格式错误',s1:'项目信息 / Project Info',s2:'投标中 / Bidding',s3:'评审中 / Reviewing',s4:'跟踪 / Following',s5:'中标 / Won',s6:'资格审核 / PQ',s7:'资料收集 / Data Collection',s8:'跟踪 / Following',s9:'潜在 / Potential',s10:'已取消 / Cancelled',s11:'跟踪 / Follow up',st1:'待处理 / Pending',st2:'进行中 / In Progress',st3:'完成 / Completed',p1:'低 / Low',p2:'中 / Medium',p3:'高 / High',sp2:'请选择 / Please select',f1:'客户名称',f2:'项目名称',f3:'地点',f4:'土地面积',f5:'阶段日期',f6:'投标阶段',f7:'负责人',f8:'电子邮箱',f9:'分类',f10:'预估工程金额',ph4:'单位:平方米',ph10:'单位:越南盾 (VND)',f11:'公司名称',f11b:'公司业务',f12:'联系人',f12b:'职位',f13:'电话',f14:'邮箱',f14b:'国家',f14c:'优先级',f15:'客户名称',f16:'互动日期',f17:'互动类型',f18:'互动内容',f18b:'邮箱',f19:'负责人',f20:'下一步计划',f21:'状态',f22:'备注',f23:'添加日期',f24:'(任务启动日期)',f25:'(已激活内容)',f26:'下一步日期',f27:'下一步内容',c1:'客户名称',c2:'项目名称',c3:'地点',c4:'土地面积',c5:'阶段日期',c6:'投标阶段',c7:'负责人',c8:'电子邮箱',c9:'分类',c10:'预估金额',c11:'公司名称',c11b:'公司业务',c12:'联系人',c12b:'职位',c13:'电话',c14:'邮箱',c14b:'国家',c14c:'优先级',c15:'客户',c16:'日期',c17:'类型',c18:'内容',c19:'负责人',c20:'下一步',c21:'状态',c22:'备注',c23:'操作',c24:'(任务启动日期)',c25:'(已激活内容)',c22:'操作',nb1:'新增投标',nb2:'新增客户',nb3:'新增互动',eb1:'编辑投标',eb2:'编辑客户',eb3:'编辑互动',catA:'A',catB:'B',it1:'电话 / Phone',it2:'邮件 / Email',it3:'会议 / Meeting',it4:'拜访 / Visit',it5:'其他 / Other',is1:'已完成 / Completed',is2:'进行中 / In Progress',is3:'待跟进 / Pending',ch1:'商会名称',ch2:'商会简称',ch3:'国家 / Country',ch4:'城市',ch5:'地址',ch6:'电话',ch7:'邮箱',ch8:'网站',ch9:'联系人',ch10:'职位',ch11:'业务范围',ch12:'备注',ch13:'主题',ch14:'出席日期',ch15:'出席地点',pt4:'商会信息',ps4:'管理商会和组织联系信息',nb4:'新增商会',eb4:'编辑商会',cc1:'商会名称',cc3:'国家',cc6:'电话',cc7:'邮箱',cc9:'联系人',cc14:'主题',cc15:'出席日期',cc16:'出席地点',cc17:'备注',cc18:'操作',stl4:'投标统计',stl5:'客户统计',stl6:'商会统计',smc1:'每月出席次数 / Monthly Attendance',sumBidsLabel:'项目信息\nProject Info',sumCustLabel:'2026客户统计\n2026 Customer Stats',sumChambTotalLbl:'商会总计\nTotal Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'项目信息\nProject Info',sumBidsTotalLbl:'总计\nTotal',sumBidsActiveLbl:'投标中\nBidding',sumBidsWonLbl:'追踪\nFollow-Up',bidLegTotal:'总计',bidLegActive:'投标中',bidLegWon:'追踪',cust2026StatsLabel:'2026客户统计\n2026 Customer Stats',sumCust2026TotalLbl:'2026总计\nTotal 2026',sumCustJunLbl:'···',sumCustInteractLbl:'客户互动\nInteractions',custLegNew:'新客户 / New',custLegInteract:'客户互动',chLegAtt:'已出席 / Attended',chLegUpc:'即将出席 / Upcoming',win1Title:'营收目标\nRevenue Target',win2Title:'客户信息分析\nCustomer Info Analysis',win3Title:'Event List',win1t1:'营收目标 2026',win1t1_en:'Revenue 2026',win1t2:'业务营收目标',win1t2_en:'Sale Dept revenue',win1t3:'项目预估金额',win1t4:'实际目标',ncTarget:'年度目标: 160 · 2025 总计: 57'},en:{ttl:'Business Management System',sub:'业务管理系统',mf:'MAIN FEATURES',nd:'Summary',nb:'Bid Tracking',nc:'Customer Mgmt',ni:'Interactions',nch:'Chambers',nplan:'PLAN 2026',ptPlan:'PLAN 2026',psPlan:'System Tracking List 2026',ptAT:'Annual Target',psAT:'Sales Target & KPI',ptWR:'Weekly Report',psWR:'Business Dept Weekly Report',ptDoc:'Documentation Storage',psDoc:'Document Storage & Registry System',ptDC:'Documents Collection',psDC:'Pick & Collect Confirmed Documents',ds:'Statistics',stl1:'Bids',stl2:'Customers',stl3:'Interactions',sp:'Search...',ba:'Add',bc:'Cancel',bs:'Save',be:'Export',bi:'Import',pt1:'Bid Project Tracking',ps1:'Manage and track all bid project progress',pt2:'Customer Management',ps2:'Manage customer info and follow-ups',pt3:'Customer Interactions',ps3:'Record customer communications and interaction history',pt5:'Summary',ps5:'Key data from all three modules',ma:'Add New',me:'Edit',ndd:'No Data',ndh:'Click "Add" button to add data',nm:'No matching records',cd:'Delete this record?',es:'Export successful! File downloaded',ic:'Import will overwrite current data. Continue?',is:'Import successful!',ie:'Import failed: Invalid file format',s1:'Project Info / 项目信息',s2:'Bidding / 投标中',s3:'Reviewing / 评审中',s4:'Following / 跟踪',s5:'Won / 中标',s6:'PQ / 资格审核',s7:'Data Collection / 资料收集',s8:'Following / 跟踪',s9:'Potential / 潜在',s10:'Cancelled / 已取消',s11:'Follow up / 跟踪',st1:'Pending / 待处理',st2:'In Progress / 进行中',st3:'Completed / 完成',p1:'Low / 低',p2:'Medium / 中',p3:'High / 高',sp2:'Please select / 请选择',f1:'Customer Name',f2:'Project Name',f3:'Location',f4:'Land Area',f5:'Stage Date',f6:'Bid Stage',f7:'Person In Charge',f8:'Email',f9:'Category',f10:'Est. Project Value',ph4:'Unit: sq.m',ph10:'Unit: VND',f11:'Company Name',f11b:'Business Type',f12:'Contact Person',f12b:'Position',f13:'Phone',f14:'Email',f14b:'Country',f14c:'Priority',f15:'Customer',f16:'Date',f17:'Type',f18:'Content',f18b:'Email',f19:'Person In Charge',f20:'Next Step',f21:'Status',f22:'Notes',f23:'Created Date',f24:'(Task Establish Date)',f25:'(Activated content)',f26:'Next Action Date',f27:'Next Action Content',c1:'Customer',c2:'Project',c3:'Location',c4:'Land Area',c5:'Stage Date',c6:'Bid Stage',c7:'PIC',c8:'Email',c9:'Category',c10:'Est. Value',c11:'Company',c11b:'Business',c12:'Contact',c12b:'Position',c13:'Phone',c14:'Email',c14b:'Country',c14c:'Priority',c15:'Customer',c16:'Date',c17:'Type',c18:'Content',c19:'PIC',c20:'Next',c21:'Status',c22:'Notes',c23:'Actions',c24:'(Task Establish Date)',c25:'(Activated content)',c22:'Actions',nb1:'New Bid',nb2:'New Customer',nb3:'New Interaction',eb1:'Edit Bid',eb2:'Edit Customer',eb3:'Edit Interaction',catA:'A',catB:'B',it1:'Phone / 电话',it2:'Email / 邮件',it3:'Meeting / 会议',it4:'Visit / 拜访',it5:'Other / 其他',is1:'Completed / 已完成',is2:'In Progress / 进行中',is3:'Pending / 待跟进',ch1:'Chamber Name / 商会名称',ch2:'Short Name / 简称',ch3:'Country / 国家',ch4:'City / 城市',ch5:'Address / 地址',ch6:'Phone / 电话',ch7:'Email / 邮箱',ch8:'Website / 网站',ch9:'Contact / 联系人',ch10:'Position / 职位',ch11:'Business Scope / 业务范围',ch12:'Notes / 备注',ch13:'Topic / 主题',ch14:'Attendance Date / 出席日期',ch15:'Attendance Location / 出席地点',pt4:'Chamber of Commerce',ps4:'Manage chamber and organization contacts',nb4:'New Chamber',eb4:'Edit Chamber',cc1:'Chamber Name',cc3:'Country',cc6:'Phone',cc7:'Email',cc9:'Contact',cc14:'Topic',cc15:'Date',cc16:'Location',cc17:'Notes',cc18:'Actions',stl4:'Bid Stats',stl5:'Customer Stats',stl6:'Chamber Stats',sumBidsLabel:'Project Info',sumCustLabel:'2026 Customer Stats',sumChambTotalLbl:'Total Chambers',sumChambAprAttLbl:'···',sumChambAprUpcLbl:'···',bidInfoStatsLabel:'Project Info',sumBidsTotalLbl:'Total',sumBidsActiveLbl:'Bidding',sumBidsWonLbl:'Follow-Up',bidLegActive:'Bidding',bidLegWon:'Follow-Up',cust2026StatsLabel:'2026 Customer Stats',sumCust2026TotalLbl:'Total 2026',sumCustJunLbl:'···',sumCustInteractLbl:'Interactions',custLegNew:'New Customers',custLegInteract:'Interactions',chLegAtt:'Attended',chLegUpc:'Upcoming',win1Title:'Revenue Target\n营收目标',win2Title:'Customer Info Analysis\n客户信息分析',win3Title:'Event List'
 ,win1t1:'Revenue 2026',win1t1_en:'Revenue 2026',win1t2:'Sale Dept revenue',win1t2_en:'Sale Dept revenue',win1t3:'Project Est. Value',win1t4:'Actual Target',ncTarget:'Annual target: 160 · 2025 total: 57',kpiGuide:'📊 KPI指标说明',kpiGuideEn:'KPI Metrics Guide',kpiAnnual:'Q2目标',kpiQTarget:'Q1目标',kpiRateGuide:'🎯 完成率标识',kpiRateOn:'🟢 ≥100% 达标',kpiRateNear:'🟡 80-99% 接近',kpiRateOff:'🔴 <80% 需改进'}};
 
 let lang='zh',data={bids:[],customers:[],projects:[],chambers:[]},mod='summary',eid=null,custYearFilter='all',custCountryFilter='all',chamberDateFilter='all',chamberMonthFilter='all',custSearchFilter='',custDateFilter='',bidsFilter='all';
@@ -1434,7 +2829,7 @@ function sl(l){
   lang=l;localStorage.setItem('bms_lang',l);
   document.getElementById('lzh').classList.toggle('active',l==='zh');
   document.getElementById('len').classList.toggle('active',l==='en');
-  updateUI();if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
+  updateUI();if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='annualtarget') renderTable();
   if(document.getElementById('md').classList.contains('active')){eid?editItem(eid):openAddModal();}
 }
 
@@ -1450,12 +2845,12 @@ function toggleWin1Lang(){
 
 function updateUI(){
   // 安全防护: 确保 mod 是有效值
-  const validMods=['summary','bids','customers','projects','chambers','plan2026','weeklyreport','docstorage','docscollect'];
+  const validMods=['summary','bids','customers','projects','chambers','plan2026','annualtarget','weeklyreport','docstorage','docscollect'];
   const safeMod=validMods.includes(mod)?mod:'summary';
   ['ttl','sub','nd','nb','nc','ni','nch','nplan','ds','stl1','stl2','stl3','stl4','stl5','stl6','smc1','ba','be','bi','s1','s2','s4','win3Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t(id);});['win1Title','win2Title'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id).replace(/\n/g,'<br>');});
   if(typeof bkSyncAddBtn==='function')bkSyncAddBtn();
   document.getElementById('si').placeholder=t('sp');
-  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc'],docscollect:['ptDC','psDC']};
+  const titles={summary:['pt5','ps5'],bids:['pt1','ps1'],customers:['pt2','ps2'],projects:['pt3','ps3'],chambers:['pt4','ps4'],plan2026:['ptPlan','psPlan'],annualtarget:['ptAT','psAT'],weeklyreport:['ptWR','psWR'],docstorage:['ptDoc','psDoc'],docscollect:['ptDC','psDC']};
   document.getElementById('pt').textContent=t(titles[safeMod]?titles[safeMod][0]:'pt5');
   // Freeze PLAN 2026 subtitle as English "System Tracking List 2026" (per user request)
   if(safeMod==='plan2026'){
@@ -2766,11 +4161,11 @@ function exportSummaryPDF(){
     var sc=String(b.stageContent||'').toLowerCase();
     var inActive=ACTIVE_STAGE_KEYWORDS.some(function(kw){return kw.some(function(x){return sc.indexOf(x.toLowerCase())!==-1;});});
     if(inActive) projectTotal+=num;
-    if(sc.indexOf('中标')>-1||sc.indexOf('won')>-1) ACTUAL+=num;
   });
-  ACTUAL=ACTUAL/1e9; projectTotal=projectTotal/1e9;
+  projectTotal=projectTotal/1e9;
+  // 实际目标: 只认 Project Follow-up 最终结果 (Won)  [逻辑调整 2026-09-18]
   var _pfuWonP=(typeof pfuWonRevenue==='function')?pfuWonRevenue():{total:0,items:[]};
-  if(_pfuWonP.total>0)ACTUAL+=_pfuWonP.total;
+  ACTUAL=_pfuWonP.total;
   var maxVal=Math.max(TARGET,BUSINESS,projectTotal,ACTUAL);
   var rl = lang==='en'
     ? {t1:'Revenue 2026',t2:'Sale Dept revenue',t3:'Project Est. Value',t4:'Actual Target'}
@@ -2826,7 +4221,7 @@ function exportSummaryPDF(){
   }
   var win1Gauge='<div style="text-align:center;margin-bottom:6px;">'+rpmGauge(ACTUAL,TARGET)+
     '<div style="font-size:13px;font-weight:700;color:#00b4d8;">'+ACTUAL.toFixed(0)+'B VND <span style="font-size:9px;font-weight:400;color:#3D5A80;">('+rl.t4+')</span></div>'+
-    '<div style="font-size:9px;color:#3D5A80;">Target: '+TARGET+'B VND</div>'+((_pfuWonP&&_pfuWonP.total>0)?('<div style="font-size:8px;color:#3D5A80;">+ Project Follow-up Won: '+_pfuWonP.total.toFixed(0)+'B</div>'):'')+'</div>';
+    '<div style="font-size:9px;color:#3D5A80;">Target: '+TARGET+'B VND</div>'+((_pfuWonP&&_pfuWonP.total>0)?('<div style="font-size:8px;color:#3D5A80;">Source: Project Follow-up (Won): '+_pfuWonP.total.toFixed(0)+'B</div>'):'')+'</div>';
   var win1Body = win1Gauge+
                  barRow(rl.t1,TARGET,'#60a5fa','#1e40af')+
                  barRow(rl.t2,BUSINESS,'#34d399','#065f46')+
@@ -3181,20 +4576,10 @@ function renderWin1Chart(){
   var TARGET=1400;   // 营收目标2026
   var BUSINESS=250;  // 业务营收目标
 
-  // 实际目标:根据已激活内容 + 中标的项目预估金额汇总
-  var ACTUAL=0;
-  data.bids.forEach(function(b){
-    if(b.inactive) return; // 已取消项目不计入
-    if(!b.stageContent) return; // 无激活内容不计入
-    // 检查是否包含"中标"或"Won"
-    var sc=b.stageContent||'';
-    if(sc.indexOf('中标')===-1 && sc.indexOf('Won')===-1) return;
-    var num=parseFloat(String(b.estimatedValue).replace(/,/g,''));
-    if(!isNaN(num)) ACTUAL+=num;
-  });
-  ACTUAL=ACTUAL/1e9; // VND → B
-  // + Project Follow-up: 最终结果 = Won 的项目, Est. Value 计入营收目标 (1400B)
-  var _pfuWon=pfuWonRevenue(); var pfuWonB=_pfuWon.total; ACTUAL+=pfuWonB;
+  // 实际目标: 只认 Project Follow-up 的最终结果 (result.status === 'Won')
+  // 逻辑调整 (2026-09-18): 不再看 Bid Tracking 的"中标/Won"标记, 改以 PFU 结果为准
+  var _pfuWon=pfuWonRevenue(); var pfuWonB=_pfuWon.total;
+  var ACTUAL=pfuWonB; // 单位: B (十亿 VND)
 
   // 汇总活跃管道项目预估金额(仅 Bidding + Potential, 排除 Tracking/Cancelled/Won 及其他), 与 Card 6 / 季度 Active Pipeline 口径一致
   var projectTotal=0;
@@ -3261,7 +4646,7 @@ function renderWin1Chart(){
   }
   var gaugeHtml='<div style="text-align:center;margin-bottom:6px;">'+rpmGauge(ACTUAL,TARGET)+
     '<div style="font-size:13px;font-weight:700;color:#00B4D8;margin-top:2px;">'+ACTUAL.toFixed(0)+' B VND <span style="font-size:9px;font-weight:400;color:var(--muted);">('+getWin1Label('win1t4','已中标','Won')+')</span></div>'+
-    '<div style="font-size:10px;color:var(--muted);">Target: '+TARGET+'B VND</div>'+(pfuWonB>0?('<div style="font-size:9px;color:var(--muted);margin-top:1px;">+ Project Follow-up Won: <b style="color:#f87171">'+pfuWonB.toFixed(0)+'B</b> ('+_pfuWon.items.map(function(it){return String(it.name).replace(/[<>&]/g,'');}).join(' \u00b7 ')+')</div>'):'')+'</div>';
+    '<div style="font-size:10px;color:var(--muted);">Target: '+TARGET+'B VND</div>'+(pfuWonB>0?('<div style="font-size:9px;color:var(--muted);margin-top:1px;">Source: Project Follow-up (Won): <b style="color:#f87171">'+pfuWonB.toFixed(0)+'B</b> ('+_pfuWon.items.map(function(it){return String(it.name).replace(/[<>&]/g,'');}).join(' \u00b7 ')+')</div>'):'')+'</div>';
 
   var html=gaugeHtml+
     barRow(getWin1Label('win1t1','营收目标 2026','Revenue 2026'),TARGET,'#60a5fa','#1e40af')+
@@ -3662,6 +5047,7 @@ function sm(m){
   document.getElementById('sum').style.display='none';
   document.getElementById('win123Container').style.display='none';
   document.getElementById('plan2026Section').style.display='none';
+  var _atc=document.getElementById('annualTargetContainer'); if(_atc)_atc.style.display='none';
   ['btnAdd'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='';});
   var wrContainer=document.getElementById('weeklyReportContainer');
   if(wrContainer)wrContainer.style.display='none';
@@ -3712,6 +5098,12 @@ function sm(m){
     ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
     document.querySelector('.tc').style.display='none';
     renderPlanTracking();
+  }else if(m==='annualtarget'){
+    var atC=document.getElementById('annualTargetContainer');
+    if(atC)atC.style.display='block';
+    ['btnAdd','exportMainBtn','btnCsv','btnImport'].forEach(function(id){var b=document.getElementById(id);if(b)b.style.display='none';});
+    document.querySelector('.tc').style.display='none';
+    if(typeof window.atRenderAll==='function')window.atRenderAll();
   }else if(m==='weeklyreport'){
     var wrC=document.getElementById('weeklyReportContainer');
     if(wrC)wrC.style.display='block';
@@ -3772,6 +5164,7 @@ function sm(m){
     projects:{title:'客户互动',sub:'记录客户沟通和互动历史'},
     chambers:{title:'商会信息',sub:'管理商会和组织联系信息'},
     plan2026:{title:'计划2026',sub:'PLAN 2026'},
+    annualtarget:{title:'Annual Target',sub:'Sales Target & KPI'},
     weeklyreport:{title:'Weekly Report',sub:'Business Dept Weekly Report'},
     docstorage:{title:'Documentation Storage',sub:'Document Storage & Registry System'},
     docscollect:{title:'Documents Collection',sub:'Pick & Collect Confirmed Documents'}
@@ -3804,7 +5197,7 @@ function sm(m){
 
   updateUI();
   updateCustomerStats();
-  if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
+  if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='annualtarget') renderTable();
 }
 
 function openAddModal(){
@@ -5488,7 +6881,7 @@ function listenToCloud(){
             }
           }
         }catch(e){ console.log('[DocStorage] cloud->local sync error:', e.message); }
-        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
+        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='annualtarget') renderTable();
 
         // Show brief notification
         showToast('☁️ Cloud data updated!');
@@ -5511,7 +6904,7 @@ function syncFromCloud(){
         // Full sync: accept cloud data (all modules, all users merged)
         data = fbData;
         _origSave();
-        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026') renderTable();
+        updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='annualtarget') renderTable();
         cloudStatus = 'synced';
         lastSyncFrom = doc.data().updatedAt ? 'cloud' : 'local';
         updateSyncStatus('☁️');
