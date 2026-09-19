@@ -1,5 +1,5 @@
 /* MGD BMS Mobile · service worker */
-const CACHE = 'mgd-bms-mobile-v1-20260919';
+const CACHE = 'mgd-bms-mobile-v2-20260919';
 const FILES = [
   './mgd-bms-mobile.html',
   './manifest.json',
@@ -28,7 +28,7 @@ self.addEventListener('fetch', e => {
   const isAppPage = /mgd-bms-mobile\.html$/.test(url.pathname);
   if (isAppPage) {
     e.respondWith(
-      fetch(e.request).then(res => {
+      fetch(e.request, { cache: 'no-store' }).then(res => {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
         return res;

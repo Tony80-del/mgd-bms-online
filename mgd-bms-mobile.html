@@ -23,6 +23,7 @@ html,body{margin:0;background:#05070B;color:var(--txt);font-family:-apple-system
 .hd .t{flex:1;font-size:15px;font-weight:800}
 .hd .t i{font-style:normal;color:var(--acc)}
 .hd .s{font-size:10px;color:var(--mut)}
+.hd .bld{font-size:8.5px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:2px 5px;white-space:nowrap;letter-spacing:.3px}
 .led{width:8px;height:8px;border-radius:50%;background:var(--yel);box-shadow:0 0 6px var(--yel)}
 .led.on{background:var(--grn);box-shadow:0 0 6px var(--grn)}
 .led.err{background:var(--red);box-shadow:0 0 6px var(--red)}
@@ -126,7 +127,7 @@ html,body{margin:0;background:#05070B;color:var(--txt);font-family:-apple-system
 <body>
 <div id="app">
   <div class="hd"><div class="t">MGD<i> BMS</i></div><div class="s" id="upd">—</div>
-    <div class="rf" onclick="boot()">⟳</div><div class="led" id="led"></div></div>
+    <div class="bld" id="bld">v2</div><div class="rf" onclick="boot()">⟳</div><div class="led" id="led"></div></div>
 
   <div class="page on" id="p-fu"><div class="pd" id="fuWrap"><div class="load">载入中…</div></div></div>
   <div class="page" id="p-ct"><div class="pd" id="ctWrap"><div class="load">载入中…</div></div></div>
@@ -142,6 +143,7 @@ var D=null;                     /* 云端数据 */
 var STAGE=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var STAGESHORT={'Project Info collection':'1 · Project Info','PQ':'2 · PQ','Bidding':'3 · Bidding','Reviewing':'4 · Reviewing','Negotiation':'5 · Negotiation','Result':'6 · Result'};
 var STAGECLS={'Project Info collection':'info','PQ':'pq','Bidding':'bid','Reviewing':'rev','Negotiation':'nego','Result':'won'};
+var MB_BUILD='v2';   /* 每次发布改这里，便于确认手机上跑的是哪一版 */
 var fuChip='all', ctQ='', vy=0, vm=0, sel=null, wrUser=null, ctLimit=40, calMember='all';
 
 /* ============ 工具 ============ */
@@ -174,6 +176,7 @@ function parseDate(s){
 
 /* ============ 载入云端 ============ */
 function boot(){
+ var bld=document.getElementById('bld'); if(bld)bld.textContent=MB_BUILD;
  var led=document.getElementById('led'); led.className='led';
  document.getElementById('upd').textContent='载入中…';
  var url='https://firestore.googleapis.com/v1/projects/'+FB.projectId+'/databases/(default)/documents/'+FB.doc+'?key='+FB.apiKey;
