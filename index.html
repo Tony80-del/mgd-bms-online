@@ -4806,8 +4806,10 @@ function updateStats(){
     var P=(typeof PFU_STAGES!=='undefined')?PFU_STAGES:['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
     var st=[0,0,0,0,0,0],tot=0;
     (data.projectTracking||[]).forEach(function(p){
+      var hasRes=!!(p.result&&p.result.status);   /* Won / Close / Cancel already selected */
       var i=P.indexOf(p.stage);
-      if(i>=0){st[i]++;tot++;}
+      if(hasRes){ st[5]++; tot++; return; }       /* finished  → only the Result card      */
+      if(i>=0){ st[i]++; tot++; }                 /* still running → keep its PFU stage    */
     });
     for(var k=0;k<6;k++){var el=document.getElementById('cst'+(k+1)); if(el)el.textContent=st[k];}
     var t=document.getElementById('cstTotal'); if(t)t.textContent=tot;
