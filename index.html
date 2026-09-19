@@ -2130,13 +2130,12 @@ function renderTabs(){
 var _QMON = { Q1:[1,3], Q2:[4,6], Q3:[7,9], Q4:[10,12] };
 function qCat(b){
   var sc = (b && typeof b === 'object') ? String(b.stageContent||'') : String(b||'');
-  var st = (b && typeof b === 'object') ? String(b.stage||'') : '';
-  if(sc.indexOf('Cancelled')>-1 || sc.indexOf('已取消')>-1) return 'Cancelled';
+  /*  Activated content → process type.  “Cancelled” is intentionally NOT mapped here:
+   *  the final outcome must come from the PFU (Won / Cancel / Close).               */
   if(sc.indexOf('Bidding')>-1   || sc.indexOf('投标中')>-1) return 'Bidding';
   if(sc.indexOf('Following')>-1 || sc.indexOf('Follow up')>-1 || sc.indexOf('跟踪')>-1) return 'Follow-up';
   if(sc.indexOf('Potential')>-1 || sc.indexOf('潜在')>-1)   return 'Potential';
   if(sc.indexOf('Won')>-1       || sc.indexOf('中标')>-1)   return 'Won';
-  if(st.indexOf('Result')>-1) return 'Won';   /* bid stage "6 · Result" = won */
   return 'Other';
 }
 /* ---- Q1 real data from Bid Tracking (Task Establish Date within Jan–Mar) ---- */
@@ -2181,14 +2180,12 @@ function resolveProj(b, idx, yr){
   var p = idx.byBid[String(b.projectName||'').trim()] || idx.byName[String(b.customerName||'').trim()];
   var rs = (p && p.result) ? String(p.result.status||'') : '';
   var resultKey = null;
-  if(/won/i.test(rs))         resultKey = 'won';
-  else if(/cancel/i.test(rs)) resultKey = 'cancel';
-  else if(/close/i.test(rs))  resultKey = 'close';
+  if(/won/i.test(rs))                       resultKey = 'won';
+  else if(/cancel/i.test(rs))               resultKey = 'cancel';
+  else if(/lost|close|closed/i.test(rs))    resultKey = 'close';   /* PFU Result “Lost” is shown as ❌ Close in the BMS */
+  /* Won / Cancel / Close come from the PFU only.
+     Bid Tracking “Activated content = Cancelled” is NOT used any more (it only records the last stage). */
   var cat = qCat(b);
-  if(!resultKey){
-    if(cat === 'Cancelled') resultKey = 'cancel';
-    else if(cat === 'Won')  resultKey = 'won';
-  }
   var resMo = null;
   if(p && p.target) resMo = pfuMonthOf(p.target, yr);   /* result quarter from PFU Target Result */
   if(resMo == null) resMo = startMo;                    /* fallback: bid start month */
@@ -2241,9 +2238,9 @@ function realRegisterFor(q){
   allProjects(yr).forEach(function(r){
     var key;
     if(r.resultKey){
-      if(r.resQ === q) key = r.resultKey;                      /* result lands in its result quarter */
-      else if(r.resQ > q && r.startQ <= q) key = r.procKey;    /* still active in this earlier quarter */
-      else return;                                             /* before start, or already done */
+      if(r.resQ === q) key = r.resultKey;                      /* the result lands in its result quarter        */
+      else if(r.resQ > q && r.startQ <= q) key = r.procKey;    /* earlier quarter: still in progress → keep it  */
+      else return;                                             /* before start, or already finished */
     } else {
       if(r.startQ > q) return;
       key = r.procKey;                                         /* active, carried forward */
@@ -3091,6 +3088,23 @@ function setChamberMonthFilter(month){
   document.getElementById('chMonthFilter').value=month;
   renderTable();
 }
+/* ---- PFU final-result lookup (2026-09-19) ----
+ *  A project counts as FINISHED once the PFU has a Result (Won / Close / Cancel).
+ *  The “Target Result” date is NOT required here — it is only used by Annual Target to pick the quarter. */
+function pfuDoneMap(){
+  var byBid={}, byName={};
+  ((data&&data.projectTracking)||[]).forEach(function(p){
+    if(!(p.result&&p.result.status)) return;
+    var k=String(p.result.status);
+    if(p.filledFromBid) byBid[String(p.filledFromBid).trim()]=k;
+    if(p.name)          byName[String(p.name).trim()]=k;
+  });
+  return {byBid:byBid, byName:byName};
+}
+function bidIsDone(b,m){
+  m=m||pfuDoneMap();
+  return !!(m.byBid[String((b&&b.projectName)||'').trim()]||m.byName[String((b&&b.customerName)||'').trim()]);
+}
 function setBidsFilter(filter){
   bidsFilter=filter;
   document.querySelectorAll('#bf button').forEach(b=>b.classList.remove('active'));
@@ -3119,6 +3133,7 @@ function updateSummary(){
     '跟踪':'tracking','跟踪 / Following':'tracking','Following':'tracking','Following / 跟踪':'tracking',
     '跟踪 / Follow up':'tracking','Follow up':'tracking','Follow up / 跟踪':'tracking'
   };
+  var _pfuM = (typeof pfuDoneMap==='function') ? pfuDoneMap() : {byBid:{},byName:{}};
   data.bids.forEach(function(b){
     bTotal++;
     if(b.trackDate){
@@ -3136,8 +3151,8 @@ function updateSummary(){
         }
       }
     }
-    // 排除已取消项目
-    if(b.inactive) return;
+    // 排除已取消项目 + 已有 PFU 最终结果(Won/Close/Cancel)的项目 —— 2026-09-19（与 Bid Tracking filter 同一口径）
+    if(b.inactive || bidIsDone(b,_pfuM)) return;
     const stageKey=contentStageMap[b.stageContent]||'';
     if(stageKey==='bidding') bBidding++;
     else if(stageKey==='tracking') bTracking++;
@@ -4316,10 +4331,10 @@ function exportSummaryPDF(){
   html+='</div>';
 
   // ============ PAGE 2: BIDDING LIST ============
-  var biddingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中');});
-  var trackingBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪');});
-  var potentialBids=data.bids.filter(function(b){return !b.inactive&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在');});
-  var cancelledBids=data.bids.filter(function(b){return b.stageContent==='已取消'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'||b.stageContent==='已取消 / Cancelled';});
+  var biddingBids=data.bids.filter(function(b){return !b.inactive&&!bidIsDone(b)&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中');});
+  var trackingBids=data.bids.filter(function(b){return !b.inactive&&!bidIsDone(b)&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪');});
+  var potentialBids=data.bids.filter(function(b){return !b.inactive&&!bidIsDone(b)&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在');});
+  var cancelledBids=data.bids.filter(function(b){return bidIsDone(b)||b.stageContent==='已取消'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'||b.stageContent==='已取消 / Cancelled';});
   var totalActivePages=1+(biddingBids.length>0||potentialBids.length>0?1:0)+(trackingBids.length>0?1:0)+(cancelledBids.length>0?1:0);
   // compute pipeline values for header
   function _pv(list){return list.reduce(function(s,b){var n=parseFloat(String(b.estimatedValue||'').replace(/,/g,''))||0;return s+n;},0)/1e9;}
@@ -4762,11 +4777,12 @@ function updateStats(){
   (function(){
     var d=data.bids||[];
     var eq=function(v,arr){return arr.indexOf(v)>=0;};
+    var _pm=pfuDoneMap(), _dn=function(b){return bidIsDone(b,_pm);};
     var nAll=d.length;
-    var nBid=d.filter(function(b){return !b.inactive&&eq(b.stageContent,['投标中','投标中 / Bidding','Bidding','Bidding / 投标中']);}).length;
-    var nTrk=d.filter(function(b){return !b.inactive&&eq(b.stageContent,['跟踪','跟踪 / Following','Following','Following / 跟踪','跟踪 / Follow up','Follow up','Follow up / 跟踪']);}).length;
-    var nPot=d.filter(function(b){return !b.inactive&&eq(b.stageContent,['潜在','潜在 / Potential','Potential','Potential / 潜在']);}).length;
-    var nCan=d.filter(function(b){return b.inactive||eq(b.stageContent,['已取消','已取消 / Cancelled','Cancelled','Cancelled / 已取消']);}).length;
+    var nBid=d.filter(function(b){return !b.inactive&&!_dn(b)&&eq(b.stageContent,['投标中','投标中 / Bidding','Bidding','Bidding / 投标中']);}).length;
+    var nTrk=d.filter(function(b){return !b.inactive&&!_dn(b)&&eq(b.stageContent,['跟踪','跟踪 / Following','Following','Following / 跟踪','跟踪 / Follow up','Follow up','Follow up / 跟踪']);}).length;
+    var nPot=d.filter(function(b){return !b.inactive&&!_dn(b)&&eq(b.stageContent,['潜在','潜在 / Potential','Potential','Potential / 潜在']);}).length;
+    var nCan=d.filter(function(b){return b.inactive||_dn(b)||eq(b.stageContent,['已取消','已取消 / Cancelled','Cancelled','Cancelled / 已取消']);}).length;
     var m={bfAll:nAll,bfBidding:nBid,bfTracking:nTrk,bfPotential:nPot,bfCancelled:nCan};
     Object.keys(m).forEach(function(id){
       var btn=document.getElementById(id); if(!btn)return;
@@ -4784,7 +4800,8 @@ function updateStats(){
   const ACTIVE_STAGE_KEYWORDS = [['Bidding','投标中'],['Potential','潜在']];
   let totalVal = 0;
   data.bids.forEach(b=>{
-    if(b.inactive) return; // 已取消项目不计入
+    if(b.inactive) return;        // 已取消项目不计入
+    if(bidIsDone(b)) return;      // 已有 PFU 最终结果(Won/Close/Cancel)的项目不算 active pipeline —— 2026-09-19
     const sc=(b.stageContent||'').toLowerCase();
     const inActive = ACTIVE_STAGE_KEYWORDS.some(kw=>kw.some(x=>sc.indexOf(x.toLowerCase())!==-1));
     if(!inActive) return; // 仅统计活跃管道三个阶段
@@ -4848,14 +4865,15 @@ function renderTable(){
   }
   // 投标项目:筛选和排序
   if(mod==='bids'){
+    var _pm2=pfuDoneMap(), _dn2=function(b){return bidIsDone(b,_pm2);};
     if(bidsFilter==='bidding'){
-      d=d.filter(b=>!b.inactive&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中'));
+      d=d.filter(b=>!b.inactive&&!_dn2(b)&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中'));
     }else if(bidsFilter==='tracking'){
-      d=d.filter(b=>!b.inactive&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪'));
+      d=d.filter(b=>!b.inactive&&!_dn2(b)&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪'));
     }else if(bidsFilter==='potential'){
-      d=d.filter(b=>!b.inactive&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在'));
+      d=d.filter(b=>!b.inactive&&!_dn2(b)&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在'));
     }else if(bidsFilter==='cancelled'){
-      d=d.filter(b=>b.inactive||(b.stageContent==='已取消'||b.stageContent==='已取消 / Cancelled'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'));
+      d=d.filter(b=>b.inactive||_dn2(b)||(b.stageContent==='已取消'||b.stageContent==='已取消 / Cancelled'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'));
     }
     d=[...d].sort((a,b)=>(a.inactive?1:0)-(b.inactive?1:0));
   }
