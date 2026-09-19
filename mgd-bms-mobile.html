@@ -143,7 +143,7 @@ var D=null;                     /* 云端数据 */
 var STAGE=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var STAGESHORT={'Project Info collection':'1 · Project Info','PQ':'2 · PQ','Bidding':'3 · Bidding','Reviewing':'4 · Reviewing','Negotiation':'5 · Negotiation','Result':'6 · Result'};
 var STAGECLS={'Project Info collection':'info','PQ':'pq','Bidding':'bid','Reviewing':'rev','Negotiation':'nego','Result':'won'};
-var MB_BUILD='v2';   /* 每次发布改这里，便于确认手机上跑的是哪一版 */
+var MB_BUILD='v3';   /* 每次发布改这里 + version.json，手机会自动更新到最新 */
 var fuChip='all', ctQ='', vy=0, vm=0, sel=null, wrUser=null, ctLimit=40, calMember='all';
 
 /* ============ 工具 ============ */
@@ -188,6 +188,7 @@ function boot(){
    document.getElementById('upd').textContent=pad(t.getHours())+':'+pad(t.getMinutes());
    if(!vy){var n=new Date();vy=n.getFullYear();vm=n.getMonth()+1;}
    renderAll();
+   checkUpdate();   /* 有新版本就自动刷新一次 */
  }).catch(function(e){
    led.className='led err';
    document.getElementById('upd').textContent='离线';
@@ -383,6 +384,18 @@ TABS.forEach(function(t){document.getElementById('p-'+t[0]).classList.toggle('on
 nav();
 boot();
 setInterval(function(){if(!document.hidden)boot();},120000);
+/* 自动更新：发现服务器版本 ≠ 当前版本 → 自动刷新一次（无需手动清缓存/换网址） */
+function checkUpdate(){
+  try{
+    if(sessionStorage.getItem('_mb_upd')==='1')return;
+    fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+      if(j&&j.build&&j.build!==MB_BUILD){
+        try{sessionStorage.setItem('_mb_upd','1');}catch(e){}
+        location.reload();
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
 /* PWA：注册 Service Worker（离线打开 + 可装到主屏） */
 try{if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){});}}catch(e){}
 /* 从主屏启动时恢复上次的 tab */
