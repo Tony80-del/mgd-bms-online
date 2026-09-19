@@ -98,6 +98,13 @@ html,body{margin:0;background:#05070B;color:var(--txt);font-family:-apple-system
 .mom .h .ti{font-size:13.5px;font-weight:800}
 .mom .h .id{font-size:10px;color:var(--acc);font-weight:700}
 .mom .info{font-size:10.5px;color:var(--mut);margin-top:6px;line-height:1.7}
+.mom .momBody{display:none}
+.mom.open .momBody{display:block}
+.mom.open{border-color:var(--acc)}
+.mom .id .ar::before{content:'▸'}
+.mom.open .id .ar::before{content:'▾'}
+.mom .id{white-space:nowrap}
+.mom .cue{font-size:10px;color:var(--acc);margin-top:5px}
 .topic{margin-top:9px;padding-top:9px;border-top:1px dashed #22304A}
 .topic .tp{font-size:11.5px;font-weight:700;color:#BFD0E6}
 .topic ul{margin:5px 0 0;padding-left:16px;font-size:11px;color:#9DAFC6;line-height:1.75}
@@ -302,6 +309,39 @@ function wrLatest(user){
  var ks=Object.keys(u).filter(function(k){return !isNaN(+k);}).sort(function(a,b){return +b-+a;});
  return ks.length?u[ks[0]]:null;
 }
+var momOpen=0;
+function momCount(m){var n=0;(m.actions||[]).forEach(function(g){(g.items||[]).forEach(function(it){if(it&&String(it.task||'').trim())n++;});});return n;}
+function momAgCount(m){var n=0;(m.agenda||[]).forEach(function(a){if((a.items||[]).filter(function(x){return String(x||'').trim();}).length)n++;});return n;}
+function momCard(m,i){
+ var open=(momOpen===i), body='';
+ body+='<div class="info">📅 '+esc(m.date||'')+(m.time?' · '+esc(m.time):'')+(m.location?'<br>📍 '+esc(m.location):'')+
+   (m.chair?' · 主席 '+esc(m.chair):'')+(m.recorder?' · 记录 '+esc(m.recorder):'')+
+   (m.attendees?'<br>👥 '+esc(m.attendees):'')+(m.absent?' · 缺席 '+esc(m.absent):'')+'</div>';
+ (m.agenda||[]).forEach(function(a){
+   var items=(a.items||[]).filter(function(x){return String(x||'').trim();});
+   if(!items.length)return;
+   body+='<div class="topic"><div class="tp">'+esc(a.topic||'—')+'</div><ul>'+items.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+ });
+ var acts=[];(m.actions||[]).forEach(function(g){(g.items||[]).forEach(function(it){if(it&&String(it.task||'').trim())acts.push(it);});});
+ if(acts.length){
+   body+='<div class="topic"><div class="tp">Action Items · '+acts.length+' 项</div>'+
+    acts.map(function(a){
+      var st=/complet/i.test(a.status||'')?'<span class="st st-done">完成</span>':/pending/i.test(a.status||'')?'<span class="st st-pend">待办</span>':'<span class="st st-prog">进行中</span>';
+      return '<div class="act"><div class="k">'+esc(a.task)+'</div><div class="v">'+esc(a.pic||'')+(a.due?' · '+esc(a.due):'')+' '+st+'</div></div>';}).join('')+'</div>';
+ }
+ return '<div class="mom'+(open?' open':'')+'" onclick="togMom('+i+')">'+
+   '<div class="h"><div class="ti">'+esc(m.title||'会议')+'</div>'+
+   '<div class="id">'+esc(m.id||'')+'<span class="ar"></span></div></div>'+
+   '<div class="info" style="margin-top:4px">'+esc(String(m.date||'').replace(/\s*\(.*\)/,''))+
+    ' · '+momAgCount(m)+' 议程 · '+momCount(m)+' 事项</div>'+
+   '<div class="cue">点开看 Agenda &amp; Action Tasks</div>'+
+   '<div class="momBody">'+body+'</div></div>';
+}
+function togMom(i){
+ var cs=document.querySelectorAll('#wrWrap .mom');
+ for(var k=0;k<cs.length;k++)cs[k].classList.remove('open');
+ if(momOpen!==i){cs[i]&&cs[i].classList.add('open');momOpen=i;}else momOpen=-1;
+}
 function renderWR(){
  var us=wrUsers();
  if(!wrUser||us.indexOf(wrUser)<0)wrUser=us[0];
@@ -320,28 +360,9 @@ function renderWR(){
  } else h+='<div class="load">该成员暂无周报</div>';
 
  var mm=(D&&D.meetingMinutes&&D.meetingMinutes.records)||[];
- h+='<div class="sect"><span>Meeting Minutes</span><span>'+mm.length+' 条</span></div>';
+ h+='<div class="sect"><span>Meeting Minutes</span><span>'+mm.length+' 条 · 点开看 Agenda / Action</span></div>';
  if(!mm.length)h+='<div class="load">暂无会议纪要</div>';
- else{
-   var latest=mm[0];
-   h+= '<div class="mom"><div class="h"><div class="ti">'+esc(latest.title||'会议')+'</div><div class="id">'+esc(latest.id||'')+'</div></div>'+
-    '<div class="info">📅 '+esc(latest.date||'')+' · '+esc(latest.time||'')+'<br>📍 '+esc(latest.location||'')+
-      (latest.recorder?' · 记录 '+esc(latest.recorder):'')+(latest.absent?' · 缺席 '+esc(latest.absent):'')+'</div>'+
-    (latest.agenda||[]).map(function(a){
-      return '<div class="topic"><div class="tp">'+esc(a.topic||'—')+'</div><ul>'+(a.items||[]).map(function(i){return '<li>'+esc(i)+'</li>';}).join("")+'</ul></div>';}).join("")+
-    '</div>';
-   var acts=[]; (latest.actions||[]).forEach(function(g){(g.items||[]).forEach(function(it){if(it&&(it.task||'').trim())acts.push(it);});});
-   if(acts.length){
-     h+='<div class="mom"><div class="h"><div class="ti">Action Items</div><div class="id">'+acts.length+' 项</div></div>'+
-      acts.map(function(a){
-        var st=/complet/i.test(a.status||'')?'<span class="st st-done">完成</span>':/pending/i.test(a.status||'')?'<span class="st st-pend">待办</span>':'<span class="st st-prog">进行中</span>';
-        return '<div class="act"><div class="k">'+esc(a.task)+'</div><div class="v">'+esc(a.pic||'')+(a.due?' · '+esc(a.due):'')+' '+st+'</div></div>';}).join("")+'</div>';
-   }
-   var rest=mm.slice(1,6);
-   if(rest.length)h+= rest.map(function(m){
-     return '<div class="card"><div class="l"><div class="nm">'+esc(m.title||'会议')+'</div><div class="cu">'+esc(m.date||'')+(m.location?' · '+esc(m.location):'')+'</div></div>'+
-      '<div class="r"><div class="v" style="font-size:11px;color:var(--mut)">'+esc(m.id||'')+'</div></div></div>';}).join("");
- }
+ else h+= mm.map(function(m,i){return momCard(m,i);}).join("");
  document.getElementById('wrWrap').innerHTML=h;
 }
 function setU(u){wrUser=u;renderWR();}
