@@ -360,7 +360,7 @@ nav();
 boot();
 setInterval(function(){if(!document.hidden)boot();},120000);
 /* PWA：注册 Service Worker（离线打开 + 可装到主屏） */
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+try{if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){});}}catch(e){}
 /* 从主屏启动时恢复上次的 tab */
 window.addEventListener('beforeunload',function(){try{localStorage.setItem('_mb_tab',cur);}catch(e){}});
 try{var _t=localStorage.getItem('_mb_tab');if(_t&&!location.hash){cur=_t;TABS.forEach(function(x){document.getElementById('p-'+x[0]).classList.toggle('on',x[0]===cur);});nav();}}catch(e){}
