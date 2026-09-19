@@ -375,6 +375,7 @@
 #bf button.bfbtn#bfTracking .bfn{color:#38bdf8}
 #bf button.bfbtn#bfPotential .bfn{color:#34d399}
 #bf button.bfbtn#bfCancelled .bfn{color:#f87171}
+#bf button.bfbtn#bfWon .bfn{color:#5ee98a}
 #bf button.bfbtn.active{background:var(--blue);border-color:var(--blue);color:#fff}
 #bf button.bfbtn.active .bfn{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.45);color:#fff}
     .mc{background:var(--card);border:1px solid rgba(0,180,216,0.2);border-radius:20px;padding:24px;max-width:550px;width:90%;transform:scale(0.9);transition:transform .3s;margin:auto;box-shadow:0 25px 80px rgba(0,0,0,0.5),0 0 40px rgba(0,180,216,0.05)}
@@ -790,6 +791,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button onclick="setBidsFilter('tracking')" class="bfbtn" id="bfTracking"><span class="bfi">🎯</span>追踪 / Tracking<span class="bfn">0</span></button>
       <button onclick="setBidsFilter('potential')" class="bfbtn" id="bfPotential"><span class="bfi">🌱</span>潜在 / Potential<span class="bfn">0</span></button>
       <button onclick="setBidsFilter('cancelled')" class="bfbtn" id="bfCancelled"><span class="bfi">🚫</span>已取消 / Cancelled<span class="bfn">0</span></button>
+      <button onclick="setBidsFilter('won')" class="bfbtn" id="bfWon"><span class="bfi">🏆</span>中标 / Won<span class="bfn">0</span></button>
     </div>
     <!-- ================= PROJECT DETAIL TRACKING (Project Follow-up) ================= -->
     <div id="bidsTrackingContainer" style="display:none">
@@ -3101,9 +3103,32 @@ function pfuDoneMap(){
   });
   return {byBid:byBid, byName:byName};
 }
-function bidIsDone(b,m){
+function bidResultKind(b,m){                 /* 'won' | 'cancel' | 'close' | null  */
   m=m||pfuDoneMap();
-  return !!(m.byBid[String((b&&b.projectName)||'').trim()]||m.byName[String((b&&b.customerName)||'').trim()]);
+  var k=m.byBid[String((b&&b.projectName)||'').trim()]||m.byName[String((b&&b.customerName)||'').trim()];
+  if(!k) return null;
+  return /won/i.test(k) ? 'won' : (/cancel/i.test(k) ? 'cancel' : 'close');
+}
+function bidIsDone(b,m){ return !!bidResultKind(b,m); }
+/* Bid Tracking buckets — single source of truth for the list filter, the pills and the PDF */
+var BID_KW = {
+  bidding:   ['投标中','投标中 / Bidding','Bidding','Bidding / 投标中'],
+  tracking:  ['跟踪','跟踪 / Following','Following','Following / 跟踪','跟踪 / Follow up','Follow up','Follow up / 跟踪'],
+  potential: ['潜在','潜在 / Potential','Potential','Potential / 潜在'],
+  cancelled: ['已取消','已取消 / Cancelled','Cancelled','Cancelled / 已取消']
+};
+function bidBucket(b,m){
+  if(!b) return 'none';
+  if(b.inactive) return 'cancelled';                        /* manually paused / cancelled */
+  var k=bidResultKind(b,m);
+  if(k==='won') return 'won';                               /* PFU result = Won  */
+  if(k==='cancel'||k==='close') return 'cancelled';         /* PFU result = Cancel / Close */
+  var sc=b.stageContent||'';
+  if(BID_KW.bidding.indexOf(sc)>=0)   return 'bidding';
+  if(BID_KW.tracking.indexOf(sc)>=0)  return 'tracking';
+  if(BID_KW.potential.indexOf(sc)>=0) return 'potential';
+  if(BID_KW.cancelled.indexOf(sc)>=0) return 'cancelled';
+  return 'none';
 }
 function setBidsFilter(filter){
   bidsFilter=filter;
@@ -4331,14 +4356,13 @@ function exportSummaryPDF(){
   html+='</div>';
 
   // ============ PAGE 2: BIDDING LIST ============
-  var biddingBids=data.bids.filter(function(b){return !b.inactive&&!bidIsDone(b)&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中');});
-  var trackingBids=data.bids.filter(function(b){return !b.inactive&&!bidIsDone(b)&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪');});
-  var potentialBids=data.bids.filter(function(b){return !b.inactive&&!bidIsDone(b)&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在');});
-  var cancelledBids=data.bids.filter(function(b){return bidIsDone(b)||b.stageContent==='已取消'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'||b.stageContent==='已取消 / Cancelled';});
-  var totalActivePages=1+(biddingBids.length>0||potentialBids.length>0?1:0)+(trackingBids.length>0?1:0)+(cancelledBids.length>0?1:0);
+  var _pmP=pfuDoneMap(), _byB={bidding:[],tracking:[],potential:[],cancelled:[],won:[]};
+  data.bids.forEach(function(b){ var k=bidBucket(b,_pmP); if(_byB[k]) _byB[k].push(b); });
+  var biddingBids=_byB.bidding, trackingBids=_byB.tracking, potentialBids=_byB.potential, cancelledBids=_byB.cancelled, wonBids=_byB.won;
+  var totalActivePages=1+(biddingBids.length>0||potentialBids.length>0?1:0)+(trackingBids.length>0?1:0)+(cancelledBids.length>0?1:0)+(wonBids.length>0?1:0);
   // compute pipeline values for header
   function _pv(list){return list.reduce(function(s,b){var n=parseFloat(String(b.estimatedValue||'').replace(/,/g,''))||0;return s+n;},0)/1e9;}
-  var pdfBA=_pv(biddingBids),pdfPA=_pv(potentialBids),pdfTA=_pv(trackingBids),pdfCA=_pv(cancelledBids),pdfActive=pdfBA+pdfPA;
+  var pdfBA=_pv(biddingBids),pdfPA=_pv(potentialBids),pdfTA=_pv(trackingBids),pdfCA=_pv(cancelledBids),pdfW=_pv(wonBids),pdfActive=pdfBA+pdfPA;
   var pageIdx=2;
   // ---- Page 2: Bidding + Potential merged (Active Pipeline) ----
   if(biddingBids.length>0||potentialBids.length>0){
@@ -4387,6 +4411,21 @@ function exportSummaryPDF(){
       html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.nextActionContent||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
     });
     html+='</tbody></table>';
+  // ---- Won / 中标 ----
+  if(wonBids.length>0){
+    html+='<div class="page">';
+    html+='<div class="page-header">Page '+pageIdx+' / '+totalActivePages+'</div>';
+    html+='<h1>MGD Business Management System</h1>';
+    html+='<h2>Won Projects / 中标项目 — Value: '+(pdfW>0?(pdfW>=100?Math.round(pdfW):pdfW.toFixed(1))+'B':'—')+'</h2>';
+    html+='<table class="table"><thead><tr><th>#</th><th>Customer / 客户</th><th>Project / 项目</th><th>Next Action Content / 下一步内容</th><th>Est. Value / 金额</th></tr></thead><tbody>';
+    wonBids.forEach(function(b,i){
+      html+='<tr><td>'+(i+1)+'</td><td>'+(b.customerName||'')+'</td><td>'+(b.projectName||'')+'</td><td>'+(b.nextActionContent||'')+'</td><td>'+(b.estimatedValue?parseInt(b.estimatedValue).toLocaleString():'')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+    html+='</div>';
+    pageIdx++;
+  }
+
     html+='</div>';
     pageIdx++;
   }
@@ -4776,14 +4815,10 @@ function updateStats(){
   // 筛选按钮计数(与 renderTable 完全同一口径)
   (function(){
     var d=data.bids||[];
-    var eq=function(v,arr){return arr.indexOf(v)>=0;};
-    var _pm=pfuDoneMap(), _dn=function(b){return bidIsDone(b,_pm);};
-    var nAll=d.length;
-    var nBid=d.filter(function(b){return !b.inactive&&!_dn(b)&&eq(b.stageContent,['投标中','投标中 / Bidding','Bidding','Bidding / 投标中']);}).length;
-    var nTrk=d.filter(function(b){return !b.inactive&&!_dn(b)&&eq(b.stageContent,['跟踪','跟踪 / Following','Following','Following / 跟踪','跟踪 / Follow up','Follow up','Follow up / 跟踪']);}).length;
-    var nPot=d.filter(function(b){return !b.inactive&&!_dn(b)&&eq(b.stageContent,['潜在','潜在 / Potential','Potential','Potential / 潜在']);}).length;
-    var nCan=d.filter(function(b){return b.inactive||_dn(b)||eq(b.stageContent,['已取消','已取消 / Cancelled','Cancelled','Cancelled / 已取消']);}).length;
-    var m={bfAll:nAll,bfBidding:nBid,bfTracking:nTrk,bfPotential:nPot,bfCancelled:nCan};
+    var _pm=pfuDoneMap();
+    var nAll=d.length, n={bidding:0,tracking:0,potential:0,cancelled:0,won:0};
+    d.forEach(function(b){ var k=bidBucket(b,_pm); if(n[k]!=null) n[k]++; });
+    var m={bfAll:nAll,bfBidding:n.bidding,bfTracking:n.tracking,bfPotential:n.potential,bfCancelled:n.cancelled,bfWon:n.won};
     Object.keys(m).forEach(function(id){
       var btn=document.getElementById(id); if(!btn)return;
       var pill=btn.querySelector('.bfn'); if(pill)pill.textContent=m[id];
@@ -4865,16 +4900,8 @@ function renderTable(){
   }
   // 投标项目:筛选和排序
   if(mod==='bids'){
-    var _pm2=pfuDoneMap(), _dn2=function(b){return bidIsDone(b,_pm2);};
-    if(bidsFilter==='bidding'){
-      d=d.filter(b=>!b.inactive&&!_dn2(b)&&(b.stageContent==='投标中'||b.stageContent==='投标中 / Bidding'||b.stageContent==='Bidding'||b.stageContent==='Bidding / 投标中'));
-    }else if(bidsFilter==='tracking'){
-      d=d.filter(b=>!b.inactive&&!_dn2(b)&&(b.stageContent==='跟踪'||b.stageContent==='跟踪 / Following'||b.stageContent==='Following'||b.stageContent==='Following / 跟踪'||b.stageContent==='跟踪 / Follow up'||b.stageContent==='Follow up'||b.stageContent==='Follow up / 跟踪'));
-    }else if(bidsFilter==='potential'){
-      d=d.filter(b=>!b.inactive&&!_dn2(b)&&(b.stageContent==='潜在'||b.stageContent==='潜在 / Potential'||b.stageContent==='Potential'||b.stageContent==='Potential / 潜在'));
-    }else if(bidsFilter==='cancelled'){
-      d=d.filter(b=>b.inactive||_dn2(b)||(b.stageContent==='已取消'||b.stageContent==='已取消 / Cancelled'||b.stageContent==='Cancelled'||b.stageContent==='Cancelled / 已取消'));
-    }
+    var _pm2=pfuDoneMap();
+    if(bidsFilter!=='all'){ d=d.filter(function(b){ return bidBucket(b,_pm2)===bidsFilter; }); }
     d=[...d].sort((a,b)=>(a.inactive?1:0)-(b.inactive?1:0));
   }
   // 商会信息:出席状态自动勾选(已过日期=已出席,未到=即将出席)
