@@ -127,26 +127,26 @@ html,body{margin:0;background:#05070B;color:var(--txt);font-family:-apple-system
 <body>
 <div id="app">
   <div class="hd"><div class="t">MGD<i> BMS</i></div><div class="s" id="upd">—</div>
-    <div class="bld" id="bld">v2</div><div class="rf" onclick="boot()">⟳</div><div class="led" id="led"></div></div>
+    <div class="bld" id="bld">v3</div><div class="rf" onclick="boot()">⟳</div><div class="led" id="led"></div></div>
 
-  <div class="page on" id="p-fu"><div class="pd" id="fuWrap"><div class="load">载入中…</div></div></div>
-  <div class="page" id="p-ct"><div class="pd" id="ctWrap"><div class="load">载入中…</div></div></div>
-  <div class="page" id="p-cal"><div class="pd" id="calWrap"><div class="load">载入中…</div></div></div>
-  <div class="page" id="p-wr"><div class="pd" id="wrWrap"><div class="load">载入中…</div></div></div>
+  <div class="page on" id="p-fu"><div class="pd" id="fuWrap"><div class="load">Loading…</div></div></div>
+  <div class="page" id="p-ct"><div class="pd" id="ctWrap"><div class="load">Loading…</div></div></div>
+  <div class="page" id="p-cal"><div class="pd" id="calWrap"><div class="load">Loading…</div></div></div>
+  <div class="page" id="p-wr"><div class="pd" id="wrWrap"><div class="load">Loading…</div></div></div>
 
   <div class="nav" id="nav"></div>
 </div>
 <script>
-/* ============ 配置 ============ */
+/* ============ Config ============ */
 var FB={projectId:'mgd-bms',apiKey:'AIzaSyAVmd-Fn6n0ZUQzT6PgI52VKNLqO1qdeJE',doc:'bms_data/master'};
-var D=null;                     /* 云端数据 */
+var D=null;                     /* cloud data */
 var STAGE=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var STAGESHORT={'Project Info collection':'1 · Project Info','PQ':'2 · PQ','Bidding':'3 · Bidding','Reviewing':'4 · Reviewing','Negotiation':'5 · Negotiation','Result':'6 · Result'};
 var STAGECLS={'Project Info collection':'info','PQ':'pq','Bidding':'bid','Reviewing':'rev','Negotiation':'nego','Result':'won'};
-var MB_BUILD='v3';   /* 每次发布改这里 + version.json，手机会自动更新到最新 */
+var MB_BUILD='v3';   /* bump this + version.json on each release - phones auto-update */
 var fuChip='all', ctQ='', vy=0, vm=0, sel=null, wrUser=null, ctLimit=40, calMember='all';
 
-/* ============ 工具 ============ */
+/* ============ Utils ============ */
 function dec(v){
  if(v==null)return null;
  if('stringValue'in v)return v.stringValue;
@@ -165,6 +165,7 @@ function fmtB(n){if(!n)return '—';return (n>=100?Math.round(n):Math.round(n*10
 function pad(n){return (n<10?'0':'')+n;}
 function iso(y,m,d){return y+'-'+pad(m)+'-'+pad(d);}
 /* '15 Apr 2026' / '2026-04-15' / 'Apr 15' → {y,m,d} */
+var MONABBR=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 var MON={'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'sept':9,'oct':10,'otc':10,'nov':11,'dec':12};
 function parseDate(s){
  if(!s)return null; s=String(s).trim();
@@ -174,11 +175,11 @@ function parseDate(s){
  return null;
 }
 
-/* ============ 载入云端 ============ */
+/* ============ Load from cloud ============ */
 function boot(){
  var bld=document.getElementById('bld'); if(bld)bld.textContent=MB_BUILD;
  var led=document.getElementById('led'); led.className='led';
- document.getElementById('upd').textContent='载入中…';
+ document.getElementById('upd').textContent='Loading…';
  var url='https://firestore.googleapis.com/v1/projects/'+FB.projectId+'/databases/(default)/documents/'+FB.doc+'?key='+FB.apiKey;
  fetch(url).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
  .then(function(j){
@@ -188,32 +189,32 @@ function boot(){
    document.getElementById('upd').textContent=pad(t.getHours())+':'+pad(t.getMinutes());
    if(!vy){var n=new Date();vy=n.getFullYear();vm=n.getMonth()+1;}
    renderAll();
-   checkUpdate();   /* 有新版本就自动刷新一次 */
+   checkUpdate();   /* auto-refresh once if a newer build exists */
  }).catch(function(e){
    led.className='led err';
-   document.getElementById('upd').textContent='离线';
+   document.getElementById('upd').textContent='Offline';
    ['fuWrap','ctWrap','calWrap','wrWrap'].forEach(function(id){
      var el=document.getElementById(id);
-     if(el&&el.querySelector('.load'))el.innerHTML='<div class="load">读取云端失败<br><span style="font-size:11px">'+esc(e.message)+'<br>下拉/点 ⟳ 重试</span></div>';
+     if(el&&el.querySelector('.load'))el.innerHTML='<div class="load">Failed to load cloud data<br><span style="font-size:11px">'+esc(e.message)+'<br>Pull down or tap ⟳ to retry</span></div>';
    });
  });
 }
 
-/* ============ 1 · FOLLOW-UP（PFU 里还没有最终结果的） ============ */
+/* ============ 1 · FOLLOW-UP (PFU items without a final result) ============ */
 function ongoing(){
  var pt=(D&&D.projectTracking)||[];
  return pt.filter(function(p){return !(p.result&&p.result.status);}).map(function(p){
-   return {name:p.name||'(未命名)', client:p.client||'', stage:p.stage||'', val:numOf(p.estValue), valTxt:p.estValue||'—', start:p.start||''};
+   return {name:p.name||'(Unnamed)', client:p.client||'', stage:p.stage||'', val:numOf(p.estValue), valTxt:p.estValue||'—', start:p.start||''};
  }).sort(function(a,b){return b.val-a.val;});
 }
 function renderFU(){
  var list=ongoing();
  var stages={}; list.forEach(function(x){stages[x.stage]=(stages[x.stage]||0)+1;});
  var total=list.reduce(function(s,x){return s+x.val;},0);
- var chips=[['all','全部 '+list.length]].concat(STAGE.filter(function(s){return stages[s];}).map(function(s){return [s,STAGESHORT[s]+' '+stages[s]];}));
- var h='<div class="sum"><div class="l"><span>正在进行阶段 · On-going</span><span>有结果的不显示</span></div>'+
-  '<div class="n">'+list.length+' <small>个工程 · 合计 '+fmtB(total)+'</small></div>'+
-  '<div class="meta">来源：Project Follow-up · 数据实时同步云端</div></div>';
+ var chips=[['all','All '+list.length]].concat(STAGE.filter(function(s){return stages[s];}).map(function(s){return [s,STAGESHORT[s]+' '+stages[s]];}));
+ var h='<div class="sum"><div class="l"><span>On-going stages</span><span>Items with a result are hidden</span></div>'+
+  '<div class="n">'+list.length+' <small>projects · total '+fmtB(total)+'</small></div>'+
+  '<div class="meta">Source: Project Follow-up · live-synced from cloud</div></div>';
  h+='<div class="chips">'+chips.map(function(c){
    return '<div class="chip'+(fuChip===c[0]?' on':'')+'" onclick="setFu(\''+c[0].replace(/\s/g,'_')+'\')">'+esc(c[1])+'</div>';}).join("")+'</div>';
  var d=list.filter(function(x){return fuChip==='all'||x.stage===fuChip.replace(/_/g,' ');});
@@ -223,7 +224,7 @@ function renderFU(){
     '<div class="meta">'+(x.start?'Start '+esc(x.start):'')+'</div></div>'+
     '<div class="r"><div class="v">'+esc(x.valTxt)+'</div>'+
     '<span class="pill p-'+(STAGECLS[x.stage]||'info')+'">'+esc(STAGESHORT[x.stage]||x.stage||'—')+'</span></div></div>';}).join("")
-  : '<div class="load">没有进行中的工程</div>';
+  : '<div class="load">No on-going projects</div>';
  document.getElementById('fuWrap').innerHTML=h;
 }
 function setFu(k){fuChip=k.replace(/_/g,' ');renderFU();}
@@ -233,20 +234,20 @@ function renderCT(){
  var all=(D&&D.customers)||[];
  var q=ctQ.toLowerCase().trim();
  var d=all.filter(function(c){return !q||[c.companyName,c.contactPerson,c.phone,c.email].join(' ').toLowerCase().indexOf(q)>=0;});
- var order={'高':0,'High':0,'中':1,'Medium':1,'低':2,'Low':2};
+ var order={'\u9ad8':0,'High':0,'\u4e2d':1,'Medium':1,'\u4f4e':2,'Low':2};
  d=d.slice().sort(function(a,b){
-   var pa=order[String(a.priority||'').replace(/[^高初中HLMowemdi]/g,'')]||1;
-   var pb=order[String(b.priority||'').replace(/[^高初中HLMowemdi]/g,'')]||1;
+   var pa=order[String(a.priority||'').replace(/[^\u9ad8\u521d\u4e2dHLMowemdi]/g,'')]||1;
+   var pb=order[String(b.priority||'').replace(/[^\u9ad8\u521d\u4e2dHLMowemdi]/g,'')]||1;
    if(pa!==pb)return pa-pb;
    return String(a.companyName||'').localeCompare(String(b.companyName||''));
  });
- var h='<div class="srch"><span>🔍</span><input id="cq" placeholder="搜索公司 / 联系人 / 号码 / 邮箱" value="'+esc(ctQ)+'" oninput="ctQ=this.value;renderCT()"></div>';
- h+='<div class="sect"><span>'+(q?'搜索命中 '+d.length+' 条':'全部联系人 '+all.length+' 条')+'</span>'+((d.length>ctLimit)?'<span>显示前 '+ctLimit+'</span>':'')+'</div>';
+ var h='<div class="srch"><span>🔍</span><input id="cq" placeholder="Search company / contact / phone / email" value="'+esc(ctQ)+'" oninput="ctQ=this.value;renderCT()"></div>';
+ h+='<div class="sect"><span>'+(q?'Matches: '+d.length:'All contacts: '+all.length)+'</span>'+((d.length>ctLimit)?'<span>Showing first '+ctLimit+'</span>':'')+'</div>';
  h+= d.length? d.slice(0,ctLimit).map(function(c){
    var li=[c.contactPerson,c.phone,c.email].filter(Boolean).map(esc).join(' · ');
-   return '<div class="ctrow"><div class="cn">'+esc(c.companyName||'(无公司名)')+'</div><div class="cp">'+li+'</div></div>';}).join("")
-  : '<div class="load">没有匹配</div>';
- if(d.length>ctLimit)h+='<div class="more" onclick="ctLimit+=60;renderCT()">显示更多（还有 '+(d.length-ctLimit)+' 条）</div>';
+   return '<div class="ctrow"><div class="cn">'+esc(c.companyName||'(No company name)')+'</div><div class="cp">'+li+'</div></div>';}).join("")
+  : '<div class="load">No matches</div>';
+ if(d.length>ctLimit)h+='<div class="more" onclick="ctLimit+=60;renderCT()">Show more ('+(d.length-ctLimit)+' left)</div>';
  document.getElementById('ctWrap').innerHTML=h;
  var i=document.getElementById('cq');
  if(i&&q){i.focus();try{i.setSelectionRange(i.value.length,i.value.length);}catch(e){}}
@@ -266,15 +267,15 @@ function buildEV(){
  ((D&&D.chambers)||[]).forEach(function(c){
    var dt=parseDate(c.attendanceDate); if(!dt)return;
    var k=iso(dt.y,dt.m,dt.d);
-   (EV[k]=EV[k]||[]).push(['🏛',c.chamberName||'—',(c.topic||'商会活动'),picOf(c.personInCharge)]);
+   (EV[k]=EV[k]||[]).push(['🏛',c.chamberName||'—',(c.topic||'Chamber event'),picOf(c.personInCharge)]);
  });
 }
 function renderCAL(){
  if(!vy){var n=new Date();vy=n.getFullYear();vm=n.getMonth()+1;}
  var off=(new Date(vy,vm-1,1).getDay()+6)%7, days=new Date(vy,vm,0).getDate();
- var h='<div class="cal"><div class="ch"><b>'+vy+' 年 '+vm+' 月</b>'+
+ var h='<div class="cal"><div class="ch"><b>'+MONABBR[vm]+' '+vy+'</b>'+
   '<div class="nb"><span onclick="shift(-1)">‹</span><span onclick="shift(1)">›</span></div></div><div class="gr">';
- ['一','二','三','四','五','六','日'].forEach(function(w){h+='<div class="w">'+w+'</div>';});
+ ['M','T','W','T','F','S','S'].forEach(function(w){h+='<div class="w">'+w+'</div>';});
  for(var i=0;i<off;i++)h+='<div class="d o"></div>';
  var ni=0,ne=0;
  for(var d=1;d<=days;d++){
@@ -284,16 +285,16 @@ function renderCAL(){
  }
  h+='</div></div>';
  var ms=members();
- h+='<div class="memrow"><div class="chip'+(calMember==='all'?' on':'')+'" onclick="setMem(\'all\')">全部</div>'+
-   ms.map(function(m){return '<div class="chip'+(calMember===m?' on':'')+'" onclick="setMem(\''+m.replace(/'/g,"")+'\')">'+esc(m==='—'?'未指定':m)+'</div>';}).join("")+'</div>';
- h+='<div class="sect"><span>本月统计'+(calMember!=='all'?' · '+esc(calMember==='—'?'未指定':calMember):'')+'</span><span>'+ni+' 互动 · '+ne+' 活动</span></div>';
+ h+='<div class="memrow"><div class="chip'+(calMember==='all'?' on':'')+'" onclick="setMem(\'all\')">All</div>'+
+   ms.map(function(m){return '<div class="chip'+(calMember===m?' on':'')+'" onclick="setMem(\''+m.replace(/'/g,"")+'\')">'+esc(m==='—'?'Unassigned':m)+'</div>';}).join("")+'</div>';
+ h+='<div class="sect"><span>This month'+(calMember!=='all'?' · '+esc(calMember==='—'?'Unassigned':calMember):'')+'</span><span>'+ni+' interactions · '+ne+' events</span></div>';
  var dEv=sel?evOf(sel):[];
- var dd=sel?sel.slice(5).replace('-','/')+(dEv.length?' · '+dEv.length+' 项':''):'点日期查看当天安排';
+ var dd=sel?sel.slice(5).replace('-','/')+(dEv.length?' · '+dEv.length+' items':''):'Tap a date to see the day';
  h+='<div class="daytit">'+dd+'</div>';
  h+= dEv.length? dEv.map(function(e){
    return '<div class="ev"><div class="ic">'+e[0]+'</div><div class="b"><div class="a">'+esc(e[1])+'</div><div class="c">'+esc(e[2])+'</div></div>'+
-     '<div class="mem '+memCls(e[3])+'">'+(e[3]?esc(e[3]):'未指定')+'</div></div>';}).join("")
-  : '<div class="ev"><div class="ic">—</div><div class="b"><div class="a">'+(sel?(calMember!=='all'?'该日无 '+esc(calMember)+' 的安排':'当日无安排'):'选择日期')+'</div><div class="c">圆点 = 有记录</div></div></div>';
+     '<div class="mem '+memCls(e[3])+'">'+(e[3]?esc(e[3]):'Unassigned')+'</div></div>';}).join("")
+  : '<div class="ev"><div class="ic">—</div><div class="b"><div class="a">'+(sel?(calMember!=='all'?'No events for '+esc(calMember)+' on this day':'No events this day'):'Select a date')+'</div><div class="c">Dot = has records</div></div></div>';
  document.getElementById('calWrap').innerHTML=h;
 }
 function pick(k){sel=k;renderCAL();}
@@ -319,8 +320,8 @@ function momAgCount(m){var n=0;(m.agenda||[]).forEach(function(a){if((a.items||[
 function momCard(m,i){
  var open=(momOpen===i), body='';
  body+='<div class="info">📅 '+esc(m.date||'')+(m.time?' · '+esc(m.time):'')+(m.location?'<br>📍 '+esc(m.location):'')+
-   (m.chair?' · 主席 '+esc(m.chair):'')+(m.recorder?' · 记录 '+esc(m.recorder):'')+
-   (m.attendees?'<br>👥 '+esc(m.attendees):'')+(m.absent?' · 缺席 '+esc(m.absent):'')+'</div>';
+   (m.chair?' · Chair '+esc(m.chair):'')+(m.recorder?' · Recorder '+esc(m.recorder):'')+
+   (m.attendees?'<br>👥 '+esc(m.attendees):'')+(m.absent?' · Absent '+esc(m.absent):'')+'</div>';
  (m.agenda||[]).forEach(function(a){
    var items=(a.items||[]).filter(function(x){return String(x||'').trim();});
    if(!items.length)return;
@@ -328,17 +329,17 @@ function momCard(m,i){
  });
  var acts=[];(m.actions||[]).forEach(function(g){(g.items||[]).forEach(function(it){if(it&&String(it.task||'').trim())acts.push(it);});});
  if(acts.length){
-   body+='<div class="topic"><div class="tp">Action Items · '+acts.length+' 项</div>'+
+   body+='<div class="topic"><div class="tp">Action Items · '+acts.length+' items</div>'+
     acts.map(function(a){
-      var st=/complet/i.test(a.status||'')?'<span class="st st-done">完成</span>':/pending/i.test(a.status||'')?'<span class="st st-pend">待办</span>':'<span class="st st-prog">进行中</span>';
+      var st=/complet/i.test(a.status||'')?'<span class="st st-done">Done</span>':/pending/i.test(a.status||'')?'<span class="st st-pend">Pending</span>':'<span class="st st-prog">In progress</span>';
       return '<div class="act"><div class="k">'+esc(a.task)+'</div><div class="v">'+esc(a.pic||'')+(a.due?' · '+esc(a.due):'')+' '+st+'</div></div>';}).join('')+'</div>';
  }
  return '<div class="mom'+(open?' open':'')+'" onclick="togMom('+i+')">'+
-   '<div class="h"><div class="ti">'+esc(m.title||'会议')+'</div>'+
+   '<div class="h"><div class="ti">'+esc(m.title||'Meeting')+'</div>'+
    '<div class="id">'+esc(m.id||'')+'<span class="ar"></span></div></div>'+
    '<div class="info" style="margin-top:4px">'+esc(String(m.date||'').replace(/\s*\(.*\)/,''))+
-    ' · '+momAgCount(m)+' 议程 · '+momCount(m)+' 事项</div>'+
-   '<div class="cue">点开看 Agenda &amp; Action Tasks</div>'+
+    ' · '+momAgCount(m)+' agenda · '+momCount(m)+' items</div>'+
+   '<div class="cue">Tap to open Agenda &amp; Action Tasks</div>'+
    '<div class="momBody">'+body+'</div></div>';
 }
 function togMom(i){
@@ -357,15 +358,15 @@ function renderWR(){
    h+= w.tasks.map(function(t){
      var pct=parseInt(String(t.pct||'0').replace(/[^\d]/g,''),10)||0;
      var c=pct>=100?'var(--grn)':pct>=60?'var(--acc)':pct>=30?'var(--yel)':'var(--org)';
-     var st=/complet/i.test(t.taskStatus||'')?'<span class="st st-done">完成</span>':/pending/i.test(t.taskStatus||'')?'<span class="st st-pend">待办</span>':'<span class="st st-prog">进行中</span>';
+     var st=/complet/i.test(t.taskStatus||'')?'<span class="st st-done">Done</span>':/pending/i.test(t.taskStatus||'')?'<span class="st st-pend">Pending</span>':'<span class="st st-prog">In progress</span>';
      return '<div class="tk"><div class="r1"><span class="nm2">'+esc(t.name||'—')+'</span><span>'+pct+'%</span></div>'+
       '<div class="pb"><i style="width:'+pct+'%;background:'+c+'"></i></div>'+
       '<div class="mt"><span>'+esc(t.planStart||'')+' → '+esc(t.planEnd||'')+'</span>'+st+'</div></div>';}).join("");
- } else h+='<div class="load">该成员暂无周报</div>';
+ } else h+='<div class="load">No weekly report for this member</div>';
 
  var mm=(D&&D.meetingMinutes&&D.meetingMinutes.records)||[];
- h+='<div class="sect"><span>Meeting Minutes</span><span>'+mm.length+' 条 · 点开看 Agenda / Action</span></div>';
- if(!mm.length)h+='<div class="load">暂无会议纪要</div>';
+ h+='<div class="sect"><span>Meeting Minutes</span><span>'+mm.length+' minutes · tap to open Agenda / Action</span></div>';
+ if(!mm.length)h+='<div class="load">No meeting minutes</div>';
  else h+= mm.map(function(m,i){return momCard(m,i);}).join("");
  document.getElementById('wrWrap').innerHTML=h;
 }
@@ -378,13 +379,13 @@ function nav(){document.getElementById('nav').innerHTML=TABS.map(function(t){
  return '<div class="'+(cur===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</div>';}).join("");}
 function go(k){cur=k;TABS.forEach(function(t){document.getElementById('p-'+t[0]).classList.toggle('on',t[0]===k);});nav();}
 function renderAll(){buildEV();if(!sel)sel=iso(vy,vm,new Date().getDate());renderFU();renderCT();renderCAL();renderWR();}
-/* 启动 */
+/* boot */
 if(location.hash){cur=location.hash.slice(1);}
 TABS.forEach(function(t){document.getElementById('p-'+t[0]).classList.toggle('on',t[0]===cur);});
 nav();
 boot();
 setInterval(function(){if(!document.hidden)boot();},120000);
-/* 自动更新：发现服务器版本 ≠ 当前版本 → 自动刷新一次（无需手动清缓存/换网址） */
+/* auto-update: server build != current build -> reload once (no manual cache clear / URL change) */
 function checkUpdate(){
   try{
     if(sessionStorage.getItem('_mb_upd')==='1')return;
@@ -396,9 +397,9 @@ function checkUpdate(){
     }).catch(function(){});
   }catch(e){}
 }
-/* PWA：注册 Service Worker（离线打开 + 可装到主屏） */
+/* PWA: register Service Worker (offline + installable to home screen) */
 try{if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){});}}catch(e){}
-/* 从主屏启动时恢复上次的 tab */
+/* restore last tab when launched from home screen */
 window.addEventListener('beforeunload',function(){try{localStorage.setItem('_mb_tab',cur);}catch(e){}});
 try{var _t=localStorage.getItem('_mb_tab');if(_t&&!location.hash){cur=_t;TABS.forEach(function(x){document.getElementById('p-'+x[0]).classList.toggle('on',x[0]===cur);});nav();}}catch(e){}
 </script>
