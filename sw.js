@@ -1,5 +1,5 @@
 /* MGD BMS Mobile · service worker */
-const CACHE = 'mgd-bms-mobile-v3-20260919';
+const CACHE = 'mgd-bms-mobile-v4-20260919';
 const FILES = [
   './mgd-bms-mobile.html',
   './manifest.json',

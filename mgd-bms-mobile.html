@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -15,7 +15,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0B0E13;--panel:#131A25;--card:#171F2C;--line:#26324A;--txt:#E7EDF5;--mut:#8494AC;
  --acc:#58A6FF;--grn:#3FB950;--yel:#E3B341;--red:#F85149;--pur:#BC8CFF;--cyan:#38D0D8;--org:#FF9F45}
-html,body{margin:0;background:#05070B;color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",Roboto,Arial,sans-serif;
+html,body{margin:0;overscroll-behavior-y:contain;background:#05070B;color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",Roboto,Arial,sans-serif;
  -webkit-text-size-adjust:100%}
 #app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:78px;position:relative;overflow-x:hidden}
 .hd{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;padding:13px 14px;
@@ -122,12 +122,19 @@ html,body{margin:0;background:#05070B;color:var(--txt);font-family:-apple-system
 .nav div span{display:block;font-size:18px;margin-bottom:2px}
 .nav div.on{color:var(--acc);font-weight:800}
 .load{text-align:center;color:var(--mut);font-size:12px;padding:40px 0}
+#ptr{position:fixed;top:0;left:0;right:0;height:0;overflow:hidden;z-index:60;pointer-events:none;
+ display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(180deg,#0F141C 70%,rgba(15,20,28,0))}
+#ptr span{font-size:11px;font-weight:700;color:var(--acc);padding-bottom:8px;opacity:0}
+#ptr.on span{opacity:1}
+#app{will-change:transform}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="hd"><div class="t">MGD<i> BMS</i></div><div class="s" id="upd">—</div>
-    <div class="bld" id="bld">v3</div><div class="rf" onclick="boot()">⟳</div><div class="led" id="led"></div></div>
+    <div class="bld" id="bld">v4</div><div class="rf" onclick="boot()">⟳</div><div class="led" id="led"></div></div>
+
+  <div id="ptr"><span id="ptrTxt">Pull to refresh</span></div>
 
   <div class="page on" id="p-fu"><div class="pd" id="fuWrap"><div class="load">Loading…</div></div></div>
   <div class="page" id="p-ct"><div class="pd" id="ctWrap"><div class="load">Loading…</div></div></div>
@@ -143,7 +150,7 @@ var D=null;                     /* cloud data */
 var STAGE=['Project Info collection','PQ','Bidding','Reviewing','Negotiation','Result'];
 var STAGESHORT={'Project Info collection':'1 · Project Info','PQ':'2 · PQ','Bidding':'3 · Bidding','Reviewing':'4 · Reviewing','Negotiation':'5 · Negotiation','Result':'6 · Result'};
 var STAGECLS={'Project Info collection':'info','PQ':'pq','Bidding':'bid','Reviewing':'rev','Negotiation':'nego','Result':'won'};
-var MB_BUILD='v3';   /* bump this + version.json on each release - phones auto-update */
+var MB_BUILD='v4';   /* bump this + version.json on each release - phones auto-update */
 var fuChip='all', ctQ='', vy=0, vm=0, sel=null, wrUser=null, ctLimit=40, calMember='all';
 
 /* ============ Utils ============ */
@@ -379,10 +386,43 @@ function nav(){document.getElementById('nav').innerHTML=TABS.map(function(t){
  return '<div class="'+(cur===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</div>';}).join("");}
 function go(k){cur=k;TABS.forEach(function(t){document.getElementById('p-'+t[0]).classList.toggle('on',t[0]===k);});nav();}
 function renderAll(){buildEV();if(!sel)sel=iso(vy,vm,new Date().getDate());renderFU();renderCT();renderCAL();renderWR();}
+/* ============ pull-to-refresh (standalone PWA has no native pull-to-refresh) ============ */
+var _pY=0,_pOn=false,_pArmed=false,_PTR_T=58;
+function ptrSet(h,txt){
+ var app=document.getElementById('app');
+ if(app)app.style.transform=h>0?'translateY('+Math.round(h)+'px)':'';
+ var el=document.getElementById('ptr'); if(!el)return;
+ el.style.height=Math.round(h)+'px';
+ el.classList.toggle('on',h>8);
+ var t=document.getElementById('ptrTxt'); if(t&&txt)t.textContent=txt;
+}
+function ptrHide(){ ptrSet(0,'Pull to refresh'); }
+function ptrInit(){
+ function topY(){ return (window.pageYOffset||document.documentElement.scrollTop||0); }
+ document.addEventListener('touchstart',function(e){
+   if(e.touches.length!==1){_pOn=false;return;}
+   _pOn=topY()<=0; _pArmed=false; if(_pOn)_pY=e.touches[0].clientY;
+ },{passive:true});
+ document.addEventListener('touchmove',function(e){
+   if(!_pOn)return;
+   if(topY()>0){_pOn=false;ptrHide();return;}
+   var dy=e.touches[0].clientY-_pY;
+   if(dy<=0){ if(_pArmed){_pArmed=false;ptrHide();} return; }
+   var h=Math.min(dy/2.4,86); _pArmed=(h>=_PTR_T);
+   ptrSet(h,_pArmed?'Release to refresh':'Pull to refresh');
+   if(e.cancelable)e.preventDefault();
+ },{passive:false});
+ function end(){ if(!_pOn)return; _pOn=false;
+   if(_pArmed){_pArmed=false;ptrSet(40,'Refreshing…');boot();setTimeout(ptrHide,1100);} else ptrHide(); }
+ document.addEventListener('touchend',end,{passive:true});
+ document.addEventListener('touchcancel',end,{passive:true});
+}
+
 /* boot */
 if(location.hash){cur=location.hash.slice(1);}
 TABS.forEach(function(t){document.getElementById('p-'+t[0]).classList.toggle('on',t[0]===cur);});
 nav();
+ptrInit();
 boot();
 setInterval(function(){if(!document.hidden)boot();},120000);
 /* auto-update: server build != current build -> reload once (no manual cache clear / URL change) */

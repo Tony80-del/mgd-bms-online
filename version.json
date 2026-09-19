@@ -1,1 +1,1 @@
-{ "build": "v3", "date": "2026-09-19T13:32:00+07:00", "note": "MOM selectable + auto-update" }
+{ "build": "v4", "date": "2026-09-19T13:50:00+07:00", "note": "custom pull-to-refresh (works in standalone PWA)" }
