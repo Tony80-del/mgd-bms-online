@@ -2509,6 +2509,29 @@ window.atRenderAll = renderAll;
       .calx-ago:hover{color:var(--cyan)}
       .calx-ago .d{font-size:10.5px;color:var(--text2);min-width:54px}
       .calx-ago .c{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      /* ===== Day-detail popup (view full text of a day) ===== */
+      .calx-modal{position:fixed;inset:0;background:rgba(2,6,14,.8);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 12px;z-index:9992}
+      .calx-modal.open{display:flex}
+      .calx-mbox{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:620px;max-height:86vh;
+        display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.65)}
+      .calx-mhd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border)}
+      .calx-mt{font-size:16px;font-weight:800;color:var(--text1)}
+      .calx-ms{font-size:11.5px;color:var(--text2);margin-top:3px}
+      .calx-mx{background:var(--bg2);border:1px solid var(--border);color:var(--text1);border-radius:9px;font-size:13px;padding:5px 11px;cursor:pointer;flex:0 0 auto}
+      .calx-mx:hover{border-color:var(--blue);background:var(--cardh)}
+      .calx-mbody{padding:14px 18px;overflow:auto;flex:1 1 auto}
+      .calx-mft{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap}
+      .calx-mi{border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-bottom:11px;background:var(--bg2)}
+      .calx-mi:last-child{margin-bottom:2px}
+      .calx-mi .mi-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+      .calx-mi .mi-cu{font-size:14px;font-weight:700;color:var(--text1)}
+      .calx-mi .mi-meta{font-size:11px;color:var(--text2);margin-top:5px}
+      .calx-mi .mi-blk{margin-top:9px;border-left:2px solid var(--border);padding-left:10px}
+      .calx-mi .mi-lb{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:3px}
+      .calx-mi .mi-tx{font-size:13px;color:var(--text1);line-height:1.65;white-space:pre-wrap;word-break:break-word}
+      .calx-mi .mi-ft{margin-top:11px}
+      .calx-mempty{font-size:13px;color:var(--text2);text-align:center;padding:28px 10px;line-height:1.9}
+      @media print{.calx-modal{display:none!important}}
       @media(max-width:1080px){.calx-wrap{grid-template-columns:1fr}}
       @media print{.calx-side{display:none!important}}
     </style>
@@ -10584,7 +10607,7 @@ function calPass(a){
 }
 function calItems(dISO){return calAll().filter(function(a){return a.interactionDate===dISO&&calPass(a);});}
 function calInitState(){if(CAL.y)return;var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();if(!CAL.sel)CAL.sel=calIso(t);}
-function calPickDay(s){CAL.sel=s;var d=calParse(s);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();}
+function calPickDay(s){CAL.sel=s;var d=calParse(s);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();calxOpenDay(s);}
 function calShift(n){var d=new Date(CAL.y,CAL.m+n,1);CAL.y=d.getFullYear();CAL.m=d.getMonth();calRender();}
 function calToday(){var t=calToday0();CAL.y=t.getFullYear();CAL.m=t.getMonth();CAL.sel=calIso(t);calRender();}
 function calAddAt(s){ if(typeof openAddModal!=='function')return;
@@ -10643,7 +10666,8 @@ function calRender(){
     var dh='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
       +'<div><div class="calx-dayTitle">'+CAL_WD[dd.getDay()]+', '+dd.getDate()+' '+CAL_MON3[dd.getMonth()]+' '+dd.getFullYear()+'</div>'
       +'<div class="calx-daySub">'+its.length+' interaction(s)</div></div>'
-      +'<button class="calx-btn pri" onclick="calAddAt(\''+CAL.sel+'\')">+ New interaction</button></div>';
+      +'<div style="display:flex;gap:7px;flex-wrap:wrap"><button class="calx-btn" onclick="calxOpenDay(\''+CAL.sel+'\')" title="Open full-text popup">\u2922 Full view</button>'+
+      '<button class="calx-btn pri" onclick="calAddAt(\''+CAL.sel+'\')">+ New interaction</button></div></div>';
     if(!its.length)dh+='<div class="calx-empty">No interaction on this day \u2014 use \u201c+ New interaction\u201d above</div>';
     its.forEach(function(a){var tk=calType(a),st=calStat(a);
       dh+='<div class="calx-item" onclick="calEdit(\''+a.id+'\')" title="Open this record">'
@@ -10666,6 +10690,50 @@ function calRender(){
   var u=document.getElementById('calxUp'); if(u)u.innerHTML=rows(up);
   var o=document.getElementById('calxOvList'); if(o)o.innerHTML=rows(ovl);
 }
+/* ---- Day-detail popup: show the FULL text of everything recorded on a day ---- */
+function calxFb(label,val){
+  var v=String(val==null?'':val).trim();
+  if(!v||v==='\u2014')return '';
+  return '<div class="mi-blk"><div class="mi-lb">'+label+'</div><div class="mi-tx">'+calEsc(v)+'</div></div>';
+}
+function calxOpenDay(s){
+  var wrap=document.getElementById('calxModal'); if(!wrap)return;
+  CAL.sel=s;
+  var its=calItems(s), d=calParse(s);
+  var t=document.getElementById('calxModalTitle'), sub=document.getElementById('calxModalSub'), body=document.getElementById('calxModalBody');
+  if(t)t.textContent=CAL_WD[d.getDay()]+', '+d.getDate()+' '+CAL_MON3[d.getMonth()]+' '+d.getFullYear();
+  if(sub)sub.textContent=its.length?(its.length+' interaction(s) on this day \u00b7 full details below'):'No interaction on this day';
+  var h='';
+  if(!its.length){
+    h='<div class="calx-mempty">Nothing recorded on this day.<br><span style="font-size:11.5px">Use \u201c+ New interaction\u201d below to add one.</span></div>';
+  }else{
+    its.forEach(function(a){
+      var tk=calType(a), st=calStat(a);
+      h+='<div class="calx-mi">'
+        +'<div class="mi-h"><span class="mi-cu">'+CAL_TYPE[tk].ic+' '+calEsc(a.customerName||'-')+'</span>'
+        +'<span class="calx-tag '+st+'">'+(st==='done'?'Completed':st==='overdue'?'Overdue':st==='logged'?'Logged':'Planned')+'</span></div>'
+        +'<div class="mi-meta">'+calEsc(a.interactionType||'-')+' \u00b7 PIC '+calEsc(a.personInCharge||'-')+' \u00b7 '+calEsc(a.interactionDate||'')
+        +(a.interactionCount?' \u00b7 count '+calEsc(a.interactionCount):'')+(a.id?' \u00b7 ID '+calEsc(a.id):'')+'</div>'
+        +calxFb('\uD83D\uDCDD Content', a.content)
+        +calxFb('\u2709\uFE0F Email content', a.emailContent)
+        +calxFb('\u27A1\uFE0F Next step', a.nextStep)
+        +calxFb('\uD83D\uDCCC Notes', a.notes)
+        +'<div class="mi-ft"><button class="calx-btn" onclick="calxEditFromPopup(\''+a.id+'\')">\u270E Open this record</button></div>'
+        +'</div>';
+    });
+  }
+  if(body)body.innerHTML=h;
+  wrap.classList.add('open');
+}
+function calxCloseDay(){var w=document.getElementById('calxModal');if(w)w.classList.remove('open');}
+function calxDayShift(n){
+  var d=calParse(CAL.sel||calIso(calToday0())); d.setDate(d.getDate()+n);
+  var s=calIso(d); CAL.y=d.getFullYear(); CAL.m=d.getMonth();
+  calRender(); calxOpenDay(s);
+}
+function calxAddDay(){calxCloseDay();calAddAt(CAL.sel);}
+function calxEditFromPopup(id){calxCloseDay(); if(typeof editItem==='function')editItem(id);}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape')calxCloseDay(); });
 function custSwitchView(v){
   CAL.view=(v==='calendar')?'calendar':'records';
   try{localStorage.setItem('bms_cust_view',CAL.view);}catch(e){}
@@ -10686,6 +10754,22 @@ function custApplyView(){
 function bkSyncAddBtn(){try{var b=document.getElementById('ba');if(!b)return;
   var lbl='New Interactions'; if(!(typeof mod!=='undefined'&&mod==='projects')){lbl=(typeof t==='function')?t('ba'):'Add';}
   b.textContent=lbl;}catch(e){}}
+
 </script>
+<!-- ===== Calendar day-detail popup ===== -->
+<div class="calx-modal" id="calxModal" onclick="if(event.target===this)calxCloseDay()">
+  <div class="calx-mbox">
+    <div class="calx-mhd">
+      <div><div class="calx-mt" id="calxModalTitle">—</div><div class="calx-ms" id="calxModalSub"></div></div>
+      <button class="calx-mx" onclick="calxCloseDay()">✕</button>
+    </div>
+    <div class="calx-mbody" id="calxModalBody"></div>
+    <div class="calx-mft">
+      <button class="calx-btn" onclick="calxDayShift(-1)">‹ Prev day</button>
+      <button class="calx-btn pri" onclick="calxAddDay()">+ New interaction</button>
+      <button class="calx-btn" onclick="calxDayShift(1)">Next day ›</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
