@@ -688,22 +688,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
 #bidsMomContainer .pmom-lk:hover{color:var(--blue)}
 #bidsMomContainer .pmom-flash .mom-sheet-wrap{animation:pmomFl 1.6s ease-out;border-color:#00B4D8}
 @keyframes pmomFl{0%{box-shadow:0 0 0 4px rgba(0,180,216,.85)}100%{box-shadow:0 10px 40px rgba(0,0,0,.35)}}
-#bidsMomContainer .mom-sheet .pmom-in{width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:6px;font-size:11.5px;padding:2px 4px;background:transparent;color:#1c2530;font-family:inherit;outline:none;text-align:left}
-#bidsMomContainer .mom-sheet .pmom-in:hover{border-color:#cbd6e2;background:#f7fafd}
-#bidsMomContainer .mom-sheet .pmom-in:focus{border-color:#7aa7cc;background:#fff}
-#bidsMomContainer .mom-sheet .pmom-in.ref{border:1px dashed #9fb3c8;background:#fffdf3;text-align:center;font-weight:700}
-#bidsMomContainer .mom-sheet .pmom-in.ref:focus{border-color:#e0a800;box-shadow:0 0 0 2px #ffe9a8}
-#bidsMomContainer .mom-sheet .pmom-sel{width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:6px;font-size:10px;font-weight:700;padding:2px 4px;font-family:inherit;cursor:pointer;outline:none;text-align:center;text-align-last:center}
-#bidsMomContainer .mom-sheet .pmom-sel:hover{border-color:#cbd6e2}
-#bidsMomContainer .mom-sheet .pmom-ce{border-radius:6px;padding:2px 4px;min-height:16px;outline:none}
-#bidsMomContainer .mom-sheet .pmom-ce:hover{background:#f7fafd;box-shadow:inset 0 0 0 1px #cbd6e2}
-#bidsMomContainer .mom-sheet .pmom-ce:focus{background:#fff;box-shadow:inset 0 0 0 1px #7aa7cc}
-#bidsMomContainer .mom-sheet .pmom-mini{border:1px solid #cdd4db;background:#f4f7fa;color:#54637a;border-radius:6px;font-size:9.5px;font-weight:700;padding:1px 6px;cursor:pointer}
-#bidsMomContainer .mom-sheet .pmom-mini:hover{background:#e7eff7;color:#1F4E79}
-#bidsMomContainer .mom-sheet .pmom-mini.del:hover{background:#fbdcdc;color:#b3261e;border-color:#e8b4b4}
-#bidsMomContainer .mom-sheet .pmom-addrow{border:1px dashed #b9c2cc;background:#fbfdff;color:#54637a;border-radius:7px;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;margin:4px 0 0}
-#bidsMomContainer .mom-sheet .pmom-addrow:hover{border-color:#1F4E79;color:#1F4E79}
-#bidsMomContainer .mom-sheet .gap{color:#9aa7b4;font-style:italic}
+#bidsMomContainer .mom-sheet [contenteditable][data-ph]:empty:before{content:attr(data-ph);color:#aab8c6;font-style:italic}
 #bidsMomContainer .pmom-pickwrap{padding:0}
 #bidsMomContainer .pmom-npbtn{width:100%;box-sizing:border-box;border:1px dashed var(--blue);background:rgba(0,180,216,.10);color:var(--text1);font-size:11.5px;font-weight:800;padding:7px 9px;border-radius:9px;cursor:pointer;font-family:inherit;margin:0 0 8px}
 #bidsMomContainer .pmom-npbtn:hover{background:rgba(0,180,216,.2)}
@@ -9403,8 +9388,25 @@ function pmomSaveNow(){
       setTimeout(function(){var c=document.getElementById('pmomSaveBtn');if(c){c.textContent='💾 Save';c.classList.remove('ok');}},1500);}
   }catch(e){pmomSay('⚠ save failed');}
 }
-function pmomBlankM(){return {ref:'',date:'',title:'',time:'',loc:'',chair:'',rec:'',att:'',abs:'',prep:'',appr:'',dist:'',agenda:[],actions:[]};}
-function pmomBlankA(){return {task:'',pic:'',due:'',pri:'Medium',st:'Pending',next:'',rem:''};}
+function pmomISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function pmomFmtWD(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));if(!m)return iso||'';
+  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var d=new Date(+m[1],(+m[2])-1,+m[3]);return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear()+' ('+W[d.getDay()]+')';}
+function pmomToISO(v){var t=String(v||'').trim();if(!t)return '';
+  var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(t);if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  var M={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  var p=/^(\d{1,2})\s*([A-Za-z]{3,})\s*(\d{4})/.exec(t);if(p){var mm=M[p[2].slice(0,3).toLowerCase()];if(mm)return p[3]+'-'+String(mm).padStart(2,'0')+'-'+String(+p[1]).padStart(2,'0');}
+  return '';}
+function pmomBlankA(){return {task:'',pic:'',due:'',priority:'Medium',status:'Pending',next:'',remark:''};}
+function pmomBlankM(){return {ref:'',title:'',date:pmomISO(new Date()),time:'',project:'',location:'',chair:'',recorder:'',attendees:'',absent:'',preparedBy:'',approvedBy:'',distribution:'',agenda:[{topic:'',items:['']}],actions:[{topic:'',items:[pmomBlankA()]}]};}
+function pmomNormM(m){
+  m.date=pmomToISO(m.date)||pmomISO(new Date());
+  if(!m.agenda||!m.agenda.length)m.agenda=[{topic:'',items:['']}];
+  if(!m.actions||!m.actions.length)m.actions=[{topic:'',items:[pmomBlankA()]}];
+  m.agenda.forEach(function(g){if(!g.items||!g.items.length)g.items=[''];}); 
+  m.actions.forEach(function(g){if(!g.items)g.items=[];if(!g.items.length)g.items=[pmomBlankA()];});
+  return m;
+}
 function pmomFmt(d){if(!d)return '';var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d);if(!m)return d;var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+m[3])+' '+M[(+m[2])-1]+' '+m[1];}
 function pmomBadgeCls(kind,v){var k=String(v||'').toLowerCase();
   if(kind==='pri')return /high/.test(k)?'r':/medium/.test(k)?'a':/low/.test(k)?'b':'gray';
@@ -9451,7 +9453,7 @@ function pmomPickFilter(v){
 }
 function pmomPickProj(el){
   var n=el&&el.getAttribute?el.getAttribute('data-name'):String(el||'');if(!n)return;
-  if(n.indexOf('[object')===0)return;                      /* 只接受真实项目名 */
+  if(n.indexOf('[object')===0)return;                      /* accept real project names only */
   var okName=false;pmomAllProps().forEach(function(p){if(p.name===n)okName=true;});
   if(!okName)return;
   var a=pmomArr(),f=null;
@@ -9491,8 +9493,8 @@ function pmomSideHtml(L){
         var lbl=m.ref?pmomEsc(m.ref):'ref empty';
         return '<div class="pmom-mrow'+(act&&pmomView==='one'&&j===pmomOne?' act':'')+'" onclick="pmomShowOne('+i+','+j+')">'
           +'<span class="pmom-rf'+(m.ref?'':' empty')+'" id="pmomNav_'+j+'">'+lbl+'</span>'
-          +'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:112px">'+pmomEsc(m.title||'—')+'</span>'
-          +'<span class="pmom-dt">'+pmomEsc(m.date?pmomFmt(m.date):'—')+'</span></div>';
+          +'<span id="pmomTi_'+j+'" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:112px">'+pmomEsc(m.title||'—')+'</span>'
+          +'<span class="pmom-dt" id="pmomDt_'+j+'">'+pmomEsc(m.date?pmomFmt(m.date):'—')+'</span></div>';
       }).join('');
     return '<div class="pmom-pbox'+(act?' act':'')+'">'
       +'<div class="pmom-pbox-h" onclick="pmomOpenProj('+i+')"><div style="flex:1"><div class="pmom-pn">'+pmomEsc(meta.name)+'</div>'
@@ -9528,87 +9530,101 @@ function pmomBodyHtml(f){
     var j=Math.min(pmomOne,f.moms.length-1);
     return '<div class="pmom-phd"><span class="tag">MOM-'+(j+1)+'</span><span class="t2">'+pmomEsc(f.moms[j].title||'(title not filled)')+'</span><span class="sp"></span>'
       +'<span class="pmom-lk" onclick="pmomShowAll()">📚 show all '+f.moms.length+'</span>'
+      +'<span class="pmom-lk" onclick="pmomDupMom('+pmomCur+','+j+')">⧉ Copy</span>'
       +'<span class="pmom-lk" onclick="pmomDelMom('+pmomCur+','+j+')">✕ remove</span></div>'
       +'<div class="pmom-piece" id="pmomPiece_'+j+'">'+pmomSheet(f,j)+'</div>';
   }
   return f.moms.map(function(m,j){return '<div class="pmom-piece" id="pmomPiece_'+j+'">'
     +'<div class="pmom-phd"><span class="tag">MOM-'+(j+1)+'</span><span class="t2">'+pmomEsc(m.title||'(title not filled)')+'</span><span class="sp"></span>'
     +'<span class="pmom-lk" onclick="pmomShowOne('+pmomCur+','+j+')">only this</span>'
+    +'<span class="pmom-lk" onclick="pmomDupMom('+pmomCur+','+j+')">⧉ Copy</span>'
     +'<span class="pmom-lk" onclick="pmomDelMom('+pmomCur+','+j+')">✕ remove</span></div>'
     +pmomSheet(f,j)+'</div>';}).join('');
 }
-function pmomIn(mi,fld,val,ph,extra){
-  return '<input class="pmom-in'+(extra?' '+extra:'')+'" value="'+pmomEsc(val||'')+'" placeholder="'+pmomEsc(ph||'')+'" oninput="pmomSetF('+mi+',\''+fld+'\',this.value)">';
+function pmomCE(attrs,txt,ph){
+  return '<span contenteditable="true" oninput="pmomField(this)" '+attrs+(ph?' data-ph="'+pmomEsc(ph)+'"':'')+' style="display:block;min-height:16px">'+pmomEsc(txt||'')+'</span>';
 }
-function pmomDateIn(mi,fld,val){
-  return '<input type="date" class="pmom-in" value="'+pmomEsc(val||'')+'" onchange="pmomSetF('+mi+',\''+fld+'\',this.value)">';
-}
-function pmomSel(kind,mi,gi,ii,val){
-  var list=(kind==='pri')?PMOM_PRI:PMOM_ST;
-  return '<select class="pmom-sel" style="'+pmomBadgeSty(kind,val)+'" onchange="pmomSetSel(\''+kind+'\','+mi+','+gi+','+ii+',this.value,this)">'
-    + list.map(function(o){return '<option value="'+pmomEsc(o)+'"'+(o===val?' selected':'')+'>'+pmomEsc(o)+'</option>';}).join('')+'</select>';
-}
-function pmomCE(kind,mi,gi,ii,txt){
-  return '<div class="pmom-ce" contenteditable="true" data-kind="'+kind+'" data-mi="'+mi+'" data-gi="'+gi+'" data-ii="'+(ii==null?'':ii)+'" onblur="pmomCEsave(this)">'+pmomEsc(txt||'')+'</div>';
+function pmomSelCell(gi,ii,fld,kind,val){
+  val=val||'';var list=((kind==='prio')?MOM_PRIO:MOM_STAT).slice();
+  if(val&&list.indexOf(val)<0)list.push(val);
+  var c=momSelColor(kind,val);
+  return '<select class="mom-sel" onchange="momRecolorSel(this,\''+kind+'\');pmomSetActSel('+pmomCur+','+gi+','+ii+',\''+fld+'\',this.value)" style="background:'+c[0]+';color:'+c[1]+'">'+list.map(function(v){return '<option value="'+pmomEsc(v)+'"'+(v===val?' selected':'')+'>'+pmomEsc(v)+'</option>';}).join('')+'</select>';
 }
 function pmomSheet(f,j){
-  var m=f.moms[j],mi=j;
-  function V(x){return x?pmomEsc(x):'<span class="gap">—</span>';}
-  var h='<div class="mom-sheet-wrap"><div class="mom-sheet">';
-  h+='<table class="mm"><colgroup><col style="width:15%"><col style="width:35%"><col style="width:15%"><col style="width:35%"></colgroup>';
-  h+='<tr><td class="title" colspan="4">PROJECT MEETING MINUTES</td></tr>';
-  h+='<tr><td class="lbl">Meeting No. <span style="color:#c0392b">(manual)</span></td><td class="sub" style="padding:3px 6px"><input class="pmom-in ref" value="'+pmomEsc(m.ref||'')+'" placeholder="fill manually, e.g. RBC-MOM-001" oninput="pmomSetRef('+mi+',this.value)"></td>'
-    +'<td class="lbl">Date</td><td style="padding:3px 6px">'+pmomDateIn(mi,'date',m.date)+'</td></tr>';
-  h+='<tr><td class="lbl">Project</td><td class="sub">'+pmomEsc(f.project)+'</td><td class="lbl">Time</td><td style="padding:3px 6px">'+pmomIn(mi,'time',m.time,'e.g. 09.30am')+'</td></tr>';
-  h+='<tr><td class="lbl">Meeting Title</td><td style="padding:3px 6px">'+pmomIn(mi,'title',m.title,'e.g. Site progress &amp; MEP coordination')+'</td><td class="lbl">Location</td><td style="padding:3px 6px">'+pmomIn(mi,'loc',m.loc,'')+'</td></tr>';
-  h+='<tr><td class="lbl">Chairperson</td><td style="padding:3px 6px">'+pmomIn(mi,'chair',m.chair,'')+'</td><td class="lbl">Recorder</td><td style="padding:3px 6px">'+pmomIn(mi,'rec',m.rec,'')+'</td></tr>';
-  h+='<tr><td class="lbl">Attendees</td><td style="padding:3px 6px">'+pmomIn(mi,'att',m.att,'')+'</td><td class="lbl">Absent</td><td style="padding:3px 6px">'+pmomIn(mi,'abs',m.abs,'')+'</td></tr>';
-  h+='<tr><td class="hdr" colspan="4">AGENDA · DISCUSSION · DECISION</td></tr>';
-  h+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic</td></tr>';
-  var ag=(m.agenda&&m.agenda.length)?m.agenda:[];
-  if(!ag.length){h+='<tr><td class="num">1</td><td colspan="3"><span class="gap">— click ＋ Add agenda below —</span></td></tr>';}
-  ag.forEach(function(g,gi){
-    h+='<tr><td class="num"></td><td colspan="3" style="background:#eaf2fa">'+pmomCE('agtopic',mi,gi,null,g.topic)+'</td></tr>';
+  var m=pmomNormM(f.moms[j]), mi=j, A='data-mi="'+mi+'"';
+  var s='';
+  s+='<div class="mom-sheet-wrap">';
+  /* top blue bar — same as the Meeting Minutes page */
+  s+='<div style="background:#1F4E79;color:#fff;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px">'
+    +'<div style="display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px"><span style="background:rgba(255,255,255,.2);width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px">▦</span> PROJECT MEETING MINUTES — '+pmomEsc(f.project)+'</div>'
+    +'<div style="font-size:10.5px;opacity:.85;font-weight:500">Cells are editable · click to type during the meeting</div></div>';
+  s+='<div class="mom-sheet">';
+  /* ---- Table 1: meeting info + agenda ---- */
+  s+='<table class="mm"><colgroup><col style="width:15%"><col style="width:35%"><col style="width:15%"><col style="width:35%"></colgroup>';
+  s+='<tr><td class="title" colspan="4">PROJECT MEETING MINUTES</td></tr>';
+  s+='<tr><td class="lbl">Meeting No.</td><td class="sub">'+pmomCE(A+' data-pmf="ref"','', 'fill manually, e.g. LMX-MOM-001')+'</td>'
+    +'<td class="lbl">Date</td><td><input class="mom-inp" type="date" value="'+pmomEsc(m.date)+'" onchange="pmomSetF('+mi+',\'date\',this.value)"></td></tr>';
+  s+='<tr><td class="lbl">Meeting Title</td><td>'+pmomCE(A+' data-pmf="title"',m.title)+'</td>'
+    +'<td class="lbl">Time</td><td>'+pmomCE(A+' data-pmf="time"',m.time)+'</td></tr>';
+  s+='<tr><td class="lbl">Project / Ref.</td><td>'+pmomCE(A+' data-pmf="project"',m.project||f.project)+'</td>'
+    +'<td class="lbl">Location</td><td>'+pmomCE(A+' data-pmf="location"',m.location)+'</td></tr>';
+  s+='<tr><td class="lbl">Chairperson</td><td>'+pmomCE(A+' data-pmf="chair"',m.chair)+'</td>'
+    +'<td class="lbl">Recorder</td><td>'+pmomCE(A+' data-pmf="recorder"',m.recorder)+'</td></tr>';
+  s+='<tr><td class="lbl">Attendees</td><td>'+pmomCE(A+' data-pmf="attendees"',m.attendees)+'</td>'
+    +'<td class="lbl">Absent</td><td>'+pmomCE(A+' data-pmf="absent"',m.absent)+'</td></tr>';
+  s+='<tr><td class="hdr" colspan="4">AGENDA · DISCUSSION · DECISION</td></tr>';
+  s+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic<span style="float:right;font-weight:400"><button type="button" onclick="pmomAddAg('+mi+')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Agenda</button></span></td></tr>';
+  m.agenda.forEach(function(g,gi){
+    s+='<tr><td class="num"></td><td colspan="3" style="position:relative;padding-right:150px;background:#eaf2fa">'
+      +'<span contenteditable="true" oninput="pmomField(this)" data-pmk="agt" '+A+' data-gi="'+gi+'" style="font-weight:700;color:#1F4E79;display:inline-block;min-width:140px;outline:none">'+pmomEsc(g.topic)+'</span>'
+      +'<span style="position:absolute;top:4px;right:5px;display:flex;gap:5px;align-items:center">'
+        +'<button type="button" onclick="pmomAddAgItem('+mi+','+gi+')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;border:1px solid #1F4E79;background:#fff;color:#1F4E79;cursor:pointer">＋ Item</button>'
+        +'<button type="button" title="Delete topic" onclick="pmomDelAg('+mi+','+gi+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.6" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.6\';this.style.background=\'transparent\'">✕</button>'
+      +'</span></td></tr>';
     (g.items||[]).forEach(function(it,ii){
-      h+='<tr><td class="num">'+(ii+1)+'</td><td colspan="3">'+pmomCE('agitem',mi,gi,ii,it)
-        +'<div style="text-align:right;margin-top:2px"><button class="pmom-mini del" onclick="pmomDelAgItem('+mi+','+gi+','+ii+')">✕</button></div></td></tr>';
+      s+='<tr><td class="num">'+(ii+1)+'</td><td colspan="3" style="position:relative;padding-right:34px">'
+        +'<span contenteditable="true" oninput="pmomField(this)" data-pmk="agi" '+A+' data-gi="'+gi+'" data-ii="'+ii+'" style="display:block;min-height:16px;padding-left:14px">'+pmomEsc(it)+'</span>'
+        +'<button type="button" title="Delete item" onclick="pmomDelAgItem('+mi+','+gi+','+ii+')" style="position:absolute;top:3px;right:5px;width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.5" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.5\';this.style.background=\'transparent\'">✕</button></td></tr>';
     });
-    h+='<tr><td class="num"></td><td colspan="3" style="background:#f7fafd;text-align:right">'
-      +'<button class="pmom-mini" onclick="pmomAddAgItem('+mi+','+gi+')">＋ item</button> '
-      +'<button class="pmom-mini del" onclick="pmomDelAg('+mi+','+gi+')">✕ group</button></td></tr>';
   });
-  h+='<tr><td colspan="4" style="background:#fbfdff"><button class="pmom-addrow" onclick="pmomAddAg('+mi+')">＋ Add agenda · 议题</button></td></tr>';
-  h+='</table>';
-  h+='<table class="mm"><colgroup><col style="width:4%"><col style="width:23%"><col style="width:9%"><col style="width:11%"><col style="width:9%"><col style="width:11%"><col style="width:20%"><col style="width:10%"><col style="width:3%"></colgroup>';
-  h+='<tr><td class="hdr" colspan="9" style="text-align:left">ACTION ITEMS · NEXT STEP</td></tr>';
-  h+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td><td class="hdr"></td></tr>';
-  var ac=(m.actions&&m.actions.length)?m.actions:[];
-  if(!ac.length){h+='<tr><td class="num">01</td><td colspan="8"><span class="gap">— click ＋ Add action group below —</span></td></tr>';}
-  ac.forEach(function(g,gi){
-    h+='<tr><td colspan="9" style="background:#eaf2fa">'+pmomCE('acttopic',mi,gi,null,g.topic)+'</td></tr>';
+  s+='</table>';
+  /* ---- Table 2: action items ---- */
+  s+='<table class="mm"><colgroup><col style="width:4%"><col style="width:24%"><col style="width:9%"><col style="width:12%"><col style="width:9%"><col style="width:13%"><col style="width:15%"><col style="width:9%"><col style="width:5%"></colgroup>';
+  s+='<tr><td class="hdr" colspan="9" style="text-align:left">ACTION ITEMS · NEXT STEP<span style="float:right;font-weight:400"><button type="button" onclick="pmomAddActGroup('+mi+')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;cursor:pointer">＋ Add Action</button></span></td></tr>';
+  s+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td><td class="hdr"></td></tr>';
+  m.actions.forEach(function(g,gi){
+    s+='<tr><td colspan="9" style="position:relative;padding-right:150px;background:#eaf2fa;padding-top:5px;padding-bottom:5px">'
+      +'<span contenteditable="true" oninput="pmomField(this)" data-pmk="act" '+A+' data-gi="'+gi+'" style="font-weight:700;color:#1F4E79;display:inline-block;min-width:140px;outline:none">'+pmomEsc(g.topic)+'</span>'
+      +'<span style="position:absolute;top:4px;right:5px;display:flex;gap:5px;align-items:center">'
+        +'<button type="button" onclick="pmomAddActRow('+mi+','+gi+')" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;border:1px solid #1F4E79;background:#fff;color:#1F4E79;cursor:pointer">＋ Item</button>'
+        +'<button type="button" title="Delete section" onclick="pmomDelActGroup('+mi+','+gi+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.6" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.6\';this.style.background=\'transparent\'">✕</button>'
+      +'</span></td></tr>';
     (g.items||[]).forEach(function(a,ii){
-      var pic='<input list="pmomPicList" class="pmom-in" style="text-align:center" value="'+pmomEsc(a.pic||'')+'" oninput="pmomSetActTxt('+mi+','+gi+','+ii+',\'pic\',this.value)">';
-      h+='<tr><td class="num">'+String(ii+1).padStart(2,'0')+'</td>'
-        +'<td style="padding:3px 5px">'+'<input class="pmom-in" value="'+pmomEsc(a.task||'')+'" oninput="pmomSetActTxt('+mi+','+gi+','+ii+',\'task\',this.value)">'+'</td>'
-        +'<td style="padding:2px 4px">'+pic+'</td>'
-        +'<td style="padding:3px 5px"><input type="date" class="pmom-in" value="'+pmomEsc(a.due||'')+'" onchange="pmomSetActTxt('+mi+','+gi+','+ii+',\'due\',this.value)"></td>'
-        +'<td style="padding:2px 4px">'+pmomSel('pri',mi,gi,ii,a.pri||'Medium')+'</td>'
-        +'<td style="padding:2px 4px">'+pmomSel('st',mi,gi,ii,a.st||'Pending')+'</td>'
-        +'<td style="padding:3px 5px"><input class="pmom-in" value="'+pmomEsc(a.next||'')+'" oninput="pmomSetActTxt('+mi+','+gi+','+ii+',\'next\',this.value)"></td>'
-        +'<td style="padding:3px 5px"><input class="pmom-in" value="'+pmomEsc(a.rem||'')+'" oninput="pmomSetActTxt('+mi+','+gi+','+ii+',\'rem\',this.value)"></td>'
-        +'<td class="ctr"><button class="pmom-mini del" onclick="pmomDelActRow('+mi+','+gi+','+ii+')">✕</button></td></tr>';
+      var iso=pfuToISO(a.due);
+      var cell=function(k){return '<span contenteditable="true" oninput="pmomField(this)" data-pmk="af" data-afk="'+k+'" '+A+' data-gi="'+gi+'" data-ii="'+ii+'" style="display:block;min-height:16px">'+pmomEsc(a[k]||'')+'</span>';};
+      s+='<tr>'
+        +'<td class="num">'+String(ii+1).padStart(2,'0')+'</td>'
+        +'<td>'+cell('task')+'</td>'
+        +'<td class="ctr">'+cell('pic')+'</td>'
+        +'<td class="ctr"><input class="mom-inp" type="date" value="'+iso+'" onchange="pmomSetActTxt('+mi+','+gi+','+ii+',\'due\',this.value)"></td>'
+        +'<td class="ctr">'+pmomSelCell(gi,ii,'priority','prio',a.priority)+'</td>'
+        +'<td class="ctr">'+pmomSelCell(gi,ii,'status','stat',a.status)+'</td>'
+        +'<td>'+cell('next')+'</td>'
+        +'<td class="ctr">'+cell('remark')+'</td>'
+        +'<td class="ctr"><button type="button" title="Delete item" onclick="pmomDelActRow('+mi+','+gi+','+ii+')" style="width:18px;height:18px;line-height:1;border:none;border-radius:5px;background:transparent;color:#c0392b;font-size:11px;font-weight:700;cursor:pointer;opacity:.5" onmouseover="this.style.opacity=\'1\';this.style.background=\'#fdecea\'" onmouseout="this.style.opacity=\'.5\';this.style.background=\'transparent\'">✕</button></td></tr>';
     });
-    h+='<tr><td colspan="9" style="background:#f7fafd;text-align:right">'
-      +'<button class="pmom-mini" onclick="pmomAddActRow('+mi+','+gi+')">＋ row</button> '
-      +'<button class="pmom-mini del" onclick="pmomDelActGroup('+mi+','+gi+')">✕ group</button></td></tr>';
   });
-  h+='<tr><td colspan="9" style="background:#fbfdff"><button class="pmom-addrow" onclick="pmomAddActGroup('+mi+')">＋ Add action group · 行动组</button></td></tr>';
-  h+='</table></div>';
-  h+='<div class="sig"><span><b>Prepared by:</b> <input class="pmom-in" style="width:120px;display:inline-block" value="'+pmomEsc(m.prep||'')+'" oninput="pmomSetF('+mi+',\'prep\',this.value)"></span>'
-    +'<span><b>Approved by:</b> <input class="pmom-in" style="width:120px;display:inline-block" value="'+pmomEsc(m.appr||'')+'" oninput="pmomSetF('+mi+',\'appr\',this.value)"></span>'
-    +'<span><b>Distribution:</b> <input class="pmom-in" style="width:220px;display:inline-block" value="'+pmomEsc(m.dist||'')+'" oninput="pmomSetF('+mi+',\'dist\',this.value)"></span></div>';
-  h+='</div>';
-  return h;
+  s+='</table>';
+  s+='</div>';
+  /* signature row — same style as the Meeting Minutes page */
+  s+='<div style="display:flex;gap:30px;padding:12px 14px;background:#f6f8fa;border-top:1px solid #cdd4db;font-size:11px;color:#3d4a56">'
+    +'<span><b style="color:#1F4E79">Prepared by:</b> <span contenteditable="true" oninput="pmomField(this)" '+A+' data-pmf="preparedBy" style="outline:none">'+pmomEsc(m.preparedBy)+'</span></span>'
+    +'<span><b style="color:#1F4E79">Approved by:</b> <span contenteditable="true" oninput="pmomField(this)" '+A+' data-pmf="approvedBy" style="outline:none">'+pmomEsc(m.approvedBy)+'</span></span>'
+    +'<span><b style="color:#1F4E79">Distribution:</b> <span contenteditable="true" oninput="pmomField(this)" '+A+' data-pmf="distribution" style="outline:none">'+pmomEsc(m.distribution)+'</span></span>'
+    +'</div>';
+  s+='<div style="background:#e8eaed;padding:5px 8px 0;display:flex;gap:2px;border-top:1px solid #b9c2cc"><span style="background:#1F4E79;color:#fff;padding:5px 16px;font-size:11px;font-weight:700;border-radius:7px 7px 0 0">Minutes</span></div>';
+  s+='</div>';
+  return s;
 }
 /* ---------- actions ---------- */
 function pmomOpenProj(i){pmomCur=i;pmomView='all';pmomRender();try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}}
@@ -9621,10 +9637,21 @@ function pmomToggleSide(){pmomHide=!pmomHide;pmomRender();}
 function pmomAddMom(i){
   if(typeof i==='number')pmomCur=i;
   var f=pmomCurFile(true); if(!f)return;
-  f.moms.push(pmomBlankM()); pmomView='one'; pmomOne=f.moms.length-1; pmomSaveSoon(); pmomRender();
+  var _nm=pmomBlankM(); _nm.project=f.project; f.moms.push(_nm); pmomView='one'; pmomOne=f.moms.length-1; pmomSaveSoon(); pmomRender();
   setTimeout(function(){var r=document.getElementById('pmomPiece_'+pmomOne);
     try{if(r&&r.scrollIntoView)r.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
-    var inp=r?r.querySelector('input.pmom-in.ref'):null; if(inp){try{inp.focus();}catch(e){}}},90);
+    var inp=r?r.querySelector('[data-pmf=\'ref\']'):null; if(inp){try{inp.focus();}catch(e){}}},90);
+}
+function pmomDupMom(i,j){
+  var f=pmomCurFile(true); if(!f||!f.moms[j])return;
+  var src=f.moms[j], cp=JSON.parse(JSON.stringify(src));
+  cp.ref='';                                   /* Meeting No. is manual — leave blank for the copy */
+  f.moms.splice(j+1,0,cp);
+  pmomView='one'; pmomOne=j+1; pmomSaveSoon(); pmomRender();
+  setTimeout(function(){var r=document.getElementById('pmomPiece_'+(j+1));
+    try{if(r&&r.scrollIntoView)r.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
+    var inp=r?r.querySelector('[data-pmf=\'ref\']'):null; if(inp){try{inp.focus();}catch(e){}}},90);
+  if(typeof showToast==='function')showToast('⧉ Copied — fill in the new Meeting No.');
 }
 function pmomDelMom(i,j){
   var L=pmomProjList(); var meta=L[i]; if(!meta)return;
@@ -9633,63 +9660,80 @@ function pmomDelMom(i,j){
   f.moms.splice(j,1); pmomCur=i; if(pmomView==='one')pmomView='all';
   pmomSaveSoon(); pmomRender();
 }
-function pmomSetF(mi,fld,v){var f=pmomCurFile(true);if(!f||!f.moms[mi])return;f.moms[mi][fld]=v;pmomSaveSoon();}
-function pmomSetRef(mi,v){var f=pmomCurFile(true);if(!f||!f.moms[mi])return;f.moms[mi].ref=v;
-  var n=document.getElementById('pmomNav_'+mi);if(n){n.textContent=v||'ref empty';n.className='pmom-rf'+(v?'':' empty');}
-  pmomSaveSoon();}
-function pmomSetActTxt(mi,gi,ii,fld,v){var f=pmomCurFile(true);var r=f&&f.moms[mi]&&f.moms[mi].actions&&f.moms[mi].actions[gi]&&f.moms[mi].actions[gi].items[ii];
-  if(!r)return;r[fld]=v;pmomSaveSoon();}
-function pmomSetSel(kind,mi,gi,ii,v,el){var f=pmomCurFile(true);var r=f&&f.moms[mi]&&f.moms[mi].actions&&f.moms[mi].actions[gi]&&f.moms[mi].actions[gi].items[ii];
-  if(r)r[(kind==='pri')?'pri':'st']=v;
-  if(el)el.setAttribute('style',pmomBadgeSty(kind,v));
-  pmomSaveSoon();}
-function pmomCEsave(el){
-  var mi=+el.getAttribute('data-mi'),gi=+el.getAttribute('data-gi'),ii=el.getAttribute('data-ii'),kind=el.getAttribute('data-kind');
-  var t=(el.innerText||'').replace(/^\s+|\s+$/g,'');
-  var f=pmomCurFile(true),m=f&&f.moms[mi]; if(!m)return;
-  if(kind==='agtopic'){if(m.agenda[gi])m.agenda[gi].topic=t;}
-  else if(kind==='agitem'){if(m.agenda[gi]&&m.agenda[gi].items)m.agenda[gi].items[ii]=t;}
-  else if(kind==='acttopic'){if(m.actions[gi])m.actions[gi].topic=t;}
+function pmomField(el){
+  var f=pmomCurFile(true); if(!f)return;
+  var mi=+(el.getAttribute('data-mi')||0), m=f.moms[mi]; if(!m)return;
+  var t=(el.innerText||el.textContent||'').replace(/\u00a0/g,' ').replace(/^\s+|\s+$/g,'');
+  var fld=el.getAttribute('data-pmf');
+  if(fld){
+    m[fld]=t;
+    if(fld==='ref'){var nb=document.getElementById('pmomNav_'+mi);if(nb){nb.textContent=t||'ref empty';nb.className='pmom-rf'+(t?'':' empty');}}
+    if(fld==='title'){var tb=document.getElementById('pmomTi_'+mi);if(tb)tb.textContent=t||'—';}
+  }else{
+    var kind=el.getAttribute('data-pmk'), gi=+el.getAttribute('data-gi'), ii=+el.getAttribute('data-ii');
+    if(kind==='agt'){if(m.agenda[gi])m.agenda[gi].topic=t;}
+    else if(kind==='agi'){if(m.agenda[gi]&&m.agenda[gi].items)m.agenda[gi].items[ii]=t;}
+    else if(kind==='act'){if(m.actions[gi])m.actions[gi].topic=t;}
+    else if(kind==='af'){var r=m.actions[gi]&&m.actions[gi].items[ii];if(r)r[el.getAttribute('data-afk')]=t;}
+  }
   pmomSaveSoon();
 }
-function pmomAddAg(mi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m)return;m.agenda.push({topic:((m.agenda.length+1)+'. '),items:['']});pmomSaveSoon();pmomRender();}
-function pmomDelAg(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m)return;m.agenda.splice(gi,1);pmomSaveSoon();pmomRender();}
-function pmomAddAgItem(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.agenda[gi])return;m.agenda[gi].items.push('');pmomSaveSoon();pmomRender();}
-function pmomDelAgItem(mi,gi,ii){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.agenda[gi])return;m.agenda[gi].items.splice(ii,1);pmomSaveSoon();pmomRender();}
-function pmomAddActGroup(mi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m)return;m.actions.push({topic:('Group '+(m.actions.length+1)),items:[pmomBlankA()]});pmomSaveSoon();pmomRender();}
-function pmomDelActGroup(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m)return;m.actions.splice(gi,1);pmomSaveSoon();pmomRender();}
-function pmomAddActRow(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.actions[gi])return;m.actions[gi].items.push(pmomBlankA());pmomSaveSoon();pmomRender();}
-function pmomDelActRow(mi,gi,ii){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.actions[gi])return;m.actions[gi].items.splice(ii,1);pmomSaveSoon();pmomRender();}
+function pmomSetF(mi,fld,v){var f=pmomCurFile(true);if(!f||!f.moms[mi])return;f.moms[mi][fld]=v;
+  if(fld==='date'){var db=document.getElementById('pmomDt_'+mi);if(db)db.textContent=v?(pmomFmt(v)||v):'—';}
+  if(fld==='title'){var tb=document.getElementById('pmomTi_'+mi);if(tb)tb.textContent=v||'—';}
+  pmomSaveSoon();}
+function pmomSetActSel(mi,gi,ii,fld,v){var f=pmomCurFile(true);var r=f&&f.moms[mi]&&f.moms[mi].actions&&f.moms[mi].actions[gi]&&f.moms[mi].actions[gi].items[ii];
+  if(!r)return;r[fld]=v;pmomSaveSoon();}
+function pmomSetActTxt(mi,gi,ii,fld,v){var f=pmomCurFile(true);var r=f&&f.moms[mi]&&f.moms[mi].actions&&f.moms[mi].actions[gi]&&f.moms[mi].actions[gi].items[ii];
+  if(!r)return;r[fld]=v;pmomSaveSoon();}
+function pmomFocus(sel){
+  setTimeout(function(){var el=document.querySelector(sel);if(!el)return;try{el.focus();var r=document.createRange();r.selectNodeContents(el);r.collapse(false);var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r);}catch(e){}},60);
+}
+function pmomAddAg(mi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m)return;m.agenda.push({topic:'',items:['']});pmomSaveSoon();pmomRender();
+  pmomFocus('#bidsMomContainer [data-pmk="agt"][data-mi="'+mi+'"][data-gi="'+(m.agenda.length-1)+'"]');}
+function pmomDelAg(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||m.agenda.length<2)return;m.agenda.splice(gi,1);pmomSaveSoon();pmomRender();}
+function pmomAddAgItem(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.agenda[gi])return;m.agenda[gi].items.push('');pmomSaveSoon();pmomRender();
+  pmomFocus('#bidsMomContainer [data-pmk="agi"][data-mi="'+mi+'"][data-gi="'+gi+'"][data-ii="'+(m.agenda[gi].items.length-1)+'"]');}
+function pmomDelAgItem(mi,gi,ii){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.agenda[gi])return;
+  if(m.agenda[gi].items.length<2){m.agenda[gi].items=[''];}else{m.agenda[gi].items.splice(ii,1);}pmomSaveSoon();pmomRender();}
+function pmomAddActGroup(mi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m)return;m.actions.push({topic:'',items:[pmomBlankA()]});pmomSaveSoon();pmomRender();
+  pmomFocus('#bidsMomContainer [data-pmk="act"][data-mi="'+mi+'"][data-gi="'+(m.actions.length-1)+'"]');}
+function pmomDelActGroup(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||m.actions.length<2)return;m.actions.splice(gi,1);pmomSaveSoon();pmomRender();}
+function pmomAddActRow(mi,gi){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.actions[gi])return;m.actions[gi].items.push(pmomBlankA());pmomSaveSoon();pmomRender();
+  pmomFocus('#bidsMomContainer [data-pmk="af"][data-afk="task"][data-mi="'+mi+'"][data-gi="'+gi+'"][data-ii="'+(m.actions[gi].items.length-1)+'"]');}
+function pmomDelActRow(mi,gi,ii){var f=pmomCurFile(true);var m=f&&f.moms[mi];if(!m||!m.actions[gi])return;
+  if(m.actions[gi].items.length<2){m.actions[gi].items=[pmomBlankA()];}else{m.actions[gi].items.splice(ii,1);}pmomSaveSoon();pmomRender();}
 /* ---------- print / PDF ---------- */
 function pmomPrintSheet(project,m,j){
-  function V(x){return x?pmomEsc(x):'<span style="color:#9aa7b4">—</span>';}
+  function V(x){return (x==null||x==='')?'<span style="color:#9aa7b4">—</span>':pmomEsc(x);}
+  m=pmomNormM(m);
   var h='<table class="mm"><colgroup><col style="width:15%"><col style="width:35%"><col style="width:15%"><col style="width:35%"></colgroup>';
-  h+='<tr><td class="title" colspan="4">PROJECT MEETING MINUTES'+(m.ref?(' &nbsp;·&nbsp; '+pmomEsc(m.ref)):'')+'</td></tr>';
-  h+='<tr><td class="lbl">Meeting No.</td><td class="sub">'+V(m.ref)+'</td><td class="lbl">Date</td><td>'+V(m.date?pmomFmt(m.date):'')+'</td></tr>';
-  h+='<tr><td class="lbl">Project</td><td class="sub">'+pmomEsc(project)+'</td><td class="lbl">Time</td><td>'+V(m.time)+'</td></tr>';
-  h+='<tr><td class="lbl">Meeting Title</td><td>'+V(m.title)+'</td><td class="lbl">Location</td><td>'+V(m.loc)+'</td></tr>';
-  h+='<tr><td class="lbl">Chairperson</td><td>'+V(m.chair)+'</td><td class="lbl">Recorder</td><td>'+V(m.rec)+'</td></tr>';
-  h+='<tr><td class="lbl">Attendees</td><td>'+V(m.att)+'</td><td class="lbl">Absent</td><td>'+V(m.abs)+'</td></tr>';
+  h+='<tr><td class="title" colspan="4">PROJECT MEETING MINUTES</td></tr>';
+  h+='<tr><td class="lbl">Meeting No.</td><td class="sub">'+V(m.ref)+'</td><td class="lbl">Date</td><td>'+V(pmomFmtWD(m.date))+'</td></tr>';
+  h+='<tr><td class="lbl">Meeting Title</td><td>'+V(m.title)+'</td><td class="lbl">Time</td><td>'+V(m.time)+'</td></tr>';
+  h+='<tr><td class="lbl">Project / Ref.</td><td>'+V(m.project||project)+'</td><td class="lbl">Location</td><td>'+V(m.location)+'</td></tr>';
+  h+='<tr><td class="lbl">Chairperson</td><td>'+V(m.chair)+'</td><td class="lbl">Recorder</td><td>'+V(m.recorder)+'</td></tr>';
+  h+='<tr><td class="lbl">Attendees</td><td>'+V(m.attendees)+'</td><td class="lbl">Absent</td><td>'+V(m.absent)+'</td></tr>';
   h+='<tr><td class="hdr" colspan="4">AGENDA · DISCUSSION · DECISION</td></tr>';
   h+='<tr><td class="hdr">No.</td><td class="hdr" colspan="3" style="text-align:left">Agenda / Topic</td></tr>';
-  (m.agenda||[]).forEach(function(g){
+  m.agenda.forEach(function(g){
     h+='<tr><td class="num"></td><td colspan="3" style="background:#eaf2fa"><b style="color:#1F4E79">'+pmomEsc(g.topic||'')+'</b></td></tr>';
     (g.items||[]).forEach(function(it,i){h+='<tr><td class="num">'+(i+1)+'</td><td colspan="3">'+V(it)+'</td></tr>';});
   });
-  h+='</table><table class="mm"><colgroup><col style="width:4%"><col style="width:26%"><col style="width:9%"><col style="width:12%"><col style="width:9%"><col style="width:12%"><col style="width:18%"><col style="width:10%"></colgroup>';
+  h+='</table><table class="mm"><colgroup><col style="width:4%"><col style="width:26%"><col style="width:9%"><col style="width:13%"><col style="width:9%"><col style="width:13%"><col style="width:16%"><col style="width:10%"></colgroup>';
   h+='<tr><td class="hdr" colspan="8" style="text-align:left">ACTION ITEMS · NEXT STEP</td></tr>';
   h+='<tr><td class="hdr">#</td><td class="hdr">Action Item / Task</td><td class="hdr">PIC</td><td class="hdr">Due Date</td><td class="hdr">Priority</td><td class="hdr">Status</td><td class="hdr">Next Step Action</td><td class="hdr">Remark</td></tr>';
-  (m.actions||[]).forEach(function(g){
+  m.actions.forEach(function(g){
     h+='<tr><td colspan="8" style="background:#eaf2fa"><b style="color:#1F4E79">'+pmomEsc(g.topic||'')+'</b></td></tr>';
     (g.items||[]).forEach(function(a,i){
-      h+='<tr><td class="num">'+String(i+1).padStart(2,'0')+'</td><td>'+V(a.task)+'</td><td class="ctr">'+V(a.pic)+'</td><td class="ctr">'+V(a.due?pmomFmt(a.due):'')+'</td>'
-        +'<td class="ctr"><span class="mom-badge '+pmomBadgeCls('pri',a.pri)+'">'+pmomEsc(a.pri||'')+'</span></td>'
-        +'<td class="ctr"><span class="mom-badge '+pmomBadgeCls('st',a.st)+'">'+pmomEsc(a.st||'')+'</span></td>'
-        +'<td>'+V(a.next)+'</td><td class="ctr">'+V(a.rem)+'</td></tr>';
+      h+='<tr><td class="num">'+String(i+1).padStart(2,'0')+'</td><td>'+V(a.task)+'</td><td class="ctr">'+V(a.pic)+'</td><td class="ctr">'+V(a.due)+'</td>'
+        +'<td class="ctr"><span class="mom-badge '+pmomBadgeCls('pri',a.priority)+'">'+pmomEsc(a.priority||'')+'</span></td>'
+        +'<td class="ctr"><span class="mom-badge '+pmomBadgeCls('st',a.status)+'">'+pmomEsc(a.status||'')+'</span></td>'
+        +'<td>'+V(a.next)+'</td><td class="ctr">'+V(a.remark)+'</td></tr>';
     });
   });
-  h+='</table><div class="sig"><span><b>Prepared by:</b> '+pmomEsc(m.prep||'')+'</span>'
-    +'<span><b>Approved by:</b> '+pmomEsc(m.appr||'')+'</span><span><b>Distribution:</b> '+pmomEsc(m.dist||'')+'</span></div>';
+  h+='</table><div class="sig"><span><b>Prepared by:</b> '+pmomEsc(m.preparedBy||'')+'</span>'
+    +'<span><b>Approved by:</b> '+pmomEsc(m.approvedBy||'')+'</span><span><b>Distribution:</b> '+pmomEsc(m.distribution||'')+'</span></div>';
   return h;
 }
 function pmomPrint(){
