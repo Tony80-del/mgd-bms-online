@@ -708,6 +708,102 @@ input[type="date"]::-moz-calendar-picker-indicator {
 #bidsMomContainer .pmom-pdel:hover{background:#fbdcdc;color:#b3261e}
 #bidsMomContainer .pmom-nofile{padding:14px;text-align:center;color:var(--muted);font-size:11px;line-height:1.6;border:1px dashed var(--border);border-radius:9px}
 </style>
+<style id="rfiCss">
+/* ================= RFI (Request for Information) ================= */
+#bidsRfiContainer .rfi-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+#bidsRfiContainer .rfi-title{font-size:15px;font-weight:800}
+#bidsRfiContainer .rfi-title span{font-size:11px;color:var(--muted);font-weight:600;margin-left:8px}
+#bidsRfiContainer .rfi-vt{font-size:11px;font-weight:800;color:#03202b;background:var(--cyan);border-radius:999px;padding:3px 10px;white-space:nowrap}
+#bidsRfiContainer .rfi-vt.all{background:#a78bfa}
+#bidsRfiContainer .rfi-saved{font-size:10.5px;color:var(--muted)}
+#bidsRfiContainer .pfu-btn.ok{background:#137a3a;border-color:#137a3a;color:#fff}
+#bidsRfiContainer .pfu-layout.rfi-hide{grid-template-columns:1fr;gap:0}
+#bidsRfiContainer .pfu-layout.rfi-hide .pfu-panel{width:0;min-width:0;max-width:0;height:0;padding:0;border:0;overflow:hidden;visibility:hidden}
+#bidsRfiContainer .rfi-mini{width:26px;height:26px;min-width:26px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:13px;line-height:1;font-weight:700;background:var(--card);color:var(--text2);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:.15s}
+#bidsRfiContainer .rfi-mini:hover{background:var(--cardh);color:var(--text1);border-color:var(--blue)}
+#bidsRfiContainer .rfi-pbox{border:1px solid var(--border);border-radius:10px;background:var(--bg2);margin-bottom:6px;overflow:hidden}
+#bidsRfiContainer .rfi-pbox.act{border-color:var(--blue);box-shadow:0 0 0 1px rgba(0,180,216,.35)}
+#bidsRfiContainer .rfi-pbox-h{display:flex;align-items:center;gap:8px;padding:9px 11px;cursor:pointer}
+#bidsRfiContainer .rfi-pbox-h:hover{background:var(--cardh)}
+#bidsRfiContainer .rfi-pn{font-size:12px;font-weight:700;line-height:1.3}
+#bidsRfiContainer .rfi-ps{font-size:10px;color:var(--purple);font-weight:700}
+#bidsRfiContainer .rfi-pc{font-size:10px;font-weight:800;color:#03202b;background:var(--cyan);border-radius:999px;padding:2px 7px;white-space:nowrap}
+#bidsRfiContainer .rfi-pc.zero{background:#1d2b3c;color:var(--muted)}
+#bidsRfiContainer .rfi-pbox-b{display:none;padding:0 8px 8px}
+#bidsRfiContainer .rfi-pbox.act .rfi-pbox-b{display:block}
+#bidsRfiContainer .rfi-mrow{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:11.5px;color:var(--text2)}
+#bidsRfiContainer .rfi-mrow:hover{background:var(--cardh);color:var(--text1)}
+#bidsRfiContainer .rfi-mrow.act{background:rgba(0,180,216,.14);color:var(--text1);box-shadow:inset 0 0 0 1px rgba(0,180,216,.4)}
+#bidsRfiContainer .rfi-rf{font-weight:800;color:var(--cyan);min-width:74px}
+#bidsRfiContainer .rfi-rf.empty{color:#f59e0b;font-weight:600}
+#bidsRfiContainer .rfi-dt{color:var(--muted);font-size:10.5px;margin-left:auto;white-space:nowrap}
+#bidsRfiContainer .rfi-ct{margin-left:auto;color:var(--muted);font-size:10.5px}
+#bidsRfiContainer .rfi-empty{padding:26px;text-align:center;color:var(--text2);border:1px dashed var(--border);border-radius:10px}
+#bidsRfiContainer .rfi-piece{margin-bottom:16px;scroll-margin-top:130px}
+#bidsRfiContainer .rfi-phd{display:flex;align-items:center;gap:9px;margin:0 0 6px;font-size:11.5px;color:var(--text2)}
+#bidsRfiContainer .rfi-phd .t2{color:var(--text1);font-weight:700}
+#bidsRfiContainer .rfi-phd .sp{flex:1}
+#bidsRfiContainer .rfi-lk{font-size:10.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+#bidsRfiContainer .rfi-lk:hover{color:var(--blue)}
+#bidsRfiContainer .rfi-flash .rfi-frame{animation:rfiFl 1.6s ease-out}
+@keyframes rfiFl{0%{box-shadow:0 0 0 4px rgba(0,180,216,.85)}100%{box-shadow:0 10px 40px rgba(0,0,0,.35)}}
+#bidsRfiContainer .rfi-pickwrap{padding:0}
+#bidsRfiContainer .rfi-npbtn{width:100%;box-sizing:border-box;border:1px dashed var(--blue);background:rgba(0,180,216,.10);color:var(--text1);font-size:11.5px;font-weight:800;padding:7px 9px;border-radius:9px;cursor:pointer;font-family:inherit;margin:0 0 8px}
+#bidsRfiContainer .rfi-npbtn:hover{background:rgba(0,180,216,.2)}
+#bidsRfiContainer .rfi-npbtn.on{border-style:solid;background:rgba(0,180,216,.22)}
+#bidsRfiContainer .rfi-pick{border:1px solid var(--border);background:var(--bg2);border-radius:9px;padding:8px;margin-bottom:8px}
+#bidsRfiContainer .rfi-pickq{width:100%;box-sizing:border-box;background:var(--bg1);color:var(--text1);border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:11.5px;font-family:inherit;outline:none;margin-bottom:6px}
+#bidsRfiContainer .rfi-pickq:focus{border-color:var(--blue)}
+#bidsRfiContainer .rfi-picklist{max-height:240px;overflow:auto;border:1px solid var(--border);border-radius:7px;background:var(--bg1)}
+#bidsRfiContainer .rfi-prow{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:11.5px;cursor:pointer;border-bottom:1px solid rgba(15,45,80,.55)}
+#bidsRfiContainer .rfi-prow:last-child{border-bottom:0}
+#bidsRfiContainer .rfi-prow:hover{background:var(--cardh);color:var(--text1)}
+#bidsRfiContainer .rfi-prn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bidsRfiContainer .rfi-prs{font-size:9.5px;color:var(--purple);font-weight:700;white-space:nowrap}
+#bidsRfiContainer .rfi-prk{font-size:9.5px;color:#5ee98a;font-weight:800;white-space:nowrap}
+#bidsRfiContainer .rfi-pickft{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:9.5px;color:var(--muted);margin-top:6px}
+#bidsRfiContainer .rfi-pdel{font-size:11px;line-height:1;color:var(--muted);padding:3px 5px;border-radius:6px;cursor:pointer;font-weight:800}
+#bidsRfiContainer .rfi-pdel:hover{background:#fbdcdc;color:#b3261e}
+#bidsRfiContainer .rfi-nofile{padding:14px;text-align:center;color:var(--muted);font-size:11px;line-height:1.6;border:1px dashed var(--border);border-radius:9px}
+/* ---- the paper sheet (white) ---- */
+#bidsRfiContainer .rfi-frame{border:1px solid #0f2d50;border-radius:12px;overflow:hidden;background:#0b1e3d}
+#bidsRfiContainer .rfi-frame-bar{display:flex;align-items:center;gap:10px;background:#1F4E79;color:#fff;padding:10px 16px;font-size:12.5px;font-weight:800;letter-spacing:.5px}
+#bidsRfiContainer .rfi-frame-bar .hint{margin-left:auto;font-weight:500;font-size:11.5px;opacity:.85;letter-spacing:0}
+#bidsRfiContainer .rfi-paper{background:#fff;padding:18px 20px 20px;color:#17324a}
+#bidsRfiContainer .rfi-dochead{margin:0}
+#bidsRfiContainer .rfi-brandline{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1F4E79;padding:0 0 9px}
+#bidsRfiContainer .rfi-brandline img{height:56px;display:block;background:#fff}
+#bidsRfiContainer .rfi-brandline .rfi-co{font-size:14px;font-weight:800;color:#1F4E79;letter-spacing:.4px}
+#bidsRfiContainer .rfi-brandline .rfi-co small{display:block;font-weight:500;font-size:10.5px;color:#4a6b86;letter-spacing:0;margin-top:3px;line-height:1.5}
+#bidsRfiContainer .rfi-doctitle{background:#1F4E79;color:#fff;text-align:center;font-size:15px;font-weight:800;letter-spacing:1.6px;padding:9px}
+#bidsRfiContainer .rfi-meta{width:100%;border-collapse:collapse;table-layout:fixed;color:#17324a}
+#bidsRfiContainer .rfi-meta td{border:1px solid #c9d2dc;padding:7px 10px;font-size:12.5px;line-height:1.45;vertical-align:top;word-wrap:break-word;white-space:normal}
+#bidsRfiContainer .rfi-meta .rfi-lbl{background:#eef3f8;color:#1F4E79;font-weight:700;font-size:11.5px;white-space:nowrap}
+#bidsRfiContainer table.rfi-sheet{width:100%;border-collapse:collapse;table-layout:fixed;color:#17324a}
+#bidsRfiContainer table.rfi-sheet td{border:1px solid #c9d2dc;padding:7px 10px;font-size:12.5px;line-height:1.45;vertical-align:top;word-wrap:break-word;white-space:normal}
+#bidsRfiContainer table.rfi-sheet .rfi-colhead td{background:#1F4E79;color:#fff;font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding:9px 10px}
+#bidsRfiContainer table.rfi-sheet .rfi-note-row td{background:#f6f8fa;color:#4a6b86;font-size:11px;text-align:center;padding:6px}
+#bidsRfiContainer .rfi-rows td{height:58px}
+#bidsRfiContainer .rfi-rows tr:nth-child(even) td{background:#f8fbfe}
+#bidsRfiContainer .rfi-rows td.rfi-ans{background:#f4f9fd}
+#bidsRfiContainer .rfi-c{text-align:center}
+#bidsRfiContainer .rfi-mid{vertical-align:middle}
+#bidsRfiContainer .rfi-paper [contenteditable]{outline:none;min-height:16px;display:block}
+#bidsRfiContainer .rfi-paper [contenteditable]:focus{background:#fffbe6;box-shadow:inset 0 0 0 2px #ffd666}
+#bidsRfiContainer .rfi-paper [contenteditable][data-ph]:empty:before{content:attr(data-ph);color:#aab8c6;font-style:italic}
+#bidsRfiContainer .rfi-cellwrap{position:relative;height:100%}
+#bidsRfiContainer .rfi-rowx{position:absolute;left:1px;bottom:-3px;font-size:10px;color:#c8d2dc;cursor:pointer;user-select:none;font-weight:700}
+#bidsRfiContainer .rfi-rowx:hover{color:#b3261e}
+#bidsRfiContainer .rfi-sig{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #c9d2dc;border-top:none}
+#bidsRfiContainer .rfi-sig>div{padding:8px 11px;border-right:1px solid #c9d2dc;font-size:11.5px;color:#17324a}
+#bidsRfiContainer .rfi-sig>div:last-child{border-right:none}
+#bidsRfiContainer .rfi-sig .rfi-h{background:#eef3f8;color:#1F4E79;font-weight:700;border-bottom:1px solid #c9d2dc;font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+#bidsRfiContainer .rfi-sig .rfi-sp{height:42px}
+#bidsRfiContainer .rfi-sig .rfi-fn{font-size:10.5px;color:#4a6b86;border-top:1px solid #e3e9ef}
+#bidsRfiContainer .rfi-foot{display:flex;justify-content:space-between;gap:10px;background:#DCE6F1;color:#12324f;font-size:10.5px;padding:6px 12px;border:1px solid #c9d2dc;border-top:none}
+#bidsRfiContainer .rfi-date{background:#fff;color:#17324a;border:1px solid #c9d2dc;border-radius:4px;padding:3px 6px;font-size:12px;font-family:inherit;width:100%;box-sizing:border-box;outline:none}
+#bidsRfiContainer .rfi-date:focus{border-color:#1F4E79}
+</style>
 </head></head>
 <body class="bgp logged-out">
 <!-- ===== Login Overlay ===== -->
@@ -782,6 +878,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
       <button id="bidsSubTabVerify" onclick="bidsSwitchView('verify')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">✅ Project verification</button>
       <button id="bidsSubTabTracking" onclick="bidsSwitchView('tracking')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">🏗️ Project Follow-up</button>
       <button id="bidsSubTabMom" onclick="bidsSwitchView('mom')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📝 Project MOM</button>
+      <button id="bidsSubTabRfi" onclick="bidsSwitchView('rfi')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📄 RFI</button>
     </div>
     <div id="bs" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <div class="sc ai" style="animation-delay:.1s"><div class="text-[var(--muted)] text-sm mb-1" id="s1">项目信息 / Project Info</div><div class="text-2xl font-bold text-blue-400" id="c1">0</div></div>
@@ -876,6 +973,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <!-- ================= PROJECT MOM (project meeting minutes · 1 project = 1 file) ================= -->
     <div id="bidsMomContainer" style="display:none"></div>
+    <div id="bidsRfiContainer" style="display:none"></div>
     <div id="sum" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" style="display:none">
       <div style="grid-column:1/-1;display:flex;justify-content:flex-end;margin-bottom:8px;">
         <button onclick="exportSummaryPDF()" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;">📄 Summary Export PDF</button>
@@ -5250,6 +5348,7 @@ function sm(m){
   var _btc=document.getElementById('bidsTrackingContainer'); if(_btc)_btc.style.display='none';
   var _bvc=document.getElementById('bidsVerifyContainer'); if(_bvc)_bvc.style.display='none';
   var _bmc=document.getElementById('bidsMomContainer'); if(_bmc)_bmc.style.display='none';
+  var _rfc=document.getElementById('bidsRfiContainer'); if(_rfc)_rfc.style.display='none';
   var _cst=document.getElementById('custSubTabsRow'); if(_cst)_cst.style.display='none';
   var _ccc=document.getElementById('custCalContainer'); if(_ccc)_ccc.style.display='none';
   document.getElementById('sum').style.display='none';
@@ -9841,18 +9940,379 @@ function pmomPrint(){
   if(w.document.readyState==='complete'){setTimeout(go,300);}else{w.onload=function(){setTimeout(go,300);};}
 }
 
+/* ================= RFI — Request for Information (per-project sheet file) ================= */
+var rfiCur=0,rfiHide=false,rfiPicking=false,rfiView='all',rfiOne=0,rfiSaveT=null;
+function rfiEsc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function rfiArr(){if(!Array.isArray(data.projectRFI))data.projectRFI=[];return data.projectRFI;}
+function rfiISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function rfiISO2(v){var t=String(v||'').trim();if(!t)return '';
+  var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(t);if(m)return m[0];
+  var M={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  var p=/^(\d{1,2})\s*([A-Za-z]{3,})\s*(\d{4})/.exec(t);
+  if(p){var mm=M[p[2].slice(0,3).toLowerCase()];if(mm)return p[3]+'-'+String(mm).padStart(2,'0')+'-'+String(+p[1]).padStart(2,'0');}
+  return '';}
+function rfiFmt(d){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(d||''));if(!m)return String(d||'');
+  var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return (+m[3])+' '+M[(+m[2])-1]+' '+m[1];}
+function rfiStageOf(n){var t=(data.projectTracking||[]).filter(function(p){return p&&String(p.name||'').trim()===n;});return t.length?(t[0].stage||''):'';}
+function rfiClientOf(n){var r='';
+  (data.projectTracking||[]).forEach(function(p){if(r)return;if(p&&String(p.name||'').trim()===n)r=String(p.client||p.customerName||p.customer||'');});
+  if(!r)(data.bids||[]).forEach(function(b){if(r)return;if(b&&String(b.projectName||'').trim()===n)r=String(b.customerName||'');});
+  return r;}
+function rfiAllProps(){var out=[],seen={};
+  (data.projectTracking||[]).forEach(function(p){var n=(p&&p.name)?String(p.name).trim():'';if(!n||seen[n])return;seen[n]=1;out.push({name:n,stage:(p.stage||'')});});
+  out.sort(function(a,b){return String(a.name).localeCompare(String(b.name));});return out;}
+function rfiProjList(){var out=rfiArr().filter(function(f){return !!(f&&f.project);}).map(function(f){
+    return {name:String(f.project),stage:(rfiStageOf(f.project)||f.stage||''),file:f};});
+  out.sort(function(a,b){return String(a.name).localeCompare(String(b.name));});return out;}
+function rfiFileOf(name,create){var a=rfiArr(),f=null;
+  for(var i=0;i<a.length;i++){if(a[i]&&a[i].project===name){f=a[i];break;}}
+  if(!f&&create){f={project:name,stage:rfiStageOf(name),sheets:[]};a.push(f);}
+  if(f&&!Array.isArray(f.sheets))f.sheets=[];
+  return f;}
+function rfiCurFile(create){var L=rfiProjList();if(!L.length){rfiCur=0;return null;}
+  if(rfiCur<0||rfiCur>=L.length)rfiCur=0;
+  var f=rfiFileOf(L[rfiCur].name,create);if(f)f.stage=L[rfiCur].stage||f.stage||'';return f;}
+function rfiSay(t){var el=document.getElementById('rfiSaved');if(el)el.textContent=t||'';}
+function rfiSaveSoon(){if(rfiSaveT)clearTimeout(rfiSaveT);rfiSay('saving…');
+  rfiSaveT=setTimeout(function(){rfiSaveT=null;try{saveData();rfiSay('💾 saved '+new Date().toLocaleTimeString());}catch(e){rfiSay('⚠ save failed');}},450);}
+function rfiSaveNow(){if(rfiSaveT){clearTimeout(rfiSaveT);rfiSaveT=null;}
+  var t=new Date().toLocaleTimeString();
+  try{saveData();rfiSay('💾 saved '+t);
+    var b=document.getElementById('rfiSaveBtn');
+    if(b){b.textContent='✓ Saved';b.classList.add('ok');setTimeout(function(){var c=document.getElementById('rfiSaveBtn');if(c){c.textContent='💾 Save';c.classList.remove('ok');}},1500);}
+  }catch(e){rfiSay('⚠ save failed');}}
+function rfiBlankRow(no){return {no:String(no||1),desc:'',purpose:'',q:'',answer:'',note:''};}
+function rfiNextNo(f){var mx=0;
+  ((f&&f.sheets)||[]).forEach(function(s){var m=/RFI[- ]?(\d+)/i.exec(String((s&&s.no)||''));if(m)mx=Math.max(mx,+m[1]);});
+  if(!mx)mx=((f&&f.sheets)?f.sheets.length:0);
+  return 'RFI-'+String(mx+1).padStart(3,'0');}
+function rfiBlankS(f,prev){
+  var p=prev||((f&&f.sheets&&f.sheets.length)?f.sheets[f.sheets.length-1]:null);
+  return {no:rfiNextNo(f),date:rfiISO(new Date()),
+    to:(p&&p.to)||rfiClientOf(f?f.project:''),from:(p&&p.from)||'MGD Business Dept. \u2014 PIC: Tony',ref:'',
+    sg1:'',sg2:'',sg3:'',rows:[rfiBlankRow(1)]};}
+function rfiNormS(s){if(!s)return s;
+  s.no=String(s.no||'');
+  s.date=rfiISO2(s.date)||rfiISO(new Date());
+  if(!Array.isArray(s.rows)||!s.rows.length)s.rows=[rfiBlankRow(1)];
+  s.rows.forEach(function(r,i){r.no=String(i+1);});
+  return s;}
+function rfiFoot(f,s){var n=(s.rows||[]).length,c=0;
+  (s.rows||[]).forEach(function(r){if(String(r.answer||'').trim())c++;});
+  return rfiEsc(f.project)+'  \u00b7  '+rfiEsc(s.no||'')+'  \u00b7  '+n+' item(s)  \u00b7  '+c+' answered';}
+function rfiNote(t){if(typeof showToast==='function')showToast(t);}
+
+/* ---------- project picker ---------- */
+function rfiPickToggle(){rfiPicking=!rfiPicking;rfiRender();if(rfiPicking){var q=document.getElementById('rfiPickQ');if(q){try{q.focus();}catch(e){}}}}
+function rfiPickHtml(){
+  var made={};rfiArr().forEach(function(f){if(f&&f.project)made[f.project]=1;});
+  var P=rfiAllProps();
+  var rows=P.length?P.map(function(p){var has=!!made[p.name];
+      return '<div class="rfi-prow" data-name="'+rfiEsc(p.name)+'" onclick="rfiPickProj(this)">'
+        +'<span class="rfi-prn">'+rfiEsc(p.name)+'</span>'
+        +(p.stage?'<span class="rfi-prs">'+rfiEsc(p.stage)+'</span>':'')
+        +'<span class="rfi-prk">'+(has?'✓ in list':'')+'</span></div>';}).join('')
+    :'<div class="rfi-nofile">No project in <b>Project Follow-up</b> yet.</div>';
+  return '<div class="rfi-pick" id="rfiPick">'
+    +'<input class="rfi-pickq" id="rfiPickQ" placeholder="Type to search project name…" oninput="rfiPickFilter(this.value)">'
+    +'<div class="rfi-picklist" id="rfiPickList">'+rows+'</div>'
+    +'<div class="rfi-pickft"><span>Pick the project name → then ＋ Add RFI sheet</span>'
+    +'<span class="rfi-lk" onclick="rfiPickToggle()">close ✕</span></div></div>';}
+function rfiPickFilter(v){v=String(v||'').toLowerCase();var box=document.getElementById('rfiPickList');if(!box)return;
+  var rows=box.querySelectorAll('.rfi-prow');
+  for(var i=0;i<rows.length;i++){var t=(rows[i].textContent||'').toLowerCase();rows[i].style.display=((!v)||t.indexOf(v)>-1)?'':'none';}}
+function rfiPickProj(el){
+  var n=el&&el.getAttribute?el.getAttribute('data-name'):String(el||'');if(!n)return;
+  if(n.indexOf('[object')===0)return;
+  var ok=false;rfiAllProps().forEach(function(p){if(p.name===n)ok=true;});
+  if(!ok)return;
+  var f=rfiFileOf(n,true),L=rfiProjList();
+  for(var k=0;k<L.length;k++){if(L[k].name===n){rfiCur=k;break;}}
+  rfiView='all';rfiOne=0;rfiPicking=false;rfiSaveSoon();rfiRender();
+  try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  rfiNote('📁 RFI file created: '+n);}
+
+/* ---------- side list ---------- */
+function rfiSheetRow(i,n){return '<div class="rfi-mrow'+(i===rfiCur&&rfiView==='all'?' act':'')+'" onclick="rfiShowAll('+i+')">'
+  +'<span class="rfi-rf" style="color:#a78bfa">📚 All RFI</span><span class="rfi-ct">'+n+' sheet(s)</span></div>';}
+function rfiSideHtml(L){
+  if(!L.length)return '<div class="rfi-nofile">No RFI file yet.<br>Click <b>＋ New RFI project</b> above to add one.</div>';
+  return L.map(function(meta,i){
+    var file=rfiFileOf(meta.name,false);
+    var sh=(file&&file.sheets)||[], n=sh.length, act=(i===rfiCur);
+    var rows=rfiSheetRow(i,n)
+      + sh.map(function(s,j){
+        var lbl=s.no?rfiEsc(s.no):'no empty';
+        return '<div class="rfi-mrow'+(act&&rfiView==='one'&&j===rfiOne?' act':'')+'" onclick="rfiShowOne('+i+','+j+')">'
+          +'<span class="rfi-rf'+(s.no?'':' empty')+'" id="rfiNav_'+i+'_'+j+'">'+lbl+'</span>'
+          +'<span class="rfi-ct">'+((s.rows||[]).length)+' item(s)</span>'
+          +'<span class="rfi-dt">'+rfiEsc(s.date?rfiFmt(s.date):'—')+'</span></div>';}).join('');
+    return '<div class="rfi-pbox'+(act?' act':'')+'">'
+      +'<div class="rfi-pbox-h" onclick="rfiOpenProj('+i+')"><div style="flex:1"><div class="rfi-pn">'+rfiEsc(meta.name)+'</div>'
+      +'<div class="rfi-ps">'+rfiEsc(meta.stage||'')+'</div></div>'
+      +'<span class="rfi-pc'+(n?'':' zero')+'">'+n+' RFI</span>'
+      +'<span class="rfi-pdel" title="Remove this RFI file" onclick="rfiDelFile(event,'+i+')">✕</span></div>'
+      +'<div class="rfi-pbox-b">'+rows+'</div></div>';}).join('');}
+
+/* ---------- main render ---------- */
+function rfiRender(){
+  var host=document.getElementById('bidsRfiContainer');if(!host)return;
+  var L=rfiProjList();
+  if(rfiCur<0||rfiCur>=L.length)rfiCur=0;
+  var f=L.length?rfiCurFile(false):null;
+  var side=rfiHide?'':'<div class="pfu-panel" id="rfiPanel">'
+    +'<div class="pfu-panel-h"><span class="pfu-panel-t">Projects · 1 project = 1 RFI file</span>'
+    +'<button class="rfi-mini" onclick="rfiToggleSide()" title="Hide the project list">‹</button></div>'
+    +'<div class="rfi-pickwrap">'
+    +'<button class="rfi-npbtn'+(rfiPicking?' on':'')+'" onclick="rfiPickToggle()">＋ New RFI project</button>'
+    +(rfiPicking?rfiPickHtml():'')
+    +'<div id="rfiList">'+rfiSideHtml(L)+'</div>'
+    +'</div></div>';
+  var main=L.length?('<div id="rfiMain">'+rfiBarHtml(f)+rfiBodyHtml(f)+'</div>')
+    :('<div id="rfiMain"><div class="rfi-empty"><b>No RFI file yet.</b><br>Click <b>＋ New RFI project</b> in the list on the left, pick the project name, then click <b>＋ Add RFI sheet</b> to prepare the first request for information.</div></div>');
+  host.innerHTML='<div class="pfu-layout'+(rfiHide?' rfi-hide':'')+'" id="rfiLayout">'+side+main+'</div>';}
+function rfiBarHtml(f){
+  if(!f)return '';
+  var n=(f.sheets||[]).length;
+  return '<div class="rfi-bar">'
+    +'<button class="pfu-btn" id="rfiShowBtn" onclick="rfiToggleSide()" style="display:'+(rfiHide?'inline-flex':'none')+'">☰ Projects</button>'
+    +'<div class="rfi-title">'+rfiEsc(f.project)+'<span>'+rfiEsc(f.stage||'')+' · 1 project = 1 file · '+n+' sheet(s)</span></div>'
+    +'<span class="rfi-vt'+(rfiView==='all'?' all':'')+'">'+((rfiView==='all')?('All RFI · '+n):('RFI-'+(rfiOne+1)+' / '+n))+'</span>'
+    +'<span class="rfi-saved" id="rfiSaved"></span>'
+    +'<div style="flex:1"></div>'
+    +(rfiView==='one'?'<button class="pfu-btn" onclick="rfiShowAll()">📚 All RFI</button>':'')
+    +'<button class="pfu-btn pri" onclick="rfiAddSheet()">＋ Add RFI sheet</button>'
+    +'<button class="pfu-btn" id="rfiSaveBtn" onclick="rfiSaveNow()">💾 Save</button>'
+    +'<button class="pfu-btn" onclick="rfiPrint()">🖨 Print / PDF</button>'
+    +'</div>';}
+function rfiBodyHtml(f){
+  if(!f)return '';
+  if(!f.sheets.length)return '<div class="rfi-empty">This project has no RFI sheet yet.<br>Click <b>＋ Add RFI sheet</b> to prepare the first request for information.</div>';
+  if(rfiView==='one'){
+    var j=Math.min(rfiOne,f.sheets.length-1),s=f.sheets[j];
+    return '<div class="rfi-phd"><span class="t2">'+rfiEsc(s.no||('RFI-'+(j+1)))+' · '+rfiEsc(rfiFmt(s.date))+'</span><span class="sp"></span>'
+      +'<span class="rfi-lk" onclick="rfiShowAll()">📚 show all '+f.sheets.length+'</span>'
+      +'<span class="rfi-lk" onclick="rfiCopySheet('+rfiCur+','+j+')">⧉ Copy</span>'
+      +'<span class="rfi-lk" onclick="rfiCarry('+rfiCur+','+j+')">⧉ Carry unanswered → new sheet</span>'
+      +'<span class="rfi-lk" onclick="rfiDelSheet('+rfiCur+','+j+')">✕ remove</span></div>'
+      +'<div class="rfi-piece" id="rfiPiece_'+j+'">'+rfiPaper(f,j)+'</div>';
+  }
+  return f.sheets.map(function(s,j){return '<div class="rfi-piece" id="rfiPiece_'+j+'">'
+    +'<div class="rfi-phd"><span class="t2">'+rfiEsc(s.no||('RFI-'+(j+1)))+' · '+rfiEsc(rfiFmt(s.date))+'</span><span class="sp"></span>'
+    +'<span class="rfi-lk" onclick="rfiShowOne('+rfiCur+','+j+')">only this</span>'
+    +'<span class="rfi-lk" onclick="rfiCopySheet('+rfiCur+','+j+')">⧉ Copy</span>'
+    +'<span class="rfi-lk" onclick="rfiDelSheet('+rfiCur+','+j+')">✕ remove</span></div>'
+    +rfiPaper(f,j)+'</div>';}).join('');}
+
+/* ---------- the sheet (screen) ---------- */
+function rfiPaper(f,sj){
+  var s=rfiNormS(f.sheets[sj]);
+  function CE(a,txt,ph){return '<span contenteditable="true" oninput="rfiField(this)" '+a+(ph?' data-ph="'+rfiEsc(ph)+'"':'')+' style="display:block;min-height:16px">'+rfiEsc(txt||'')+'</span>';}
+  var A='data-si="'+sj+'"';
+  var h='<div class="rfi-frame">'
+    +'<div class="rfi-frame-bar">▦ REQUEST FOR INFORMATION<span class="hint">Cells are editable · click to type — changes save automatically</span></div>'
+    +'<div class="rfi-paper">'
+    +'<div class="rfi-dochead"><div class="rfi-brandline"><img src="mgd-logo.png" alt="MGD">'
+    +'<div class="rfi-co">MINH GLOBAL DEVELOPMENT CO., LTD<small>140 Nguyen Van Thu, Tan Dinh Ward,<br>Ho Chi Minh City, Vietnam</small></div></div>'
+    +'<div class="rfi-doctitle">REQUEST FOR INFORMATION</div></div>'
+    +'<table class="rfi-meta"><colgroup><col style="width:12%"><col style="width:38%"><col style="width:12%"><col style="width:38%"></colgroup><tbody>'
+    +'<tr><td class="rfi-lbl">Project</td><td>'+rfiEsc(f.project)+'</td>'
+    +'<td class="rfi-lbl">Sheet No.</td><td>'+CE(A+' data-mf="no"',s.no,'e.g. RFI-001')+'</td></tr>'
+    +'<tr><td class="rfi-lbl">To</td><td>'+CE(A+' data-mf="to"',s.to,'Customer / recipient')+'</td>'
+    +'<td class="rfi-lbl">Date</td><td><input class="rfi-date" type="date" value="'+(s.date||'')+'" onchange="rfiSetDate(this)"></td></tr>'
+    +'<tr><td class="rfi-lbl">From (MGD)</td><td>'+CE(A+' data-mf="from"',s.from,'MGD \u2026')+'</td>'
+    +'<td class="rfi-lbl">Reference</td><td>'+CE(A+' data-mf="ref"',s.ref,'e.g. Drawings S-201 Rev.B')+'</td></tr>'
+    +'</tbody></table>'
+    +'<table class="rfi-sheet"><colgroup><col style="width:5.5%"><col style="width:17%"><col style="width:15.5%"><col style="width:24%"><col style="width:26%"><col style="width:12%"></colgroup>'
+    +'<tr class="rfi-colhead"><td style="text-align:center">No.</td><td>Description</td><td>Purpose</td><td>Question</td>'
+    +'<td>Answer <span style="font-weight:500;text-transform:none;letter-spacing:0">(to be filled by the Customer)</span></td><td>Note</td></tr>'
+    +(s.rows||[]).map(function(r,ri){
+      return '<tr>'
+        +'<td class="rfi-c rfi-mid"><div class="rfi-cellwrap"><span contenteditable="true" oninput="rfiField(this)" data-si="'+sj+'" data-ri="'+ri+'" data-rf="no">'+rfiEsc(r.no)+'</span>'
+        +'<span class="rfi-rowx" title="delete this row" onclick="rfiDelRow('+sj+','+ri+')">✕</span></div></td>'
+        +'<td>'+CE('data-si="'+sj+'" data-ri="'+ri+'" data-rf="desc"',r.desc,'Description / title')+'</td>'
+        +'<td>'+CE('data-si="'+sj+'" data-ri="'+ri+'" data-rf="purpose"',r.purpose,'Why we ask')+'</td>'
+        +'<td>'+CE('data-si="'+sj+'" data-ri="'+ri+'" data-rf="q"',r.q,'Question to the Customer')+'</td>'
+        +'<td class="rfi-ans">'+CE('data-si="'+sj+'" data-ri="'+ri+'" data-rf="answer"',r.answer,"Customer's answer")+'</td>'
+        +'<td>'+CE('data-si="'+sj+'" data-ri="'+ri+'" data-rf="note"',r.note,'Note / status')+'</td></tr>';}).join('')
+    +'<tr class="rfi-note-row"><td colspan="6">Prepared by MGD \u2014 please reply in the “Answer” column and return this sheet with your confirmation.</td></tr>'
+    +'</table>'
+    +'<div class="rfi-sig">'
+    +'<div class="rfi-h">Raised by (MGD)</div><div class="rfi-h">Checked by (MGD — PM)</div><div class="rfi-h">Received &amp; confirmed by the Customer</div>'
+    +'<div class="rfi-sp" contenteditable="true" oninput="rfiField(this)" data-si="'+sj+'" data-mf="sg1"></div>'
+    +'<div class="rfi-sp" contenteditable="true" oninput="rfiField(this)" data-si="'+sj+'" data-mf="sg2"></div>'
+    +'<div class="rfi-sp" contenteditable="true" oninput="rfiField(this)" data-si="'+sj+'" data-mf="sg3"></div>'
+    +'<div class="rfi-fn">Name / Date</div><div class="rfi-fn">Name / Date</div><div class="rfi-fn">Name / Date / Company stamp</div>'
+    +'</div>'
+    +'<div class="rfi-foot"><span>MGD-FRM-RFI-001 · Rev. 01</span><span>'+rfiFoot(f,s)+'</span><span>Page 1</span></div>'
+    +'</div></div>';
+  return h;}
+
+/* ---------- field handlers ---------- */
+function rfiField(el){
+  if(!el||!el.getAttribute)return;
+  var f=rfiCurFile(false);if(!f)return;
+  var sj=+el.getAttribute('data-si');var s=f.sheets[sj];if(!s)return;
+  var txt=(el.innerText!=null?el.innerText:el.textContent)||'';
+  var mf=el.getAttribute('data-mf');
+  if(mf){s[mf]=txt;
+    if(mf==='no'){var nav=document.getElementById('rfiNav_'+rfiCur+'_'+sj);if(nav)nav.textContent=String(txt||'').trim()||'no empty';}
+    rfiSaveSoon();return;}
+  var ri=el.getAttribute('data-ri'),rf=el.getAttribute('data-rf');
+  if(ri!=null&&rf){var r=s.rows[+ri];if(r){r[rf]=txt;rfiSaveSoon();}}}
+function rfiSetDate(el){
+  if(!el)return;
+  var f=rfiCurFile(false);if(!f)return;
+  var sj=+el.getAttribute('data-si');var s=f.sheets[sj];if(!s)return;
+  s.date=rfiISO2(el.value)||el.value||'';
+  rfiSaveSoon();
+  var nav=document.getElementById('rfiNav_'+rfiCur+'_'+sj);
+  var dt=nav&&nav.parentNode?nav.parentNode.querySelector('.rfi-dt'):null;
+  if(dt)dt.textContent=s.date?rfiFmt(s.date):'—';}
+function rfiFocus(sel){setTimeout(function(){var el=document.querySelector(sel);if(!el)return;
+  try{el.focus();var r=document.createRange();r.selectNodeContents(el);r.collapse(false);
+    var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r);}catch(e){}},60);}
+
+/* ---------- rows / sheets ---------- */
+function rfiAddRow(){var f=rfiCurFile(false);if(!f)return;
+  var j=Math.min(rfiView==='one'?rfiOne:0,f.sheets.length-1);var s=f.sheets[j];if(!s)return;
+  s.rows.push(rfiBlankRow(s.rows.length+1));
+  if(rfiView!=='one'){rfiView='one';rfiOne=j;}
+  rfiSaveSoon();rfiRender();
+  rfiFocus('#bidsRfiContainer [data-si="'+j+'"][data-ri="'+(s.rows.length-1)+'"][data-rf="desc"]');}
+function rfiDelRow(sj,ri){var f=rfiCurFile(false);if(!f)return;
+  var s=f.sheets[sj];if(!s||s.rows.length<1)return;
+  if(!confirm('Delete row No. '+(s.rows[ri]?s.rows[ri].no:'')+' from '+(s.no||'this sheet')+'?'))return;
+  if(s.rows.length<2){s.rows=[rfiBlankRow(1)];}else{s.rows.splice(ri,1);s.rows.forEach(function(r,i){r.no=String(i+1);});}
+  rfiSaveSoon();rfiRender();}
+function rfiAddSheet(){
+  var f=rfiCurFile(true);if(!f)return;
+  f.sheets.push(rfiBlankS(f));
+  rfiView='one';rfiOne=f.sheets.length-1;
+  rfiSaveSoon();rfiRender();
+  try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  rfiNote('🆕 New sheet '+f.sheets[f.sheets.length-1].no);}
+function rfiDelSheet(i,sj){var f=rfiCurFile(false);if(!f)return;
+  var s=f.sheets[sj];if(!s)return;
+  if(!confirm('Remove sheet '+(s.no||('#'+(sj+1)))+'? Its '+(s.rows||[]).length+' item(s) will be deleted.'))return;
+  f.sheets.splice(sj,1);
+  rfiView='all';rfiOne=0;rfiSaveSoon();rfiRender();}
+function rfiCopySheet(i,sj){var f=rfiCurFile(false);if(!f)return;
+  var s=f.sheets[sj];if(!s)return;
+  var c=JSON.parse(JSON.stringify(s));
+  c.no=rfiNextNo(f);c.ref='';c.sg1='';c.sg2='';c.sg3='';
+  c.rows=(c.rows||[]).map(function(r,k){return {no:String(k+1),desc:r.desc,purpose:r.purpose,q:r.q,answer:r.answer,note:r.note};});
+  f.sheets.push(c);
+  rfiView='one';rfiOne=f.sheets.length-1;rfiSaveSoon();rfiRender();
+  rfiNote('⧉ Copied to '+c.no+' — review the content and the sheet number');}
+function rfiCarry(i,sj){var f=rfiCurFile(false);if(!f)return;
+  var s=f.sheets[sj];if(!s)return;
+  var open=(s.rows||[]).filter(function(r){return !String(r.answer||'').trim();});
+  if(!open.length){rfiNote('✓ All items in '+(s.no||'this sheet')+' are answered — nothing to carry');return;}
+  var ns={no:rfiNextNo(f),date:rfiISO(new Date()),to:s.to,from:s.from,ref:s.ref,sg1:'',sg2:'',sg3:'',
+    rows:open.map(function(r,k){return {no:String(k+1),desc:r.desc,purpose:r.purpose,q:r.q,answer:'',note:r.note};})};
+  f.sheets.push(ns);
+  rfiView='one';rfiOne=f.sheets.length-1;rfiSaveSoon();rfiRender();
+  rfiNote('⧉ '+ns.rows.length+' unanswered item(s) carried to '+ns.no);}
+
+/* ---------- nav ---------- */
+function rfiOpenProj(i){rfiCur=i;rfiView='all';rfiOne=0;rfiPicking=false;rfiRender();}
+function rfiShowAll(i){if(typeof i==='number'){rfiCur=i;}rfiView='all';rfiOne=0;rfiRender();
+  try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}}
+function rfiShowOne(i,j){
+  if(typeof i==='number'){rfiCur=i;}
+  var f=rfiCurFile(false);if(!f||!f.sheets.length)return;
+  j=Math.max(0,Math.min(j,f.sheets.length-1));
+  rfiView='one';rfiOne=j;rfiRender();
+  var p=document.getElementById('rfiPiece_'+j);
+  if(p){try{p.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}
+    p.classList.add('rfi-flash');setTimeout(function(){p.classList.remove('rfi-flash');},1700);}}
+function rfiToggleSide(){rfiHide=!rfiHide;rfiRender();}
+function rfiDelFile(ev,i){
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  var L=rfiProjList(),meta=L[i];if(!meta)return;
+  var f=rfiFileOf(meta.name,false),c=(f&&f.sheets)?f.sheets.length:0;
+  var msg='Remove the RFI file "'+meta.name+'" from the list?\n\n'+(c?('It contains '+c+' sheet(s) — they will be deleted.'):'It has no sheets yet.');
+  if(!confirm(msg))return;
+  var a=rfiArr();
+  for(var k=0;k<a.length;k++){if(a[k]&&a[k].project===meta.name){a.splice(k,1);break;}}
+  var n2=rfiProjList().length;
+  if(rfiCur>=n2)rfiCur=Math.max(0,n2-1);
+  rfiView='all';rfiOne=0;rfiSaveSoon();rfiRender();
+  rfiNote('🗑 Removed RFI file: '+meta.name);}
+
+/* ---------- print / PDF ---------- */
+function rfiLogoUrl(){try{return location.href.replace(/[^\/]*$/,'')+'mgd-logo.png';}catch(e){return 'mgd-logo.png';}}
+function rfiPrintSheet(f,s){
+  function V(x){return (x==null||x==='')?'<span style="color:#9aa7b4">—</span>':rfiEsc(x);}
+  s=rfiNormS(JSON.parse(JSON.stringify(s)));
+  var h='<div class="dochead"><div class="brandline"><img src="'+rfiLogoUrl()+'" alt="MGD">'
+    +'<div class="co">MINH GLOBAL DEVELOPMENT CO., LTD<small>140 Nguyen Van Thu, Tan Dinh Ward,<br>Ho Chi Minh City, Vietnam</small></div></div>'
+    +'<div class="doctitle">REQUEST FOR INFORMATION</div></div>';
+  h+='<table class="meta"><colgroup><col style="width:12%"><col style="width:38%"><col style="width:12%"><col style="width:38%"></colgroup><tbody>'
+    +'<tr><td class="lbl">Project</td><td>'+V(f.project)+'</td><td class="lbl">Sheet No.</td><td>'+V(s.no)+'</td></tr>'
+    +'<tr><td class="lbl">To</td><td>'+V(s.to)+'</td><td class="lbl">Date</td><td>'+V(rfiFmt(s.date))+'</td></tr>'
+    +'<tr><td class="lbl">From (MGD)</td><td>'+V(s.from)+'</td><td class="lbl">Reference</td><td>'+V(s.ref)+'</td></tr>'
+    +'</tbody></table>';
+  h+='<table class="sheet"><colgroup><col style="width:5.5%"><col style="width:17%"><col style="width:15.5%"><col style="width:24%"><col style="width:26%"><col style="width:12%"></colgroup>'
+    +'<tr class="colhead"><td style="text-align:center">No.</td><td>Description</td><td>Purpose</td><td>Question</td>'
+    +'<td>Answer <span style="font-weight:500;text-transform:none;letter-spacing:0">(to be filled by the Customer)</span></td><td>Note</td></tr>';
+  (s.rows||[]).forEach(function(r,i){
+    h+='<tr><td class="c mid">'+V(r.no||String(i+1))+'</td><td>'+V(r.desc)+'</td><td>'+V(r.purpose)+'</td><td>'+V(r.q)+'</td><td class="ans">'+V(r.answer)+'</td><td>'+V(r.note)+'</td></tr>';});
+  h+='<tr class="note-row"><td colspan="6">Prepared by MGD — please reply in the “Answer” column and return this sheet with your confirmation.</td></tr></table>';
+  h+='<div class="sig">'
+    +'<div class="h">Raised by (MGD)</div><div class="h">Checked by (MGD — PM)</div><div class="h">Received &amp; confirmed by the Customer</div>'
+    +'<div class="sp">'+V(s.sg1).replace(/<span[^>]*>—<\/span>/,'')+'</div><div class="sp">'+V(s.sg2).replace(/<span[^>]*>—<\/span>/,'')+'</div><div class="sp">'+V(s.sg3).replace(/<span[^>]*>—<\/span>/,'')+'</div>'
+    +'<div class="fn">Name / Date</div><div class="fn">Name / Date</div><div class="fn">Name / Date / Company stamp</div></div>';
+  h+='<div class="foot"><span>MGD-FRM-RFI-001 · Rev. 01</span><span>'+rfiFoot(f,s)+'</span><span>Page 1</span></div>';
+  return h;}
+function rfiPrint(){
+  var f=rfiCurFile(false);
+  if(!f||!f.sheets.length){rfiNote('⚠ No RFI sheet to print');return;}
+  var list=(rfiView==='one')?[f.sheets[Math.min(rfiOne,f.sheets.length-1)]]:f.sheets;
+  var body='';
+  list.forEach(function(s,j){body+='<div style="'+(j?'page-break-before:always':'')+'">'+rfiPrintSheet(f,s)+'</div>';});
+  var css='@page{size:A4 landscape;margin:10mm}'
+    +'*{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;box-sizing:border-box}'
+    +'body{margin:0;background:#fff;color:#17324a;font:14px/1.5 Arial,Helvetica,sans-serif}'
+    +'table{width:100%;border-collapse:collapse;table-layout:fixed}'
+    +'table.meta td,table.sheet td{border:1px solid #c9d2dc;font-size:9.5px;line-height:1.35;padding:3px 5px;vertical-align:top;word-wrap:break-word;white-space:normal}'
+    +'.brandline{display:flex;align-items:center;gap:12px;border-bottom:2px solid #1F4E79;padding:0 0 9px}'
+    +'.brandline img{height:40px;display:block}'
+    +'.brandline .co{font-size:12px;font-weight:800;color:#1F4E79}'
+    +'.brandline .co small{display:block;font-weight:500;font-size:9px;color:#4a6b86;margin-top:3px;line-height:1.5}'
+    +'.doctitle{background:#1F4E79;color:#fff;text-align:center;font-size:12px;font-weight:800;letter-spacing:1.2px;padding:5px}'
+    +'table.meta .lbl{background:#eef3f8;color:#1F4E79;font-weight:700;font-size:9px;white-space:nowrap}'
+    +'table.sheet .colhead td{background:#1F4E79;color:#fff;font-size:8.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:4px 5px}'
+    +'table.sheet .note-row td{background:#f6f8fa;color:#4a6b86;font-size:9px;text-align:center;padding:4px}'
+    +'table.sheet td.c{text-align:center}table.sheet td.mid{vertical-align:middle}table.sheet td.ans{background:#f4f9fd}'
+    +'.sig{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #c9d2dc;border-top:none;page-break-inside:avoid}'
+    +'.sig>div{padding:5px 8px;font-size:9.5px;border-right:1px solid #c9d2dc}'
+    +'.sig>div:last-child{border-right:none}'
+    +'.sig .h{background:#eef3f8;color:#1F4E79;font-weight:700;border-bottom:1px solid #c9d2dc;font-size:9px;text-transform:uppercase}'
+    +'.sig .sp{height:34px}.sig .fn{font-size:9px;color:#4a6b86;border-top:1px solid #e3e9ef}'
+    +'.foot{display:flex;justify-content:space-between;gap:10px;background:#DCE6F1;color:#12324f;font-size:9px;padding:4px 9px;border:1px solid #c9d2dc;border-top:none}'
+    +'tr,.brandline{page-break-inside:avoid}';
+  var w=window.open('','_blank');
+  if(!w){rfiNote('⚠ Allow pop-ups to print');return;}
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>RFI — '+rfiEsc(f.project)+'</title><style>'+css+'</style></head><body>'+body+'</body></html>');
+  w.document.close();w.focus();
+  var go=function(){try{w.print();}catch(e){}};
+  if(w.document.readyState==='complete'){setTimeout(go,350);}else{w.onload=function(){setTimeout(go,350);};}}
+
 function bidsSwitchView(v){
-  bidsView=(v==='tracking')?'tracking':((v==='verify')?'verify':((v==='mom')?'mom':'table'));
+  bidsView=(v==='tracking')?'tracking':((v==='verify')?'verify':((v==='mom')?'mom':((v==='rfi')?'rfi':'table')));
   bidsApplyView();
 }
 function bidsApplyView(){
-  var showTable=(bidsView==='table'),showTrack=(bidsView==='tracking'),showVerify=(bidsView==='verify'),showMom=(bidsView==='mom');
+  var showTable=(bidsView==='table'),showTrack=(bidsView==='tracking'),showVerify=(bidsView==='verify'),showMom=(bidsView==='mom'),showRfi=(bidsView==='rfi');
   var tT=document.getElementById('bidsSubTabTable');
   var tK=document.getElementById('bidsSubTabTracking');
   var tV=document.getElementById('bidsSubTabVerify');
   var tM=document.getElementById('bidsSubTabMom');
+  var tR=document.getElementById('bidsSubTabRfi');
   function _st(el,on){if(!el)return;el.style.color=on?'var(--blue)':'var(--text2)';el.style.borderBottomColor=on?'var(--blue)':'transparent';}
-  _st(tT,showTable);_st(tK,showTrack);_st(tV,showVerify);_st(tM,showMom);
+  _st(tT,showTable);_st(tK,showTrack);_st(tV,showVerify);_st(tM,showMom);_st(tR,showRfi);
   if(mod!=='bids')return;
   var bs=document.getElementById('bs'),bf=document.getElementById('bf'),tc=document.querySelector('.tc'),ct=document.getElementById('bidsTrackingContainer');
   if(bs)bs.style.display=showTable?'grid':'none';
@@ -9864,6 +10324,9 @@ function bidsApplyView(){
   var cm=document.getElementById('bidsMomContainer');
   if(cm)cm.style.display=showMom?'block':'none';
   if(showMom){try{pmomRender();}catch(e){console.error('[ProjectMOM]',e);}}
+  var cr=document.getElementById('bidsRfiContainer');
+  if(cr)cr.style.display=showRfi?'block':'none';
+  if(showRfi){try{rfiRender();}catch(e){console.error('[RFI]',e);}}
   if(showVerify){
     var fr=document.getElementById('bidsVerifyFrame');
     if(fr&&!fr.getAttribute('src'))fr.setAttribute('src',fr.getAttribute('data-src'));
