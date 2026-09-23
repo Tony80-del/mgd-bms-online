@@ -69,7 +69,10 @@
 @media print{.pfu-head{position:static!important;box-shadow:none!important}}
     .pfu-head .row1{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
     .pfu-head h2{font-size:19px;font-weight:800}
-    .pfu-head .cl{font-size:11.5px;color:var(--text2);margin-top:2px}
+    .pfu-head .cl{font-size:11.5px;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .pfu-head .pjn{display:inline-flex;align-items:center;gap:6px}
+    .pfu-head .pjn .lb{color:var(--text2);font-size:11.5px}
+    .pfu-head .pjn .vl{color:#5FE7FF;font-weight:800;font-size:15px;letter-spacing:.4px;text-shadow:0 0 10px rgba(0,180,216,.35)}
     .pfu-kv{display:flex;gap:22px;flex-wrap:wrap}
     .pfu-kv div{font-size:10.5px;color:var(--text2)}
     .pfu-kv b{display:block;color:var(--text1);font-weight:700;font-size:14px}
@@ -10727,7 +10730,16 @@ function pfuRenderDetail(){
   var h='';
   h+='<div class="pfu-head"><div class="row1"><div>'
     +'<h2 data-edit data-f="name">'+pfuEsc(p.name)+'</h2>'
-    +'<div class="cl" data-edit data-f="subtitle">'+pfuEsc(p.type||'')+' \u00b7 Client: '+pfuEsc(p.client||'')+' \u00b7 Ref: '+pfuEsc(p.ref||'')+'</div>'
+    +'<div class="cl" data-edit data-f="subtitle">'+(function(){
+      var _lb=pfuLinkedBid(p);
+      var _pn=_lb?String(_lb.projectName||'').trim():'';
+      var _cl=String(p.client||'').trim();
+      var _segs=[];
+      if(!pfuIsBlank(p.type))_segs.push(pfuEsc(p.type));
+      _segs.push('<span class="pjn"><span class="lb">Project name:</span> <span class="vl">'+(_pn?pfuEsc(_pn):'\u2014')+'</span></span>');
+      if(_cl&&_cl!==String(p.name||'').trim())_segs.push('Client: '+pfuEsc(_cl));
+      if(!pfuIsBlank(p.ref))_segs.push('Ref: '+pfuEsc(p.ref));
+      return _segs.join(' \u00b7&nbsp; ');})()+'</div>'
     +'</div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
     +'<button class="pfu-btn sm" id="pfuPanelToggle" onclick="pfuTogglePanel()">\ud83d\udcc1 Projects</button>'
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
@@ -10854,7 +10866,13 @@ function pfuCollect(){
   var box=document.getElementById('pfuDetail'); if(!box)return;
   var nm=box.querySelector('[data-f="name"]'); if(nm)p.name=nm.textContent.trim();
   var sub=box.querySelector('[data-f="subtitle"]');
-  if(sub){var txt=sub.textContent||'';var mC=txt.match(/Client:\s*(.*?)\s*\u00b7\s*Ref:/i);var mR=txt.match(/Ref:\s*(.*)$/i);var parts=txt.split('\u00b7');if(parts[0]!=null)p.type=parts[0].trim();if(mC)p.client=mC[1].trim();if(mR)p.ref=mR[1].trim();}
+  if(sub){var txt=sub.textContent||'';var parts=String(txt).split('\u00b7');var _ty='';
+    parts.forEach(function(seg){var _s=seg.trim();if(!_s)return;var _m;
+      if(/^Project\s*name\s*:/i.test(_s))return;                       /* 来自 Bid Tracking，实时读，不存副本 */
+      if((_m=_s.match(/^Client\s*:\s*(.*)$/i))){p.client=_m[1].trim();return;}
+      if((_m=_s.match(/^Ref\s*:\s*(.*)$/i))){p.ref=_m[1].trim();return;}
+      if(!_ty&&_s!=='\u2014')_ty=_s;});
+    p.type=_ty;}
   ['estValue','landArea','pic','start','target'].forEach(function(k){var el=box.querySelector('[data-f="'+k+'"]');if(el)p[k]=el.textContent.trim();});
   var _rr=box.querySelector('[data-f="resultReason"]'); if(_rr){if(!p.result)p.result={};p.result.reason=String(_rr.value||'').trim();}
   p.progress=pfuProgress(p); /* auto: completed stages / 6 */
