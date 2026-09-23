@@ -5633,6 +5633,11 @@ function saveInlineEdit(id,k){
     var oldValue=item[k];
     var newValue=document.getElementById('ied_'+k).value;
     item[k]=newValue;
+    if(mod==='bids'&&typeof pfuSyncFromBid==='function'){
+      var _ob={};_ob[k]=oldValue;
+      var _sy=pfuSyncFromBid(item,_ob);
+      if(_sy&&_sy.n)pfuToast('🔗 Project Follow-up updated — '+_sy.changes.join(' · '));
+    }
     // 如果是 projects 模块且修改的是 interactionDate,则 interactionCount +1
     if(mod==='projects' && k==='interactionDate'){
       if(typeof item.interactionCount!=='number') item.interactionCount=0;
@@ -6466,6 +6471,10 @@ function doSave(){
         }
         console.log('[EDIT] Before update:', JSON.stringify(data[mod][idx]));
         data[mod][idx] = item;
+        if(mod==='bids'&&typeof pfuSyncFromBid==='function'){
+          var _sy2=pfuSyncFromBid(item,oldItem);
+          if(_sy2&&_sy2.n)pfuToast('🔗 Project Follow-up updated — '+_sy2.changes.join(' · '));
+        }
         console.log('[EDIT] After update:', JSON.stringify(data[mod][idx]));
       } else {
         console.log('[EDIT] WARN: idx not found, pushing as NEW item');
@@ -10414,6 +10423,49 @@ function pfuSeed(){
 
 /* ---- auto-fill KV fields from the matching Bid Tracking record ---- */
 function pfuNorm(s){return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9]/g,'');}
+/* ---- Bid Tracking → Project Follow-up 链接（Bid 为主，5 个字段保持同步） ---- */
+function pfuLinkFields(){return ['estValue','landArea','pic','start','client'];}
+function pfuLinkedBid(p){
+  if(!p)return null;
+  var a=(typeof data!=='undefined'&&data.bids)?data.bids:[];
+  var key=String(p.filledFromBid||'').trim();
+  if(key){for(var i=0;i<a.length;i++){var b=a[i];if(String(b.projectName||'').trim()===key||String(b.customerName||'').trim()===key)return b;}}
+  return pfuMatchBid(p.name);
+}
+function pfuBidVals(b){
+  return {estValue:pfuFmtMoney(b?b.estimatedValue:''),landArea:pfuFmtArea(b?b.landArea:''),
+    pic:String((b&&b.personInCharge)||'').trim(),start:pfuFmtDate(b?b.startDate:''),
+    client:String((b&&b.customerName)||'').trim()};
+}
+/* force=false: 只在原值是空或仍是「旧 Bid 值的副本」时更新；force=true: 全部覆盖 */
+function pfuSyncOne(p,b,force){
+  var nv=pfuBidVals(b),ov=(arguments.length>3&&arguments[3])?pfuBidVals(arguments[3]):null,n=0,ch=[];
+  pfuLinkFields().forEach(function(k){
+    if(pfuIsBlank(nv[k]))return;
+    var cur=String(p[k]==null?'':p[k]).trim(),nv2=String(nv[k]).trim();
+    if(cur===nv2)return;
+    var wasCopy=(ov&&ov[k]!==''&&cur===String(ov[k]).trim());
+    if(force||pfuIsBlank(cur)||wasCopy){p[k]=nv[k];n++;ch.push(k+': '+(cur||'—')+' → '+nv[k]);}
+  });
+  return {n:n,changes:ch};
+}
+/* Bid 被编辑后自动回传（只回传「原本就是从 Bid 复制来的」那些字段，不覆盖手工改过的值） */
+function pfuSyncFromBid(b,oldB){
+  var n=0,ch=[],touched=[];
+  if(!b)return {n:0,changes:ch};
+  (data.projectTracking||[]).forEach(function(p){
+    if(pfuLinkedBid(p)!==b)return;
+    var r=pfuSyncOne(p,b,false,oldB);
+    if(r.n){n+=r.n;ch=ch.concat(r.changes);touched.push(p);}
+  });
+  if(n){
+    if(typeof saveData==='function')saveData();
+    try{var vis=document.getElementById('bidsTrackingContainer');
+      if(vis&&vis.style.display!=='none'&&touched.some(function(p){return p.id===pfuCurId;}))pfuRenderAll();
+    }catch(e){}
+  }
+  return {n:n,changes:ch};
+}
 function pfuMatchBid(name){
   var n=pfuNorm(name); if(n.length<3)return null;
   var best=null,bestScore=0;
@@ -10518,12 +10570,12 @@ function pfuBidStageOf(name){ var b=pfuMatchBid(name); return b?pfuBidStageLabel
 function pfuRefillFromBid(){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
-  var b=pfuMatchBid(p.name);
+  var b=pfuLinkedBid(p);
   if(!b){pfuToast('⚠ No matching Bid Tracking record found for this project name');return;}
-  var n=pfuApplyBid(p,b);
+  var r=pfuSyncOne(p,b,true);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
-  pfuToast(n?('✅ Filled '+n+' field(s) from Bid: '+(b.projectName||b.customerName)):('ℹ Nothing to fill — Bid: '+(b.projectName||b.customerName)));
+  pfuToast(r.n?('✅ Synced '+r.n+' field(s) from Bid — '+r.changes.join(' · ')):('ℹ Already in step with Bid: '+(b.projectName||b.customerName)));
 }
 function pfuGetData(){
   if(!data.projectTracking||!Array.isArray(data.projectTracking)||!data.projectTracking.length){
@@ -10681,6 +10733,9 @@ function pfuRenderDetail(){
     +'<span style="font-size:12px;font-weight:700;color:var(--text2)">Stage:</span>'
     +'<select class="pfu-select" id="pfuStageSelect" onchange="pfuSetStage(parseInt(this.value,10))" style="background:'+_bc[0]+';color:'+_bc[1]+'">'+_stageOpts+'</select>'
 
+    +(function(){var _lb=pfuLinkedBid(p);if(!_lb)return '';var _nv=pfuFmtMoney(_lb.estimatedValue);
+      if(pfuIsBlank(_nv)||String(p.estValue||'').trim()===String(_nv).trim())return '';
+      return '<button class="pfu-btn sm" onclick="pfuRefillFromBid()" style="background:#7c2d12;border-color:#f59e0b;color:#fed7aa" title="Bid Tracking now: '+pfuEsc(_nv)+' — click to update Est. Value / Land Area / PIC / Start from the Bid">\u21bb Bid now '+pfuEsc(_nv)+'</button>';})()
     +'<button class="pfu-btn sm fin" onclick="pfuFinalizeStage()" title="Mark this stage completed and move to the next stage \u2014 all records are kept">'+(p.stageStatus&&p.stageStatus[p.stage]==='Completed'?'\u2705 Stage done':'\u2705 Finalize stage')+'</button>'
     +'<button class="pfu-btn sm" onclick="pfuDelProject()">\ud83d\uddd1 Delete</button>'
     +'<button class="pfu-btn sm pri" onclick="pfuSave()">\ud83d\udcbe Save</button>'
