@@ -7121,6 +7121,10 @@ window.saveData = function(){
       // Save current cloud data as snapshot (docs auto-sort by ts lexicographically)
       return fdb.collection('bms_data').doc('master').collection('snapshots').doc(ts).set(docSnap.data());
     }
+  }).catch(function(e){
+    // ===== Auto-snapshot is best-effort: NEVER let it block the master push =====
+    // If the snapshot write fails, we must still write the real data to master.
+    console.warn('[Firebase] Auto-snapshot skipped (non-fatal):', e && e.message);
   }).then(function(){
     // Push new data to Firebase (async)
     return fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
