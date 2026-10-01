@@ -9795,7 +9795,7 @@ function pmomSheet(f,j){
   /* ---- Table 1: meeting info + agenda ---- */
   s+='<table class="mm"><colgroup><col style="width:15%"><col style="width:35%"><col style="width:15%"><col style="width:35%"></colgroup>';
   s+='<tr><td class="title" colspan="4">PROJECT MEETING MINUTES</td></tr>';
-  s+='<tr><td class="lbl">Meeting No.</td><td class="sub">'+pmomCE(A+' data-pmf="ref"','', 'fill manually, e.g. LMX-MOM-001')+'</td>'
+  s+='<tr><td class="lbl">Meeting No.</td><td class="sub">'+pmomCE(A+' data-pmf="ref"',m.ref, 'fill manually, e.g. LMX-MOM-001')+'</td>'
     +'<td class="lbl">Date</td><td><input class="mom-inp" type="date" value="'+pmomEsc(m.date)+'" onchange="pmomSetF('+mi+',\'date\',this.value)"></td></tr>';
   s+='<tr><td class="lbl">Meeting Title</td><td>'+pmomCE(A+' data-pmf="title"',m.title)+'</td>'
     +'<td class="lbl">Time</td><td>'+pmomCE(A+' data-pmf="time"',m.time)+'</td></tr>';
