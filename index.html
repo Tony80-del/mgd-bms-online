@@ -283,6 +283,30 @@
     .pfu-inp:focus{background:rgba(0,180,216,.09);border-bottom-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
     .pfu-inp::placeholder{color:var(--muted)}
     .pfu-inp[type=date]{color-scheme:dark;font-size:11px;min-height:20px}
+    /* ---- PFU 2026-10-05: Tasks 两层 / Follow-up Log 轻量 ---- */
+    .pfu-dtin{width:auto;display:inline-block;vertical-align:middle}
+    .pfu-tl-d .pfu-del{float:right;margin-left:6px}
+    .pfu-tl-d .pfu-stagetag{margin-left:6px}
+    .pfu-tl-d .pfu-auto-tag{margin-left:4px}
+    .pfu-subtop{width:120px;display:inline-block;vertical-align:middle;margin-left:8px;font-size:11px;font-weight:400}
+    .pfu-tl-t:empty:before,.pfu-tl-n:empty:before{content:'\2014';color:var(--muted);font-weight:400}
+    /* ---- PFU 2026-10-05: Follow-up Log 第二层 notes ---- */
+    .pfu-notes{margin:5px 0 0 0;padding-left:2px}
+    .pfu-notes-empty{font-size:11px;color:var(--muted);padding:2px 0}
+    .pfu-note{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--text2);padding:1px 0}
+    .pfu-note-dot{color:var(--muted);flex:none}
+    .pfu-note-t{flex:1;min-width:0;white-space:normal}
+    .pfu-note-t:empty:before{content:'\2014';color:var(--muted)}
+    .pfu-note .pfu-del{flex:none;opacity:.5;float:none;margin:0}
+    .pfu-note .pfu-del:hover{opacity:1}
+    /* ---- PFU 2026-10-05: 折叠（Tasks / Follow-up Log 共用） ---- */
+    .pfu-fold{display:inline-block;width:11px;flex:none;text-align:center;color:var(--muted);cursor:pointer;font-size:11px;user-select:none;vertical-align:middle}
+    .pfu-fold:hover{color:var(--blue)}
+    .pfu-foldhead{cursor:pointer;font-weight:500;margin-left:6px}
+    .pfu-foldhead:empty:before{content:'\2014';color:var(--muted);font-weight:400}
+    .pfu-tl-i.folded .pfu-foldbody{display:none}
+    .pfu-tl-i.folded{padding-bottom:2px}
+    .pfu-foldbody{margin-top:3px}
     @media(max-width:960px){.pfu-layout{grid-template-columns:1fr}}
     @media(max-width:960px){.mom-layout{grid-template-columns:1fr !important}.mom-sheet .mm{font-size:11px}}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -10403,6 +10427,18 @@ var PFU_STAGE_LABELS=['1 \u00b7 Project Info collection','2 \u00b7 PQ (Pre-quali
 var PFU_BADGE_COLORS={g:['#d7f2df','#137a3a'],b:['#d4ecfb','#0a5f8f'],a:['#fdeccb','#9a5b00'],r:['#fbdcdc','#b3261e'],gray:['#e6e9ed','#5a6672'],p:['#e8e0fb','#5b34c0'],c:['#cdeff0','#0b6b72'],d:['#123e8c','#dbe8ff']};
 var PFU_TASK_STATUS=['Pending','In Progress','Completed','Overdue'];
 var pfuCurId=null;
+/* 2026-10-05: 阶段视图 + 两张卡的折叠状态 —— 只活在内存里，不写数据、不推云，随时可回滚 */
+var pfuViewStage=null;   /* null = 跟随项目当前阶段。点阶段 / Stage 下拉只切「看哪个阶段」，不改 p.stage */
+var pfuOpenTask={i:0};   /* Tasks 折叠：同时只开一条（下标 0 = 最新那条） */
+var pfuOpenLog={i:0};    /* Follow-up Log 折叠：同上 */
+function pfuCurStage(p){
+  var v=pfuViewStage;
+  if(v&&PFU_STAGES.indexOf(v)>=0)return v;
+  return (PFU_STAGES.indexOf(p&&p.stage)>=0)?p.stage:PFU_STAGES[0];
+}
+function pfuResetView(){pfuViewStage=null;pfuOpenTask={i:0};pfuOpenLog={i:0};}
+function pfuToggleTask(i){pfuCollect();pfuOpenTask.i=(pfuOpenTask.i===i?-1:i);pfuRenderAll();}
+function pfuToggleLog(i){pfuCollect();pfuOpenLog.i=(pfuOpenLog.i===i?-1:i);pfuRenderAll();}
 var pfuPanelOpen=false; /* side "Projects" panel hidden by default; toggle to show */
 function pfuTogglePanel(){pfuPanelOpen=!pfuPanelOpen;pfuApplyPanel();}
 function pfuApplyPanel(){
@@ -10637,6 +10673,9 @@ function pfuGetData(){
   data.projectTracking.forEach(function(p){
     if(!Array.isArray(p.tasks))p.tasks=[];
     if(!Array.isArray(p.log))p.log=[];
+    /* 2026-10-05: 轻量接触记录（Follow-up Log）。只在内存里补空数组，**不设 _mig**
+       ⇒ 不触发 saveData()，云端在用户真的新增一条之前保持原样（可安全回滚）。*/
+    if(!Array.isArray(p.contactLog))p.contactLog=[];
     if(_REN[p.stage]){p.stage=_REN[p.stage];_mig=true;}
     if(_REN[p.badge]){p.badge=_REN[p.badge];_mig=true;}
     (p.tasks||[]).forEach(function(t){if(_REN[t.stage]){t.stage=_REN[t.stage];_mig=true;}});
@@ -10700,7 +10739,8 @@ function pfuToISO(v){
   if(v==null)return '';
   v=String(v).trim();
   if(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v))return v;
-  var m=v.match(/^([0-9]{1,2})\s+([A-Za-z]{3,})\.?\s*([0-9]{4})?$/);
+  /* 2026-10-05: 也接受 "05 Oct 2026 · 09:03"（PFU 日志时间戳带时分）—— 只取日期部分 */
+  var m=v.match(/^([0-9]{1,2})\s+([A-Za-z]{3,})\.?\s*([0-9]{4})?(?:\s*\u00b7.*)?$/);
   if(m){
     var mo=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[2].slice(0,3).toLowerCase());
     if(mo>=0){var y=m[3]||new Date().getFullYear();return y+'-'+('0'+(mo+1)).slice(-2)+'-'+('0'+parseInt(m[1],10)).slice(-2);}
@@ -10770,10 +10810,11 @@ function pfuRenderDetail(){
   var p=pfuCur(); var box=document.getElementById('pfuDetail'); if(!box)return;
   if(!p){box.innerHTML='';return;}
   var curIdx=PFU_STAGES.indexOf(p.stage); if(curIdx<0)curIdx=0;
-  var _curS=PFU_STAGES[curIdx];
+  var _curS=pfuCurStage(p);                 /* 正在「看」的阶段（只读视图，不等于 p.stage） */
+  var _curV=PFU_STAGES.indexOf(_curS); if(_curV<0)_curV=curIdx;
   var _curSt=(p.stageStatus&&p.stageStatus[_curS])||'Pending';
   var _bc=PFU_BADGE_COLORS[p.badgeCls||'b']||PFU_BADGE_COLORS.b;
-  var _stageOpts=PFU_STAGE_LABELS.map(function(lbl,i){var _dn=(p.stageStatus&&p.stageStatus[PFU_STAGES[i]]==='Completed');return '<option value="'+i+'"'+(i===curIdx?' selected':'')+'>'+(_dn?'\u2713 ':'')+pfuEsc(lbl)+'</option>';}).join('');
+  var _stageOpts=PFU_STAGE_LABELS.map(function(lbl,i){var _dn=(p.stageStatus&&p.stageStatus[PFU_STAGES[i]]==='Completed');return '<option value="'+i+'"'+(i===_curV?' selected':'')+'>'+(_dn?'\u2713 ':'')+pfuEsc(lbl)+'</option>';}).join('');
   var h='';
   h+='<div class="pfu-head"><div class="row1"><div>'
     +'<h2 data-edit data-f="name">'+pfuEsc(p.name)+'</h2>'
@@ -10853,50 +10894,100 @@ function pfuRenderDetail(){
     h+='</div>';
   }
   h+='</div>';
-  h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udccc Tasks \u2014 Stage '+(curIdx+1)+' \u00b7 '+pfuEsc(_curS)+'</div><div class="pfu-card-sub">Stage '+(curIdx+1)+' only \u00b7 Stage column is editable (write the sub-topic, e.g. PQ \u2014 Legal / PQ \u2014 Fire safety) \u00b7 PIC \u00b7 date \u00b7 dept \u00b7 note \u00b7 status</div></div><button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button></div><div class="pfu-tblwrap"><table class="pfu-grid"><thead><tr>'
-    +'<th style="width:15%">Stage</th><th style="width:22%">Task</th><th style="width:12%">PIC</th><th style="width:11%">Date</th><th style="width:10%">Dept</th><th style="width:18%">Noted Follow-up</th><th style="width:12%">Status</th></tr></thead><tbody>';
-  var tasks=p.tasks||[];
-  var _rows=[]; tasks.forEach(function(t,idx){if(t.stage===_curS)_rows.push(idx);});
-  h+='<tr class="stage-row cur"><td colspan="7">'+PFU_NUM[curIdx]+' '+pfuEsc(_curS)+' \u2014 '+_curSt.toLowerCase()+' \u00b7 '+_rows.length+' task'+(_rows.length===1?'':'s')+'</td></tr>';
-  if(!_rows.length){h+='<tr class="stage-empty"><td colspan="7">\u2014 no tasks recorded in this stage yet \u2014 use \uff0b Add Task \u2014</td></tr>';}
-  _rows.forEach(function(idx){
-      var t=tasks[idx];
-      var _tc=PFU_BADGE_COLORS[pfuStatusCls(t.status||'Pending')]||PFU_BADGE_COLORS.gray;
-      h+='<tr>'
-        +'<td data-edit data-tf="stageLabel" data-ti="'+idx+'" title="Editable \u2014 write the sub-topic. Grouping still uses the real stage: '+pfuEsc(t.stage)+'">'+pfuEsc(t.stageLabel||t.stage)+'</td>'
-        +'<td data-edit data-tf="task" data-ti="'+idx+'">'+pfuEsc(t.task)+'</td>'
-        +'<td><input class="pfu-inp" list="pfuPicList" data-tf="pic" data-ti="'+idx+'" value="'+pfuEsc(t.pic&&t.pic!=='\u2014'?t.pic:'')+'" placeholder="\u2014"></td>'
-        +'<td><input class="pfu-inp" type="date" data-tf="date" data-ti="'+idx+'" value="'+pfuEsc(pfuToISO(t.date))+'"'+(pfuToISO(t.date)?'':' data-keep="'+pfuEsc(t.date||'')+'"')+'></td>'
-        +'<td><input class="pfu-inp" list="pfuDeptList" data-tf="dept" data-ti="'+idx+'" value="'+pfuEsc(t.dept||'')+'" placeholder="\u2014"></td>'
-        +'<td class="pfu-note" data-edit data-tf="note" data-ti="'+idx+'">'+pfuEsc(t.note||'\u2014')+'</td>'
-        +'<td><select class="pfu-select" style="width:auto;padding:2px 6px;font-size:11px;background:'+_tc[0]+';color:'+_tc[1]+'" onchange="pfuSetTaskStatus('+idx+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option value="'+pfuEsc(s)+'"'+(s===(t.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelTask('+idx+')" title="Delete task">\u2715</span></td>'
-        +'</tr>';
-  });
-  h+='</tbody></table></div>';
-  if(curIdx===0){var _saved=(p.pif&&p.pif.savedAt);h+='<div class="pfu-formbar"><button class="pfu-btn sm pif" onclick="pifOpen()">\ud83d\udccb Project Information Form'+(_saved?' \u2713':'')+'</button><span class="pfu-formhint">'+(p.pif?('Saved '+pfuEsc(p.pif.savedAt||'')+' \u2014 click to view / edit \u00b7 open the form and use \ud83d\udd8a Print / PDF for signature'):('Fill the MR-001 form \u2014 it is saved with the project (Stage 1 only)'))+'</span></div>';}
-  h+='</div>';
-  h+='<div class="pfu-card"><div class="pfu-card-h"><div class="pfu-card-t">\ud83d\udd53 Follow-up Log \u2014 Stage '+(curIdx+1)+' <span class="pfu-badge b" style="margin-left:6px">stage '+(curIdx+1)+' records only</span></div><button class="pfu-btn sm" onclick="pfuAddNote()">\uff0b Add Note</button></div><div class="pfu-tl">';
-  var _logs=[]; (p.log||[]).forEach(function(l,i){if(((l&&l.stage)||p.stage)===_curS)_logs.push({l:l,i:i});});
-  if(!_logs.length){h+='<div class="pfu-tl-empty">\u2014 no notes recorded in this stage yet \u2014 use \uff0b Add Note \u2014</div>';}
-  _logs.forEach(function(o){
-    var l=o.l;
-    var _items=(l.items||[]);
-    h+='<div class="pfu-tl-i '+(l.type||'')+'"><div class="pfu-tl-d">'+pfuEsc(l.date)+'</div><div class="pfu-tl-t" data-edit data-lf="title" data-li="'+o.i+'">'+pfuEsc(l.title)+'</div><div class="pfu-tl-n" data-edit data-lf="note" data-li="'+o.i+'">'+pfuEsc(l.note)+'</div>';
-    h+='<table class="pfu-li-tbl"><thead><tr><th style="width:54%">Task / Discussion</th><th style="width:11%">PIC</th><th style="width:13%">Date</th><th style="width:10%">Dept</th><th style="width:12%">Status</th></tr></thead><tbody>';
-    if(!_items.length){h+='<tr><td colspan="5" class="pfu-li-empty">\u2014 no rows yet \u2014</td></tr>';}
+  /* ===== \ud83d\udccc Tasks —— 两层 + 折叠。只显示「正在看的那个阶段」的记录；
+     默认只展开最新一条，点标题行折叠 / 展开 ===== */
+  h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udccc Tasks</div><div class="pfu-card-sub">Stage '+(_curV+1)+' \u00b7 '+pfuEsc(_curS)+' only \u00b7 one task = one dated agenda with its own detail rows \u00b7 click a title to fold / unfold (newest stays open)</div></div><button class="pfu-btn sm" onclick="pfuAddTask()">\uff0b Add Task</button></div><div class="pfu-tl">';
+  var _agVis=[]; (p.log||[]).forEach(function(l,i){ if(((l&&l.stage)||p.stage)===_curS)_agVis.push({l:l,i:i}); });
+  if(!_agVis.length){h+='<div class="pfu-tl-empty">\u2014 nothing recorded in this stage yet \u2014 use \uff0b Add Task \u2014</div>';}
+  var _agOpen=-1;   /* -1 = 全部收起（pfuOpenTask.i===-1 是「手动全收起」的哨兵，别被兜底覆盖） */
+  if(pfuOpenTask.i!==-1){
+    _agOpen=_agVis.length?_agVis[0].i:-1;
+    for(var _k=0;_k<_agVis.length;_k++){if(_agVis[_k].i===pfuOpenTask.i){_agOpen=pfuOpenTask.i;break;}}
+  }
+  _agVis.forEach(function(x){
+    var l=x.l, i=x.i;
+    var _items=(l&&l.items)||[];
+    var _stg=((l&&l.stage)||p.stage); var _si=PFU_STAGES.indexOf(_stg); if(_si<0)_si=0;
+    var _op=(i===_agOpen);
+    h+='<div class="pfu-tl-i '+(l.type||'')+(_op?'':' folded')+'">'
+      +'<div class="pfu-tl-d">'
+      +'<span class="pfu-fold" onclick="pfuToggleTask('+i+')" title="'+(_op?'Fold':'Unfold')+'">'+(_op?'\u25be':'\u25b8')+'</span>'
+      +'<input class="pfu-inp pfu-dtin" type="date" data-lf="date" data-li="'+i+'" value="'+pfuEsc(pfuToISO(l.date))+'"'+(pfuToISO(l.date)?'':' data-keep="'+pfuEsc(l.date||'')+'"')+'>'
+      +'<span class="pfu-foldhead"'+(_op?(' data-edit data-lf="title" data-li="'+i+'"'):(' onclick="pfuToggleTask('+i+')"'))+'>'+pfuEsc(l.title)+'</span>'
+      +'<span class="pfu-stagetag">Stage '+(_si+1)+'</span>'
+      +(_items.length?('<span class="pfu-auto-tag">'+_items.length+' row'+(_items.length>1?'s':'')+'</span>'):'')
+      +'<span class="pfu-x pfu-del" onclick="pfuDelAgenda('+i+')" title="Delete this task">\u2715</span>'
+      +'</div>'
+      +'<div class="pfu-foldbody">'
+      +'<div class="pfu-tl-n" data-edit data-lf="note" data-li="'+i+'">'+pfuEsc(l.note)+'</div>'
+      +'<table class="pfu-li-tbl"><thead><tr><th style="width:54%">Task / Discussion</th><th style="width:11%">PIC</th><th style="width:13%">Date</th><th style="width:10%">Dept</th><th style="width:12%">Status</th></tr></thead><tbody>';
+    if(!_items.length){h+='<tr><td colspan="5" class="pfu-li-empty">\u2014 no rows yet \u2014 use \uff0b Add row \u2014</td></tr>';}
     _items.forEach(function(it,j){
       var _c=PFU_BADGE_COLORS[pfuStatusCls(it.status||'Pending')]||PFU_BADGE_COLORS.gray;
       h+='<tr>'
-        +'<td data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="task">'+pfuEsc(it.task||'')+'</td>'
-        +'<td><input class="pfu-inp" list="pfuPicList" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="pic" value="'+pfuEsc(it.pic&&it.pic!=='\u2014'?it.pic:'')+'" placeholder="\u2014"></td>'
-        +'<td><input class="pfu-inp" type="date" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="date" value="'+pfuEsc(pfuToISO(it.date))+'"'+(pfuToISO(it.date)?'':' data-keep="'+pfuEsc(it.date||'')+'"')+'></td>'
-        +'<td><input class="pfu-inp" list="pfuDeptList" data-edit data-li="'+o.i+'" data-ii="'+j+'" data-lt="dept" value="'+pfuEsc(it.dept||'')+'" placeholder="\u2014"></td>'
-        +'<td><select class="pfu-li-sel" style="background:'+_c[0]+';color:'+_c[1]+'" onchange="pfuSetLogItemStatus('+o.i+','+j+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option'+(s===(it.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelLogItem('+o.i+','+j+')" title="Delete row">\u2715</span></td>'
+        +'<td data-edit data-li="'+i+'" data-ii="'+j+'" data-lt="task">'+pfuEsc(it.task||'')+'</td>'
+        +'<td><input class="pfu-inp" list="pfuPicList" data-edit data-li="'+i+'" data-ii="'+j+'" data-lt="pic" value="'+pfuEsc(it.pic&&it.pic!=='\u2014'?it.pic:'')+'" placeholder="\u2014"></td>'
+        +'<td><input class="pfu-inp" type="date" data-edit data-li="'+i+'" data-ii="'+j+'" data-lt="date" value="'+pfuEsc(pfuToISO(it.date))+'"'+(pfuToISO(it.date)?'':' data-keep="'+pfuEsc(it.date||'')+'"')+'></td>'
+        +'<td><input class="pfu-inp" list="pfuDeptList" data-edit data-li="'+i+'" data-ii="'+j+'" data-lt="dept" value="'+pfuEsc(it.dept||'')+'" placeholder="\u2014"></td>'
+        +'<td><select class="pfu-li-sel" style="background:'+_c[0]+';color:'+_c[1]+'" onchange="pfuSetLogItemStatus('+i+','+j+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option'+(s===(it.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select> <span class="pfu-x" onclick="pfuDelLogItem('+i+','+j+')" title="Delete row">\u2715</span></td>'
         +'</tr>';
     });
     h+='</tbody></table>';
-    h+='<button class="pfu-btn sm pfu-logadd" onclick="pfuAddLogItem('+o.i+')">\uff0b Add row</button>';
-    h+='</div>';
+    h+='<button class="pfu-btn sm pfu-logadd" onclick="pfuAddLogItem('+i+')">\uff0b Add row</button>';
+    h+='</div>'
+      +'</div>';
+  });
+  /* 旧版平任务 —— 保留可见（不再是主列表），字段与老逻辑完全一致；同样只显示当前阶段 */
+  (p.tasks||[]).forEach(function(t,idx){
+    var _tstg=(t.stage||p.stage); if(_tstg!==_curS)return;
+    var _si2=PFU_STAGES.indexOf(_tstg); if(_si2<0)_si2=0;
+    var _tc=PFU_BADGE_COLORS[pfuStatusCls(t.status||'Pending')]||PFU_BADGE_COLORS.gray;
+    h+='<div class="pfu-tl-i">'
+      +'<div class="pfu-tl-d"><span class="pfu-stagetag">Stage '+(_si2+1)+'</span><span class="pfu-auto-tag">task</span><input class="pfu-inp pfu-subtop" data-ti="'+idx+'" data-tf="stageLabel" value="'+pfuEsc(t.stageLabel||'')+'" placeholder="sub-topic"><span class="pfu-x pfu-del" onclick="pfuDelTask('+idx+')" title="Delete this task">\u2715</span></div>'
+      +'<div class="pfu-tl-t" data-edit data-ti="'+idx+'" data-tf="task">'+pfuEsc(t.task||'')+'</div>'
+      +'<div class="pfu-tl-n" data-edit data-ti="'+idx+'" data-tf="note">'+pfuEsc(t.note||'')+'</div>'
+      +'<table class="pfu-li-tbl"><thead><tr><th style="width:30%">PIC</th><th style="width:28%">Date</th><th style="width:22%">Dept</th><th style="width:20%">Status</th></tr></thead><tbody><tr>'
+      +'<td><input class="pfu-inp" list="pfuPicList" data-ti="'+idx+'" data-tf="pic" value="'+pfuEsc(t.pic&&t.pic!=='\u2014'?t.pic:'')+'" placeholder="\u2014"></td>'
+      +'<td><input class="pfu-inp" type="date" data-ti="'+idx+'" data-tf="date" value="'+pfuEsc(pfuToISO(t.date))+'"'+(pfuToISO(t.date)?'':' data-keep="'+pfuEsc(t.date||'')+'"')+'></td>'
+      +'<td><input class="pfu-inp" list="pfuDeptList" data-ti="'+idx+'" data-tf="dept" value="'+pfuEsc(t.dept||'')+'" placeholder="\u2014"></td>'
+      +'<td><select class="pfu-li-sel" style="background:'+_tc[0]+';color:'+_tc[1]+'" onchange="pfuSetTaskStatus('+idx+',this.value)">'+PFU_TASK_STATUS.map(function(s){return '<option value="'+pfuEsc(s)+'"'+(s===(t.status||'Pending')?' selected':'')+'>'+pfuEsc(s)+'</option>';}).join('')+'</select></td>'
+      +'</tr></tbody></table>'
+      +'</div>';
+  });
+  h+='</div></div>';
+  if(curIdx===0){var _saved=(p.pif&&p.pif.savedAt);h+='<div class="pfu-formbar"><button class="pfu-btn sm pif" onclick="pifOpen()">\ud83d\udccb Project Information Form'+(_saved?' \u2713':'')+'</button><span class="pfu-formhint">'+(p.pif?('Saved '+pfuEsc(p.pif.savedAt||'')+' \u2014 click to view / edit \u00b7 open the form and use \ud83d\udd8a Print / PDF for signature'):('Fill the MR-001 form \u2014 it is saved with the project (Stage 1 only)'))+'</span></div>';}
+  /* ===== \ud83d\udd53 Follow-up Log —— 两层 + 折叠，同样只显示「正在看的那个阶段」 ===== */
+  h+='<div class="pfu-card"><div class="pfu-card-h"><div><div class="pfu-card-t">\ud83d\udd53 Follow-up Log</div><div class="pfu-card-sub">Stage '+(_curV+1)+' \u00b7 '+pfuEsc(_curS)+' only \u00b7 \uff0b Add Log opens a new agenda (Date \u00b7 Subject \u00b7 Note) \u00b7 \uff0b Add Note keeps adding notes under it \u00b7 click a subject to fold / unfold</div></div><button class="pfu-btn sm" onclick="pfuAddContact()">\uff0b Add Log</button></div><div class="pfu-tl">';
+  var _clVis=[]; (p.contactLog||[]).forEach(function(c,i){ if(((c&&c.stage)||p.stage)===_curS)_clVis.push({c:c,i:i}); });
+  if(!_clVis.length){h+='<div class="pfu-tl-empty">\u2014 no customer contact recorded in this stage \u2014 use \uff0b Add Log \u2014</div>';}
+  var _clOpen=-1;   /* 同上：-1 = 全部收起 */
+  if(pfuOpenLog.i!==-1){
+    _clOpen=_clVis.length?_clVis[0].i:-1;
+    for(var _m=0;_m<_clVis.length;_m++){if(_clVis[_m].i===pfuOpenLog.i){_clOpen=pfuOpenLog.i;break;}}
+  }
+  _clVis.forEach(function(x){
+    var c=x.c, i=x.i;
+    var _nt=(c&&c.notes)||[];
+    var _op=(i===_clOpen);
+    h+='<div class="pfu-tl-i g'+(_op?'':' folded')+'">'
+      +'<div class="pfu-tl-d">'
+      +'<span class="pfu-fold" onclick="pfuToggleLog('+i+')" title="'+(_op?'Fold':'Unfold')+'">'+(_op?'\u25be':'\u25b8')+'</span>'
+      +'<input class="pfu-inp pfu-dtin" type="date" data-clf="date" data-cli="'+i+'" value="'+pfuEsc(pfuToISO(c.date))+'"'+(pfuToISO(c.date)?'':' data-keep="'+pfuEsc(c.date||'')+'"')+'>'
+      +'<span class="pfu-foldhead"'+(_op?(' data-edit data-clf="title" data-cli="'+i+'"'):(' onclick="pfuToggleLog('+i+')"'))+'>'+pfuEsc(c.title||'')+'</span>'
+      +(_nt.length?('<span class="pfu-auto-tag">'+_nt.length+' note'+(_nt.length>1?'s':'')+'</span>'):'')
+      +'<span class="pfu-x pfu-del" onclick="pfuDelContact('+i+')" title="Delete this log">\u2715</span>'
+      +'</div>'
+      +'<div class="pfu-foldbody">'
+      +'<div class="pfu-tl-n" data-edit data-clf="note" data-cli="'+i+'">'+pfuEsc(c.note||'')+'</div>'
+      +'<div class="pfu-notes">';
+    if(!_nt.length){h+='<div class="pfu-notes-empty">\u2014 no notes yet \u2014 use \uff0b Add Note \u2014</div>';}
+    _nt.forEach(function(t,j){
+      h+='<div class="pfu-note"><span class="pfu-note-dot">\u00b7</span><span class="pfu-note-t" data-edit data-cnote="'+i+':'+j+'">'+pfuEsc(t||'')+'</span><span class="pfu-x pfu-del" onclick="pfuDelContactNote('+i+','+j+')" title="Delete this note">\u2715</span></div>';
+    });
+    h+='</div>'
+      +'<button class="pfu-btn sm pfu-logadd" onclick="pfuAddNote('+i+')">\uff0b Add Note</button>'
+      +'</div>'
+      +'</div>';
   });
   h+='</div></div>';
   h+='<datalist id="pfuPicList">'+pfuPicNames().map(function(n){return '<option value="'+pfuEsc(n)+'"></option>';}).join('')+'</datalist>';
@@ -10906,7 +10997,7 @@ function pfuRenderDetail(){
   box.querySelectorAll('[data-edit]').forEach(function(el){if(el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA')return;el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});
 }
 
-function pfuPick(id){pfuCollect();pfuCurId=id;pfuRenderAll();}
+function pfuPick(id){pfuCollect();pfuCurId=id;pfuResetView();pfuRenderAll();}
 
 function pfuCollect(){
   var p=pfuCur(); if(!p)return;
@@ -10930,11 +11021,31 @@ function pfuCollect(){
   (p.tasks||[]).forEach(function(t){if(t&&t.stageLabel===t.stage)t.stageLabel='';});
   box.querySelectorAll('[data-lf]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-li'),10); var f=c.getAttribute('data-lf');
-    if(p.log&&p.log[i]&&f!=null)p.log[i][f]=pfuCellVal(c);
+    if(!(p.log&&p.log[i]&&f!=null))return;
+    var v=pfuCellVal(c);
+    /* 日期没真改过 → 原样保留原字符串（含 \u00b7 时分），避免静默改格式 */
+    if(f==='date'){var _raw=p.log[i].date||''; if(pfuToISO(_raw)===v)v=_raw;}
+    p.log[i][f]=v;
   });
   box.querySelectorAll('[data-ii]').forEach(function(c){
     var i=parseInt(c.getAttribute('data-li'),10), j=parseInt(c.getAttribute('data-ii'),10), f=c.getAttribute('data-lt');
-    if(p.log&&p.log[i]&&p.log[i].items&&p.log[i].items[j]&&f!=null)p.log[i].items[j][f]=pfuCellVal(c);
+    if(!(p.log&&p.log[i]&&p.log[i].items&&p.log[i].items[j]&&f!=null))return;
+    var v=pfuCellVal(c);
+    if(f==='date'){var _raw=p.log[i].items[j].date||''; if(pfuToISO(_raw)===v)v=_raw;}
+    p.log[i].items[j][f]=v;
+  });
+  /* 2026-10-05: Follow-up Log（轻量接触记录）—— 独立数组，老代码忽略它 ⇒ 可回滚 */
+  box.querySelectorAll('[data-clf]').forEach(function(c){
+    var i=parseInt(c.getAttribute('data-cli'),10); var f=c.getAttribute('data-clf');
+    if(!(p.contactLog&&p.contactLog[i]&&f!=null))return;
+    p.contactLog[i][f]=pfuCellVal(c);
+  });
+  /* 2026-10-05: Follow-up Log 第二层 notes —— data-cnote="<接触下标>:<note 下标>" */
+  box.querySelectorAll('[data-cnote]').forEach(function(c){
+    var raw=String(c.getAttribute('data-cnote')||'').split(':');
+    var i=parseInt(raw[0],10), j=parseInt(raw[1],10);
+    if(!(p.contactLog&&p.contactLog[i]&&Array.isArray(p.contactLog[i].notes)&&p.contactLog[i].notes[j]!=null))return;
+    p.contactLog[i].notes[j]=pfuCellVal(c);
   });
 }
 
@@ -11014,31 +11125,65 @@ function pfuFinalizeStage(){
   pfuSyncStageToBid(p);
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
+  pfuResetView();   /* 视图跟着走到新阶段，并把折叠复位到最新一条 */
   pfuRenderAll();
   pfuToast('\u2705 Stage '+(cur+1)+' finalized \u2014 records kept');
 }
+/* 2026-10-05 Tony 定：点阶段 / Stage 下拉 = 只切「正在看哪个阶段」的视图，**不改项目阶段**。
+   推进阶段只走 ✅ Finalize stage（只有它才写 p.stage 并同步回投标追踪）。
+   ⇒ 想改回「点阶段就进入该阶段」：在下面补一行 p.stage=s; p.badge=s; 即可。 */
 function pfuSetStage(i){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
   var s=PFU_STAGES[i]; if(!s)return;
-  pfuEnsureStageStatus(p);
-  p.stage=s; p.badge=s; p.badgeCls=PFU_STAGE_CLS[s]||'b';
-  if(p.stageStatus[s]==='Pending')p.stageStatus[s]='In Progress';
-  p.progress=pfuProgress(p);
-  pfuSyncStageToBid(p);
-  if(typeof saveData==='function')saveData();
+  pfuViewStage=s;
+  pfuOpenTask={i:0}; pfuOpenLog={i:0};
   pfuRenderAll();
 }
+function pfuToday(){var d=new Date();var z=function(n){return n<10?'0'+n:''+n;};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+/* Tasks 卡：新建一条「带日期的 agenda」（Date \u00b7 Title \u00b7 Note），明细行再用 ＋ Add row 加 */
 function pfuAddTask(){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
-  if(!Array.isArray(p.tasks))p.tasks=[];
-  p.tasks.push({stage:p.stage,stageLabel:'',task:'',pic:'',date:'',dept:'',note:'',status:'Pending'});
-  var i=p.tasks.length-1;
+  if(!Array.isArray(p.log))p.log=[];
+  p.log.unshift({date:pfuNow(),type:'g',stage:pfuCurStage(p),title:'',note:''});
+  pfuBumpToTop(p);
+  pfuOpenTask={i:0};
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  try{var c=document.querySelector('#pfuDetail [data-lf="title"][data-li="0"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
+  pfuToast('\u2705 New task added \u2014 type the title');
+}
+function pfuDelAgenda(li){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.log||!p.log[li])return;
+  var _t=String(p.log[li].title||'').trim();
+  if(!window.confirm('Delete this task'+(_t?(' \u2014 "'+_t+'"'):'')+' ?'))return;
+  p.log.splice(li,1);
   pfuBumpToTop(p);
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
-  try{var c=document.querySelector('#pfuDetail [data-ti="'+i+'"][data-tf="task"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
+}
+/* Follow-up Log 卡 第一层：开一条 log agenda（Date \u00b7 Subject \u00b7 Note）*/
+function pfuAddContact(){
+  pfuCollect();
+  var p=pfuCur(); if(!p)return;
+  if(!Array.isArray(p.contactLog))p.contactLog=[];
+  p.contactLog.unshift({date:pfuToday(),title:'',note:'',notes:[],stage:pfuCurStage(p)});
+  pfuBumpToTop(p);
+  pfuOpenLog={i:0};
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
+  try{var c=document.querySelector('#pfuDetail [data-clf="title"][data-cli="0"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
+  pfuToast('\u2705 New log added \u2014 set the date and subject');
+}
+function pfuDelContact(i){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.contactLog||!p.contactLog[i])return;
+  p.contactLog.splice(i,1);
+  pfuBumpToTop(p);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
 }
 function pfuDelTask(idx){
   pfuCollect();
@@ -11048,16 +11193,32 @@ function pfuDelTask(idx){
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
-function pfuAddNote(){
+/* Follow-up Log 卡 第二层：在指定 log agenda 下追加一条 note —— 可以一直往下加，
+   不重排项目列表（sub-item 改动不该把项目顶到最前） */
+function pfuAddNote(ci){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
-  if(!Array.isArray(p.log))p.log=[];
-  p.log.unshift({date:pfuNow(),type:'g',stage:p.stage,title:'',note:''});
-  pfuBumpToTop(p);
+  if(!Array.isArray(p.contactLog))p.contactLog=[];
+  var c=p.contactLog[ci]; if(!c)return;
+  if(!Array.isArray(c.notes))c.notes=[];
+  c.notes.push('');
   if(typeof saveData==='function')saveData();
   pfuRenderAll();
-  try{var c=document.querySelector('#pfuDetail [data-lf="title"][data-li="0"]');if(c){c.focus();var r=document.createRange();r.selectNodeContents(c);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}catch(e){}
-  pfuToast('\u2705 New note row added \u2014 type the note');
+  try{
+    var n=c.notes.length-1;
+    var el=document.querySelector('#pfuDetail [data-cnote="'+ci+':'+n+'"]');
+    if(el){el.focus();var r=document.createRange();r.selectNodeContents(el);r.collapse(false);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}
+  }catch(e){}
+  pfuToast('\u2705 New note added \u2014 type it');
+}
+function pfuDelContactNote(ci,ni){
+  pfuCollect();
+  var p=pfuCur(); if(!p||!p.contactLog||!p.contactLog[ci])return;
+  var c=p.contactLog[ci];
+  if(!Array.isArray(c.notes)||c.notes[ni]==null)return;
+  c.notes.splice(ni,1);
+  if(typeof saveData==='function')saveData();
+  pfuRenderAll();
 }
 
 /* ---------- PROJECT INFORMATION FORM (MR-001) \u2014 Stage 1 only ---------- */
@@ -11179,7 +11340,13 @@ window.pfuDelProject=pfuDelProject;
 window.pfuSetStage=pfuSetStage;
 window.pfuAddTask=pfuAddTask;
 window.pfuDelTask=pfuDelTask;
+window.pfuDelAgenda=pfuDelAgenda;
+window.pfuAddContact=pfuAddContact;
+window.pfuDelContact=pfuDelContact;
 window.pfuAddNote=pfuAddNote;
+window.pfuDelContactNote=pfuDelContactNote;
+window.pfuToggleTask=pfuToggleTask;
+window.pfuToggleLog=pfuToggleLog;
 window.pfuFinalizeStage=pfuFinalizeStage;
 function pfuSetTaskStatus(idx,val){
   pfuCollect();
