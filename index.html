@@ -11129,15 +11129,22 @@ function pfuFinalizeStage(){
   pfuRenderAll();
   pfuToast('\u2705 Stage '+(cur+1)+' finalized \u2014 records kept');
 }
-/* 2026-10-05 Tony 定：点阶段 / Stage 下拉 = 只切「正在看哪个阶段」的视图，**不改项目阶段**。
-   推进阶段只走 ✅ Finalize stage（只有它才写 p.stage 并同步回投标追踪）。
-   ⇒ 想改回「点阶段就进入该阶段」：在下面补一行 p.stage=s; p.badge=s; 即可。 */
+/* 2026-10-05（Tony 最终定，(a) 方案）：点阶段 / Stage 下拉 = **直接进入该阶段**
+   —— 可跳步、可点回去 review / 编辑。
+   写入 p.stage 并同步回投标追踪，视图跟着走。
+   （✅ Finalize stage 仍然保留，但只是「进入下一阶段」的快捷方式 + 额外把当前阶段标记 Completed
+     并写一条 log；它不再是推进阶段的唯一入口。） */
 function pfuSetStage(i){
   pfuCollect();
   var p=pfuCur(); if(!p)return;
   var s=PFU_STAGES[i]; if(!s)return;
-  pfuViewStage=s;
-  pfuOpenTask={i:0}; pfuOpenLog={i:0};
+  pfuEnsureStageStatus(p);
+  p.stage=s; p.badge=s; p.badgeCls=PFU_STAGE_CLS[s]||'b';
+  if(p.stageStatus[s]==='Pending')p.stageStatus[s]='In Progress';
+  p.progress=pfuProgress(p);
+  pfuSyncStageToBid(p);
+  pfuResetView();                 /* 视图跟着 p.stage 走 + 折叠复位到最新一条 */
+  if(typeof saveData==='function')saveData();
   pfuRenderAll();
 }
 function pfuToday(){var d=new Date();var z=function(n){return n<10?'0'+n:''+n;};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
