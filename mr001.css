@@ -1,0 +1,143 @@
+/* ==========================================================================================
+   mr001.css — MR-001 "PROJECT INFORMATION FORM" · shared stylesheet
+   ------------------------------------------------------------------------------------------
+   Extracted from pfu-verify.html on 2026-10-07 (Tony approved plan C-1).
+
+   WHY THIS FILE EXISTS
+     The board approval page (approve.html) has to render the MR-001 sheet EXACTLY as the BMS
+     does. One renderer + one stylesheet is the only way to guarantee that. A copy would drift.
+
+   WHO USES IT
+     · pfu-verify.html  — the BMS "Project verification" tab (Step 5 · PIC form)
+     · approve.html     — the board approval page (Phase 2)
+
+   LOAD ORDER (matters!)
+     pfu-verify.html links this file LAST in <head>, AFTER its own <style> block, so the
+     @media print rules here land exactly where they land today. Do not move the <link> up.
+
+   SECTIONS
+     1 · BASE THEME    — the app's global tokens. Moved out of pfu-verify.html so there is
+                         exactly ONE definition. Values are byte-identical to the originals.
+     2 · MR-001 SHEET  — the white form itself.
+     3 · PRINT         — what the printed PIC page looks like.
+
+   RULE FOR THE FUTURE
+     If you change anything in Section 2, both pages change together. That is the point.
+     Do NOT re-declare these selectors inside pfu-verify.html — that reintroduces the drift.
+   ========================================================================================== */
+
+/* ===== SECTION 1 · BASE THEME =========================================================== */
+
+:root{--bg1:#030912;--bg2:#071325;--card:#0b1e3d;--cardh:#10274a;--blue:#00B4D8;--cyan:#06d6c7;--purple:#8b5cf6;
+--green:#22c55e;--amber:#fbbf24;--red:#ef4444;--text1:#E8F4FF;--text2:#7FB3D8;--muted:#3D5A80;--border:#0f2d50}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg1);color:var(--text1);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:middle}
+th{background:var(--cardh);color:#fff;font-size:12px;font-weight:600}
+tbody tr:nth-child(even){background:#091a33}
+td.c{text-align:center;width:70px}
+td.sub{color:var(--text2);font-size:12px;line-height:1.5}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin:10px 0}
+.panel.hd{border-color:#2b2b6b;background:linear-gradient(135deg,#191a3d,#132441)}
+.scorebox{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.big{font-size:34px;font-weight:800;line-height:1}
+.small{font-size:11.5px;color:var(--text2)}
+.meter{flex:1;min-width:220px;height:12px;background:#0a1a33;border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#fbbf24,#22c55e);width:0}
+.note{display:flex;gap:9px;background:#132441;border-left:3px solid var(--blue);border-radius:0 9px 9px 0;padding:9px 12px;margin:9px 0;font-size:12.5px}
+.note.warn{background:#3a2a12;border-left-color:var(--amber)}
+.note.bad{background:#3a1414;border-left-color:var(--red)}
+.note.ok{background:#0f2b1c;border-left-color:var(--green)}
+
+/* ===== SECTION 2 · MR-001 SHEET ========================================================= */
+/* ============ Step 5 · MR-001 PIC form ============ */
+.stamp{display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid var(--green);border-radius:12px;padding:7px 15px;transform:rotate(-2deg)}
+.stamp b{font-size:13.5px;letter-spacing:.05em}.stamp small{font-size:9.5px}
+.sheet{background:#fff;color:#111;border-radius:8px;padding:16px 18px;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:10px 0}
+.sheet .t1{text-align:center;font-weight:700;letter-spacing:.06em;font-size:14px;color:#111}
+.sheet .t2{text-align:center;font-weight:700;font-size:13px;margin-top:2px;color:#111}
+.sheet .meta{text-align:center;font-size:9.5px;color:#666;margin:4px 0 10px}
+.sheet table{width:100%;border-collapse:collapse;margin:0 0 8px}
+.sheet th,.sheet td{border:1px solid #999;padding:3px 6px;font-size:11px;color:#111;vertical-align:middle}
+.sheet th{background:#f2f2f2;font-size:10.5px}
+.sheet .sec{background:#1F4E79;color:#fff;font-weight:700;font-size:11px}
+.sheet .k{background:#eef3f8;font-weight:600;width:24%}
+.sheet .val{font-weight:600}
+.sheet .val.mut{color:#999;font-weight:400;font-style:italic}
+.sheet .c{text-align:center}
+.sheet .tot{background:#FFF2CC;font-weight:700}
+.sheet .sub{background:#DCE6F1;font-weight:600}
+.sheet .foot{display:flex;gap:26px;margin-top:12px;flex-wrap:wrap}
+.sheet .foot div{flex:1;min-width:180px}
+.sheet .foot .line{border-bottom:1px solid #666;height:24px}
+.sheet .foot .who{font-size:9.5px;color:#555;margin-top:3px}
+/* the app theme stripes even rows (#091a33) - keep the MR-001 sheet white */
+.sheet tbody tr:nth-child(even),.sheet tbody tr:nth-child(odd){background:#fff}
+.sheet tbody tr td.k{background:#eef3f8}
+.sheet tbody tr.sec,.sheet tbody tr.sec td{background:#1F4E79;color:#fff}
+.sheet tbody tr td.tot{background:#FFF2CC;font-weight:700}
+.sheet tbody tr td.sub{background:#DCE6F1;color:#111}
+.sheet tbody tr th{background:#f2f2f2}
+.sheet .bx.on{background:#fff;border-color:#1F4E79}
+.sheet .bx.on:after{color:#1F4E79;font-weight:700}
+.bx{display:inline-block;width:12px;height:12px;line-height:11px;text-align:center;border:1px solid #888;border-radius:2px;font-size:9px;color:#fff;background:#fff;margin-right:4px;vertical-align:middle}
+.bx.on{background:#1F4E79;border-color:#1F4E79}
+/* 2026-10-07 · F. NOTE / REMARK — the one block on the MR-001 sheet the PIC writes by hand.
+   .noteta is what you type in on screen. On print it is hidden and .noteprint is shown instead,
+   because a textarea only prints the rows that happen to be visible — a long note would be cut. */
+.sheet .noteta{display:block;width:100%;box-sizing:border-box;border:1px solid #999;border-radius:4px;background:#fff;color:#111;font:inherit;font-size:11.5px;line-height:1.6;padding:6px 8px;min-height:76px;resize:vertical}
+.sheet .noteta::placeholder{color:#aaa;font-style:italic}
+.sheet .noteprint{display:none;white-space:pre-wrap;font-size:11.5px;line-height:1.6;color:#111;min-height:58px}
+.sheet .notesig{font-size:9.5px;color:#555;text-align:right;margin-top:3px}
+/* 2026-10-07 · the PASSED box prints beside the "PROJECT INFORMATION FORM" title (see @media print);
+   on screen it lives in the summary panel instead, so this copy stays hidden here. */
+.sheet .t1row{position:relative}
+.sheet .stampprint{display:none}
+@media print{.sheet .noteta{display:none!important}.sheet .noteprint{display:block!important}}
+.cbo{display:inline-block;margin-right:13px;font-size:11px;white-space:nowrap}
+.cbo .bx.on:after{content:"\2713";font-size:8px}
+
+/* ------------------------------------------------------------------------------------------
+   ⚠️ CLASS-NAME COLLISION — .foot is used by BOTH the app's fixed bottom bar and the MR-001
+   signature row. pfu-verify.html defines the app bar as .foot{position:fixed;left:0;right:0;
+   bottom:0;...}, and the rule below (written by the original author) never resets `position`,
+   so on screen the sheet's signature row is dragged into a fixed dark bar at the bottom of
+   the viewport, and in print it is killed by the app's `@media print{.foot{display:none!important}}`.
+
+   Phase 1 is a pure refactor: zero visual change. The rule below therefore reproduces that
+   effective rendering one-for-one (merged .foot + .sheet .foot), so approve.html looks exactly
+   like pfu-verify.html does today. It is a faithful copy of a bug, not a design decision.
+
+   The correct version — which makes the signature row sit inside the sheet and actually print —
+   is kept commented out underneath. Say the word and it becomes a one-line swap in both pages.
+   ------------------------------------------------------------------------------------------ */
+.sheet .foot{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:26px;padding:9px 16px;background:linear-gradient(0deg,#0b1e3d,#071325);border-top:1px solid var(--border);margin-top:12px;flex-wrap:wrap}
+/* .sheet .foot{position:static;left:auto;right:auto;bottom:auto;background:none;border-top:0;padding:0;display:flex;gap:26px;margin-top:12px;flex-wrap:wrap} */
+
+/* ===== SECTION 3 · PRINT ================================================================= */
+@media print{
+  /* .pbar is the project picker + Save/Print/Reset bar — a screen control, never part of the paper.
+     The chrome half of this rule (.bar/.pbar/.stepper/.prog/#expBox/footer/.btn/.noprint/.pane)
+     stays in pfu-verify.html; only the MR-001 half lives here. */
+  .sheet{border:0;border-radius:0;padding:0;margin:0}
+  .panel{border:0;background:#fff;padding:0 0 6px}
+  /* 2026-10-07 (Tony): the printed page shows ONLY the PASSED box and the MR-001 sheet. On the PIC
+     step the project header and the whole summary panel are dropped, the step heading and the
+     "how to fill this page" lead paragraph are instructions to the operator (not form content),
+     and the PASSED box moves up into the sheet title row, on the same line as
+     "PROJECT INFORMATION FORM". Scoped to body.step-pic (set by go()) so steps 2-4 keep theirs. */
+  body.step-pic .panel.hd{display:none!important}
+  .sheet .t1row{min-height:34px;display:flex;align-items:center;justify-content:center}
+  .sheet .stampprint{display:flex;position:absolute;right:0;top:50%;transform:translateY(-50%);
+    align-items:center;justify-content:center;flex-direction:column;text-align:center;
+    border:2px solid #1F4E79;border-radius:8px;padding:3px 10px}
+  .sheet .stampprint b{font-size:12px;color:#0a7b3a!important;letter-spacing:.04em}
+  .sheet .stampprint.t-warn b{color:#8a5a00!important}
+  .sheet .stampprint.t-bad b{color:#a11!important}
+  .sheet .stampprint small{font-size:8.5px;color:#555}
+  /* Faithful to today: the app's @media print{.foot{display:none!important}} also removes the
+     MR-001 signature row. Reproduced here so approve.html prints the same page. See the collision
+     note in Section 2 — if Tony wants the signature row to print, delete this one line. */
+  .sheet .foot{display:none!important}
+}
