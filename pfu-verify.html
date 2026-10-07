@@ -200,6 +200,10 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 .sheet .noteta::placeholder{color:#aaa;font-style:italic}
 .sheet .noteprint{display:none;white-space:pre-wrap;font-size:11.5px;line-height:1.6;color:#111;min-height:58px}
 .sheet .notesig{font-size:9.5px;color:#555;text-align:right;margin-top:3px}
+/* 2026-10-07 · the PASSED box prints beside the "PROJECT INFORMATION FORM" title (see @media print);
+   on screen it lives in the summary panel instead, so this copy stays hidden here. */
+.sheet .t1row{position:relative}
+.sheet .stampprint{display:none}
 @media print{.sheet .noteta{display:none!important}.sheet .noteprint{display:block!important}}
 .cbo{display:inline-block;margin-right:13px;font-size:11px;white-space:nowrap}
 .cbo .bx.on:after{content:"\2713";font-size:8px}
@@ -208,18 +212,20 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
   .pane{display:none!important}.pane.on{display:block!important}
   .sheet{border:0;border-radius:0;padding:0;margin:0}
   .panel{border:0;background:#fff;padding:0 0 6px}
-  /* 2026-10-07 (Tony): the printed page starts at the \2705 PASSED row. On the PIC step the project
-     header is dropped and the summary panel is cut down to that one row; the MR-001 sheet below
-     still prints in full. Scoped to body.step-pic (set by go()) so steps 2-4 keep their header.
-     The stamp colours are forced darker because the on-screen green/amber are too light on paper. */
+  /* 2026-10-07 (Tony): the printed page shows ONLY the PASSED box and the MR-001 sheet. On the PIC
+     step the project header and the whole summary panel are dropped, and the PASSED box moves up
+     into the sheet title row, on the same line as "PROJECT INFORMATION FORM". Scoped to
+     body.step-pic (set by go()) so steps 2-4 keep their project header. */
   body.step-pic .pjhead{display:none!important}
-  body.step-pic .panel.hd{background:none!important;border:0!important;padding:0 0 4px!important}
-  body.step-pic .panel.hd .scorebox>*:not(.stamp){display:none!important}
-  body.step-pic .panel.hd>.note,body.step-pic .panel.hd>.small{display:none!important}
-  body.step-pic .panel.hd .stamp{transform:none;border-color:#1F4E79!important}
-  body.step-pic .panel.hd .stamp b{color:#0a7b3a!important}
-  body.step-pic .panel.hd .stamp.t-warn b{color:#8a5a00!important}
-  body.step-pic .panel.hd .stamp.t-bad b{color:#a11!important}
+  body.step-pic .panel.hd{display:none!important}
+  .sheet .t1row{min-height:34px;display:flex;align-items:center;justify-content:center}
+  .sheet .stampprint{display:flex;position:absolute;right:0;top:50%;transform:translateY(-50%);
+    align-items:center;justify-content:center;flex-direction:column;text-align:center;
+    border:2px solid #1F4E79;border-radius:8px;padding:3px 10px}
+  .sheet .stampprint b{font-size:12px;color:#0a7b3a!important;letter-spacing:.04em}
+  .sheet .stampprint.t-warn b{color:#8a5a00!important}
+  .sheet .stampprint.t-bad b{color:#a11!important}
+  .sheet .stampprint small{font-size:8.5px;color:#555}
 }
 </style>
 </head>
@@ -781,7 +787,12 @@ function renderPIC(){
      (v.miss.length?'<div class="note warn"><div>\ud83d\udccc</div><div><b>Still to collect ('+v.miss.length+'):</b> '+v.miss.map(function(m){return esc(m.n);}).join(' \u00b7 ')+'</div></div>':'<div class="note ok"><div>\u2705</div><div>Nothing missing \u2014 every essential item is verified or told.</div></div>')+
      '<div class="small" style="margin-top:6px">Form No: MR-001 \u00b7 Rev: 00 \u00b7 <b>Stage 1 only</b> \u00b7 filled automatically from steps 1\u20134 \u2014 printed for signature.</div></div>';
 
-  h+='<div class="sheet"><div class="t1">PROJECT INFORMATION FORM</div>'+
+  h+='<div class="sheet"><div class="t1row">'+
+   '<div class="t1">PROJECT INFORMATION FORM</div>'+
+   /* 2026-10-07 (Tony): when printed, the PASSED box sits on THIS line, beside the form title.
+      On screen it stays in the summary panel above, so this copy is hidden here (@media print). */
+   '<div class="stampprint t-'+v.tier+'"><b>'+ico+' '+v.label+'</b><small>verification \u00b7 '+v.sub+'</small></div>'+
+   '</div>'+
    '<div class="t2">'+esc(pv('0_1')||'(no project name)')+'</div>'+
    '<div class="meta">Form No: MR-001 \u00b7 Rev: 00 \u00b7 Date: '+picToday()+' \u00b7 Stage 1 \u00b7 generated from the verification steps</div>';
 
