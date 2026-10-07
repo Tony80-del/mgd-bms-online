@@ -471,7 +471,34 @@ function vpStore(){
   var br=vpBridge();if(br)return br.getVerify();
   var p=vpParent();if(!p)return null;if(!p.data.verify)p.data.verify={};return p.data.verify;
 }
-function vpRec(id){var s=vpStore();return (s&&id&&s[id])?s[id]:null;}
+/* 2026-10-07: a project's record can live in two places.
+   Prefer the BMS record (data.verify). If the BMS has none — because the save chain failed, or
+   because this page runs standalone — fall back to the per-project copy this page keeps in
+   localStorage, and then to the single-slot auto-save copy when it belongs to the same project.
+   Without this, one failed BMS write wipes the record on the next load (which is exactly what
+   happened on 2026-10-07: the cloud doc kept verify={} and the local copy was overwritten). */
+function vpLocalRec(id){
+  if(!id)return null;
+  try{var raw=localStorage.getItem('pfu_verify_rec_'+id);if(raw)return JSON.parse(raw);}catch(e){}
+  try{
+    var a=JSON.parse(localStorage.getItem('pfu_verify_demo_v3')||'null');
+    if(a&&a.st&&a.bidId&&String(a.bidId)===String(id))
+      return {bidId:id,ko:a.ko,st:a.st,meta:a.meta||{},savedAt:a.savedAt||''};
+  }catch(e){}
+  return null;
+}
+function vpRec(id){
+  var s=vpStore();
+  if(s&&id&&s[id])return s[id];
+  return vpLocalRec(id);
+}
+/* paint() runs on boot BEFORE vpInit() picks a project, so VP.bidId is still null there.
+   Writing bidId:null at that moment would erase the project tag of the auto-save copy and
+   break the fallback above — so preserve the previous tag when no project is selected yet. */
+function vpSlotBidId(){
+  if(VP.bidId)return VP.bidId;
+  try{var p=JSON.parse(localStorage.getItem('pfu_verify_demo_v3')||'null');return (p&&p.bidId)||null;}catch(e){return null;}
+}
 function vpCurBid(){for(var i=0;i<VP.bids.length;i++)if(VP.bids[i].id===VP.bidId)return VP.bids[i];return null;}
 function vpShort(x){return String(x==null?'':x).split('/')[0].trim();}
 function vpBidValue(v){var t=String(v==null?'':v);var n=num(t);if(n&&n<10000){if(/billion|\bb\b/i.test(t))n*=1e9;else if(/million|\bm\b/i.test(t))n*=1e6;}return n;}
@@ -510,13 +537,17 @@ function vpPick(id){
   var b=vpCurBid()||vpDemoBid();
   SEC.forEach(function(sec,si){sec.items.forEach(function(it,ii){if(it.grp)return;ST[si+'_'+ii]={v:'',s:'Missing'};});});
   vpSeedFromBid(b);
+  /* 2026-10-07 FIX (order): load the saved record BEFORE the panes are drawn.
+     buildStepper() is the ONLY place that paints the step 2-4 input boxes (g('sec'+si) at the
+     end of that function); paint() only repaints the summary + the step 5 PIC form.
+     The old order drew the boxes first and merged rec.st afterwards, so every input kept the
+     blank+seeded rendering while step 5 (regenerated live from ST) showed the saved data.
+     Read the record here — no DOM is touched — then let buildStepper() render it. */
+  var rec=vpRec(id);
+  if(rec&&rec.st)Object.keys(rec.st).forEach(function(k){if(ST[k]&&rec.st[k]){ST[k].v=rec.st[k].v;ST[k].s=rec.st[k].s;}});
   buildPanes();buildStepper();
   KO.forEach(function(_,ki){var e=g('ko_'+ki);if(e)e.checked=false;});
-  var rec=vpRec(id);
-  if(rec){
-    if(rec.st)Object.keys(rec.st).forEach(function(k){if(ST[k]&&rec.st[k]){ST[k].v=rec.st[k].v;ST[k].s=rec.st[k].s;}});
-    if(rec.ko)rec.ko.forEach(function(x,ki){var e=g('ko_'+ki);if(e)e.checked=!!x;});
-  }
+  if(rec&&rec.ko)rec.ko.forEach(function(x,ki){var e=g('ko_'+ki);if(e)e.checked=!!x;});
   vpHeader(b);vpDirty(false);
   paint();go(0);
   var sel=g('vpSel');if(sel)sel.value=id;
@@ -542,14 +573,45 @@ function vpSave(quiet){
     st:JSON.parse(JSON.stringify(ST)),
     meta:{conf:(g('cTotal')?g('cTotal').textContent:''),items:(g('cItems')?g('cItems').textContent:''),gross:sumSize()},
     savedAt:vpNow(),savedBy:'Project verification tab',ver:1};
-  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({ko:snap.ko,st:snap.st}));}catch(e){}
+  /* A layer — ALWAYS keep a copy here first, so a failed BMS write can never lose the work.
+     Keyed by project: pfu_verify_rec_<bidId>, plus the single-slot auto-save copy (with bidId,
+     which it previously did not carry, so the two layers could not be matched to a project). */
+  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({bidId:VP.bidId,ko:snap.ko,st:snap.st,meta:snap.meta,savedAt:snap.savedAt}));}catch(e){}
+  try{localStorage.setItem('pfu_verify_rec_'+VP.bidId,JSON.stringify(snap));}catch(e){}
   if(!p){vpDirty(false);vpStatus('Standalone mode — saved in this browser only','warn');vpBuildPicker();return;}
+  /* B layer — write into the BMS record, then READ IT BACK and confirm it really landed.
+     The old code did try{br.save();}catch(e){} and then always reported success, so a silent
+     failure looked like a successful save. Now the result is verified and reported honestly. */
+  var okB=false,why='';
   var br=vpBridge();
-  if(br){var st=br.getVerify();st[VP.bidId]=snap;try{br.save();}catch(e){}}
-  else{if(!p.data.verify)p.data.verify={};p.data.verify[VP.bidId]=snap;try{p.saveData();}catch(e){}}
+  if(br){
+    try{
+      var store=br.getVerify();
+      if(store)store[VP.bidId]=snap;
+      try{br.save();}catch(e){why='saveData threw: '+(e&&e.message);}
+      try{
+        var chk=br.getVerify();
+        okB=!!(chk&&chk[VP.bidId]&&chk[VP.bidId].st);
+        if(!okB&&!why)why='record missing from data.verify after saveData()';
+      }catch(e){why='verify read-back threw: '+(e&&e.message);}
+    }catch(e){why='getVerify threw: '+(e&&e.message);}
+  }else{
+    try{
+      if(!p.data.verify)p.data.verify={};
+      p.data.verify[VP.bidId]=snap;
+      try{p.saveData();}catch(e){why='saveData threw: '+(e&&e.message);}
+      okB=!!(p.data.verify&&p.data.verify[VP.bidId]);
+      if(!okB&&!why)why='record missing from data.verify after saveData()';
+    }catch(e){why='write threw: '+(e&&e.message);}
+  }
+  if(!okB&&why)console.warn('[verify] BMS write did NOT land:',why);
   vpDirty(false);vpBuildPicker();
   var sel=g('vpSel');if(sel)sel.value=VP.bidId;
-  vpStatus('Saved '+snap.savedAt+' ✓ — synced into BMS'+((snap.meta.conf)?' ('+snap.meta.conf+' data confidence)':''),'saved');
+  if(okB){
+    vpStatus('Saved '+snap.savedAt+' ✓ — synced into BMS'+((snap.meta.conf)?' ('+snap.meta.conf+' data confidence)':''),'saved');
+  }else{
+    vpStatus('Saved in this browser ✓ — BMS sync FAILED, kept locally (re-select the project to reload it)','warn');
+  }
 }
 function vpInit(){
   VP.bids=vpBids();
@@ -602,7 +664,9 @@ function paint(){
     var v=0,t=0,m=0,c=0;sec.items.forEach(function(it,ii){if(it.grp||it.ty==='auto'||it.opt)return;c++;var s=ST[si+'_'+ii].s;if(s==='Verified')v++;else if(s==='Told')t++;else if(s!=='N/A')m++;});
     return '<tr><td>'+sec.t+'</td><td class="c">'+c+'</td><td class="c">'+v+'</td><td class="c">'+t+'</td><td class="c">'+(m?'<b style="color:#fca5a5">'+m+'</b>':0)+'</td><td class="c">'+(cntOpt(sec)?optFilled(sec,si)+'/'+cntOpt(sec):'&#8212;')+'</td></tr>';}).join('')+
     '<tr><th>Total</th><th class="c">'+tot+'</th><th class="c">'+V+'</th><th class="c">'+T+'</th><th class="c">'+M+'</th><th class="c">'+(OPTn?OPTf+'/'+OPTn:'&#8212;')+'</th></tr>';
-  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({ko:KO.map(function(t,i){return g('ko_'+i).checked;}),st:ST,
+  /* 2026-10-07: carry bidId so vpLocalRec() can tell WHICH project this auto-save belongs to.
+     vpSlotBidId() keeps the existing tag when paint() runs before a project is picked. */
+  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({bidId:vpSlotBidId(),ko:KO.map(function(t,i){return g('ko_'+i).checked;}),st:ST,
     meta:{conf:cp,items:counted,V:V,T:T,M:M,N:N,gross:gross,water:water,ww:ww,miss:miss,weak:weak,savedAt:new Date().toISOString()}}));}catch(e){}
   LAST={conf:cp,items:counted,V:V,T:T,M:M,N:N,gross:gross,water:water,ww:ww,miss:miss,weak:weak,
         ko:KO.map(function(t,i){var e=g('ko_'+i);return !!(e&&e.checked);})};
@@ -770,8 +834,14 @@ try{
   var _sv=_SV;
   if(_sv&&_sv.st){
     Object.keys(_sv.st).forEach(function(k){if(ST[k]&&_sv.st[k]){ST[k].v=_sv.st[k].v;ST[k].s=_sv.st[k].s;}});
-    if(_sv.ko)_sv.ko.forEach(function(b,i){var e=g('ko_'+i);if(e)e.checked=!!b;});
   }
+}catch(e){}
+/* 2026-10-07 FIX (order): re-draw after the merge above, otherwise the step 2-4 input boxes
+   keep the first pass (empty) rendering. KO boxes are re-created by this second build, so the
+   ko[] restore has to be re-applied afterwards. */
+buildPanes();buildStepper();
+try{
+  if(_SV&&_SV.ko)_SV.ko.forEach(function(b,i){var e=g('ko_'+i);if(e)e.checked=!!b;});
 }catch(e){}
 paint();go(0);
 try{vpInit();}catch(e){vpStatus('picker error: '+e,'warn');}
