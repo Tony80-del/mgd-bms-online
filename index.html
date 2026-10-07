@@ -11503,7 +11503,13 @@ window.__bmsVerifyBridge={
   createApproval:function(snap){
     try{
       if(typeof fdb==='undefined'||!fdb)return Promise.resolve({ok:false,why:'Firestore is not available in this page'});
-      snap=snap||{};
+      /* The snapshot is built INSIDE THE IFRAME, so every plain object in it belongs to another
+         realm. Firestore's set() validates nested values with `constructor === Object`, and that
+         check fails across realms — the observed error was:
+           "Unsupported field value: a custom Object object (found in field snapshot.st …)"
+         Round-tripping through JSON HERE rebuilds the whole tree in THIS page's realm. It also
+         drops any `undefined`, which Firestore rejects as well. Verified 2026-10-07. */
+      snap=JSON.parse(JSON.stringify(snap||{}));
       var token=apNewToken();
       var now=new Date();
       var exp=new Date(now.getTime()+30*24*3600*1000);
