@@ -51,7 +51,11 @@ main{padding:18px}
 
 <div class="apact" id="apAct" style="display:none">
   <div class="apact-in">
-    <input id="apWho" placeholder="Your name — recorded with the decision">
+    <!-- Prefilled on purpose (2026-10-07). decide() refuses to write while this box is empty, and
+         a director arriving from an email link should not have to type a name to approve — the
+         first real approver clicked ✅ Approve on an empty box, got the alert, dismissed it, and
+         the decision was never sent. Still editable, so a different approver can put their own name. -->
+    <input id="apWho" value="Tony Cheong" placeholder="Your name — recorded with the decision">
     <textarea id="apReason" placeholder="Reason — required when rejecting"></textarea>
     <div class="apact-btns">
       <button class="btn ok" id="apOk">✅ Approve</button>
