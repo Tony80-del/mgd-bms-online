@@ -208,6 +208,18 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
   .pane{display:none!important}.pane.on{display:block!important}
   .sheet{border:0;border-radius:0;padding:0;margin:0}
   .panel{border:0;background:#fff;padding:0 0 6px}
+  /* 2026-10-07 (Tony): the printed page starts at the \2705 PASSED row. On the PIC step the project
+     header is dropped and the summary panel is cut down to that one row; the MR-001 sheet below
+     still prints in full. Scoped to body.step-pic (set by go()) so steps 2-4 keep their header.
+     The stamp colours are forced darker because the on-screen green/amber are too light on paper. */
+  body.step-pic .pjhead{display:none!important}
+  body.step-pic .panel.hd{background:none!important;border:0!important;padding:0 0 4px!important}
+  body.step-pic .panel.hd .scorebox>*:not(.stamp){display:none!important}
+  body.step-pic .panel.hd>.note,body.step-pic .panel.hd>.small{display:none!important}
+  body.step-pic .panel.hd .stamp{transform:none;border-color:#1F4E79!important}
+  body.step-pic .panel.hd .stamp b{color:#0a7b3a!important}
+  body.step-pic .panel.hd .stamp.t-warn b{color:#8a5a00!important}
+  body.step-pic .panel.hd .stamp.t-bad b{color:#a11!important}
 }
 </style>
 </head>
@@ -761,7 +773,7 @@ function renderPIC(){
   var ico=v.tier==='ok'?'\u2705':(v.tier==='warn'?'\u26a0\ufe0f':'\u26d4');
   var h='';
   h+='<div class="panel hd"><div class="scorebox">'+
-     '<div class="stamp" style="border-color:'+col+'"><b style="color:'+col+'">'+ico+' '+v.label+'</b><small class="small">verification \u00b7 '+v.sub+'</small></div>'+
+     '<div class="stamp t-'+v.tier+'" style="border-color:'+col+'"><b style="color:'+col+'">'+ico+' '+v.label+'</b><small class="small">verification \u00b7 '+v.sub+'</small></div>'+
      '<div><div class="small">DATA CONFIDENCE</div><div class="big">'+v.conf+'%</div><div class="small">verified 100% \u00b7 told 60% \u00b7 missing 0%</div></div>'+
      '<div><div class="small">ITEMS</div><div class="big">'+v.items+'</div><div class="small">verified '+v.V+' \u00b7 told '+v.T+' \u00b7 missing '+v.M+'</div></div>'+
      '<div style="flex:1;min-width:190px"><div class="small" style="margin-bottom:4px">CONFIDENCE</div><div class="meter"><i style="width:'+v.conf+'%"></i></div>'+
@@ -872,6 +884,10 @@ function go(i){
   g('progBar').style.width=Math.round((STEPI+1)/NSTEP*100)+'%';
   g('btnBack').disabled=STEPI===0;g('btnNext').disabled=STEPI===NSTEP-1;
   g('btnNext').textContent=STEPI===NSTEP-1?'Done':'Next \u203a';
+  /* 2026-10-07 (Tony): the printed page must start at the \u2705 PASSED row, so on the PIC step the
+     project header is dropped and the summary panel is cut down to that one row. Flagged on <body>
+     because CSS cannot ask a sibling "is this pane the active one?". */
+  try{if(document.body&&document.body.classList)document.body.classList[STEPI===NSTEP-1?'add':'remove']('step-pic');}catch(e){}
   var hit=calcKO(),T=TITLES();
   g('footTxt').innerHTML='Step '+(STEPI+1)+' of '+NSTEP+' · <b>'+T[STEPI]+'</b>'+(hit&&STEPI===0?' — <span style="color:#fca5a5">knock-out gate ticked: STOP</span>':'');
   window.scrollTo(0,0);
