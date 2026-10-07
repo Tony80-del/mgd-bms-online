@@ -193,6 +193,14 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 .sheet .bx.on:after{color:#1F4E79;font-weight:700}
 .bx{display:inline-block;width:12px;height:12px;line-height:11px;text-align:center;border:1px solid #888;border-radius:2px;font-size:9px;color:#fff;background:#fff;margin-right:4px;vertical-align:middle}
 .bx.on{background:#1F4E79;border-color:#1F4E79}
+/* 2026-10-07 · F. NOTE / REMARK — the one block on the MR-001 sheet the PIC writes by hand.
+   .noteta is what you type in on screen. On print it is hidden and .noteprint is shown instead,
+   because a textarea only prints the rows that happen to be visible — a long note would be cut. */
+.sheet .noteta{display:block;width:100%;box-sizing:border-box;border:1px solid #999;border-radius:4px;background:#fff;color:#111;font:inherit;font-size:11.5px;line-height:1.6;padding:6px 8px;min-height:76px;resize:vertical}
+.sheet .noteta::placeholder{color:#aaa;font-style:italic}
+.sheet .noteprint{display:none;white-space:pre-wrap;font-size:11.5px;line-height:1.6;color:#111;min-height:58px}
+.sheet .notesig{font-size:9.5px;color:#555;text-align:right;margin-top:3px}
+@media print{.sheet .noteta{display:none!important}.sheet .noteprint{display:block!important}}
 .cbo{display:inline-block;margin-right:13px;font-size:11px;white-space:nowrap}
 .cbo .bx.on:after{content:"\2713";font-size:8px}
 @media print{
@@ -332,7 +340,11 @@ var SEC=[
 ];
 var ST={},STEPI=0;
 function g(id){return document.getElementById(id);}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');}
+/* 2026-10-07 BUG FIX: this was a no-op (& -> &, < -> <), so no value was ever escaped.
+   It never showed because the fields hold plain text, but the new free-text NOTE box is exactly
+   where an ampersand or an angle bracket gets typed — a "</textarea>" in a note would have broken
+   the whole sheet. Every call site passes data, never markup, so escaping here is strictly safer. */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function num(s){s=String(s==null?'':s).replace(/[^0-9.\-]/g,'');var x=parseFloat(s);return isNaN(x)?0:x;}
 function fm(x,d){d=d||0;var p=Math.pow(10,d);return (Math.round(x*p)/p).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
 function TITLES(){var a=['Knock-out gates'];SEC.forEach(function(s){a.push(s.t);});a.push('PIC form (MR-001)');return a;}
@@ -456,7 +468,7 @@ function calcKO(){var hit=false;
   try{var ft=g('footTxt');if(ft){var TT=TITLES();ft.innerHTML='Step '+(STEPI+1)+' of '+NSTEP+' \u00b7 <b>'+TT[STEPI]+'</b>'+(hit&&STEPI===0?' \u2014 <span style="color:#fca5a5">knock-out gate ticked: STOP</span>':'');}}catch(e){}
   return hit;}
 /* ===== Project verification: project picker + save into BMS data (data.verify) ===== */
-var VP={bidId:null,bids:[],mode:'standalone',dirty:false,timer:null};
+var VP={bidId:null,bids:[],mode:'standalone',dirty:false,timer:null,note:'',noteAt:''};
 function vpBridge(){try{var p=window.parent;if(p&&p!==window&&p.__bmsVerifyBridge)return p.__bmsVerifyBridge;}catch(e){}return null;}
 function vpParent(){try{var p=window.parent;if(p&&p!==window&&p.__bmsVerifyBridge)return p;if(p&&p!==window&&p.data&&p.saveData)return p;}catch(e){}return null;}
 function vpDemoBid(){return {id:'DEMO-HERCHANG',projectName:'HP-VSIP3',customerName:'HERCHANG PLASTIC INDUSTRY INTL. CO. LTD',location:'VSIP III, Binh Duong',landArea:'20,000',estimatedValue:'95000000000',personInCharge:'Mr. Luo Yu Sheng',stageContent:'Bidding / 投标中'};}
@@ -483,7 +495,7 @@ function vpLocalRec(id){
   try{
     var a=JSON.parse(localStorage.getItem('pfu_verify_demo_v3')||'null');
     if(a&&a.st&&a.bidId&&String(a.bidId)===String(id))
-      return {bidId:id,ko:a.ko,st:a.st,meta:a.meta||{},savedAt:a.savedAt||''};
+      return {bidId:id,ko:a.ko,st:a.st,meta:a.meta||{},savedAt:a.savedAt||'',note:a.note||'',noteAt:a.noteAt||''};
   }catch(e){}
   return null;
 }
@@ -545,6 +557,8 @@ function vpPick(id){
      Read the record here — no DOM is touched — then let buildStepper() render it. */
   var rec=vpRec(id);
   if(rec&&rec.st)Object.keys(rec.st).forEach(function(k){if(ST[k]&&rec.st[k]){ST[k].v=rec.st[k].v;ST[k].s=rec.st[k].s;}});
+  /* F. NOTE / REMARK travels with the project like every other field (2026-10-07). */
+  VP.note=(rec&&rec.note)||'';VP.noteAt=(rec&&rec.noteAt)||'';
   buildPanes();buildStepper();
   KO.forEach(function(_,ki){var e=g('ko_'+ki);if(e)e.checked=false;});
   if(rec&&rec.ko)rec.ko.forEach(function(x,ki){var e=g('ko_'+ki);if(e)e.checked=!!x;});
@@ -572,11 +586,12 @@ function vpSave(quiet){
     ko:KO.map(function(_,ki){var e=g('ko_'+ki);return e?!!e.checked:false;}),
     st:JSON.parse(JSON.stringify(ST)),
     meta:{conf:(g('cTotal')?g('cTotal').textContent:''),items:(g('cItems')?g('cItems').textContent:''),gross:sumSize()},
+    note:String(VP.note||''),noteAt:String(VP.noteAt||''),
     savedAt:vpNow(),savedBy:'Project verification tab',ver:1};
   /* A layer — ALWAYS keep a copy here first, so a failed BMS write can never lose the work.
      Keyed by project: pfu_verify_rec_<bidId>, plus the single-slot auto-save copy (with bidId,
      which it previously did not carry, so the two layers could not be matched to a project). */
-  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({bidId:VP.bidId,ko:snap.ko,st:snap.st,meta:snap.meta,savedAt:snap.savedAt}));}catch(e){}
+  try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({bidId:VP.bidId,ko:snap.ko,st:snap.st,meta:snap.meta,note:snap.note,noteAt:snap.noteAt,savedAt:snap.savedAt}));}catch(e){}
   try{localStorage.setItem('pfu_verify_rec_'+VP.bidId,JSON.stringify(snap));}catch(e){}
   if(!p){vpDirty(false);vpStatus('Standalone mode — saved in this browser only','warn');vpBuildPicker();return;}
   /* B layer — write into the BMS record, then READ IT BACK and confirm it really landed.
@@ -667,6 +682,7 @@ function paint(){
   /* 2026-10-07: carry bidId so vpLocalRec() can tell WHICH project this auto-save belongs to.
      vpSlotBidId() keeps the existing tag when paint() runs before a project is picked. */
   try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({bidId:vpSlotBidId(),ko:KO.map(function(t,i){return g('ko_'+i).checked;}),st:ST,
+    note:VP.note||'',noteAt:VP.noteAt||'',
     meta:{conf:cp,items:counted,V:V,T:T,M:M,N:N,gross:gross,water:water,ww:ww,miss:miss,weak:weak,savedAt:new Date().toISOString()}}));}catch(e){}
   LAST={conf:cp,items:counted,V:V,T:T,M:M,N:N,gross:gross,water:water,ww:ww,miss:miss,weak:weak,
         ko:KO.map(function(t,i){var e=g('ko_'+i);return !!(e&&e.checked);})};
@@ -802,11 +818,49 @@ function renderPIC(){
    (v.miss.length?'<div style="font-size:10px;color:#555;margin-top:3px">Still to collect: '+v.miss.map(function(m){return esc(m.n);}).join(' \u00b7 ')+'</div>':'')+
    '<div style="font-size:9.5px;color:#666;margin-top:4px">Rule: \u226570% and nothing missing \u2192 firm price. Below that \u2192 price <b>range</b> only. The A/B/C/D project grade comes from the scoring step, not from this form.</div>'+
    '</td></tr></table>';
+  /* F. NOTE / REMARK — the one block on this sheet the PIC writes by hand (2026-10-07, Tony).
+     renderPIC() rebuilds #picHost on every paint(), so the textarea must NOT repaint on input:
+     setNote() updates the state and the local auto-save only, never paint(). When printing, the
+     textarea is hidden and .noteprint is shown in its place (see the @media print rule above). */
+  h+='<table><tr class="sec"><td colspan="2">F. NOTE / REMARK (written by the PIC)</td></tr><tr><td colspan="2">'+
+   '<textarea id="vpNote" class="noteta" rows="4" placeholder="Anything important the blocks above do not capture \u2014 site conditions, owner promises, risks, next action\u2026" oninput="setNote(this.value)">'+esc(VP.note||'')+'</textarea>'+
+   '<div id="vpNotePrint" class="noteprint">'+notePrint()+'</div>'+
+   '<div class="notesig" id="vpNoteSig" style="display:'+((VP.note&&String(VP.note).trim())?'block':'none')+'">\u2014 Tony Cheong'+(VP.noteAt?' \u00b7 '+esc(VP.noteAt):'')+'</div>'+
+   '</td></tr></table>';
   h+='<div class="foot">'+
    '<div><div class="line"></div><div class="who">Prepared by (PIC) \u2014 <b>Tony Cheong</b></div></div>'+
    '<div><div class="line"></div><div class="who">Checked \u2014 Stage 1 verification ('+v.conf+'%)</div></div>'+
    '<div><div class="line"></div><div class="who">Approved by \u2014 date: '+picToday()+'</div></div></div></div>';
   host.innerHTML=h;
+}
+/* ---- F. NOTE / REMARK state (2026-10-07) ------------------------------------------------
+   VP.note is the single source of truth; the textarea is only a view of it.
+   setNote() deliberately does NOT call paint(): paint() -> renderPIC() -> #picHost.innerHTML=...
+   would replace the textarea mid-typing and the caret would jump out of the box. The print twin
+   and the signature line are updated by hand, and the single-slot auto-save is patched in place
+   so the note survives a reload exactly like the rest of the record. */
+function notePrint(){
+  var t=String(VP.note==null?'':VP.note).replace(/\s+$/,'');
+  if(!t)return '<span class="val mut">no note</span>';
+  return esc(t).replace(/\r?\n/g,'<br>');
+}
+function vpSlotNote(){
+  try{
+    var raw=localStorage.getItem('pfu_verify_demo_v3');
+    var o=raw?JSON.parse(raw):null;
+    if(!o||typeof o!=='object')o={};
+    o.bidId=o.bidId||VP.bidId||null;
+    o.note=VP.note||'';o.noteAt=VP.noteAt||'';
+    localStorage.setItem('pfu_verify_demo_v3',JSON.stringify(o));
+  }catch(e){}
+}
+function setNote(v){
+  VP.note=v;
+  VP.noteAt=picToday();
+  vpMarkEdit();
+  var pr=g('vpNotePrint');if(pr)pr.innerHTML=notePrint();
+  var sg=g('vpNoteSig');if(sg)sg.style.display=(v&&String(v).trim())?'block':'none';
+  vpSlotNote();
 }
 
 var NSTEP=0;
@@ -835,6 +889,8 @@ function expUI(on){var b=g('expBox');if(!b)return;var ta=g('expTa');
     b.style.display='block';try{ta.focus();ta.select();}catch(e){}}else{b.style.display='none';}}
 function resetAll(){KO.forEach(function(t,i){g('ko_'+i).checked=false;});
   SEC.forEach(function(sec,si){sec.items.forEach(function(it,ii){if(it.grp)return;ST[si+'_'+ii]={v:it.v||'',s:it.v?'Told':'Missing'};});});
+  /* Reset means reset — the note is part of this project's verification record, so it goes too. */
+  VP.note='';VP.noteAt='';
   try{vpSeedFromBid(vpCurBid());}catch(e){}
   buildPanes();buildStepper();go(0);}
 /* read the last session BEFORE anything repaints (paint() writes to storage) */
@@ -853,6 +909,9 @@ buildPanes();buildStepper();
 try{
   if(_SV&&_SV.ko)_SV.ko.forEach(function(b,i){var e=g('ko_'+i);if(e)e.checked=!!b;});
 }catch(e){}
+/* F. NOTE / REMARK — seed from the auto-save slot so the box is already filled on the first
+   paint(); vpInit() -> vpPick() then re-reads it from the project record. */
+try{if(_SV&&typeof _SV.note==='string'){VP.note=_SV.note;VP.noteAt=_SV.noteAt||'';}}catch(e){}
 paint();go(0);
 try{vpInit();}catch(e){vpStatus('picker error: '+e,'warn');}
 </script>
