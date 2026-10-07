@@ -615,38 +615,43 @@ function vpSave(quiet){
   try{localStorage.setItem('pfu_verify_demo_v3',JSON.stringify({bidId:VP.bidId,ko:snap.ko,st:snap.st,meta:snap.meta,note:snap.note,noteAt:snap.noteAt,savedAt:snap.savedAt}));}catch(e){}
   try{localStorage.setItem('pfu_verify_rec_'+VP.bidId,JSON.stringify(snap));}catch(e){}
   if(!p){vpDirty(false);vpStatus('Standalone mode — saved in this browser only','warn');vpBuildPicker();return;}
-  /* B layer — write into the BMS record, then READ IT BACK and confirm it really landed.
-     The old code did try{br.save();}catch(e){} and then always reported success, so a silent
-     failure looked like a successful save. Now the result is verified and reported honestly. */
-  var okB=false,why='';
-  var br=vpBridge();
+  /* B layer — write into the BMS record and REPORT WHAT ACTUALLY HAPPENED.
+     The previous version "verified" the write by reading data.verify straight back — but that is the
+     very object it had just mutated, so the check was true by construction and the page said
+     "synced into BMS ✓" even when Firestore received nothing. That is exactly what happened on
+     2026-10-07: the cloud verify map kept only the Gainwell record while this page kept insisting
+     the Okia-Lg save had synced. The bridge now returns the real cloud-write promise (v2), so the
+     message below reflects the server's answer instead of our own optimism. */
+  var br=vpBridge(),prom=null,why='';
   if(br){
-    try{
-      var store=br.getVerify();
-      if(store)store[VP.bidId]=snap;
-      try{br.save();}catch(e){why='saveData threw: '+(e&&e.message);}
-      try{
-        var chk=br.getVerify();
-        okB=!!(chk&&chk[VP.bidId]&&chk[VP.bidId].st);
-        if(!okB&&!why)why='record missing from data.verify after saveData()';
-      }catch(e){why='verify read-back threw: '+(e&&e.message);}
-    }catch(e){why='getVerify threw: '+(e&&e.message);}
+    try{var store=br.getVerify();if(store)store[VP.bidId]=snap;}catch(e){why='getVerify threw: '+(e&&e.message);}
+    try{prom=br.save();}catch(e){why='saveData threw: '+(e&&e.message);}
   }else{
     try{
       if(!p.data.verify)p.data.verify={};
       p.data.verify[VP.bidId]=snap;
-      try{p.saveData();}catch(e){why='saveData threw: '+(e&&e.message);}
-      okB=!!(p.data.verify&&p.data.verify[VP.bidId]);
-      if(!okB&&!why)why='record missing from data.verify after saveData()';
+      try{prom=p.saveData();}catch(e){why='saveData threw: '+(e&&e.message);}
     }catch(e){why='write threw: '+(e&&e.message);}
   }
-  if(!okB&&why)console.warn('[verify] BMS write did NOT land:',why);
   vpDirty(false);vpBuildPicker();
   var sel=g('vpSel');if(sel)sel.value=VP.bidId;
-  if(okB){
-    vpStatus('Saved '+snap.savedAt+' ✓ — synced into BMS'+((snap.meta.conf)?' ('+snap.meta.conf+' data confidence)':''),'saved');
+  var conf=(snap.meta&&snap.meta.conf)?' ('+snap.meta.conf+' data confidence)':'';
+  if(prom&&typeof prom.then==='function'){
+    vpStatus('Saving '+snap.savedAt+' \u2026 waiting for the cloud to confirm','warn');
+    prom.then(function(res){
+      if(res&&res.ok){
+        vpStatus('Saved '+snap.savedAt+' \u2713 \u2014 synced into BMS'+conf,'saved');
+      }else{
+        vpStatus('Saved in this browser \u2713 \u2014 NOT in the cloud ('+((res&&res.why)||why||'no reason reported')+') \u00b7 re-select the project to reload it','warn');
+      }
+    },function(e){
+      vpStatus('Saved in this browser \u2713 \u2014 NOT in the cloud ('+((e&&e.message)||e)+')','warn');
+    });
   }else{
-    vpStatus('Saved in this browser ✓ — BMS sync FAILED, kept locally (re-select the project to reload it)','warn');
+    /* No promise came back: an older BMS page (bridge v1) or a parent with no bridge at all.
+       We can no longer claim success, so say plainly that the cloud write is unconfirmed. */
+    if(why)console.warn('[verify] BMS write did NOT land:',why);
+    vpStatus('Saved in this browser \u2713 \u2014 cloud sync NOT confirmed ('+(why||'this BMS page does not report it')+')','warn');
   }
 }
 function vpInit(){

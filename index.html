@@ -3184,7 +3184,10 @@ function loadData(){
   updateStats();updateSummary();updateUI();renderTable();
 }
 
-function saveData(){localStorage.setItem('bms_data',JSON.stringify(data));}
+/* _lastSaveBytes feeds the cloud document-size guard in the Firebase wrapper below (2026-10-07):
+   one stringify, reused, instead of paying for a second 570 KB pass on every single save. */
+var _lastSaveBytes = 0;
+function saveData(){var _j=JSON.stringify(data);_lastSaveBytes=_j.length;localStorage.setItem('bms_data',_j);}
 
 
 // ============================================================
@@ -6015,7 +6018,7 @@ function restoreAll(event){
         setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
       }
       // Push restored data to Firestore before reloading
-      if(typeof fdb !== 'undefined'){
+      if(fdb){
         var bmsData = localStorage.getItem('bms_data');
         if(bmsData){
           try {
@@ -7160,26 +7163,118 @@ var firebaseConfig = {
   appId: "1:236930354313:web:cf114889a3f31de7d6ca58"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-var fdb = firebase.firestore();
-var fauth = firebase.auth();
+// Initialize Firebase — guarded (2026-10-07).
+// The SDK is loaded from gstatic.com. If that request fails, `firebase` is undefined and the old
+// code threw right here, which silently killed this entire <script> block: no fdb, no fauth, no
+// cloud push at all — while the page (and the login flag) still looked perfectly healthy.
+// Now the failure is caught, remembered, and surfaced on screen by cloudWarn() below.
+var _fbInitError = '';
+var fdb = null, fauth = null;
+try{
+  if(typeof firebase === 'undefined' || !firebase.initializeApp) throw new Error('Firebase SDK did not load');
+  firebase.initializeApp(firebaseConfig);
+  fdb = firebase.firestore();
+  fauth = firebase.auth();
+}catch(e){
+  _fbInitError = (e && e.message) || String(e);
+  console.warn('[Firebase] init FAILED:', _fbInitError);
+}
 
 // Cloud Sync Status
 var cloudStatus = 'offline';
 var lastSyncFrom = null;
 
+/* ===== Cloud health banner (2026-10-07) =====
+   Tony's BMS kept showing ☁️ while nothing at all was reaching Firestore. The reason it could lie
+   so quietly: the Firestore SDK's write promise only settles once the SERVER acknowledges it. If
+   the connection never comes up, the promise simply stays pending forever — no .then, no .catch,
+   no icon change. A silent, permanent "looks fine" is the worst possible failure mode for the one
+   thing that is supposed to be the backup, so a stuck write now raises a visible banner. */
+function cloudWarn(title, body, kind){
+  try{ console.warn('[cloud] ' + title + (body ? ' — ' + body : '')); }catch(e){}
+  try{
+    _cloudWarnKind = kind || 'fail';
+    var el = document.getElementById('cloudWarnBar');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'cloudWarnBar';
+      el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99998;background:#7f1d1d;color:#fff;' +
+        'padding:8px 44px 8px 14px;font-size:13px;line-height:1.45;box-shadow:0 2px 10px rgba(0,0,0,.4);';
+      var t = document.createElement('div');
+      t.style.cssText = 'display:inline;';
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = '\u2715'; b.title = 'Dismiss';
+      b.style.cssText = 'position:absolute;right:10px;top:5px;background:transparent;border:0;color:#fff;font-size:16px;cursor:pointer;line-height:1;';
+      b.onclick = function(){ el.remove(); };
+      el.appendChild(t); el.appendChild(b);
+      (document.body || document.documentElement).appendChild(el);
+    }
+    var txt = el.firstChild;
+    txt.textContent = '';
+    var strong = document.createElement('b');
+    strong.textContent = '\u26a0\ufe0f ' + title + '  ';
+    var span = document.createElement('span');
+    span.textContent = body || '';
+    txt.appendChild(strong); txt.appendChild(span);
+  }catch(e){}
+}
+/* A successful save clears a FAILURE banner, but must not wipe the advisory one — otherwise the
+   1 MiB size warning would vanish the instant the very save that triggered it went through, and
+   Tony would never get to read it. */
+var _cloudWarnKind = '';
+function cloudOk(){
+  try{
+    if(_cloudWarnKind === 'size') return;
+    var el = document.getElementById('cloudWarnBar'); if(el) el.remove();
+  }catch(e){}
+}
+
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
 window.saveData = function(){
   _origSave();
+  /* (c) 2026-10-07 — document-size guard. Firestore refuses any single document above 1 MiB, and
+     when that happens the write fails outright. `data` is already ~566 KB, so warn well before it
+     hits the wall instead of letting cloud sync die one day without explanation. */
+  try{
+    if(_lastSaveBytes > 800000)
+      cloudWarn('Cloud document is near the limit (\u2248' + Math.round(_lastSaveBytes/1024) + ' KB of 1024 KB)',
+        'Firestore rejects any document over 1 MiB, after which every cloud save fails. History needs archiving or splitting.',
+        'size');
+  }catch(e){}
+  if(_fbInitError){
+    cloudWarn('Cloud sync UNAVAILABLE — ' + _fbInitError,
+      'Every change is still saved in this browser only. Nothing is going to the cloud.');
+    return Promise.resolve({ok:false, why:_fbInitError});
+  }
   // Check if logged in via Firebase Auth or simple password
   var isLoggedIn = fauth && fauth.currentUser || localStorage.getItem('bms_logged_in') === '1';
-  if(!isLoggedIn) return; // Skip cloud if not logged in
+  if(!isLoggedIn) return Promise.resolve({ok:false, why:'not-logged-in'}); // Skip cloud if not logged in
   // Set flag to skip our own listener update
   _isSyncingFromOwnSave = true;
+  /* Watchdog: the Firestore promise can stay pending forever when the connection never comes up,
+     so give it a deadline. If the server has not acknowledged within 12 s, say so out loud. */
+  var _settled = false;
+  var _watchdog = setTimeout(function(){
+    if(_settled) return;
+    cloudStatus = 'offline';
+    updateSyncStatus('\u26a0\ufe0f');
+    cloudWarn('Cloud sync NOT confirmed (no answer from the server after 12 s)',
+      'This change is saved in this browser only. It did not reach the cloud — usually a network or firewall block on Firestore. Check the connection, then press Save again.');
+  }, 12000);
+  function settle(res){
+    if(_settled) return res;
+    _settled = true;
+    clearTimeout(_watchdog);
+    if(res && res.ok){ cloudStatus = 'synced'; updateSyncStatus('\u2705'); cloudOk(); }
+    else { cloudStatus = 'offline'; updateSyncStatus('\u26a0\ufe0f'); }
+    return res;
+  }
   // ===== Auto Snapshot: archive current cloud version before overwriting =====
-  fdb.collection('bms_data').doc('master').get().then(function(docSnap){
+  /* `return` matters here (2026-10-07): the whole point of this change is that saveData() hands the
+     cloud result back to the caller, so the verification iframe can stop claiming success blindly.
+     Without it the function returned undefined and the caller had nothing to wait on. */
+  return fdb.collection('bms_data').doc('master').get().then(function(docSnap){
     if(docSnap.exists){
       // Build readable timestamp: YYYYMMDD_HHmmss, e.g. 20260721_143000
       var d = new Date();
@@ -7196,13 +7291,13 @@ window.saveData = function(){
     // Push new data to Firebase (async)
     return fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
   }).then(function(){
-      cloudStatus = 'synced';
-      updateSyncStatus('✅');
+      return settle({ok:true});
     })
     .catch(function(e){
-      cloudStatus = 'offline';
-      updateSyncStatus('⚠️');
-      console.log('[Firebase] Sync error (offline?):', e.message);
+      console.log('[Firebase] Sync error (offline?):', e && e.message);
+      cloudWarn('Cloud sync FAILED — ' + ((e && e.message) || 'unknown error'),
+        'This change is saved in this browser only. It did not reach the cloud, and every later save will fail the same way until this is fixed.');
+      return settle({ok:false, why:(e && e.message) || 'unknown'});
     });
 };
 
@@ -7222,10 +7317,12 @@ function listenToCloud(){
   
   console.log('[Firebase] Starting real-time listener...');
   
-  // Check Firebase is available
-  if(typeof fdb === 'undefined'){
-    console.error('[Firebase] Firestore not initialized!');
-    cloudStatus = 'offline'; updateSyncStatus('⚠️');
+  // Check Firebase is available (fdb is null when the SDK never initialised — see _fbInitError)
+  if(!fdb){
+    console.error('[Firebase] Firestore not initialized!', _fbInitError);
+    cloudStatus = 'offline'; updateSyncStatus('\u26a0\ufe0f');
+    cloudWarn('Cloud sync UNAVAILABLE' + (_fbInitError ? ' — ' + _fbInitError : ''),
+      'The Firestore client never initialised, so nothing can be pulled from or pushed to the cloud.');
     return;
   }
   
@@ -7254,6 +7351,18 @@ function listenToCloud(){
       
       // Only update if data is different from local
       // Full sync: accept cloud data (all modules, all users merged)
+      /* 2026-10-07 — never let a cloud snapshot wipe a verification that exists ONLY locally.
+         For every other module the cloud copy stays authoritative, but a `verify` record that this
+         browser has and the cloud does not means a save that never made it up — exactly what
+         happened to Okia-Lg. Cloud still wins when BOTH sides have the project; local only wins
+         when the cloud has nothing, so an unsynced verification can't be destroyed by a reload. */
+      try{
+        var _lv = (data && data.verify) || {}, _cv = (fbData && fbData.verify) || {};
+        var _kept = [];
+        Object.keys(_lv).forEach(function(k){ if(!_cv[k]){ _cv[k] = _lv[k]; _kept.push(k); } });
+        fbData.verify = _cv;
+        if(_kept.length) console.warn('[Firebase] kept ' + _kept.length + ' local-only verification(s) the cloud does not have yet:', _kept.join(', '));
+      }catch(e){ console.warn('[Firebase] verify merge-preserve skipped:', e && e.message); }
       var dataClean = JSON.parse(JSON.stringify(data));
       var fbClean = JSON.parse(JSON.stringify(fbData));
       delete dataClean.weeklyReports; delete fbClean.weeklyReports;
@@ -7275,12 +7384,18 @@ function listenToCloud(){
         }catch(e){ console.log('[DocStorage] cloud->local sync error:', e.message); }
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='annualtarget') renderTable();
 
-        // Show brief notification
-        showToast('☁️ Cloud data updated!');
+        // Show brief notification. NOTE (2026-10-07): showToast() is redefined further down as a
+        // destructuring variant ({title, body, cls}) writing into #dcToast, so the old string call
+        // threw and the toast never appeared. Guarded now.
+        try{ showToast({title:'\u2601\ufe0f Cloud', body:'Cloud data updated!', cls:'ok'}); }
+        catch(e){ console.log('[Firebase] Cloud data updated (toast unavailable)'); }
       }
     }, function(error){
       console.warn('[Firebase] Listener error:', error);
-      cloudStatus = 'offline'; updateSyncStatus('⚠️');
+      cloudStatus = 'offline'; updateSyncStatus('\u26a0\ufe0f');
+      cloudWarn('Cloud listener error' + (error && error.code ? ' (' + error.code + ')' : ''),
+        'Live cloud sync is down: ' + ((error && error.message) || 'unknown error') +
+        '. Changes still save in this browser, but they are not reaching the cloud.');
     });
 }
 
@@ -7293,6 +7408,13 @@ function syncFromCloud(){
     .then(function(doc){
       if(doc.exists && doc.data().data){
         var fbData = doc.data().data;
+        /* 2026-10-07 — same protection as the live listener: a pull must not erase a verification
+           that this browser saved but the cloud never received. Cloud wins when both sides have it. */
+        try{
+          var _lv = (data && data.verify) || {}, _cv = (fbData && fbData.verify) || {};
+          Object.keys(_lv).forEach(function(k){ if(!_cv[k]) _cv[k] = _lv[k]; });
+          fbData.verify = _cv;
+        }catch(e){ console.warn('[Firebase] verify merge-preserve skipped:', e && e.message); }
         // Full sync: accept cloud data (all modules, all users merged)
         data = fbData;
         _origSave();
@@ -7304,7 +7426,8 @@ function syncFromCloud(){
         // Remove login overlay if present
         var overlay = document.getElementById('login-overlay');
         if(overlay){ overlay.remove(); document.body.classList.remove('logged-out'); }
-        document.getElementById('cloudStatus').textContent = '☁️';
+        var _cs = document.getElementById('cloudStatus');
+        if(_cs) _cs.textContent = '☁️';
       } else {
         // No cloud data yet, push local data
         window.saveData();
@@ -7312,8 +7435,10 @@ function syncFromCloud(){
     })
     .catch(function(e){
       cloudStatus = 'offline';
-      updateSyncStatus('⚠️');
-      console.log('[Firebase] Load error (offline?):', e.message);
+      updateSyncStatus('\u26a0\ufe0f');
+      console.log('[Firebase] Load error (offline?):', e && e.message);
+      cloudWarn('Could not load from the cloud',
+        ((e && e.message) || 'unknown error') + '. Showing the copy saved in this browser.');
     });
 }
 
@@ -7347,11 +7472,12 @@ function updateSyncStatus(icon){
 // Test Firebase connection
 function testFirebase(){
   console.log('[Firebase Test] Testing connection...');
-  console.log('fdb:', typeof fdb !== 'undefined' ? 'OK' : 'MISSING');
-  console.log('fauth:', typeof fauth !== 'undefined' ? 'OK' : 'MISSING');
+  console.log('fdb:', fdb ? 'OK' : 'MISSING');
+  console.log('fauth:', fauth ? 'OK' : 'MISSING');
+  console.log('fbInitError:', _fbInitError || '(none)');
   console.log('logged_in:', localStorage.getItem('bms_logged_in'));
   
-  if(typeof fdb !== 'undefined'){
+  if(fdb){
     fdb.collection('bms_data').doc('master').get()
       .then(function(doc){
         console.log('[Firebase Test] Read success, exists:', doc.exists);
@@ -8772,7 +8898,7 @@ let _dcCloudUnsub = null;
 // Upload local data to the cloud (debounced). Called whenever
 // members/state changes on this browser.
 function dcCloudPush(){
-  if(!_dcCloudLoaded || typeof fdb === 'undefined') return;
+  if(!_dcCloudLoaded || !fdb) return;
   clearTimeout(_dcCloudTimer);
   _dcCloudTimer = setTimeout(function(){
     var payload = {
@@ -8793,7 +8919,7 @@ function dcCloudPush(){
 
 // Pull cloud data → merge into local state (cloud wins when present).
 function dcCloudLoad(){
-  if(typeof fdb === 'undefined') return;
+  if(!fdb) return;
   fdb.collection('bms_data').doc(DC_CLOUD_DOC).get().then(function(docSnap){
     if(!docSnap.exists){ _dcCloudLoaded = true; dcCloudPush(); return; }
     var d = docSnap.data() || {};
@@ -11328,13 +11454,28 @@ window.pfuSetLogItemStatus=pfuSetLogItemStatus;
 window.pifOpen=pifOpen;
 window.pifClose=pifClose;
 window.pifSave=pifSave;
-/* bridge for the embedded Project verification page (same-origin iframe) */
+/* bridge for the embedded Project verification page (same-origin iframe)
+   v2 (2026-10-07): save() now RETURNS the cloud-write result instead of swallowing it.
+   v1 only ever called saveData() and returned undefined, so the iframe had no way to tell a real
+   cloud write from a silent failure — it showed "synced into BMS ✓" either way. The iframe checks
+   `br.v >= 2` before trusting the returned status; an older page falls back to "not confirmed". */
 window.__bmsVerifyBridge={
-  v:1,
+  v:2,
   getData:function(){return data;},
   getBids:function(){return (data&&data.bids)?data.bids:[];},
   getVerify:function(){if(!data.verify)data.verify={};return data.verify;},
-  save:function(){try{saveData();}catch(e){}}
+  save:function(){
+    try{
+      var r=saveData();
+      /* saveData() is the Firebase wrapper and returns a promise. If it returns nothing, the
+         wrapper never ran (page too old, or the SDK block died) — so the cloud write did NOT
+         happen and we must say so rather than report success. */
+      if(r&&typeof r.then==='function')return r;
+      return Promise.resolve({ok:false,why:'saveData() returned no cloud status (page not wired for cloud reporting)'});
+    }catch(e){
+      return Promise.resolve({ok:false,why:(e&&e.message)||String(e)});
+    }
+  }
 };
 window.bidsSwitchView=bidsSwitchView;
 window.bidsApplyView=bidsApplyView;
