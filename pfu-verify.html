@@ -691,8 +691,18 @@ function picNat(){var m=String(pv('0_2')+' '+pv('0_1')).match(/\(([^)]{2,20})\)/
 function picStage(){var x=pv('0_9');return{dl:/design/i.test(x),pq:/pq|pre-?qualif/i.test(x),bid:/bidd/i.test(x),raw:x};}
 function picBrows(){
   var r=[];
-  PICB.forEach(function(b){var v=pv(b[1]);if(!v)return;var p=String(v).split(/[x\u00d7*]/i).map(num);
-    r.push({n:b[0],a:(p[0]||0)*(p[1]||0)*(p[2]||0),f:p[2]||0});});
+  PICB.forEach(function(b){
+    var v=pv(b[1]);
+    if(v){var p=String(v).split(/[x\u00d7*]/i).map(num);
+      r.push({n:b[0],a:(p[0]||0)*(p[1]||0)*(p[2]||0),f:p[2]||0});return;}
+    /* 2026-10-07 (option B): a building marked Verified but with no dimensions yet still gets a
+       row, so C1 shows WHICH buildings were verified; the area stays blank ("—") until the
+       L × W × floors boxes are filled. Untouched buildings (no value AND not Verified) are still
+       skipped, so the schedule never fills up with rows nobody has verified.
+       The total below is unaffected: it sums real dimensions only (sumSize). */
+    var s=ST[b[1]]?ST[b[1]].s:'';
+    if(s==='Verified')r.push({n:b[0],a:0,f:0});
+  });
   return r;}
 function picExtra(){
   var A=[['Survey & geotechnical report','2_5'],['Fire-fighting (PCCC) drawings','2_6'],['Construction schedule','2_7'],
