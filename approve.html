@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Approval · Stage 1 project verification</title>
+<!-- mr001.css FIRST, then this page's own rules: the shared sheet carries the base theme and the
+     MR-001 form. Swapping that order lets the base theme's screen rules out-rank the page's
+     @media print rules (same specificity, later wins) — a trap already hit once on 2026-10-07. -->
+<link rel="stylesheet" href="mr001.css">
+<style>
+/* approve.html — page chrome only. The MR-001 sheet itself is styled by mr001.css, shared with
+   the PIC page. Sharing the renderer is the ONLY way to guarantee the approver sees the exact
+   same form that was submitted; a second copy of the layout would drift apart silently. */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:9px;border:1px solid var(--border);background:#0f2d50;color:var(--text);font-size:12.5px;font-family:inherit;cursor:pointer}
+.btn:hover{filter:brightness(1.12)}
+.btn.ok{background:#14683f;border-color:#1d8a53;color:#eafff2}
+.btn.no{background:#7a2020;border-color:#a02a2a;color:#ffeaea}
+.apbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 18px;background:linear-gradient(180deg,#0b1e3d,#0a1a33);border-bottom:1px solid var(--border)}
+.apbar .apb-t{font-size:14px;font-weight:600;color:var(--text)}
+.apbar .apb-s{font-size:11.5px;color:var(--text2);margin-top:2px}
+.apb-state{font-size:11.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--border);color:var(--text2);white-space:nowrap}
+.apb-state.ok{color:#7ee2a8;border-color:#1d6b45}
+.apb-state.bad{color:#ff9b9b;border-color:#7a2b2b}
+main{padding:18px}
+.apmsg{margin:26px auto;max-width:720px;text-align:center;font-size:13px;color:var(--text2);background:#0b1e3d;border:1px solid var(--border);border-radius:12px;padding:18px;line-height:1.6}
+.apmsg.bad{color:#ff9b9b;border-color:#7a2b2b}
+.apact{margin:18px auto 40px;max-width:980px;padding:0 18px}
+.apact-in{background:#0b1e3d;border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.apact input,.apact textarea{width:100%;box-sizing:border-box;background:#071325;color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:12.5px;padding:9px 11px;font-family:inherit}
+.apact textarea{min-height:80px;margin-top:9px;resize:vertical}
+.apact-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.apact-note{font-size:11.5px;color:var(--text2);margin-top:10px;line-height:1.5}
+.ap-ro{opacity:.85}
+@media print{.apbar,.apact,.apmsg{display:none!important}}
+</style>
+</head>
+<body>
+<div class="apbar">
+  <div>
+    <div class="apb-t" id="apTitle">Stage 1 · project verification</div>
+    <div class="apb-s" id="apSub">Loading the submission…</div>
+  </div>
+  <div class="apb-state" id="apState">Loading</div>
+</div>
+
+<main>
+  <div class="apmsg" id="apMsg">Loading the submission…</div>
+  <div id="apDoc" style="display:none"><div id="picHost"></div></div>
+</main>
+
+<div class="apact" id="apAct" style="display:none">
+  <div class="apact-in">
+    <input id="apWho" placeholder="Your name — recorded with the decision">
+    <textarea id="apReason" placeholder="Reason — required when rejecting"></textarea>
+    <div class="apact-btns">
+      <button class="btn ok" id="apOk">✅ Approve</button>
+      <button class="btn no" id="apNo">⛔ Reject</button>
+    </div>
+    <div class="apact-note" id="apActNote">Approving means the Stage-1 verification above is accepted as submitted. Rejecting sends your reason back to the PIC.</div>
+  </div>
+</div>
+
+<!-- mr001.js is the SAME file the PIC page loads. It needs three globals to work, which load()
+     sets before calling render(): window.ST (the frozen snapshot), window.VP (the note) and
+     MR001.LAST (the computed result render() reads). setNote() exists only because the form
+     carries an oninput attribute; the note box is made read-only right after rendering. -->
+<script src="mr001.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* The token IS the key — there is nothing else to authenticate with, and nothing to guess.
+   p / k default to the v1 project so a plain ?t=… link works; a v2 link can override them. */
+var DEF={p:'mgd-bms',k:'AIzaSyAVmd-Fn6n0ZUQzT6PgI52VKNLqO1qdeJE'};
+var q={};
+(location.search||'').replace(/^\?/,'').split('&').forEach(function(kv){
+  if(!kv)return;
+  var i=kv.indexOf('='),k=i<0?kv:kv.slice(0,i);
+  var v=i<0?'':decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));
+  if(k)q[k]=v;
+});
+var TOKEN=q.t||'',PROJ=q.p||DEF.p,KEY=q.k||DEF.k;
+var BASE='https://firestore.googleapis.com/v1/projects/'+PROJ+'/databases/(default)/documents/approvals/';
+var REC=null;
+
+function $(id){return document.getElementById(id);}
+function say(msg,cls){
+  var e=$('apSub');if(e)e.textContent=msg;
+  var s=$('apState');
+  if(s){
+    s.className='apb-state'+(cls?' '+cls:'');
+    s.textContent=(cls==='ok'?'Approved':(cls==='bad'?'Attention':'Waiting'));
+  }
+}
+function fatal(msg){
+  var m=$('apMsg');if(m){m.className='apmsg bad';m.textContent=msg;m.style.display='';}
+  var d=$('apDoc');if(d)d.style.display='none';
+  say(msg,'bad');
+}
+function showAct(on){var a=$('apAct');if(a)a.style.display=on?'':'none';}
+
+/* Firestore REST speaks a tagged-value dialect. Decoding it by hand keeps this page free of the
+   Firebase SDK, which matters: the SDK comes from gstatic.com and a corporate firewall can block
+   it, and then the whole page would die instead of merely failing one request. */
+function fsVal(v){
+  if(!v)return null;
+  if('stringValue' in v)return v.stringValue;
+  if('integerValue' in v)return Number(v.integerValue);
+  if('doubleValue' in v)return v.doubleValue;
+  if('booleanValue' in v)return v.booleanValue;
+  if('nullValue' in v)return null;
+  if('timestampValue' in v)return v.timestampValue;
+  if('mapValue' in v){var o={},f=v.mapValue.fields||{};for(var k in f)o[k]=fsVal(f[k]);return o;}
+  if('arrayValue' in v){return (v.arrayValue.values||[]).map(fsVal);}
+  return null;
+}
+function fsDoc(doc){var o={},f=(doc&&doc.fields)||{};for(var k in f)o[k]=fsVal(f[k]);return o;}
+
+window.setNote=function(){};
+
+function render(){
+  var snap=REC.snapshot||{};
+  window.ST=snap.st||{};
+  window.VP={note:String(snap.note||''),noteAt:String(snap.noteAt||'')};
+  try{window.MR001.LAST=window.MR001.compute(window.ST,snap.ko||[]);}catch(e){}
+  window.MR001.render();
+  var ta=document.getElementById('vpNote');
+  if(ta){ta.readOnly=true;ta.removeAttribute('oninput');ta.classList.add('ap-ro');}
+  var d=$('apDoc');if(d)d.style.display='';
+  var m=$('apMsg');if(m)m.style.display='none';
+}
+
+function load(){
+  if(!TOKEN){fatal('This link has no approval token. Ask the sender to resend the full link.');return;}
+  say('Loading the submission…','');
+  fetch(BASE+encodeURIComponent(TOKEN)+'?key='+encodeURIComponent(KEY),{cache:'no-store'})
+    .then(function(r){
+      if(r.status===404)throw new Error('This approval link is not valid — the record was not found.');
+      if(r.status===403)throw new Error('Firestore refused to read this record.');
+      if(!r.ok)throw new Error('Could not load the submission (HTTP '+r.status+').');
+      return r.json();
+    })
+    .then(function(doc){
+      REC=fsDoc(doc);
+      var exp=REC.expiresAt?Date.parse(REC.expiresAt):0;
+      var decided=!!REC.decision;
+      if(!decided&&exp&&Date.now()>exp){
+        fatal('This approval link expired on '+new Date(exp).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+'. Ask the sender for a fresh one.');
+        return;
+      }
+      render();
+      var t=$('apTitle');
+      if(t)t.textContent='Stage 1 · '+String(REC.project||'(no project name)');
+      if(decided){
+        say((REC.decision==='approved'?'Approved':'Rejected')+' by '+String(REC.decidedBy||'—')+' · '+String(REC.decidedAt||''),REC.decision==='approved'?'ok':'bad');
+        var n=$('apActNote');
+        if(n)n.textContent=(REC.reason?'Reason given: '+REC.reason:'This decision is already recorded; it cannot be changed here.');
+        showAct(false);
+      }else{
+        say('Waiting for your decision','');
+        showAct(true);
+      }
+    })
+    .catch(function(e){fatal((e&&e.message)||String(e));});
+}
+
+function decide(kind){
+  var who=$('apWho')?String($('apWho').value||'').trim():'';
+  var reason=$('apReason')?String($('apReason').value||'').trim():'';
+  if(!who){alert('Please put your name so the record shows who decided.');return;}
+  if(kind==='rejected'&&!reason){alert('Please write the reason for rejecting.');return;}
+  var at=new Date().toISOString();
+  var body={fields:{
+    decision:{stringValue:kind},
+    decidedBy:{stringValue:who},
+    decidedAt:{stringValue:at},
+    reason:{stringValue:reason}
+  }};
+  var mask='updateMask.fieldPaths=decision&updateMask.fieldPaths=decidedBy&updateMask.fieldPaths=decidedAt&updateMask.fieldPaths=reason';
+  say('Saving your decision…','');
+  showAct(false);
+  fetch(BASE+encodeURIComponent(TOKEN)+'?'+mask+'&key='+encodeURIComponent(KEY),{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  }).then(function(r){
+    if(!r.ok)throw new Error('Could not save the decision (HTTP '+r.status+').');
+    return r.json();
+  }).then(function(){
+    REC.decision=kind;REC.decidedBy=who;REC.decidedAt=at;REC.reason=reason;
+    say((kind==='approved'?'Approved':'Rejected')+' by '+who,kind==='approved'?'ok':'bad');
+    var n=$('apActNote');
+    if(n)n.textContent='Recorded. The sender can now see this decision inside BMS.';
+    showAct(false);
+  }).catch(function(e){
+    say('Save FAILED — '+((e&&e.message)||e),'bad');
+    showAct(true);
+  });
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var ok=$('apOk'),no=$('apNo');
+  if(ok)ok.addEventListener('click',function(){decide('approved');});
+  if(no)no.addEventListener('click',function(){decide('rejected');});
+  load();
+});
+})();
+</script>
+</body>
+</html>

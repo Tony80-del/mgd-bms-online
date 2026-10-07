@@ -150,6 +150,28 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
   body.step-pic .pjhead{display:none!important}
   body.step-pic .pane.on>h2,body.step-pic .pane.on>p.lead{display:none!important}
 }
+
+/* ===== Phase 2 · submit for approval (2026-10-07) ==========================================
+   The bar lives OUTSIDE #picHost on purpose: paint() rebuilds #picHost on every keystroke,
+   so anything inside it would lose its state. This bar is rebuilt only by buildPanes(). */
+.apbar2{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:16px 0 0;padding:12px 14px;background:linear-gradient(180deg,#0b1e3d,#0a1a33);border:1px solid #0f2d50;border-radius:12px}
+.apbar2 .aps{font-size:12px;color:#9fc4e0}
+.apbar2 .aps.ok{color:#7ee2a8}
+.apbar2 .aps.bad{color:#ff9b9b}
+.apbar2 .aps.wait{color:#fbbf24}
+.apbar2 .apb{display:flex;gap:8px;flex-wrap:wrap}
+.apbar2 .btn[disabled]{opacity:.55;cursor:default}
+.apmodal{position:fixed;inset:0;background:rgba(3,10,22,.8);display:none;align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto;z-index:60}
+.apmodal.on{display:flex}
+.apcard{width:100%;max-width:700px;background:#0b1e3d;border:1px solid #0f2d50;border-radius:14px;padding:16px 18px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.apcard h3{margin:0 0 3px;font-size:15px;color:#E8F4FF}
+.apcard .apsub{font-size:11.5px;color:#7FB3D8;margin-bottom:10px}
+.apcard label{display:block;font-size:11px;color:#7FB3D8;margin:10px 0 4px;letter-spacing:.02em}
+.apcard input,.apcard textarea{width:100%;box-sizing:border-box;background:#071325;color:#E8F4FF;border:1px solid #0f2d50;border-radius:8px;font-size:12px;padding:8px 10px;font-family:inherit}
+.apcard textarea{min-height:170px;resize:vertical;line-height:1.55;white-space:pre-wrap}
+.apcard .aprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.apcard .apnote{font-size:11px;color:#7FB3D8;margin-top:10px;line-height:1.5}
+@media print{.apbar2,.apmodal{display:none!important}}
 </style>
 </head>
 <body>
@@ -190,6 +212,27 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
   <div class="small" id="footTxt"></div>
   <button class="btn pri" id="btnNext" onclick="step(1)">Next ›</button>
 </div>
+
+<!-- Phase 2 · the approval email pack. Kept OUTSIDE #panes so switching steps never touches it. -->
+<div class="apmodal" id="apModal">
+  <div class="apcard">
+    <h3>Approval email pack</h3>
+    <div class="apsub">Copy this and send it from your own mail client (SOGo / Outlook). Nothing is sent automatically.</div>
+    <label>Subject</label>
+    <input id="apSubject" readonly>
+    <label>Body</label>
+    <textarea id="apBody" readonly></textarea>
+    <label>Approval link — the only thing the approver needs</label>
+    <input id="apLink" readonly>
+    <div class="aprow">
+      <button class="btn pri" onclick="apCopyAll()">📋 Copy subject + body</button>
+      <button class="btn" onclick="apCopy('apLink')">Copy link only</button>
+      <button class="btn" onclick="apCloseMail()">Close</button>
+      <span id="apCopyTip" style="font-size:12px;color:#7ee2a8"></span>
+    </div>
+    <div class="apnote">The approver needs no login and no account — the link itself is the key. It expires automatically, and once a decision is recorded the form locks.</div>
+  </div>
+</div>
 <script src="mr001.js"></script>
 <script>
 var TIPS='<b>How to fill this page (simple rule)</b><ol><li><b>One line per building:</b> Length × Width × Floors → the area is calculated for you. Do not ask the client for the area.</li><li><b>Four number types only:</b> area (m²), power (KVA), water (m³/day), people (persons). Everything else is a word or a dropdown.</li><li><b>Use a dropdown when the answer set is small</b> (clean room grade, structure, ownership, stage, shifts) — it keeps the data countable.</li><li><b>Ask only what the client knows.</b> If we can compute it (area, unit cost, water, wastewater), compute and then confirm.</li><li><b>Optional blocks</b> (Building schedule, Technical demand) are <b>not counted</b> in the confidence score; fill them when you have the data.</li><li><b>Derived automatically here:</b> gross floor area (from the building list) → water & wastewater (from the number of staff) → unit cost (budget ÷ area).</li></ol>';
@@ -225,7 +268,16 @@ function buildPanes(){
   });
   h+='<section class="pane" id="p'+(SEC.length+1)+'"><h2>Step '+(SEC.length+2)+' \u00b7 PIC form (MR-001) <span class="small">(final \u00b7 auto-filled \u00b7 print &amp; sign)</span></h2>'+
    '<p class="lead">This is the form MGD signs. It is filled automatically from steps 1\u20134 \u2014 nothing is typed here. If anything is wrong, go back to the step that holds it, change it, and this page updates itself.</p>'+
-   '<div id="picHost"></div></section>';
+   '<div id="picHost"></div>'+
+   /* Phase 2: the approval bar sits OUTSIDE #picHost on purpose — paint() rebuilds #picHost on
+      every keystroke, so anything placed inside it would lose its state mid-typing. */
+   '<div class="apbar2" id="apBar2">'+
+     '<div class="aps" id="apState">Not submitted for approval.</div>'+
+     '<div class="apb">'+
+       '<button class="btn" id="apMailBtn" style="display:none" onclick="apShowMail()">✉️ Email pack</button>'+
+       '<button class="btn pri" id="apSubBtn" onclick="apSubmit()">📤 Submit for Approval</button>'+
+     '</div>'+
+   '</div></section>';
   var SUM='<div class="sumcard"><h2>Verification summary <span class="small">(what is still missing)</span></h2>'+
    '<p class="lead">Information quality decides whether we can give a firm price. Essential rows are counted; optional blocks are listed separately.</p>'+
    '<div class="panel hd"><div class="scorebox">'+
@@ -411,6 +463,8 @@ function vpPick(id){
   if(rec)vpStatus('Loaded saved verification · '+String(rec.savedAt||''),'ok');
   else vpStatus(VP.mode==='bms'?'New verification — fill the steps ①→⑤, then 💾 Save':'Standalone mode (no BMS behind) — saved in this browser only','warn');
   try{localStorage.setItem('verify_last',id);}catch(e){}
+  /* Phase 2: repaint the approval bar for THIS project (token + last known decision). */
+  try{apRestore();}catch(e){}
 }
 function vpNewVerification(){
   var next=null,sel=g('vpSel');
@@ -598,6 +652,122 @@ try{
 try{if(_SV&&typeof _SV.note==='string'){VP.note=_SV.note;VP.noteAt=_SV.noteAt||'';}}catch(e){}
 paint();go(0);
 try{vpInit();}catch(e){vpStatus('picker error: '+e,'warn');}
+
+/* ===== Phase 2 \u00b7 submit for approval (2026-10-07) ==========================================
+   The PIC side of the approval flow. The heavy lifting (token + cloud write + live watch) lives
+   in the BMS window's bridge, because this page is an iframe and has no Firebase of its own.
+   Everything here degrades to a plain message when the page is opened standalone (file://). */
+var AP={token:'',url:'',at:'',watch:null};
+function apBridge(){
+  try{return (window.parent&&window.parent!==window)?window.parent.__bmsVerifyBridge:null;}catch(e){return null;}
+}
+function apStatus(msg,cls){var e=g('apState');if(e){e.textContent=msg;e.className='aps'+(cls?' '+cls:'');}}
+function apSnap(){
+  var b=vpCurBid()||vpDemoBid();
+  return {bidId:VP.bidId,project:String(b.projectName||''),client:String(b.customerName||''),
+    ko:KO.map(function(_,ki){var e=g('ko_'+ki);return e?!!e.checked:false;}),
+    st:JSON.parse(JSON.stringify(ST)),
+    meta:{conf:(g('cTotal')?g('cTotal').textContent:''),items:(g('cItems')?g('cItems').textContent:''),gross:sumSize()},
+    note:String(VP.note||''),noteAt:String(VP.noteAt||''),savedAt:vpNow()};
+}
+function apSaveLocal(){
+  if(!VP.bidId)return;
+  try{localStorage.setItem('pfu_approval_'+VP.bidId,JSON.stringify({token:AP.token,url:AP.url,at:AP.at}));}catch(e){}
+}
+function apReset(){
+  AP.token='';AP.url='';AP.at='';AP.watch=null;
+  var mb=g('apMailBtn');if(mb)mb.style.display='none';
+  apStatus('Not submitted for approval.','');
+}
+function apRestore(){
+  if(!VP.bidId){apReset();return;}
+  var rec=null;
+  try{var raw=localStorage.getItem('pfu_approval_'+VP.bidId);rec=raw?JSON.parse(raw):null;}catch(e){rec=null;}
+  if(!rec||!rec.token){apReset();return;}
+  AP.token=rec.token;AP.url=rec.url||'';AP.at=rec.at||'';AP.watch=null;
+  var mb=g('apMailBtn');if(mb)mb.style.display='';
+  apStatus('Submitted for approval \u00b7 '+(AP.at||'')+' \u00b7 waiting for the decision','ok');
+  apWatch();
+}
+function apSubmit(){
+  var br=apBridge();
+  if(!br||typeof br.createApproval!=='function'){
+    apStatus('Approval needs the BMS window \u2014 open this page inside BMS (not standalone).','bad');return;
+  }
+  if(!VP.bidId){apStatus('Pick a project first.','bad');return;}
+  if(VP.dirty)vpSave(true);
+  var btn=g('apSubBtn');if(btn)btn.disabled=true;
+  apStatus('Submitting to the cloud\u2026','wait');
+  br.createApproval(apSnap()).then(function(r){
+    if(btn)btn.disabled=false;
+    if(r&&r.ok){
+      AP.token=r.token;AP.url=r.url;AP.at=vpNow();AP.watch=null;
+      apSaveLocal();
+      var mb=g('apMailBtn');if(mb)mb.style.display='';
+      apStatus('Submitted for approval \u00b7 '+AP.at+' \u00b7 waiting for the decision','ok');
+      apShowMail();apWatch();
+    }else{
+      apStatus('Submit FAILED \u2014 '+((r&&r.why)||'unknown reason'),'bad');
+    }
+  }).catch(function(e){
+    if(btn)btn.disabled=false;
+    apStatus('Submit FAILED \u2014 '+((e&&e.message)||e),'bad');
+  });
+}
+function apWatch(){
+  if(!AP.token||AP.watch)return;
+  var br=apBridge();
+  if(!br||typeof br.watchApproval!=='function')return;
+  try{
+    AP.watch=br.watchApproval(AP.token,function(d){
+      if(!d)return;
+      if(d.decision==='approved')apStatus('\u2705 APPROVED by '+d.decidedBy+' \u00b7 '+d.decidedAt,'ok');
+      else if(d.decision==='rejected')apStatus('\u26d4 REJECTED by '+d.decidedBy+' \u00b7 '+d.decidedAt+(d.reason?' \u2014 '+d.reason:''),'bad');
+      else apStatus('Submitted for approval \u00b7 '+(AP.at||'')+' \u00b7 waiting for the decision','ok');
+    });
+  }catch(e){AP.watch=null;}
+}
+function apMailText(){
+  var b=vpCurBid()||vpDemoBid();
+  var v=picVerdict();
+  var subj='[MGD] Stage-1 verification for approval \u2014 '+String(b.projectName||'(no name)');
+  var body='Dear Sir,\n\n'+
+    'Please review and approve the Stage-1 project verification (form MR-001) for:\n\n'+
+    '  Project : '+String(b.projectName||'\u2014')+'\n'+
+    '  Client  : '+String(b.customerName||'\u2014')+'\n'+
+    '  Result  : '+v.label+'   (data confidence '+v.conf+'%)\n'+
+    '  Items   : '+v.items+' counted \u2014 verified '+v.V+' / told '+v.T+' / missing '+v.M+'\n\n'+
+    'Open this link to see the exact MR-001 form and record your decision:\n\n'+
+    '  '+AP.url+'\n\n'+
+    'No login and no account are needed \u2014 the link itself is the key.\n'+
+    'It stops working after its expiry date, and once a decision is recorded the form locks.\n\n'+
+    'Regards,\nTony Cheong\nMGD\n';
+  return {subj:subj,body:body};
+}
+function apShowMail(){
+  var m=apMailText(),s=g('apSubject'),b=g('apBody'),l=g('apLink'),mo=g('apModal');
+  if(s)s.value=m.subj;if(b)b.value=m.body;if(l)l.value=AP.url;
+  if(mo)mo.classList.add('on');
+}
+function apCloseMail(){var mo=g('apModal');if(mo)mo.classList.remove('on');}
+function apCopy(id){
+  var e=g(id);if(!e)return;
+  var ro=e.hasAttribute('readonly');
+  if(ro)e.removeAttribute('readonly');
+  try{e.focus();e.select();document.execCommand('copy');}catch(x){}
+  if(ro)e.setAttribute('readonly','readonly');
+  var t=g('apCopyTip');if(t){t.textContent='copied \u2713';setTimeout(function(){t.textContent='';},1800);}
+}
+function apCopyAll(){
+  var m=apMailText(),txt='Subject: '+m.subj+'\n\n'+m.body;
+  var done=function(){var t=g('apCopyTip');if(t){t.textContent='copied \u2713';setTimeout(function(){t.textContent='';},1800);}};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,done);return;}
+  }catch(e){}
+  var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);
+  try{ta.select();document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);done();
+}
 </script>
 </body>
 </html>

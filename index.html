@@ -11454,13 +11454,32 @@ window.pfuSetLogItemStatus=pfuSetLogItemStatus;
 window.pifOpen=pifOpen;
 window.pifClose=pifClose;
 window.pifSave=pifSave;
+/* ===== Phase 2 \u00b7 approval-flow helpers (2026-10-07) ======================================
+   A 128-bit random token IS the whole security model of the approval link: whoever holds the
+   URL holds the key, and there is nothing to guess. The link points at approve.html sitting
+   next to this file, so it works on GitHub Pages and on any host that serves the folder. */
+function apNewToken(){
+  var a=new Uint8Array(16);
+  if(window.crypto&&window.crypto.getRandomValues){window.crypto.getRandomValues(a);}
+  else{for(var i=0;i<16;i++){a[i]=Math.floor(Math.random()*256);}}
+  var s='';
+  for(var j=0;j<16;j++){s+=('0'+a[j].toString(16)).slice(-2);}
+  return s;
+}
+function apApproveUrl(token){
+  var base=String(location.href||'').replace(/[^\/]*$/,'');
+  return base+'approve.html?t='+encodeURIComponent(token);
+}
 /* bridge for the embedded Project verification page (same-origin iframe)
    v2 (2026-10-07): save() now RETURNS the cloud-write result instead of swallowing it.
    v1 only ever called saveData() and returned undefined, so the iframe had no way to tell a real
    cloud write from a silent failure — it showed "synced into BMS ✓" either way. The iframe checks
    `br.v >= 2` before trusting the returned status; an older page falls back to "not confirmed". */
 window.__bmsVerifyBridge={
-  v:2,
+  /* v3 (2026-10-07, phase 2) adds createApproval() / watchApproval() for the approval flow.
+     v2 made save() tell the truth; v1 swallowed the cloud result. The PIC page checks for the
+     feature it needs by NAME, so an older bridge degrades to a plain message, never a crash. */
+  v:3,
   getData:function(){return data;},
   getBids:function(){return (data&&data.bids)?data.bids:[];},
   getVerify:function(){if(!data.verify)data.verify={};return data.verify;},
@@ -11475,6 +11494,49 @@ window.__bmsVerifyBridge={
     }catch(e){
       return Promise.resolve({ok:false,why:(e&&e.message)||String(e)});
     }
+  },
+  /* Phase 2 \u00b7 approval flow. The PIC page (pfu-verify.html) runs in an iframe with no Firebase
+     of its own, so it hands the frozen snapshot here and THIS page does the cloud write.
+     The 20s race is deliberate: when the browser cannot reach Firestore the SDK's promise never
+     settles \u2014 neither .then nor .catch \u2014 which is exactly the silent failure diagnosed on
+     2026-10-07. Without the race the Submit button would hang forever with no message. */
+  createApproval:function(snap){
+    try{
+      if(typeof fdb==='undefined'||!fdb)return Promise.resolve({ok:false,why:'Firestore is not available in this page'});
+      snap=snap||{};
+      var token=apNewToken();
+      var now=new Date();
+      var exp=new Date(now.getTime()+30*24*3600*1000);
+      var rec={
+        bidId:String(snap.bidId||''),
+        project:String(snap.project||''),
+        client:String(snap.client||''),
+        /* The snapshot is a FROZEN COPY on purpose: the approver sees the form exactly as it
+           was submitted, and later edits on the PIC side cannot rewrite an issued approval. */
+        snapshot:{st:snap.st||{},ko:snap.ko||[],meta:snap.meta||{},note:String(snap.note||''),noteAt:String(snap.noteAt||'')},
+        createdBy:'Tony Cheong',
+        createdAt:now.toISOString(),
+        expiresAt:exp.toISOString(),
+        decision:null,decidedBy:'',decidedAt:'',reason:'',
+        ver:1
+      };
+      var write=fdb.collection('approvals').doc(token).set(rec);
+      return Promise.race([
+        write.then(function(){return {ok:true,token:token,url:apApproveUrl(token),rec:rec};}),
+        new Promise(function(res){
+          setTimeout(function(){res({ok:false,why:'cloud write timed out after 20s \u2014 this browser could not reach Firestore'});},20000);
+        })
+      ]);
+    }catch(e){return Promise.resolve({ok:false,why:(e&&e.message)||String(e)});}
+  },
+  /* Live watch, so the PIC page flips to APPROVED / REJECTED the moment the approver decides. */
+  watchApproval:function(token,cb){
+    try{
+      if(typeof fdb==='undefined'||!fdb)return null;
+      return fdb.collection('approvals').doc(token).onSnapshot(function(d){
+        try{cb(d&&d.exists?d.data():null);}catch(e){}
+      },function(){});
+    }catch(e){return null;}
   }
 };
 window.bidsSwitchView=bidsSwitchView;
