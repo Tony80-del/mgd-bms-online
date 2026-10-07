@@ -724,6 +724,10 @@ function apWatch(){
       if(d.decision==='approved')apStatus('\u2705 APPROVED by '+d.decidedBy+' \u00b7 '+d.decidedAt,'ok');
       else if(d.decision==='rejected')apStatus('\u26d4 REJECTED by '+d.decidedBy+' \u00b7 '+d.decidedAt+(d.reason?' \u2014 '+d.reason:''),'bad');
       else apStatus('Submitted for approval \u00b7 '+(AP.at||'')+' \u00b7 waiting for the decision','ok');
+      /* Phase 3 (2026-10-07): tell BMS a decision landed, so it can offer to write it into
+         data.verify and raise the banner. The iframe only TRIGGERS the check — the cloud write
+         still waits for a click in BMS. Guarded because an older BMS page has no such method. */
+      if(d.decision)try{if(typeof br.notifyApproval==='function')br.notifyApproval();}catch(e){}
     });
   }catch(e){AP.watch=null;}
 }

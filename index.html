@@ -898,11 +898,22 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
   </header>
 
+  <!-- Approval trace banner (Phase 3 · 2026-10-07). Hidden until apvReconcile() finds a decision
+       that is not yet inside data.verify. Deliberately NOT an automatic write: saveData() pushes
+       the whole document, and a stale browser has already overwritten real data once (WR 31-38).
+       The cloud only changes when [写入 BMS 记录] is clicked. -->
+  <div id="apvBanner" style="display:none;padding:10px 32px;background:#3a2c07;border-bottom:1px solid #6b5410;color:#ffe6a8;font-size:13px;align-items:center;gap:14px;flex-wrap:wrap">
+    <span id="apvBannerTxt"></span>
+    <button class="bp" onclick="apvApply()" style="padding:5px 13px;font-size:12px">写入 BMS 记录</button>
+    <button class="bs" onclick="apvDismiss()" style="padding:5px 13px;font-size:12px">忽略</button>
+  </div>
+
   <div class="p-8">
     <!-- Bid Project Tracking sub-tabs: list view | Project Follow-up -->
     <div id="bidsSubTabsRow" style="display:none;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);position:sticky;top:81px;z-index:40;background:var(--bg1);">
       <button id="bidsSubTabTable" onclick="bidsSwitchView('table')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--blue);background:transparent;border:none;border-bottom:2px solid var(--blue);cursor:pointer;margin-bottom:-1px;">📊 投标列表 / Bid Tracking</button>
       <button id="bidsSubTabVerify" onclick="bidsSwitchView('verify')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">✅ Project verification</button>
+      <button id="bidsSubTabApprovals" onclick="bidsSwitchView('approvals')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📋 Approvals</button>
       <button id="bidsSubTabTracking" onclick="bidsSwitchView('tracking')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">🏗️ Project Follow-up</button>
       <button id="bidsSubTabMom" onclick="bidsSwitchView('mom')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📝 Project MOM</button>
       <button id="bidsSubTabRfi" onclick="bidsSwitchView('rfi')" style="padding:10px 18px;font-size:13px;font-weight:600;color:var(--text2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;">📄 RFI</button>
@@ -998,6 +1009,10 @@ input[type="date"]::-moz-calendar-picker-indicator {
     <div id="bidsVerifyContainer" style="display:none">
       <iframe id="bidsVerifyFrame" title="Project verification — Stage 1" data-src="pfu-verify.html?v=20261007a" style="width:100%;height:calc(100vh - 150px);min-height:780px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);display:block"></iframe>
     </div>
+    <!-- ================= APPROVALS (Phase 3 · 2026-10-07) =================
+         Lists the cloud `approvals` collection directly over REST, so it works on ANY machine —
+         the token is not recovered from localStorage like the PIC page's status bar. -->
+    <div id="bidsApprovalsContainer" style="display:none"></div>
     <!-- ================= PROJECT MOM (project meeting minutes · 1 project = 1 file) ================= -->
     <div id="bidsMomContainer" style="display:none"></div>
     <div id="bidsRfiContainer" style="display:none"></div>
@@ -5361,6 +5376,9 @@ function renderRow(item,rowIdx){
       const escVal=val.replace(/"/g,'&quot;');
       v='<span class="cell-editable" onclick="openInlineEdit(\''+item.id+'\',\''+x.k+'\',\''+escVal+'\',\''+x.tp+'\',\''+(x.opt?x.opt.join('|').replace(/'/g,'&apos;'):'')+'\')">'+v+'</span>';
     }
+    /* 投标模块:项目名后带审批状态徽章(Phase 3 · 2026-10-07)。
+       徽章挂在 cell-editable 之外 —— 点它不会打开行内编辑，避免误触。 */
+    if(mod==='bids'&&x.k==='projectName'){try{v+=apvBadge(item.id);}catch(e){}}
     // 备注字段:限制最大宽度,显示省略号
     if(x.k==='notes'&&v&&v!=='-'){
       v='<span class="text-[var(--text2)]" style="max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" title="'+v.replace(/"/g,'&quot;')+'">'+v+'</span>';
@@ -10510,18 +10528,19 @@ function rfiPrint(){
   if(w.document.readyState==='complete'){setTimeout(go,350);}else{w.onload=function(){setTimeout(go,350);};}}
 
 function bidsSwitchView(v){
-  bidsView=(v==='tracking')?'tracking':((v==='verify')?'verify':((v==='mom')?'mom':((v==='rfi')?'rfi':'table')));
+  bidsView=(v==='tracking')?'tracking':((v==='verify')?'verify':((v==='mom')?'mom':((v==='rfi')?'rfi':((v==='approvals')?'approvals':'table'))));
   bidsApplyView();
 }
 function bidsApplyView(){
-  var showTable=(bidsView==='table'),showTrack=(bidsView==='tracking'),showVerify=(bidsView==='verify'),showMom=(bidsView==='mom'),showRfi=(bidsView==='rfi');
+  var showTable=(bidsView==='table'),showTrack=(bidsView==='tracking'),showVerify=(bidsView==='verify'),showMom=(bidsView==='mom'),showRfi=(bidsView==='rfi'),showAppr=(bidsView==='approvals');
   var tT=document.getElementById('bidsSubTabTable');
   var tK=document.getElementById('bidsSubTabTracking');
   var tV=document.getElementById('bidsSubTabVerify');
   var tM=document.getElementById('bidsSubTabMom');
   var tR=document.getElementById('bidsSubTabRfi');
+  var tA=document.getElementById('bidsSubTabApprovals');
   function _st(el,on){if(!el)return;el.style.color=on?'var(--blue)':'var(--text2)';el.style.borderBottomColor=on?'var(--blue)':'transparent';}
-  _st(tT,showTable);_st(tK,showTrack);_st(tV,showVerify);_st(tM,showMom);_st(tR,showRfi);
+  _st(tT,showTable);_st(tK,showTrack);_st(tV,showVerify);_st(tM,showMom);_st(tR,showRfi);_st(tA,showAppr);
   if(mod!=='bids')return;
   var bs=document.getElementById('bs'),bf=document.getElementById('bf'),tc=document.querySelector('.tc'),ct=document.getElementById('bidsTrackingContainer');
   if(bs)bs.style.display=showTable?'grid':'none';
@@ -10536,6 +10555,9 @@ function bidsApplyView(){
   var cr=document.getElementById('bidsRfiContainer');
   if(cr)cr.style.display=showRfi?'block':'none';
   if(showRfi){try{rfiRender();}catch(e){console.error('[RFI]',e);}}
+  var ca=document.getElementById('bidsApprovalsContainer');
+  if(ca)ca.style.display=showAppr?'block':'none';
+  if(showAppr){try{apvRenderList();}catch(e){console.error('[Approvals]',e);}}
   if(showVerify){
     var fr=document.getElementById('bidsVerifyFrame');
     if(fr&&!fr.getAttribute('src'))fr.setAttribute('src',fr.getAttribute('data-src'));
@@ -11543,8 +11565,252 @@ window.__bmsVerifyBridge={
         try{cb(d&&d.exists?d.data():null);}catch(e){}
       },function(){});
     }catch(e){return null;}
-  }
+  },
+  /* Phase 3 (2026-10-07). The PIC page calls this the moment its live watch sees a decision, so
+     BMS re-reads the approvals collection and raises the "pending write" banner. It only TRIGGERS
+     A READ — the cloud write still waits for Tony to click [写入 BMS 记录]. */
+  notifyApproval:function(){try{apvFetch(null,true);}catch(e){}}
 };
+
+/* ===== Approval trace (Phase 3 \u00b7 2026-10-07) =================================================
+   The gap this closes: a decision lands in the cloud `approvals` collection, but NOTHING in BMS
+   ever read it. The director could approve and BMS would never know \u2014 the only place it showed up
+   was a status bar inside the pfu-verify iframe, and even that needed the SAME browser, because
+   the token was recovered from localStorage.
+
+   Three rules this block follows:
+     1. READING is automatic and free \u2014 the approvals collection is listed over plain REST, no SDK
+        and no auth, and every call is wrapped so a blocked network can never break the page.
+     2. WRITING is NEVER automatic. Reconciliation only fills an in-memory queue and raises the
+        banner; the cloud changes when [\u5199\u5165 BMS \u8bb0\u5f55] is clicked. saveData() pushes the WHOLE
+        document, and a stale browser has already overwritten real data once (WR 31-38).
+     3. data.verify[bidId].approval is ADDITIVE. No existing key is touched, so deleting it
+        restores the previous state exactly. Rollback = git revert + delete that key.
+   ============================================================================ */
+var APV={list:null,byBid:{},fetchedAt:0,pending:{},busy:false,fetching:false};
+var APV_CACHE_MS=60000;
+function apvProj(){try{return (typeof firebaseConfig!=='undefined'&&firebaseConfig.projectId)||'mgd-bms';}catch(e){return 'mgd-bms';}}
+function apvKey(){try{return (typeof firebaseConfig!=='undefined'&&firebaseConfig.apiKey)||'';}catch(e){return '';}}
+function apvBase(){return 'https://firestore.googleapis.com/v1/projects/'+apvProj()+'/databases/(default)/documents/approvals';}
+function apvEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+/* Firestore REST speaks tagged values, and mapValue.fields must be decoded RECURSIVELY \u2014 that
+   nesting is exactly how the frozen snapshot travels. */
+function apvVal(v){
+  if(!v)return null;
+  if('stringValue' in v)return v.stringValue;
+  if('integerValue' in v)return Number(v.integerValue);
+  if('doubleValue' in v)return v.doubleValue;
+  if('booleanValue' in v)return v.booleanValue;
+  if('nullValue' in v)return null;
+  if('timestampValue' in v)return v.timestampValue;
+  if('mapValue' in v){var o={},f=v.mapValue.fields||{};for(var k in f)o[k]=apvVal(f[k]);return o;}
+  if('arrayValue' in v){return (v.arrayValue.values||[]).map(apvVal);}
+  return null;
+}
+function apvDoc(doc){var o={},f=(doc&&doc.fields)||{};for(var k in f)o[k]=apvVal(f[k]);o.token=String((doc&&doc.name)||'').split('/').pop();return o;}
+function apvState(rec){
+  var d=String((rec&&rec.decision)||'');
+  return (d==='approved')?'approved':((d==='rejected')?'rejected':'pending');
+}
+function apvSay(msg){
+  try{
+    var old=document.getElementById('apvToast');if(old)old.remove();
+    var d=document.createElement('div');d.id='apvToast';
+    d.style.cssText='position:fixed;bottom:20px;right:20px;max-width:440px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:8px;font-size:13px;z-index:9999;line-height:1.5';
+    d.textContent=msg;document.body.appendChild(d);
+    setTimeout(function(){try{d.remove();}catch(e){}} ,4200);
+  }catch(e){}
+}
+function apvFetch(cb,force){
+  if(APV.fetching)return;
+  if(!force&&APV.list&&(Date.now()-APV.fetchedAt)<APV_CACHE_MS){if(cb)cb(APV.list);return;}
+  APV.fetching=true;
+  try{
+    fetch(apvBase()+'?key='+encodeURIComponent(apvKey())+'&pageSize=200',{cache:'no-store'}).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    }).then(function(d){
+      APV.list=(d.documents||[]).map(apvDoc);
+      APV.byBid={};
+      APV.list.forEach(function(rec){if(rec.bidId)APV.byBid[String(rec.bidId)]=rec;});
+      APV.fetchedAt=Date.now();APV.fetching=false;
+      try{apvReconcile();}catch(e){}
+      try{apvPaint();}catch(e){}
+      /* the row badges come from this list, so repaint the bid table once the data arrives */
+      try{if(bidsView==='table')renderTable();}catch(e){}
+      if(cb)cb(APV.list);
+    }).catch(function(e){
+      APV.fetching=false;
+      if(cb)cb(null,e);
+    });
+  }catch(e){APV.fetching=false;if(cb)cb(null,e);}
+}
+/* A decision counts as "already known" when data.verify[bidId].approval.at matches the cloud's
+   decidedAt \u2014 decidedAt is unique per decision, so a RE-decision is correctly seen as a change.
+   NOTE the field name differs on purpose: the stored record uses the short `at` (same shape as
+   the pending queue and as apvBadge() reads), while the cloud field is `decidedAt`. Reading
+   `have.decidedAt` here was a real bug caught by test-approval-trace.js \u2014 the comparison never
+   matched, so every fetch re-queued an approval that had already been written. */
+function apvReconcile(){
+  if(!APV.list)return 0;
+  var V=(typeof data!=='undefined'&&data&&data.verify)||{};
+  APV.list.forEach(function(rec){
+    if(apvState(rec)==='pending')return;
+    var bid=String(rec.bidId||'');
+    if(!bid)return;
+    var have=V[bid]&&V[bid].approval;
+    if(have&&String(have.at||'')===String(rec.decidedAt||''))return;
+    APV.pending[bid]={decision:apvState(rec),by:String(rec.decidedBy||''),at:String(rec.decidedAt||''),
+      reason:String(rec.reason||''),token:String(rec.token||''),project:String(rec.project||''),ver:1};
+  });
+  apvBanner();
+  return Object.keys(APV.pending).length;
+}
+function apvPendingCount(){return Object.keys(APV.pending).length;}
+function apvBanner(){
+  var el=document.getElementById('apvBanner');if(!el)return;
+  var n=apvPendingCount();
+  if(!n){el.style.display='none';return;}
+  var txt=document.getElementById('apvBannerTxt');
+  if(txt)txt.textContent='\U0001F4CB \u6709 '+n+' \u6761\u5ba1\u6279\u7ed3\u679c\u8fd8\u6ca1\u5199\u8fdb BMS \u8bb0\u5f55 \u2014\u2014 \u4f60\u70b9\u300c\u5199\u5165\u300d\u4e4b\u524d\uff0c\u4e91\u7aef\u6570\u636e\u4e0d\u4f1a\u88ab\u52a8\u3002';
+  el.style.display='flex';
+}
+function apvDismiss(){
+  APV.pending={};apvBanner();
+  try{apvPaint();}catch(e){}
+  try{if(bidsView==='table')renderTable();}catch(e){}
+}
+/* The ONLY place that writes the decision into BMS data. Manual on purpose \u2014 see rule 2 above. */
+function apvApply(){
+  if(APV.busy)return;
+  var keys=Object.keys(APV.pending);
+  if(!keys.length)return;
+  var msg='\u628a '+keys.length+' \u6761\u5ba1\u6279\u7ed3\u679c\u5199\u5165 BMS \u8bb0\u5f55\u5e76\u540c\u6b65\u5230\u4e91\u7aef\uff1f\n\n'+
+    '\u53ea\u4f1a\u65b0\u589e data.verify[bidId].approval \u8fd9\u4e00\u4e2a\u5b57\u6bb5\uff0c\u4e0d\u52a8\u5176\u4ed6\u4efb\u4f55\u6570\u636e\u3002\n'+
+    '\u63d0\u9192\uff1asaveData() \u662f\u6574\u5305\u63a8\u9001 \u2014\u2014 \u5199\u5165\u524d\u8bf7\u786e\u8ba4\u8fd9\u4e2a\u6d4f\u89c8\u5668\u91cc\u7684\u6570\u636e\u662f\u6700\u65b0\u7684\u3002';
+  try{if(!confirm(msg))return;}catch(e){}
+  if(!data.verify)data.verify={};
+  keys.forEach(function(bid){
+    if(!data.verify[bid])data.verify[bid]={bidId:bid};
+    data.verify[bid].approval=APV.pending[bid];
+  });
+  APV.busy=true;
+  var p=null;
+  try{p=(typeof saveData==='function')?saveData():null;}catch(e){}
+  var finish=function(ok,why){
+    APV.busy=false;
+    if(ok)APV.pending={};
+    apvBanner();
+    try{apvPaint();}catch(e){}
+    try{if(bidsView==='table')renderTable();}catch(e){}
+    apvSay(ok?('\u2705 \u5df2\u5199\u5165 '+keys.length+' \u6761\u5ba1\u6279\u7ed3\u679c')
+             :('\u26a0 \u4e91\u7aef\u672a\u786e\u8ba4\uff1a'+(why||'unknown')+'\uff08\u672c\u5730\u5df2\u4fdd\u5b58\uff0c\u53ef\u518d\u70b9\u4e00\u6b21\u300c\u5199\u5165\u300d\u6216\u6309 \U0001F4BE Save \u91cd\u8bd5\uff09'));
+  };
+  if(p&&typeof p.then==='function'){
+    p.then(function(r){finish(!!(r&&r.ok),r&&r.why);}).catch(function(e){finish(false,(e&&e.message)||String(e));});
+  }else{
+    finish(false,'saveData() returned no cloud status');
+  }
+}
+function apvWhen(iso){
+  if(!iso)return '\u2014';
+  try{
+    var d=new Date(iso);if(isNaN(d.getTime()))return String(iso);
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' \u00b7 '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+  }catch(e){return String(iso);}
+}
+function apvChip(st){
+  var c=(st==='approved')?['#0f3d28','#7ee2a8','#1d6b45','\u2705 \u5df2\u901a\u8fc7']
+      :((st==='rejected')?['#3d1414','#ff9b9b','#7a2b2b','\u26d4 \u5df2\u9a73\u56de']
+      :['#3a2c07','#ffe6a8','#6b5410','\u23f3 \u5f85\u5ba1\u6279']);
+  return '<span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+'">'+c[3]+'</span>';
+}
+function apvLink(token){
+  var base=String(location.href||'').replace(/[^\/]*$/,'');
+  return base+'approve.html?t='+encodeURIComponent(String(token||''));
+}
+function apvOpenLink(token){try{window.open(apvLink(token),'_blank');}catch(e){}}
+function apvCopyLink(token){
+  var u=apvLink(token);
+  try{if(navigator&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u);apvSay('\u5df2\u590d\u5236\u5ba1\u6279\u94fe\u63a5');return;}}catch(e){}
+  try{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();apvSay('\u5df2\u590d\u5236\u5ba1\u6279\u94fe\u63a5');}catch(e){apvSay(u);}
+}
+function apvRenderList(){
+  var box=document.getElementById('bidsApprovalsContainer');if(!box)return;
+  box.innerHTML='<div style="padding:18px;color:var(--text2);font-size:13px">\u6b63\u5728\u8bfb\u53d6\u4e91\u7aef\u5ba1\u6279\u8bb0\u5f55\u2026</div>';
+  apvFetch(function(list,err){
+    if(!list){
+      box.innerHTML='<div style="padding:18px;color:#f87171;font-size:13px">\u8bfb\u4e0d\u5230\u4e91\u7aef\u5ba1\u6279\u8bb0\u5f55'+(err?('\uff08'+apvEsc((err&&err.message)||err)+'\uff09'):'')+'\u3002\u82e5\u6d4f\u89c8\u5668\u88ab\u9632\u706b\u5899\u6321\u4f4f Firestore\uff0c\u8fd9\u91cc\u4f1a\u4e00\u76f4\u5931\u8d25\u3002</div>';
+      return;
+    }
+    apvPaint();
+  },true);
+}
+function apvPaint(){
+  var box=document.getElementById('bidsApprovalsContainer');if(!box)return;
+  var list=APV.list;
+  if(!list){box.innerHTML='<div style="padding:18px;color:var(--text2);font-size:13px">\u6b63\u5728\u8bfb\u53d6\u4e91\u7aef\u5ba1\u6279\u8bb0\u5f55\u2026</div>';return;}
+  var rows=list.slice().sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''));});
+  var nP=0,nA=0,nR=0;
+  rows.forEach(function(r){var s=apvState(r);if(s==='approved')nA++;else if(s==='rejected')nR++;else nP++;});
+  var h='<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">'
+    +'<span style="font-size:13px;color:var(--text2)">\u5171 '+rows.length+' \u6761 \u00b7 \u23f3 \u5f85\u5ba1\u6279 '+nP+' \u00b7 \u2705 \u5df2\u901a\u8fc7 '+nA+' \u00b7 \u26d4 \u5df2\u9a73\u56de '+nR+'</span>'
+    +'<button class="bs" onclick="apvRenderList()" style="padding:5px 12px;font-size:12px">\U0001F504 \u91cd\u65b0\u8bfb\u53d6</button>'
+    +'</div>';
+  if(!rows.length){
+    box.innerHTML=h+'<div style="padding:18px;color:var(--text2);font-size:13px;line-height:1.7;border:1px solid var(--border);border-radius:12px">\u4e91\u7aef\u8fd8\u6ca1\u6709\u4efb\u4f55\u5ba1\u6279\u8bb0\u5f55\u3002<br>\u5728 <b>\u2705 Project verification</b> \u91cc\u9009\u597d\u9879\u76ee\u3001\u586b\u5b8c MR-001\uff0c\u70b9 <b>\U0001F4E4 Submit for Approval</b>\uff0c\u8bb0\u5f55\u5c31\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc\u3002</div>';
+    return;
+  }
+  var cols=['\u9879\u76ee / Project','\u5ba2\u6237 / Client','\u72b6\u6001 / Status','\u63d0\u4ea4\u65f6\u95f4 / Submitted','\u51b3\u7b56\u4eba / By','\u51b3\u7b56\u65f6\u95f4 / Decided','\u7406\u7531 / Reason','\u64cd\u4f5c'];
+  h+='<div style="overflow:auto;border:1px solid var(--border);border-radius:12px"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--bg2);text-align:left">';
+  cols.forEach(function(c){h+='<th style="padding:9px 12px;font-weight:600;color:var(--text2);white-space:nowrap">'+c+'</th>';});
+  h+='</tr></thead><tbody>';
+  rows.forEach(function(r){
+    var st=apvState(r),bid=String(r.bidId||'');
+    var inBms=!!(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval);
+    var mark=inBms?'<span title="\u5df2\u5199\u8fdb BMS \u8bb0\u5f55" style="font-size:11px;color:#7ee2a8">\u2713 \u5df2\u5165\u5e93</span>'
+                 :((st==='pending')?'':'<span title="\u8fd8\u6ca1\u5199\u8fdb BMS \u8bb0\u5f55" style="font-size:11px;color:#ffe6a8">\u5f85\u5199\u5165</span>');
+    h+='<tr style="border-top:1px solid var(--border)">'
+      +'<td style="padding:9px 12px"><b>'+apvEsc(r.project||'\u2014')+'</b><br><span style="font-size:11px;color:var(--text2)">'+apvEsc(bid||'')+'</span></td>'
+      +'<td style="padding:9px 12px">'+apvEsc(r.client||'\u2014')+'</td>'
+      +'<td style="padding:9px 12px">'+apvChip(st)+'</td>'
+      +'<td style="padding:9px 12px;white-space:nowrap">'+apvEsc(apvWhen(r.createdAt))+'</td>'
+      +'<td style="padding:9px 12px">'+apvEsc(r.decidedBy||'\u2014')+'</td>'
+      +'<td style="padding:9px 12px;white-space:nowrap">'+apvEsc(apvWhen(r.decidedAt))+'</td>'
+      +'<td style="padding:9px 12px;max-width:240px">'+apvEsc(r.reason||'\u2014')+'</td>'
+      +'<td style="padding:9px 12px;white-space:nowrap">'+mark
+        +' <button class="bs" onclick="apvOpenLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u6253\u5f00\u5ba1\u6279\u9875\u770b\u51bb\u7ed3\u5feb\u7167">\u2197 \u6253\u5f00</button>'
+        +' <button class="bs" onclick="apvCopyLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u590d\u5236\u5ba1\u6279\u94fe\u63a5">\U0001F4CB \u94fe\u63a5</button>'
+      +'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  box.innerHTML=h;
+}
+/* Row badge for Bid Tracking. Source of truth, in order: what BMS already stored, then a decision
+   waiting to be written, then the live cloud record (so "submitted, not yet decided" is visible). */
+function apvBadge(bidId){
+  var id=String(bidId||'');if(!id)return '';
+  var a=null,p=null,rec=APV.byBid[id]||null;
+  try{a=(typeof data!=='undefined'&&data&&data.verify&&data.verify[id]&&data.verify[id].approval)||null;}catch(e){}
+  p=APV.pending[id]||null;
+  var st=a?String(a.decision||''):(p?String(p.decision||''):(rec?apvState(rec):''));
+  if(!st)return '';
+  var by=a?(a.by||''):(p?(p.by||''):(rec?(rec.decidedBy||''):''));
+  var at=a?(a.at||''):(p?(p.at||''):(rec?(rec.decidedAt||''):''));
+  var c=(st==='approved')?['#0f3d28','#7ee2a8','#1d6b45','\u5df2\u901a\u8fc7']
+      :((st==='rejected')?['#3d1414','#ff9b9b','#7a2b2b','\u5df2\u9a73\u56de']
+      :['#3a2c07','#ffe6a8','#6b5410','\u5f85\u5ba1\u6279']);
+  var tip=c[3]+(by?(' \u00b7 '+by):'')+(at?(' \u00b7 '+apvWhen(at)):'')+(a?'':'\uff08\u5c1a\u672a\u5199\u8fdb BMS \u8bb0\u5f55\uff09');
+  return '<span title="'+apvEsc(tip)+'" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;vertical-align:middle;white-space:nowrap;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+'">'+c[3]+'</span>';
+}
+/* Read the approvals collection once the page has settled \u2014 deferred so it never competes with
+   loadData() or the first paint. */
+function apvBoot(){try{apvFetch();}catch(e){}}
+try{
+  if(document.readyState==='complete'){setTimeout(apvBoot,2200);}
+  else{window.addEventListener('load',function(){setTimeout(apvBoot,2200);});}
+}catch(e){}
+
 window.bidsSwitchView=bidsSwitchView;
 window.bidsApplyView=bidsApplyView;
 window.pfuPick=pfuPick;
