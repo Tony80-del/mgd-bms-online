@@ -208,16 +208,19 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 .cbo{display:inline-block;margin-right:13px;font-size:11px;white-space:nowrap}
 .cbo .bx.on:after{content:"\2713";font-size:8px}
 @media print{
-  .bar,.stepper,.prog,#expBox,footer,.btn,.noprint{display:none!important}
+  /* .pbar is the project picker + Save/Print/Reset bar — a screen control, never part of the paper. */
+  .bar,.pbar,.stepper,.prog,#expBox,footer,.btn,.noprint{display:none!important}
   .pane{display:none!important}.pane.on{display:block!important}
   .sheet{border:0;border-radius:0;padding:0;margin:0}
   .panel{border:0;background:#fff;padding:0 0 6px}
   /* 2026-10-07 (Tony): the printed page shows ONLY the PASSED box and the MR-001 sheet. On the PIC
-     step the project header and the whole summary panel are dropped, and the PASSED box moves up
-     into the sheet title row, on the same line as "PROJECT INFORMATION FORM". Scoped to
-     body.step-pic (set by go()) so steps 2-4 keep their project header. */
+     step the project header and the whole summary panel are dropped, the step heading and the
+     "how to fill this page" lead paragraph are instructions to the operator (not form content),
+     and the PASSED box moves up into the sheet title row, on the same line as
+     "PROJECT INFORMATION FORM". Scoped to body.step-pic (set by go()) so steps 2-4 keep theirs. */
   body.step-pic .pjhead{display:none!important}
   body.step-pic .panel.hd{display:none!important}
+  body.step-pic .pane.on>h2,body.step-pic .pane.on>p.lead{display:none!important}
   .sheet .t1row{min-height:34px;display:flex;align-items:center;justify-content:center}
   .sheet .stampprint{display:flex;position:absolute;right:0;top:50%;transform:translateY(-50%);
     align-items:center;justify-content:center;flex-direction:column;text-align:center;
