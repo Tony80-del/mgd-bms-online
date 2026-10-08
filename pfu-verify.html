@@ -142,7 +142,7 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 .sumcard h2{font-size:15px;margin:14px 0 6px}
 
 @media print{
-  /* .pbar is the project picker + Save/Print/Reset bar — a screen control, never part of the paper.
+  /* .pbar is the project picker + Save/Print bar — a screen control, never part of the paper.
      The MR-001 half of this block (.sheet*, .panel, body.step-pic .panel.hd, the PASSED box)
      now lives in mr001.css, because approve.html has to print the same page. */
   .bar,.pbar,.stepper,.prog,#expBox,footer,.btn,.noprint{display:none!important}
@@ -180,7 +180,6 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
   <select id="vpSel" onchange="vpPick(this.value)"><option value="">— loading —</option></select>
   <button class="btn" onclick="vpNewVerification()">＋ New verification</button>
   <button class="btn pri" onclick="vpSave(false)">💾 Save</button>
-  <button class="btn" onclick="resetAll()">↺ Reset</button>
   <button class="btn" onclick="window.print()">🖨 Print</button>
   <span class="vptip" id="vpTip">…</span>
 </div>
@@ -634,12 +633,7 @@ function carryToPIC(){
 function expUI(on){var b=g('expBox');if(!b)return;var ta=g('expTa');
   if(on){try{ta.value=localStorage.getItem('pfu_verify_demo_v3')||'';}catch(e){ta.value='';}
     b.style.display='block';try{ta.focus();ta.select();}catch(e){}}else{b.style.display='none';}}
-function resetAll(){KO.forEach(function(t,i){g('ko_'+i).checked=false;});
-  SEC.forEach(function(sec,si){sec.items.forEach(function(it,ii){if(it.grp)return;ST[si+'_'+ii]={v:it.v||'',s:it.v?'Told':'Missing'};});});
-  /* Reset means reset — the note is part of this project's verification record, so it goes too. */
-  VP.note='';VP.noteAt='';
-  try{vpSeedFromBid(vpCurBid());}catch(e){}
-  buildPanes();buildStepper();go(0);}
+/* 2026-10-08 — the Reset button and the helper behind it were removed at Tony's request. */
 /* read the last session BEFORE anything repaints (paint() writes to storage) */
 var _SV=null;try{_SV=JSON.parse(localStorage.getItem('pfu_verify_demo_v3')||'null');}catch(e){}
 buildPanes();buildStepper();

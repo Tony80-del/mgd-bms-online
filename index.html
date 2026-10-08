@@ -11878,9 +11878,12 @@ function apvPaint(){
   h+='</tr></thead><tbody>';
   rows.forEach(function(r){
     var st=apvState(r),bid=String(r.bidId||'');
-    var inBms=!!(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval);
-    var mark=inBms?'<span title="Written into the BMS record" style="font-size:11px;color:#7ee2a8">\u2713 In BMS</span>'
-                 :((st==='pending')?'':'<span title="Not written into the BMS record yet" style="font-size:11px;color:#ffe6a8">Not written</span>');
+    /* 2026-10-08 — the ✓ In BMS / Not written marker is gone (Tony's call). The Status column already
+       names the decision, and this was a third state word crammed into the Actions cell. In its place
+       the Open button carries the decision's colour, so a row reads at a glance:
+       green = approved, red = rejected, neutral = still pending. */
+    var oc=(st==='approved')?'background:#0f3d28;color:#7ee2a8;border-color:#1d6b45'
+          :((st==='rejected')?'background:#3d1414;color:#ff9b9b;border-color:#7a2b2b':'');
     h+='<tr style="border-top:1px solid var(--border)">'
       +'<td style="padding:9px 12px"><b>'+apvEsc(r.project||'\u2014')+'</b><br><span style="font-size:11px;color:var(--text2)">'+apvEsc(bid||'')+'</span></td>'
       +'<td style="padding:9px 12px">'+apvEsc(r.client||'\u2014')+'</td>'
@@ -11889,8 +11892,8 @@ function apvPaint(){
       +'<td style="padding:9px 12px">'+apvEsc(r.decidedBy||'\u2014')+'</td>'
       +'<td style="padding:9px 12px;white-space:nowrap">'+apvEsc(apvWhen(r.decidedAt))+'</td>'
       +'<td style="padding:9px 12px;max-width:240px">'+apvEsc(r.reason||'\u2014')+'</td>'
-      +'<td style="padding:9px 12px;white-space:nowrap">'+mark
-        +' <button class="bs" onclick="apvOpenLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="Open the approval page and see the frozen snapshot">\u2197 Open</button>'
+      +'<td style="padding:9px 12px;white-space:nowrap">'
+        +'<button class="bs" onclick="apvOpenLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px'+(oc?';'+oc:'')+'" title="Open the approval page and see the frozen snapshot">\u2197 Open</button>'
         +' <button class="bs" onclick="apvCopyLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="Copy the approval link">\uD83D\uDCCB Link</button>'
         /* Destructive action, so it is tinted red and sits LAST — away from the two safe buttons.
            It deletes the cloud record and the BMS copy; see apvDelete() for the two-layer rule. */
