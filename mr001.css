@@ -99,25 +99,27 @@ td.sub{color:var(--text2);font-size:12px;line-height:1.5}
 .cbo .bx.on:after{content:"\2713";font-size:8px}
 
 /* ------------------------------------------------------------------------------------------
-   ⚠️ CLASS-NAME COLLISION — .foot is used by BOTH the app's fixed bottom bar and the MR-001
-   signature row. pfu-verify.html defines the app bar as .foot{position:fixed;left:0;right:0;
-   bottom:0;...}, and the rule below (written by the original author) never resets `position`,
-   so on screen the sheet's signature row is dragged into a fixed dark bar at the bottom of
-   the viewport, and in print it is killed by the app's `@media print{.foot{display:none!important}}`.
+   ✅ CLASS-NAME COLLISION — RESOLVED 2026-10-08 (Tony picked option A).
 
-   Phase 1 is a pure refactor: zero visual change. The rule below therefore reproduces that
-   effective rendering one-for-one (merged .foot + .sheet .foot), so approve.html looks exactly
-   like pfu-verify.html does today. It is a faithful copy of a bug, not a design decision.
+   `.foot` is used by BOTH the app's fixed bottom bar and the MR-001 signature row.
+   pfu-verify.html defines the app bar as .foot{position:fixed;left:0;right:0;bottom:0;...},
+   and the rule that used to sit here never reset `position`, so on screen the signature row
+   was dragged into a fixed dark bar pinned to the bottom of the viewport.
+   Measured on a 390px phone: that bar was 182px tall — 21.6% of the screen — and it
+   permanently covered the Approve / Reject buttons in approve.html.
 
-   The correct version — which makes the signature row sit inside the sheet and actually print —
-   is kept commented out underneath. Say the word and it becomes a one-line swap in both pages.
+   The rule below resets `position` (plus the bar styling), so the signature row now sits
+   inside the sheet in normal flow and scrolls with the page. Desktop is unchanged; the phone
+   is fixed. The row's shape (display / gap / margin-top / flex-wrap) still comes from line 71.
+
+   NOTE: `@media print` at the bottom of this file still hides .sheet .foot on paper — that is
+   deliberate and untouched. To let the signature row print too, delete that one line.
    ------------------------------------------------------------------------------------------ */
-.sheet .foot{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:26px;padding:9px 16px;background:linear-gradient(0deg,#0b1e3d,#071325);border-top:1px solid var(--border);margin-top:12px;flex-wrap:wrap}
-/* .sheet .foot{position:static;left:auto;right:auto;bottom:auto;background:none;border-top:0;padding:0;display:flex;gap:26px;margin-top:12px;flex-wrap:wrap} */
+.sheet .foot{position:static;left:auto;right:auto;bottom:auto;background:none;border-top:0;padding:0}
 
 /* ===== SECTION 3 · PRINT ================================================================= */
 @media print{
-  /* .pbar is the project picker + Save/Print/Reset bar — a screen control, never part of the paper.
+  /* .pbar is the project picker + Save/Print bar — a screen control, never part of the paper.
      The chrome half of this rule (.bar/.pbar/.stepper/.prog/#expBox/footer/.btn/.noprint/.pane)
      stays in pfu-verify.html; only the MR-001 half lives here. */
   .sheet{border:0;border-radius:0;padding:0;margin:0}
@@ -137,7 +139,8 @@ td.sub{color:var(--text2);font-size:12px;line-height:1.5}
   .sheet .stampprint.t-bad b{color:#a11!important}
   .sheet .stampprint small{font-size:8.5px;color:#555}
   /* Faithful to today: the app's @media print{.foot{display:none!important}} also removes the
-     MR-001 signature row. Reproduced here so approve.html prints the same page. See the collision
-     note in Section 2 — if Tony wants the signature row to print, delete this one line. */
+     MR-001 signature row. Reproduced here so approve.html prints the same page. Kept as-is when
+     the on-screen collision was fixed on 2026-10-08 — if Tony wants the signature row to print,
+     delete this one line. */
   .sheet .foot{display:none!important}
 }
