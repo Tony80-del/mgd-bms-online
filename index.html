@@ -11612,6 +11612,16 @@ function apvState(rec){
   var d=String((rec&&rec.decision)||'');
   return (d==='approved')?'approved':((d==='rejected')?'rejected':'pending');
 }
+/* Plain-text twin of apvChip(). confirm() shows raw text, never HTML, so the delete dialog needs
+   this instead of the chip. */
+function apvStateTxt(st){
+  return (st==='approved')?'已通过':((st==='rejected')?'已驳回':'待审批');
+}
+/* First 6 chars of the 32-char token. On 2026-10-08 the list held three Okia-Lg submissions that
+   were identical in every visible column (same project, same client, same status); this plus a
+   second-precision timestamp is what tells them apart inside a confirm() box, which cannot show
+   a table. */
+function apvShort(token){return String(token||'').slice(0,6);}
 function apvSay(msg){
   try{
     var old=document.getElementById('apvToast');if(old)old.remove();
@@ -11672,7 +11682,7 @@ function apvBanner(){
   var n=apvPendingCount();
   if(!n){el.style.display='none';return;}
   var txt=document.getElementById('apvBannerTxt');
-  if(txt)txt.textContent='\U0001F4CB \u6709 '+n+' \u6761\u5ba1\u6279\u7ed3\u679c\u8fd8\u6ca1\u5199\u8fdb BMS \u8bb0\u5f55 \u2014\u2014 \u4f60\u70b9\u300c\u5199\u5165\u300d\u4e4b\u524d\uff0c\u4e91\u7aef\u6570\u636e\u4e0d\u4f1a\u88ab\u52a8\u3002';
+  if(txt)txt.textContent='\uD83D\uDCCB \u6709 '+n+' \u6761\u5ba1\u6279\u7ed3\u679c\u8fd8\u6ca1\u5199\u8fdb BMS \u8bb0\u5f55 \u2014\u2014 \u4f60\u70b9\u300c\u5199\u5165\u300d\u4e4b\u524d\uff0c\u4e91\u7aef\u6570\u636e\u4e0d\u4f1a\u88ab\u52a8\u3002';
   el.style.display='flex';
 }
 function apvDismiss(){
@@ -11704,7 +11714,7 @@ function apvApply(){
     try{apvPaint();}catch(e){}
     try{if(bidsView==='table')renderTable();}catch(e){}
     apvSay(ok?('\u2705 \u5df2\u5199\u5165 '+keys.length+' \u6761\u5ba1\u6279\u7ed3\u679c')
-             :('\u26a0 \u4e91\u7aef\u672a\u786e\u8ba4\uff1a'+(why||'unknown')+'\uff08\u672c\u5730\u5df2\u4fdd\u5b58\uff0c\u53ef\u518d\u70b9\u4e00\u6b21\u300c\u5199\u5165\u300d\u6216\u6309 \U0001F4BE Save \u91cd\u8bd5\uff09'));
+             :('\u26a0 \u4e91\u7aef\u672a\u786e\u8ba4\uff1a'+(why||'unknown')+'\uff08\u672c\u5730\u5df2\u4fdd\u5b58\uff0c\u53ef\u518d\u70b9\u4e00\u6b21\u300c\u5199\u5165\u300d\u6216\u6309 \uD83D\uDCBE Save \u91cd\u8bd5\uff09'));
   };
   if(p&&typeof p.then==='function'){
     p.then(function(r){finish(!!(r&&r.ok),r&&r.why);}).catch(function(e){finish(false,(e&&e.message)||String(e));});
@@ -11712,11 +11722,15 @@ function apvApply(){
     finish(false,'saveData() returned no cloud status');
   }
 }
-function apvWhen(iso){
+/* `withSec` exists for the delete dialog only: two submissions a few seconds apart look identical
+   at minute precision, and the whole point of that dialog is telling them apart. */
+function apvWhen(iso,withSec){
   if(!iso)return '\u2014';
   try{
     var d=new Date(iso);if(isNaN(d.getTime()))return String(iso);
-    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' \u00b7 '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    var t=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    if(withSec)t+=':'+('0'+d.getSeconds()).slice(-2);
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' \u00b7 '+t;
   }catch(e){return String(iso);}
 }
 function apvChip(st){
@@ -11734,6 +11748,75 @@ function apvCopyLink(token){
   var u=apvLink(token);
   try{if(navigator&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u);apvSay('\u5df2\u590d\u5236\u5ba1\u6279\u94fe\u63a5');return;}}catch(e){}
   try{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();apvSay('\u5df2\u590d\u5236\u5ba1\u6279\u94fe\u63a5');}catch(e){apvSay(u);}
+}
+/* Delete ONE approval record. Tony's calls on 2026-10-08: delete A + B together, and "plain confirm
+   box, delete straight away" — no local backup, no soft-delete flag.
+     A · cloud document approvals/<token>   -> DELETE. One document, no side effects, irreversible.
+     B · data.verify[bidId].approval         -> remove the key, then saveData() (whole-document push).
+   Rule 3 at the top of this block is what makes B safe: `approval` is ADDITIVE, so removing it
+   restores the previous state exactly and no other key of data.verify[bidId] is touched. That is
+   also why this only ever deletes `.approval` and never the whole verify entry — the entry may
+   carry other verification fields that have nothing to do with approvals.
+   The confirm() text must identify the row on its own (project + submit time to the second + token
+   prefix) because three identical Okia-Lg rows were on screen when this was written. */
+function apvDelete(token){
+  var tk=String(token||'');
+  if(!tk||APV.busy)return;
+  var rec=null;
+  try{(APV.list||[]).forEach(function(r){if(String(r.token||'')===tk)rec=r;});}catch(e){}
+  if(!rec){apvSay('找不到这条审批记录，请先点「🔄 重新读取」。');return;}
+  var bid=String(rec.bidId||''),st=apvState(rec),hasB=false;
+  try{hasB=!!(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval);}catch(e){}
+  var msg='删除这条审批记录？\n\n'
+    +'项目　：'+(rec.project||'—')+'\n'
+    +'提交　：'+apvWhen(rec.createdAt,true)+'\n'
+    +'状态　：'+apvStateTxt(st)+'\n'
+    +'标识　：'+apvShort(tk)+'\n\n';
+  if(st==='pending')msg+='⚠ 这条还没批。删掉后，董事手里那条审批链接就失效了。\n';
+  if(hasB)msg+='⚠ BMS 记录里的副本会一起清掉 —— 清单和项目行徽章同时消失。\n';
+  else msg+='BMS 记录里没有副本，只清云端这一条。\n';
+  msg+='\n不可恢复，没有备份。确认删除吗？';
+  try{if(!confirm(msg))return;}catch(e){}
+
+  APV.busy=true;
+  fetch(apvBase()+'/'+encodeURIComponent(tk)+'?key='+encodeURIComponent(apvKey()),{method:'DELETE'})
+  .then(function(r){
+    if(!r.ok&&r.status!==404)throw new Error('云端删除失败 HTTP '+r.status);
+    var p=null,cleared=false;
+    try{
+      if(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval){
+        delete data.verify[bid].approval;
+        cleared=true;
+        if(typeof saveData==='function')p=saveData();
+      }
+    }catch(e){}
+    var done=function(ok,why){
+      APV.busy=false;
+      try{delete APV.pending[bid];}catch(e){}
+      /* drop the row locally first so the table and the badge react immediately, then let the
+         forced re-read below confirm against the server */
+      try{
+        APV.list=(APV.list||[]).filter(function(x){return String(x.token||'')!==tk;});
+        APV.byBid={};
+        APV.list.forEach(function(x){if(x.bidId)APV.byBid[String(x.bidId)]=x;});
+      }catch(e){}
+      APV.fetchedAt=0;
+      apvBanner();
+      try{apvPaint();}catch(e){}
+      try{if(bidsView==='table')renderTable();}catch(e){}
+      if(!ok)apvSay('⚠ 云端记录已删，但 BMS 记录里的副本没同步：'+(why||'unknown')+'（本地已清，可按 💾 Save 重试）');
+      else apvSay(cleared?'✅ 已删除（云端 + BMS 记录副本）':'✅ 已删除这条审批记录');
+      apvFetch(null,true);
+    };
+    if(p&&typeof p.then==='function'){
+      p.then(function(rr){done(!(rr&&rr.ok===false),rr&&rr.why);})
+       .catch(function(e){done(false,(e&&e.message)||String(e));});
+    }else{done(true,null);}
+  })
+  .catch(function(e){
+    APV.busy=false;
+    apvSay('⚠ 删除失败：'+((e&&e.message)||e)+'（云端未改动）');
+  });
 }
 function apvRenderList(){
   var box=document.getElementById('bidsApprovalsContainer');if(!box)return;
@@ -11755,10 +11838,10 @@ function apvPaint(){
   rows.forEach(function(r){var s=apvState(r);if(s==='approved')nA++;else if(s==='rejected')nR++;else nP++;});
   var h='<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">'
     +'<span style="font-size:13px;color:var(--text2)">\u5171 '+rows.length+' \u6761 \u00b7 \u23f3 \u5f85\u5ba1\u6279 '+nP+' \u00b7 \u2705 \u5df2\u901a\u8fc7 '+nA+' \u00b7 \u26d4 \u5df2\u9a73\u56de '+nR+'</span>'
-    +'<button class="bs" onclick="apvRenderList()" style="padding:5px 12px;font-size:12px">\U0001F504 \u91cd\u65b0\u8bfb\u53d6</button>'
+    +'<button class="bs" onclick="apvRenderList()" style="padding:5px 12px;font-size:12px">\uD83D\uDD04 \u91cd\u65b0\u8bfb\u53d6</button>'
     +'</div>';
   if(!rows.length){
-    box.innerHTML=h+'<div style="padding:18px;color:var(--text2);font-size:13px;line-height:1.7;border:1px solid var(--border);border-radius:12px">\u4e91\u7aef\u8fd8\u6ca1\u6709\u4efb\u4f55\u5ba1\u6279\u8bb0\u5f55\u3002<br>\u5728 <b>\u2705 Project verification</b> \u91cc\u9009\u597d\u9879\u76ee\u3001\u586b\u5b8c MR-001\uff0c\u70b9 <b>\U0001F4E4 Submit for Approval</b>\uff0c\u8bb0\u5f55\u5c31\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc\u3002</div>';
+    box.innerHTML=h+'<div style="padding:18px;color:var(--text2);font-size:13px;line-height:1.7;border:1px solid var(--border);border-radius:12px">\u4e91\u7aef\u8fd8\u6ca1\u6709\u4efb\u4f55\u5ba1\u6279\u8bb0\u5f55\u3002<br>\u5728 <b>\u2705 Project verification</b> \u91cc\u9009\u597d\u9879\u76ee\u3001\u586b\u5b8c MR-001\uff0c\u70b9 <b>\uD83D\uDCE4 Submit for Approval</b>\uff0c\u8bb0\u5f55\u5c31\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc\u3002</div>';
     return;
   }
   var cols=['\u9879\u76ee / Project','\u5ba2\u6237 / Client','\u72b6\u6001 / Status','\u63d0\u4ea4\u65f6\u95f4 / Submitted','\u51b3\u7b56\u4eba / By','\u51b3\u7b56\u65f6\u95f4 / Decided','\u7406\u7531 / Reason','\u64cd\u4f5c'];
@@ -11780,7 +11863,10 @@ function apvPaint(){
       +'<td style="padding:9px 12px;max-width:240px">'+apvEsc(r.reason||'\u2014')+'</td>'
       +'<td style="padding:9px 12px;white-space:nowrap">'+mark
         +' <button class="bs" onclick="apvOpenLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u6253\u5f00\u5ba1\u6279\u9875\u770b\u51bb\u7ed3\u5feb\u7167">\u2197 \u6253\u5f00</button>'
-        +' <button class="bs" onclick="apvCopyLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u590d\u5236\u5ba1\u6279\u94fe\u63a5">\U0001F4CB \u94fe\u63a5</button>'
+        +' <button class="bs" onclick="apvCopyLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u590d\u5236\u5ba1\u6279\u94fe\u63a5">\uD83D\uDCCB \u94fe\u63a5</button>'
+        /* Destructive action, so it is tinted red and sits LAST — away from the two safe buttons.
+           It deletes the cloud record and the BMS copy; see apvDelete() for the two-layer rule. */
+        +' <button class="bs" onclick="apvDelete(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px;color:#ff9b9b;border-color:#7a2b2b" title="删除这条审批记录（不可恢复）">🗑️ 删除</button>'
       +'</td></tr>';
   });
   h+='</tbody></table></div>';
