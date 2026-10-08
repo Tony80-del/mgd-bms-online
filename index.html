@@ -5440,6 +5440,12 @@ function sm(m){
   var _bvc=document.getElementById('bidsVerifyContainer'); if(_bvc)_bvc.style.display='none';
   var _bmc=document.getElementById('bidsMomContainer'); if(_bmc)_bmc.style.display='none';
   var _rfc=document.getElementById('bidsRfiContainer'); if(_rfc)_rfc.style.display='none';
+  /* 2026-10-08 — this one was MISSING. Every other module container is hidden here AND re-shown by
+     bidsApplyView(), but #bidsApprovalsContainer only ever had the second half — and that half opens
+     with `if(mod!=='bids')return;`. So once 📋 Approvals had been opened, its container stayed
+     display:block on EVERY other module (Summary, Customers, Chambers, Plan 2026, …): a bare
+     approvals table with no sub-tab bar above it. Inside Bids the sub-tab switch always worked. */
+  var _bac=document.getElementById('bidsApprovalsContainer'); if(_bac)_bac.style.display='none';
   var _cst=document.getElementById('custSubTabsRow'); if(_cst)_cst.style.display='none';
   var _ccc=document.getElementById('custCalContainer'); if(_ccc)_ccc.style.display='none';
   document.getElementById('sum').style.display='none';
