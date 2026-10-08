@@ -901,11 +901,11 @@ input[type="date"]::-moz-calendar-picker-indicator {
   <!-- Approval trace banner (Phase 3 · 2026-10-07). Hidden until apvReconcile() finds a decision
        that is not yet inside data.verify. Deliberately NOT an automatic write: saveData() pushes
        the whole document, and a stale browser has already overwritten real data once (WR 31-38).
-       The cloud only changes when [写入 BMS 记录] is clicked. -->
+       The cloud only changes when [Write to BMS] is clicked. -->
   <div id="apvBanner" style="display:none;padding:10px 32px;background:#3a2c07;border-bottom:1px solid #6b5410;color:#ffe6a8;font-size:13px;align-items:center;gap:14px;flex-wrap:wrap">
     <span id="apvBannerTxt"></span>
-    <button class="bp" onclick="apvApply()" style="padding:5px 13px;font-size:12px">写入 BMS 记录</button>
-    <button class="bs" onclick="apvDismiss()" style="padding:5px 13px;font-size:12px">忽略</button>
+    <button class="bp" onclick="apvApply()" style="padding:5px 13px;font-size:12px">Write to BMS</button>
+    <button class="bs" onclick="apvDismiss()" style="padding:5px 13px;font-size:12px">Dismiss</button>
   </div>
 
   <div class="p-8">
@@ -11596,7 +11596,7 @@ window.__bmsVerifyBridge={
   },
   /* Phase 3 (2026-10-07). The PIC page calls this the moment its live watch sees a decision, so
      BMS re-reads the approvals collection and raises the "pending write" banner. It only TRIGGERS
-     A READ — the cloud write still waits for Tony to click [写入 BMS 记录]. */
+     A READ — the cloud write still waits for Tony to click [Write to BMS]. */
   notifyApproval:function(){try{apvFetch(null,true);}catch(e){}}
 };
 
@@ -11610,7 +11610,7 @@ window.__bmsVerifyBridge={
      1. READING is automatic and free \u2014 the approvals collection is listed over plain REST, no SDK
         and no auth, and every call is wrapped so a blocked network can never break the page.
      2. WRITING is NEVER automatic. Reconciliation only fills an in-memory queue and raises the
-        banner; the cloud changes when [\u5199\u5165 BMS \u8bb0\u5f55] is clicked. saveData() pushes the WHOLE
+        banner; the cloud changes when [Write to BMS] is clicked. saveData() pushes the WHOLE
         document, and a stale browser has already overwritten real data once (WR 31-38).
      3. data.verify[bidId].approval is ADDITIVE. No existing key is touched, so deleting it
         restores the previous state exactly. Rollback = git revert + delete that key.
@@ -11643,7 +11643,7 @@ function apvState(rec){
 /* Plain-text twin of apvChip(). confirm() shows raw text, never HTML, so the delete dialog needs
    this instead of the chip. */
 function apvStateTxt(st){
-  return (st==='approved')?'已通过':((st==='rejected')?'已驳回':'待审批');
+  return (st==='approved')?'Approved':((st==='rejected')?'Rejected':'Pending');
 }
 /* First 6 chars of the 32-char token. On 2026-10-08 the list held three Okia-Lg submissions that
    were identical in every visible column (same project, same client, same status); this plus a
@@ -11710,7 +11710,7 @@ function apvBanner(){
   var n=apvPendingCount();
   if(!n){el.style.display='none';return;}
   var txt=document.getElementById('apvBannerTxt');
-  if(txt)txt.textContent='\uD83D\uDCCB \u6709 '+n+' \u6761\u5ba1\u6279\u7ed3\u679c\u8fd8\u6ca1\u5199\u8fdb BMS \u8bb0\u5f55 \u2014\u2014 \u4f60\u70b9\u300c\u5199\u5165\u300d\u4e4b\u524d\uff0c\u4e91\u7aef\u6570\u636e\u4e0d\u4f1a\u88ab\u52a8\u3002';
+  if(txt)txt.textContent='\uD83D\uDCCB '+n+' approval decision'+(n===1?'':'s')+' not yet written into the BMS record \u2014 the cloud stays untouched until you click \u201cWrite to BMS\u201d.';
   el.style.display='flex';
 }
 function apvDismiss(){
@@ -11723,9 +11723,9 @@ function apvApply(){
   if(APV.busy)return;
   var keys=Object.keys(APV.pending);
   if(!keys.length)return;
-  var msg='\u628a '+keys.length+' \u6761\u5ba1\u6279\u7ed3\u679c\u5199\u5165 BMS \u8bb0\u5f55\u5e76\u540c\u6b65\u5230\u4e91\u7aef\uff1f\n\n'+
-    '\u53ea\u4f1a\u65b0\u589e data.verify[bidId].approval \u8fd9\u4e00\u4e2a\u5b57\u6bb5\uff0c\u4e0d\u52a8\u5176\u4ed6\u4efb\u4f55\u6570\u636e\u3002\n'+
-    '\u63d0\u9192\uff1asaveData() \u662f\u6574\u5305\u63a8\u9001 \u2014\u2014 \u5199\u5165\u524d\u8bf7\u786e\u8ba4\u8fd9\u4e2a\u6d4f\u89c8\u5668\u91cc\u7684\u6570\u636e\u662f\u6700\u65b0\u7684\u3002';
+  var msg='Write '+keys.length+' approval decision'+(keys.length===1?'':'s')+' into the BMS record and sync to the cloud?\n\n'+
+    'This only adds the field data.verify[bidId].approval \u2014 nothing else is touched.\n'+
+    'Reminder: saveData() pushes the WHOLE document \u2014 make sure this browser holds the latest data before writing.';
   try{if(!confirm(msg))return;}catch(e){}
   if(!data.verify)data.verify={};
   keys.forEach(function(bid){
@@ -11741,8 +11741,8 @@ function apvApply(){
     apvBanner();
     try{apvPaint();}catch(e){}
     try{if(bidsView==='table')renderTable();}catch(e){}
-    apvSay(ok?('\u2705 \u5df2\u5199\u5165 '+keys.length+' \u6761\u5ba1\u6279\u7ed3\u679c')
-             :('\u26a0 \u4e91\u7aef\u672a\u786e\u8ba4\uff1a'+(why||'unknown')+'\uff08\u672c\u5730\u5df2\u4fdd\u5b58\uff0c\u53ef\u518d\u70b9\u4e00\u6b21\u300c\u5199\u5165\u300d\u6216\u6309 \uD83D\uDCBE Save \u91cd\u8bd5\uff09'));
+    apvSay(ok?('\u2705 Wrote '+keys.length+' approval decision'+(keys.length===1?'':'s'))
+             :('\u26a0 Cloud not confirmed: '+(why||'unknown')+' \u2014 saved locally; click \u201cWrite to BMS\u201d again or press \uD83D\uDCBE Save to retry'));
   };
   if(p&&typeof p.then==='function'){
     p.then(function(r){finish(!!(r&&r.ok),r&&r.why);}).catch(function(e){finish(false,(e&&e.message)||String(e));});
@@ -11762,9 +11762,9 @@ function apvWhen(iso,withSec){
   }catch(e){return String(iso);}
 }
 function apvChip(st){
-  var c=(st==='approved')?['#0f3d28','#7ee2a8','#1d6b45','\u2705 \u5df2\u901a\u8fc7']
-      :((st==='rejected')?['#3d1414','#ff9b9b','#7a2b2b','\u26d4 \u5df2\u9a73\u56de']
-      :['#3a2c07','#ffe6a8','#6b5410','\u23f3 \u5f85\u5ba1\u6279']);
+  var c=(st==='approved')?['#0f3d28','#7ee2a8','#1d6b45','\u2705 Approved']
+      :((st==='rejected')?['#3d1414','#ff9b9b','#7a2b2b','\u26d4 Rejected']
+      :['#3a2c07','#ffe6a8','#6b5410','\u23f3 Pending']);
   return '<span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+'">'+c[3]+'</span>';
 }
 function apvLink(token){
@@ -11774,8 +11774,8 @@ function apvLink(token){
 function apvOpenLink(token){try{window.open(apvLink(token),'_blank');}catch(e){}}
 function apvCopyLink(token){
   var u=apvLink(token);
-  try{if(navigator&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u);apvSay('\u5df2\u590d\u5236\u5ba1\u6279\u94fe\u63a5');return;}}catch(e){}
-  try{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();apvSay('\u5df2\u590d\u5236\u5ba1\u6279\u94fe\u63a5');}catch(e){apvSay(u);}
+  try{if(navigator&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u);apvSay('Approval link copied');return;}}catch(e){}
+  try{var ta=document.createElement('textarea');ta.value=u;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();apvSay('Approval link copied');}catch(e){apvSay(u);}
 }
 /* Delete ONE approval record. Tony's calls on 2026-10-08: delete A + B together, and "plain confirm
    box, delete straight away" — no local backup, no soft-delete flag.
@@ -11792,24 +11792,24 @@ function apvDelete(token){
   if(!tk||APV.busy)return;
   var rec=null;
   try{(APV.list||[]).forEach(function(r){if(String(r.token||'')===tk)rec=r;});}catch(e){}
-  if(!rec){apvSay('找不到这条审批记录，请先点「🔄 重新读取」。');return;}
+  if(!rec){apvSay('Could not find that approval record — click “🔄 Reload” first.');return;}
   var bid=String(rec.bidId||''),st=apvState(rec),hasB=false;
   try{hasB=!!(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval);}catch(e){}
-  var msg='删除这条审批记录？\n\n'
-    +'项目　：'+(rec.project||'—')+'\n'
-    +'提交　：'+apvWhen(rec.createdAt,true)+'\n'
-    +'状态　：'+apvStateTxt(st)+'\n'
-    +'标识　：'+apvShort(tk)+'\n\n';
-  if(st==='pending')msg+='⚠ 这条还没批。删掉后，董事手里那条审批链接就失效了。\n';
-  if(hasB)msg+='⚠ BMS 记录里的副本会一起清掉 —— 清单和项目行徽章同时消失。\n';
-  else msg+='BMS 记录里没有副本，只清云端这一条。\n';
-  msg+='\n不可恢复，没有备份。确认删除吗？';
+  var msg='Delete this approval record?\n\n'
+    +'Project   : '+(rec.project||'—')+'\n'
+    +'Submitted : '+apvWhen(rec.createdAt,true)+'\n'
+    +'Status    : '+apvStateTxt(st)+'\n'
+    +'ID        : '+apvShort(tk)+'\n\n';
+  if(st==='pending')msg+='⚠ Not decided yet — deleting it kills the approval link the director is holding.\n';
+  if(hasB)msg+='⚠ The copy inside the BMS record is deleted too: the list row and the project badge go together.\n';
+  else msg+='No copy in the BMS record, so only the cloud document is removed.\n';
+  msg+='\nThis cannot be undone and there is no backup. Delete it?';
   try{if(!confirm(msg))return;}catch(e){}
 
   APV.busy=true;
   fetch(apvBase()+'/'+encodeURIComponent(tk)+'?key='+encodeURIComponent(apvKey()),{method:'DELETE'})
   .then(function(r){
-    if(!r.ok&&r.status!==404)throw new Error('云端删除失败 HTTP '+r.status);
+    if(!r.ok&&r.status!==404)throw new Error('cloud delete failed — HTTP '+r.status);
     var p=null,cleared=false;
     try{
       if(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval){
@@ -11832,8 +11832,8 @@ function apvDelete(token){
       apvBanner();
       try{apvPaint();}catch(e){}
       try{if(bidsView==='table')renderTable();}catch(e){}
-      if(!ok)apvSay('⚠ 云端记录已删，但 BMS 记录里的副本没同步：'+(why||'unknown')+'（本地已清，可按 💾 Save 重试）');
-      else apvSay(cleared?'✅ 已删除（云端 + BMS 记录副本）':'✅ 已删除这条审批记录');
+      if(!ok)apvSay('⚠ Cloud document deleted, but the BMS copy did not sync: '+(why||'unknown')+' — cleared locally, press 💾 Save to retry');
+      else apvSay(cleared?'✅ Deleted (cloud + BMS copy)':'✅ Approval record deleted');
       apvFetch(null,true);
     };
     if(p&&typeof p.then==='function'){
@@ -11843,15 +11843,15 @@ function apvDelete(token){
   })
   .catch(function(e){
     APV.busy=false;
-    apvSay('⚠ 删除失败：'+((e&&e.message)||e)+'（云端未改动）');
+    apvSay('⚠ Delete failed: '+((e&&e.message)||e)+' — the cloud was not changed');
   });
 }
 function apvRenderList(){
   var box=document.getElementById('bidsApprovalsContainer');if(!box)return;
-  box.innerHTML='<div style="padding:18px;color:var(--text2);font-size:13px">\u6b63\u5728\u8bfb\u53d6\u4e91\u7aef\u5ba1\u6279\u8bb0\u5f55\u2026</div>';
+  box.innerHTML='<div style="padding:18px;color:var(--text2);font-size:13px">Reading approval records from the cloud\u2026</div>';
   apvFetch(function(list,err){
     if(!list){
-      box.innerHTML='<div style="padding:18px;color:#f87171;font-size:13px">\u8bfb\u4e0d\u5230\u4e91\u7aef\u5ba1\u6279\u8bb0\u5f55'+(err?('\uff08'+apvEsc((err&&err.message)||err)+'\uff09'):'')+'\u3002\u82e5\u6d4f\u89c8\u5668\u88ab\u9632\u706b\u5899\u6321\u4f4f Firestore\uff0c\u8fd9\u91cc\u4f1a\u4e00\u76f4\u5931\u8d25\u3002</div>';
+      box.innerHTML='<div style="padding:18px;color:#f87171;font-size:13px">Could not read the approval records from the cloud'+(err?(' ('+apvEsc((err&&err.message)||err)+')'):'')+'. If a firewall blocks Firestore from this browser, this will keep failing.</div>';
       return;
     }
     apvPaint();
@@ -11860,27 +11860,27 @@ function apvRenderList(){
 function apvPaint(){
   var box=document.getElementById('bidsApprovalsContainer');if(!box)return;
   var list=APV.list;
-  if(!list){box.innerHTML='<div style="padding:18px;color:var(--text2);font-size:13px">\u6b63\u5728\u8bfb\u53d6\u4e91\u7aef\u5ba1\u6279\u8bb0\u5f55\u2026</div>';return;}
+  if(!list){box.innerHTML='<div style="padding:18px;color:var(--text2);font-size:13px">Reading approval records from the cloud\u2026</div>';return;}
   var rows=list.slice().sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''));});
   var nP=0,nA=0,nR=0;
   rows.forEach(function(r){var s=apvState(r);if(s==='approved')nA++;else if(s==='rejected')nR++;else nP++;});
   var h='<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">'
-    +'<span style="font-size:13px;color:var(--text2)">\u5171 '+rows.length+' \u6761 \u00b7 \u23f3 \u5f85\u5ba1\u6279 '+nP+' \u00b7 \u2705 \u5df2\u901a\u8fc7 '+nA+' \u00b7 \u26d4 \u5df2\u9a73\u56de '+nR+'</span>'
-    +'<button class="bs" onclick="apvRenderList()" style="padding:5px 12px;font-size:12px">\uD83D\uDD04 \u91cd\u65b0\u8bfb\u53d6</button>'
+    +'<span style="font-size:13px;color:var(--text2)">'+rows.length+' total \u00b7 \u23f3 Pending '+nP+' \u00b7 \u2705 Approved '+nA+' \u00b7 \u26d4 Rejected '+nR+'</span>'
+    +'<button class="bs" onclick="apvRenderList()" style="padding:5px 12px;font-size:12px">\uD83D\uDD04 Reload</button>'
     +'</div>';
   if(!rows.length){
-    box.innerHTML=h+'<div style="padding:18px;color:var(--text2);font-size:13px;line-height:1.7;border:1px solid var(--border);border-radius:12px">\u4e91\u7aef\u8fd8\u6ca1\u6709\u4efb\u4f55\u5ba1\u6279\u8bb0\u5f55\u3002<br>\u5728 <b>\u2705 Project verification</b> \u91cc\u9009\u597d\u9879\u76ee\u3001\u586b\u5b8c MR-001\uff0c\u70b9 <b>\uD83D\uDCE4 Submit for Approval</b>\uff0c\u8bb0\u5f55\u5c31\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc\u3002</div>';
+    box.innerHTML=h+'<div style="padding:18px;color:var(--text2);font-size:13px;line-height:1.7;border:1px solid var(--border);border-radius:12px">No approval records in the cloud yet.<br>Pick a project in <b>\u2705 Project verification</b>, fill in MR-001, then click <b>\uD83D\uDCE4 Submit for Approval</b> \u2014 the record will show up here.</div>';
     return;
   }
-  var cols=['\u9879\u76ee / Project','\u5ba2\u6237 / Client','\u72b6\u6001 / Status','\u63d0\u4ea4\u65f6\u95f4 / Submitted','\u51b3\u7b56\u4eba / By','\u51b3\u7b56\u65f6\u95f4 / Decided','\u7406\u7531 / Reason','\u64cd\u4f5c'];
+  var cols=['Project','Client','Status','Submitted','Decided by','Decided at','Reason','Actions'];
   h+='<div style="overflow:auto;border:1px solid var(--border);border-radius:12px"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--bg2);text-align:left">';
   cols.forEach(function(c){h+='<th style="padding:9px 12px;font-weight:600;color:var(--text2);white-space:nowrap">'+c+'</th>';});
   h+='</tr></thead><tbody>';
   rows.forEach(function(r){
     var st=apvState(r),bid=String(r.bidId||'');
     var inBms=!!(typeof data!=='undefined'&&data&&data.verify&&data.verify[bid]&&data.verify[bid].approval);
-    var mark=inBms?'<span title="\u5df2\u5199\u8fdb BMS \u8bb0\u5f55" style="font-size:11px;color:#7ee2a8">\u2713 \u5df2\u5165\u5e93</span>'
-                 :((st==='pending')?'':'<span title="\u8fd8\u6ca1\u5199\u8fdb BMS \u8bb0\u5f55" style="font-size:11px;color:#ffe6a8">\u5f85\u5199\u5165</span>');
+    var mark=inBms?'<span title="Written into the BMS record" style="font-size:11px;color:#7ee2a8">\u2713 In BMS</span>'
+                 :((st==='pending')?'':'<span title="Not written into the BMS record yet" style="font-size:11px;color:#ffe6a8">Not written</span>');
     h+='<tr style="border-top:1px solid var(--border)">'
       +'<td style="padding:9px 12px"><b>'+apvEsc(r.project||'\u2014')+'</b><br><span style="font-size:11px;color:var(--text2)">'+apvEsc(bid||'')+'</span></td>'
       +'<td style="padding:9px 12px">'+apvEsc(r.client||'\u2014')+'</td>'
@@ -11890,11 +11890,11 @@ function apvPaint(){
       +'<td style="padding:9px 12px;white-space:nowrap">'+apvEsc(apvWhen(r.decidedAt))+'</td>'
       +'<td style="padding:9px 12px;max-width:240px">'+apvEsc(r.reason||'\u2014')+'</td>'
       +'<td style="padding:9px 12px;white-space:nowrap">'+mark
-        +' <button class="bs" onclick="apvOpenLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u6253\u5f00\u5ba1\u6279\u9875\u770b\u51bb\u7ed3\u5feb\u7167">\u2197 \u6253\u5f00</button>'
-        +' <button class="bs" onclick="apvCopyLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="\u590d\u5236\u5ba1\u6279\u94fe\u63a5">\uD83D\uDCCB \u94fe\u63a5</button>'
+        +' <button class="bs" onclick="apvOpenLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="Open the approval page and see the frozen snapshot">\u2197 Open</button>'
+        +' <button class="bs" onclick="apvCopyLink(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px" title="Copy the approval link">\uD83D\uDCCB Link</button>'
         /* Destructive action, so it is tinted red and sits LAST — away from the two safe buttons.
            It deletes the cloud record and the BMS copy; see apvDelete() for the two-layer rule. */
-        +' <button class="bs" onclick="apvDelete(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px;color:#ff9b9b;border-color:#7a2b2b" title="删除这条审批记录（不可恢复）">🗑️ 删除</button>'
+        +' <button class="bs" onclick="apvDelete(\''+apvEsc(r.token)+'\')" style="padding:3px 9px;font-size:11.5px;color:#ff9b9b;border-color:#7a2b2b" title="Delete this approval record (cannot be undone)">🗑️ Delete</button>'
       +'</td></tr>';
   });
   h+='</tbody></table></div>';
@@ -11911,10 +11911,10 @@ function apvBadge(bidId){
   if(!st)return '';
   var by=a?(a.by||''):(p?(p.by||''):(rec?(rec.decidedBy||''):''));
   var at=a?(a.at||''):(p?(p.at||''):(rec?(rec.decidedAt||''):''));
-  var c=(st==='approved')?['#0f3d28','#7ee2a8','#1d6b45','\u5df2\u901a\u8fc7']
-      :((st==='rejected')?['#3d1414','#ff9b9b','#7a2b2b','\u5df2\u9a73\u56de']
-      :['#3a2c07','#ffe6a8','#6b5410','\u5f85\u5ba1\u6279']);
-  var tip=c[3]+(by?(' \u00b7 '+by):'')+(at?(' \u00b7 '+apvWhen(at)):'')+(a?'':'\uff08\u5c1a\u672a\u5199\u8fdb BMS \u8bb0\u5f55\uff09');
+  var c=(st==='approved')?['#0f3d28','#7ee2a8','#1d6b45','Approved']
+      :((st==='rejected')?['#3d1414','#ff9b9b','#7a2b2b','Rejected']
+      :['#3a2c07','#ffe6a8','#6b5410','Pending']);
+  var tip=c[3]+(by?(' \u00b7 '+by):'')+(at?(' \u00b7 '+apvWhen(at)):'')+(a?'':' (not yet written into the BMS record)');
   return '<span title="'+apvEsc(tip)+'" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;vertical-align:middle;white-space:nowrap;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+'">'+c[3]+'</span>';
 }
 /* Read the approvals collection once the page has settled \u2014 deferred so it never competes with
