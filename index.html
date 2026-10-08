@@ -1007,7 +1007,7 @@ input[type="date"]::-moz-calendar-picker-indicator {
     </div>
     <!-- ================= PROJECT VERIFICATION (5 steps + MR-001 PIC form) ================= -->
     <div id="bidsVerifyContainer" style="display:none">
-      <iframe id="bidsVerifyFrame" title="Project verification — Stage 1" data-src="pfu-verify.html?v=20261007b" style="width:100%;height:calc(100vh - 150px);min-height:780px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);display:block"></iframe>
+      <iframe id="bidsVerifyFrame" title="Project verification — Stage 1" data-src="pfu-verify.html?v=20261008a" style="width:100%;height:calc(100vh - 150px);min-height:780px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);display:block"></iframe>
     </div>
     <!-- ================= APPROVALS (Phase 3 · 2026-10-07) =================
          Lists the cloud `approvals` collection directly over REST, so it works on ANY machine —
@@ -7247,6 +7247,19 @@ function cloudOk(){
   }catch(e){}
 }
 
+/* Rebuild the whole payload in THIS realm before it goes to Firestore.
+   WHY (2026-10-08, live bug that blocked ALL cloud saves): pfu-verify.html runs in an iframe, and
+   any object IT builds carries the IFRAME's Object as its constructor. Firestore's validator runs
+   HERE and checks `value.constructor === Object`, so a cross-realm object is refused with
+   "Unsupported field value: a custom Object object (found in field data.verify.<bidId>)" — and
+   because the poisoned object now lives inside `data`, EVERY later save fails the same way until
+   the page is reloaded. JSON.stringify/parse is realm-aware, so rebuilding here turns every nested
+   object into a plain object of THIS realm. Same fix as the Phase-2 snapshot bug, one layer deeper.
+   No try/catch on purpose: _origSave() above already ran JSON.stringify(data) unguarded, so by the
+   time control reaches here a full stringify has demonstrably succeeded. */
+function cloudPayload(){
+  return JSON.parse(JSON.stringify(data));
+}
 // Wrap original saveData to also push to Firebase
 var _origSave = window.saveData || function(){};
 window.saveData = function(){
@@ -7307,7 +7320,7 @@ window.saveData = function(){
     console.warn('[Firebase] Auto-snapshot skipped (non-fatal):', e && e.message);
   }).then(function(){
     // Push new data to Firebase (async)
-    return fdb.collection('bms_data').doc('master').set({ data: data, updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return fdb.collection('bms_data').doc('master').set({ data: cloudPayload(), updatedBy: 'user', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
   }).then(function(){
       return settle({ok:true});
     })
@@ -11498,13 +11511,28 @@ function apApproveUrl(token){
    cloud write from a silent failure — it showed "synced into BMS ✓" either way. The iframe checks
    `br.v >= 2` before trusting the returned status; an older page falls back to "not confirmed". */
 window.__bmsVerifyBridge={
-  /* v3 (2026-10-07, phase 2) adds createApproval() / watchApproval() for the approval flow.
+  /* v4 (2026-10-08) adds setVerify() — see the warning on it below.
+     v3 (2026-10-07, phase 2) added createApproval() / watchApproval() for the approval flow.
      v2 made save() tell the truth; v1 swallowed the cloud result. The PIC page checks for the
      feature it needs by NAME, so an older bridge degrades to a plain message, never a crash. */
-  v:3,
+  v:4,
   getData:function(){return data;},
   getBids:function(){return (data&&data.bids)?data.bids:[];},
   getVerify:function(){if(!data.verify)data.verify={};return data.verify;},
+  /* Write ONE verification record, rebuilt in THIS realm. The iframe must NOT assign into
+     getVerify() itself: an object it builds carries the IFRAME's Object as its constructor, and
+     Firestore — which validates here, in the parent — refuses it as "a custom Object object".
+     That was a live bug on 2026-10-08: it silently killed EVERY cloud save from the Project
+     verification page, and kept killing every later save until the page was reloaded, because the
+     bad object stayed inside `data`. Same trap as the Phase-2 snapshot, one layer deeper. */
+  setVerify:function(bidId,snap){
+    try{
+      var id=String(bidId||'');if(!id)return false;
+      if(!data.verify)data.verify={};
+      data.verify[id]=JSON.parse(JSON.stringify(snap||{}));
+      return true;
+    }catch(e){return false;}
+  },
   save:function(){
     try{
       var r=saveData();

@@ -500,7 +500,16 @@ function vpSave(quiet){
      message below reflects the server's answer instead of our own optimism. */
   var br=vpBridge(),prom=null,why='';
   if(br){
-    try{var store=br.getVerify();if(store)store[VP.bidId]=snap;}catch(e){why='getVerify threw: '+(e&&e.message);}
+    /* Hand the record to the parent and let IT rebuild the object in its own realm.
+       Assigning into br.getVerify() from HERE would put an object whose constructor belongs to
+       this iframe into the parent's `data`, and Firestore — which validates in the parent —
+       refuses it with "a custom Object object". That is exactly what blocked every cloud save
+       on 2026-10-08. br.setVerify() is bridge v4; an older parent page has no such method, so
+       fall back to the old assignment — the parent's saveData() rebuilds the whole payload. */
+    try{
+      if(typeof br.setVerify==='function')br.setVerify(VP.bidId,snap);
+      else{var store=br.getVerify();if(store)store[VP.bidId]=snap;}
+    }catch(e){why='setVerify threw: '+(e&&e.message);}
     try{prom=br.save();}catch(e){why='saveData threw: '+(e&&e.message);}
   }else{
     try{
