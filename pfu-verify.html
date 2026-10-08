@@ -216,7 +216,7 @@ tr.grp td{background:#10274a;color:#9fe8ff;font-size:11px;font-weight:700;letter
 <div class="apmodal" id="apModal">
   <div class="apcard">
     <h3>Approval email pack</h3>
-    <div class="apsub">Copy this and send it from your own mail client (SOGo / Outlook). Nothing is sent automatically.</div>
+    <div class="apsub">Copy this and send it from your own mail client (SOGo / Outlook). Nothing is sent automatically. The link is copied as a real hyperlink, so it stays clickable when you paste it.</div>
     <label>Subject</label>
     <input id="apSubject" readonly>
     <label>Body</label>
@@ -738,6 +738,10 @@ function apMailText(){
   var b=vpCurBid()||vpDemoBid();
   var v=picVerdict();
   var subj='[MGD] Stage-1 verification for approval \u2014 '+String(b.projectName||'(no name)');
+  /* 2026-10-08 — the approval URL used to be indented by two spaces here. A URL that starts
+     mid-line can be picked up by a mail client's auto-linkifier WITH the leading spaces still
+     attached, which turns the click into "https://…" prefixed by %20%20 and simply does nothing.
+     Starting the line with the URL removes that whole class of failure. Wording is untouched. */
   var body='Dear Sir,\n\n'+
     'Please review and approve the Stage-1 project verification (form MR-001) for:\n\n'+
     '  Project : '+String(b.projectName||'\u2014')+'\n'+
@@ -745,11 +749,45 @@ function apMailText(){
     '  Result  : '+v.label+'   (data confidence '+v.conf+'%)\n'+
     '  Items   : '+v.items+' counted \u2014 verified '+v.V+' / told '+v.T+' / missing '+v.M+'\n\n'+
     'Open this link to see the exact MR-001 form and record your decision:\n\n'+
-    '  '+AP.url+'\n\n'+
+    AP.url+'\n\n'+
     'No login and no account are needed \u2014 the link itself is the key.\n'+
     'It stops working after its expiry date, and once a decision is recorded the form locks.\n\n'+
     'Regards,\nTony Cheong\nMGD\n';
-  return {subj:subj,body:body};
+  return {subj:subj,body:body,url:String(AP.url||'')};
+}
+/* ------------------------------------------------------------------------------------------
+   Why the email pack is copied as RICH TEXT (Tony, 2026-10-08).
+
+   Symptom: "on the phone tapping the link is fine, on the computer clicking does nothing — I have
+   to copy it into the browser". The link was never broken: approve.html answers 200 online and
+   renders the real MR-001 form, and the phone proves the URL itself is good.
+
+   The desktop side is a mail-client problem. The pack used to be copied as PLAIN TEXT, so whether
+   it becomes a link depends entirely on the receiving client's auto-linkifier — and that is exactly
+   the thing that differs between a phone mail app (which always links a bare URL) and Outlook /
+   SOGo on a desktop (which may paste it as dead black text). Nothing in the link could fix that;
+   only carrying a real <a href> can.
+
+   So the copy now writes BOTH clipboard flavours:
+     text/html  — the URL wrapped in a genuine <a href>, so it is clickable the moment it is pasted;
+     text/plain — the old text, kept as the fallback for clients that only accept plain text.
+   The words of the email are unchanged; only the URL becomes a real hyperlink.
+
+   NOTE: the URL is 91 characters (https://…/approve.html?t=<32 hex>), which is past the 78-char
+   line width plain-text mail is supposed to use — a plain-text-only client can therefore hard-wrap
+   it and break the link. The rich flavour is immune to that, which is the second reason to send it.
+   ------------------------------------------------------------------------------------------ */
+function apMailParts(){
+  var m=apMailText();
+  var full='Subject: '+m.subj+'\n\n'+m.body;
+  var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  var html=esc(full).replace(/\n/g,'<br>');
+  /* Build the anchor with a function replacement: a token never contains "$", but a replacement
+     STRING would still treat any "$" in it as a capture reference, and this must not be a place
+     where a future token format can silently corrupt the href. */
+  if(m.url)html=html.replace(esc(m.url),function(){return '<a href="'+esc(m.url)+'">'+esc(m.url)+'</a>';});
+  html='<div style="font-family:Calibri,Arial,Helvetica,sans-serif;font-size:11pt;color:#000">'+html+'</div>';
+  return {subj:m.subj,url:m.url,text:full,html:html};
 }
 function apShowMail(){
   var m=apMailText(),s=g('apSubject'),b=g('apBody'),l=g('apLink'),mo=g('apModal');
@@ -765,15 +803,50 @@ function apCopy(id){
   if(ro)e.setAttribute('readonly','readonly');
   var t=g('apCopyTip');if(t){t.textContent='copied \u2713';setTimeout(function(){t.textContent='';},1800);}
 }
-function apCopyAll(){
-  var m=apMailText(),txt='Subject: '+m.subj+'\n\n'+m.body;
-  var done=function(){var t=g('apCopyTip');if(t){t.textContent='copied \u2713';setTimeout(function(){t.textContent='';},1800);}};
+function apCopyTipShow(){
+  var t=g('apCopyTip');if(t){t.textContent='copied \u2713';setTimeout(function(){t.textContent='';},1800);}
+}
+/* Legacy path. It still carries the RICH flavour: selecting a real DOM node and copying it puts
+   both text/html and text/plain on the clipboard, which is how this was done before the async
+   Clipboard API existed. Used when navigator.clipboard is unavailable — most importantly on a
+   file:// page, where the page is not a secure context and navigator.clipboard is undefined. */
+function apCopyRich(p){
+  var box=document.createElement('div');
+  box.setAttribute('contenteditable','true');
+  box.style.cssText='position:fixed;left:-99999px;top:0;opacity:0;white-space:pre-wrap';
+  box.innerHTML=p.html;
+  document.body.appendChild(box);
+  var ok=false;
   try{
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,done);return;}
+    var r=document.createRange();r.selectNodeContents(box);
+    var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+    ok=document.execCommand('copy');
+    s.removeAllRanges();
+  }catch(e){ok=false;}
+  if(document.body.contains(box))document.body.removeChild(box);
+  if(!ok){
+    /* Last resort: plain text only. The link will then depend on the client's auto-linkifier —
+       exactly the old behaviour — so it is only reached when nothing else works. */
+    var ta=document.createElement('textarea');ta.value=p.text;ta.style.cssText='position:fixed;left:-99999px;top:0';
+    document.body.appendChild(ta);
+    try{ta.select();document.execCommand('copy');}catch(e){}
+    if(document.body.contains(ta))document.body.removeChild(ta);
+  }
+  apCopyTipShow();
+}
+function apCopyAll(){
+  var p=apMailParts();
+  try{
+    if(window.isSecureContext&&navigator.clipboard&&navigator.clipboard.write&&typeof ClipboardItem!=='undefined'){
+      var item=new ClipboardItem({
+        'text/html':new Blob([p.html],{type:'text/html'}),
+        'text/plain':new Blob([p.text],{type:'text/plain'})
+      });
+      navigator.clipboard.write([item]).then(apCopyTipShow,function(){apCopyRich(p);});
+      return;
+    }
   }catch(e){}
-  var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);
-  try{ta.select();document.execCommand('copy');}catch(e){}
-  document.body.removeChild(ta);done();
+  apCopyRich(p);
 }
 </script>
 </body>
