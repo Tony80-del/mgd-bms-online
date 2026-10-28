@@ -12908,5 +12908,81 @@ function bkSyncAddBtn(){try{var b=document.getElementById('ba');if(!b)return;
     </div>
   </div>
 </div>
+
+<!-- ===== 2026-10-28 · 隐藏残字 [object Object] =====
+     只隐藏，不删除。元素留在页面里，数据一个字不动，原有代码不改。
+     规则：只处理「没有子元素、且整块文字正好是 [object Object]」的元素。
+     文字变回正常内容时自动恢复显示，所以不会挡掉以后的正常提示。
+     要关掉：把下面 HIDE 改成 false。 -->
+<script>
+(function(){
+  var HIDE = true;                    /* ← 开关 */
+  var MARK = '[object Object]';
+  var saved = new WeakMap();          /* 元素 -> 隐藏前的 display 值 */
+
+  function isBad(el){
+    if(!el || el.nodeType !== 1) return false;
+    if(el.children && el.children.length) return false;   /* 只处理叶子元素，避免连带藏掉旁边内容 */
+    return (el.textContent || '').trim() === MARK;
+  }
+  function hide(el){
+    if(!saved.has(el)) saved.set(el, el.style.display || '');
+    if(el.style.display !== 'none') el.style.display = 'none';
+  }
+  function restore(el){
+    if(!saved.has(el)) return;
+    el.style.display = saved.get(el);
+    saved.delete(el);
+  }
+  /* 判断单个元素 + 它的子元素（范围小，不做全页扫描） */
+  function check(root){
+    if(!HIDE || !root || root.nodeType !== 1) return;
+    if(isBad(root)) hide(root);
+    else if(saved.has(root)) restore(root);
+    var all;
+    try{ all = root.querySelectorAll('*'); }catch(e){ return; }
+    for(var i=0;i<all.length;i++){
+      var el = all[i];
+      if(isBad(el)) hide(el);
+      else if(saved.has(el)) restore(el);
+    }
+  }
+  /* 整页扫一遍（只在启动和几个时间点做，不跟输入联动） */
+  function sweepAll(){
+    if(!HIDE) return;
+    try{ check(document.body); }catch(e){}
+  }
+
+  function boot(){
+    sweepAll();
+    try{
+      var mo = new MutationObserver(function(muts){
+        if(!HIDE) return;
+        for(var i=0;i<muts.length;i++){
+          var m = muts[i];
+          if(m.type === 'characterData'){
+            var p = m.target && m.target.parentNode;
+            if(p && p.nodeType === 1) check(p);
+          } else if(m.type === 'childList'){
+            for(var j=0;j<m.addedNodes.length;j++){
+              var n = m.addedNodes[j];
+              if(n.nodeType === 1) check(n);
+              else if(n.nodeType === 3 && n.parentNode && n.parentNode.nodeType === 1) check(n.parentNode);
+            }
+          }
+        }
+      });
+      mo.observe(document.body, {childList:true, subtree:true, characterData:true});
+    }catch(e){}
+    /* 兜底：页面加载后几个时间点再各扫一次（云端同步 / 重绘发生在这些时刻） */
+    [300, 1200, 3000, 6000, 12000].forEach(function(t){
+      setTimeout(function(){ sweepAll(); }, t);
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
 </body>
 </html>
