@@ -724,7 +724,8 @@
     <div class="field"><div class="field-label">依赖</div>
       <div class="field-value">无业务依赖。有<b>双写</b>：同时写 <span class="loc">bms_doc_data</span> 和 <span class="loc">data.docSECTIONS</span>，靠 <span class="loc">bms_doc_migrated</span> 防重。</div></div>
     <div class="field"><div class="field-label">加模块挂点</div>
-      <div class="field-value">加章节 → 界面点，不改代码。<b>结构在数据里。</b></div></div>
+      <div class="field-value">加章节 → 界面点，不改代码。<b>结构在数据里。</b><br>
+      <b>本模块占用了 <span class="loc">searchInput</span> 这个 id</b>（工具栏搜索框，<span class="loc">:2872</span>），别处不要再复用。2026-10-29 之前 Documents Collection 也用了同一个 id，结果 DC 的 ✕ 按钮清的是这里的框 —— 因为 <span class="loc">getElementById</span> 只返回 DOM 里第一个。新增控件请带 <span class="loc">doc</span> 前缀。</div></div>
   </div>
 </div>
 
@@ -755,7 +756,8 @@
       <div class="field-value">读文档库章节。写独立云端文档。跟主数据完全隔离。</div></div>
     <div class="field"><div class="field-label">加模块挂点</div>
       <div class="field-value">加成员 → 界面点。改领取流程 → <span class="loc">doCheckout()</span> / <span class="loc">confirmDownload()</span>。<br>
-      <b>加提示条 → 直接调 <span class="loc">showToast(标题, 正文)</span>，别自己新建容器。</b>容器只有两个，判断逻辑在函数里；另起一个就会掉进「父元素 display:none 里，永远看不见」的老坑。</div></div>
+      <b>加提示条 → 直接调 <span class="loc">showToast(标题, 正文)</span>，别自己新建容器。</b>容器只有两个，判断逻辑在函数里；另起一个就会掉进「父元素 display:none 里，永远看不见」的老坑。<br>
+      <b>加任何新元素 → id 必须带 <span class="loc">dc</span> 前缀。</b>本模块搜索框 2026-10-29 从 <span class="loc">searchInput</span> 改成 <span class="loc">dcSearchInput</span>，因为它跟文档库撞了 —— <span class="loc">getElementById</span> 只返回 DOM 里第一个，于是 DC 的 ✕ 清的是文档库的框。别再改回去。</div></div>
   </div>
 </div>
 
@@ -955,13 +957,10 @@
 <!-- ================= 第五层 ================= -->
 <div class="section-title">第五层 · 已知缺陷（按严重度）</div>
 
-<div class="risk-box">
-  <div class="risk-title">A 级 · 会出错 <span style="color:var(--muted); font-weight:400;">（D6 待办）</span></div>
-  <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D6</span><span class="ri-t">searchInput id 重复</span></div>
-    <div class="ri-r"><b>位置</b>：<span class="loc">:2872</span>（文档库）与 <span class="loc">:8695</span>（Documents Collection）<br>
-    <b>影响</b>：<span class="loc">getElementById('searchInput')</span> 永远只拿到文档库那个。现在没炸是因为用了 <span class="loc">this.value</span>。<br>
-    <b>要做</b>：给其中一个改名。</div>
+<div class="risk-box" style="border-color:rgba(110,231,168,.35); background:linear-gradient(180deg, rgba(110,231,168,.05), var(--card) 55%);">
+  <div class="risk-title" style="color:var(--ok)">A 级 · 会出错 <span style="color:var(--ok); font-weight:400;">（已清零 · 2026-10-29）</span></div>
+  <div class="risk-item" style="border:none; background:none;">
+    <div class="ri-r">A 级条目已全部处理完毕。做法、踩过的坑和注意事项都写进了第二层对应卡片，这一层不再重复。</div>
   </div>
 </div>
 
@@ -993,7 +992,7 @@
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。第一张卡「云端同步 / 快照」没有侧边栏入口，但加任何模块前都该先看它。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 1 条会真出错，B 级 3 条会让数字骗人，D6–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
+  5. <b>第五层</b>：<b>A 级已清零</b>（2026-10-29），B 级 3 条会让数字骗人，D7–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
