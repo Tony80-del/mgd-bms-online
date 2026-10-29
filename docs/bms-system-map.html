@@ -859,11 +859,16 @@
       <div class="field-value multi">
         <div><b>入（应有）</b>：BMS v1 的 <b>Project Information</b> —— <b>只挑 Potential / Confident 的项目</b>（来源表：<span class="key">bids</span> 51 条 / <span class="key">projectTracking</span> 31 条）。<b>现在靠人工敲</b></div>
         <div><b>出</b>：无。不写回 BMS、不写云端、不产生任何文件</div>
+        <div><b>输出格式</b>：BMS v1 <b>用自己的名字和代码输出，不为策略页改名</b> —— <span class="loc">stageContent</span> 给的是 <span class="loc">Bidding / 投标中</span> 这种长双语、<span class="loc">estimatedValue</span> 给的是纯 VND 数字（<span class="loc">88700000000</span>）、<span class="loc">estValue</span> 给的是带单位文本（<span class="loc">「88.7B VND」</span>）。<b>三套格式由翻译层统一；翻译在接收侧做，BMS 零改动。</b></div>
         <div><b>字段缺口</b>：来源 / 把握度 / 客户类型（老·新）/ 预算放出月 —— <b>BMS v1 里都没有</b>；进度 BMS 只有 4 档、策略要 8 档</div>
         <div><b>同步方案未定</b>：A 手动搬 xlsx / B 直连 Firestore 只读 / C BMS 导出 JSON → 策略页导入。<b>三者写出来的「数据键」与「数据流向」完全不同</b>，所以本卡暂不写死</div>
       </div></div>
     <div class="field"><div class="field-label">依赖</div>
-      <div class="field-value">上游：BMS v1 <span class="key">bids</span> / <span class="key">projectTracking</span> / <span class="key">customers</span>。<b>目前零代码依赖，纯人工</b> —— 这个文件本身不知道 BMS 存在。</div></div>
+      <div class="field-value">上游：BMS v1 <span class="key">bids</span> / <span class="key">projectTracking</span> / <span class="key">customers</span>。<b>目前零代码依赖，纯人工</b> —— 这个文件本身不知道 BMS 存在。<br>
+      <b>软链接实况（实测 2026-10-29）</b>：PFU 与投标的链接字段是 <span class="loc">filledFromBid</span>，<b>它存的不是 id，是投标的 projectName 字符串</b>。31 条里 30 条有值；按项目名匹配 <b>29/30 成功</b>，<b>1 条断链</b>（<span class="loc">Construction Package</span> —— 投标表里没有这个项目名）。两表 id 各自唯一但<b>交集 0</b>，所以「用 id 链接」在当前结构下连不上。<br>
+      <b>翻译层三条判重规则（建议）</b>：① 优先 <span class="loc">filledFromBid</span>；② 撞名时按 <span class="loc">customerName + projectName</span> 组合判（<span class="loc">Okia-Lg</span> 被 2 条 PFU 共用，靠客户名才分得开）；③ 断链<b>不要静默跳过</b>，进「待人工确认」清单。<br>
+      <b>已知撞名</b>：<span class="loc">OKIA-LG</span> ← 2 条 PFU；投标侧 <span class="loc">BETRIMEX FACTORY</span> 有 2 条同名（一条 stage 空、一条 Follow up，金额都空）。<br>
+      <b>客户名不是问题</b>：PFU 的 29 个不同客户名，规范化后 <b>100% 能在 bids 里精确找到</b> —— 真正脆弱的是项目名，不是客户名。</div></div>
     <div class="field"><div class="field-label">加模块挂点</div>
       <div class="field-value">加口袋 → 改 <span class="loc">ORDER</span> + <span class="loc">SEED</span>（<span class="loc">:524</span>）+ 渲染，三处。<br>
       加字段 → 改 <span class="loc">ORDER</span> 数组 + 表头。<br>
@@ -1067,6 +1072,7 @@
 <div class="foot" style="border-left:3px solid var(--warn); margin-top:14px;">
   <b>待定 · 2 项（2026-10-29 记录，以后再做，本版不动）</b><br>
   <span style="color:var(--ok)">方向已定：<b>BMS v1 是数据发出方（唯一源），2027 业务策略是接收方 —— 单向，策略不回写 BMS。</b>项目信息一律以 BMS v1 为准。</span><br>
+  <span style="color:var(--ok)">翻译已定：<b>BMS v1 用自己的名字和代码输出，不为策略页改名。</b>翻译逻辑写在<b>接收侧</b>（策略页），BMS 零改动；规则变更要留版本。</span><br>
   1. <b>第四层 · 分层依赖</b>：策略文件不在 L0–L8 依赖表里。<br>
   2. <b>口径对齐</b>：策略页口袋 1 的 SEED 合计 <b>1,669.7 B</b>，与 BMS v1 两套口径都对不上 —— 按「PFU 未结 + 已到 PQ/Negotiation/Result」是 <b>688.7 B</b>（差 981 B）；按「投标 stage = Result」是 <b>1,195.7 B</b>（差 474 B）。<b>用哪套规则未定，暂不算缺陷。</b><br>
   <span style="color:var(--hint)">已完成：① 第二层已开第 15 张卡 <span class="loc">#c-strategy</span>「2027 业务策略 · 精简版」；② 第三层已画【出】下游输出这条边（BMS v1 → 策略，只挑 Potential / Confident）。</span>
