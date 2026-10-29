@@ -6049,7 +6049,23 @@ function restoreAll(event){
             var parsed = JSON.parse(bmsData);
             fdb.collection('bms_data').doc('master').set({ data: parsed, updatedBy: 'restore', updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
               .then(function(){ console.log('[Restore] Synced to Firestore OK'); location.reload(); })
-              .catch(function(e){ console.log('[Restore] Firestore push failed:', e.message); location.reload(); });
+              .catch(function(e){
+                /* 2026-10-29 — stop lying. Until now this path reloaded whether the cloud write
+                   succeeded or not, so a failed restore looked exactly like a successful one:
+                   the reload re-attaches the onSnapshot listener, the cloud copy (still old)
+                   overwrites localStorage, and the restore is silently undone. Say it out loud. */
+                var _why = (e && e.message) || 'unknown error';
+                console.log('[Restore] Firestore push failed:', _why);
+                try{
+                  alert('恢复未写入云端 / Restore did NOT reach the cloud\n\n'
+                    + '原因 / Reason: ' + _why + '\n\n'
+                    + '本机数据已恢复，但云端还是旧的。刷新后云端旧数据会覆盖本机，恢复等于白做。\n'
+                    + 'The file was restored in this browser only. After this reload the cloud copy will overwrite it.\n\n'
+                    + '先检查网络，再重新上传同一个备份文件。\n'
+                    + 'Check the connection, then upload the same backup file again.');
+                }catch(_){}
+                location.reload();
+              });
           } catch(e){ location.reload(); }
         } else { location.reload(); }
       } else { location.reload(); }
@@ -9059,7 +9075,16 @@ function dcCloudPush(){
     };
     fdb.collection('bms_data').doc(DC_CLOUD_DOC).set(payload)
       .then(function(){ console.log('[dc] cloud push ok'); })
-      .catch(function(e){ console.warn('[dc] cloud push failed:', e); });
+      .catch(function(e){
+        /* 2026-10-29 — was console.warn only. A failed push meant members / PIN / pick history
+           never left this browser, and dcCloudLoad() lets the cloud win on the next open, so the
+           change vanished without a word. Say it out loud. */
+        console.warn('[dc] cloud push failed:', e);
+        try{
+          showToast('Documents Collection 未同步到云端 / Not synced to the cloud',
+            ((e && e.message) || 'network error') + ' — 这次改动只存在本机，下次打开会被云端旧数据覆盖。');
+        }catch(_){}
+      });
   }, 400);
 }
 
