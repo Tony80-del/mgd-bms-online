@@ -355,7 +355,7 @@
     <div class="field"><div class="field-label">角色</div>
       <div class="field-value">全系统的数据出口。四张主卡（营收仪表盘 / 客户饼图 / Event List / 投标统计）+ 6 张阶段卡 + 4 张客户卡 + 3 张商会卡。只读，从不写数据。</div></div>
     <div class="field"><div class="field-label">状态</div>
-      <div class="field-value"><span class="status-badge s-ok">已建</span> · 1 处硬编码影响数字真实性（见第五层 D4）</div></div>
+      <div class="field-value"><span class="status-badge s-ok">已建</span> · 1 处硬编码影响数字真实性（见第五层 D8）</div></div>
     <div class="field"><div class="field-label">入口</div>
       <div class="field-value">侧边栏「综合统计」→ <span class="key">sm('summary')</span></div></div>
     <div class="field"><div class="field-label">数据键</div>
@@ -413,8 +413,10 @@
     <div class="field"><div class="field-label">功能清单</div>
       <div class="func-list">
         <div><b>投标</b>：增删改查 · A/B 分类 · 预估金额汇总 · 阶段推进 · Excel/CSV 导出导入 · 打印 · 暂停/取消勾选</div>
-        <div><b>筛选</b>：全部 / 投标中 / 跟踪 / 潜在 / 已取消 / Won 六个桶</div>
+        <div><b>阶段内容</b>：<b>4 个选项</b> —— 投标中 / 跟踪 · Follow up / 潜在 / 已取消。「中标 / Won」已于 <b>2026-10-29 移除</b>，Won 只认 PFU 结果（<span class="loc">:3146</span>）</div>
+        <div><b>筛选</b>：全部 / 投标中 / 跟踪 / 潜在 / 已取消 / Won 六个桶。注意：<b>Won 桶的数据来自 PFU，不是阶段内容</b></div>
         <div><b>行内编辑</b>：可编辑单元格 · 冻结首列 · 列宽拖拽 · 商会出现日期点击即改</div>
+        <div><b>已知遗留</b>：8 条历史记录存的是 <span class="loc">Following / 跟踪</span>，不在这 4 个选项里 → 编辑表单阶段显示为空，且<b>点一次保存就会被写成空</b>（方案待定）</div>
       </div></div>
     <div class="field"><div class="field-label">数据流向</div>
       <div class="field-value multi">
@@ -443,7 +445,8 @@
       <div class="field-value"><span class="loc">index.html:993</span> <span class="loc">#bidsTrackingContainer</span> · 明细渲染 <span class="loc">:10976 pfuRenderDetail()</span><br>
       6 阶段定义 <span class="loc">:10590 PFU_STAGES</span> · 记录结构 <span class="loc">:10627 pfuSeed()</span></div></div>
     <div class="field"><div class="field-label">角色</div>
-      <div class="field-value"><b>全系统唯一的结果出口。</b>项目的 Won / Lost / Cancelled 只在这里填，投标表那边的阶段字段不决定输赢。</div></div>
+      <div class="field-value"><b>全系统唯一的结果出口。</b>项目的 Won / Lost / Cancelled 只在这里填，投标表那边的阶段字段不决定输赢。<br>
+      <b>2026-10-29 起是唯一入口：</b>投标编辑表单的阶段内容下拉已删掉「中标 / Won」，剩下 4 个选项都不含结果。要标 Won，只能在这里填 <span class="loc">result.status='Won'</span>，没有第二个地方能产生 Won。</div></div>
     <div class="field"><div class="field-label">6 个阶段</div>
       <div class="field-value"><span class="loc">1 · Project Info collection → 2 · PQ → 3 · Bidding → 4 · Reviewing → 5 · Negotiation → 6 · Result</span></div></div>
     <div class="field"><div class="field-label">数据键</div>
@@ -452,7 +455,7 @@
     <div class="field"><div class="field-label">功能清单</div>
       <div class="func-list">
         <div><b>阶段推进</b>：6 阶段 · 每阶段带任务清单 · 完成率自动算 progress</div>
-        <div><b>结果填写</b>：Won / Lost / Cancelled · 结果日期 · 原因</div>
+        <div><b>结果填写</b>：Won / Lost / Cancelled · 结果日期 · 原因 —— <b>全系统唯一能产生 Won 的地方</b></div>
         <div><b>从投标带过来</b>：<span class="loc">pfuFillFromBid()</span> 模糊匹配项目名（100/80/60 分）</div>
         <div><b>双向同步</b>：<span class="loc">pfuSyncStageToBid()</span> 把 PFU 阶段写回投标表</div>
         <div><b>三个隐藏表单</b>：PIF · Close Analysis · Cancellation Report</div>
@@ -517,7 +520,7 @@
         <div><b>互动次数</b>：<span class="loc">interactionCount</span> 累加，显示在客户行</div>
       </div></div>
     <div class="field"><div class="field-label">数据流向</div>
-      <div class="field-value">入：手工录入。出：综合统计互动数（<span style="color:var(--warn)">带 +125 硬编码</span>）。</div></div>
+      <div class="field-value">入：手工录入。出：综合统计互动数。</div></div>
     <div class="field"><div class="field-label">依赖</div>
       <div class="field-value">上游：客户管理（<span class="key">customerName</span> 文本匹配）。下游：综合统计。</div></div>
     <div class="field"><div class="field-label">加模块挂点</div>
@@ -927,12 +930,6 @@
     已 push（v1 <span class="loc">b93d886</span>、v2 <span class="loc">f877c7d</span>），线上 sha 已核对。</div>
   </div>
   <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D4</span><span class="ri-t">中标金额可能被算两次</span></div>
-    <div class="ri-r"><b>位置</b>：<span class="loc">:2376 resolveProj()</span> 说不看投标的中标标记 vs <span class="loc">:4925 pfuWonRevenue()</span> 去重时看它<br>
-    <b>影响</b>：同一项目可能进营收一次，也可能两次。<br>
-    <b>要做</b>：统一口径。</div>
-  </div>
-  <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">137 处空 catch · 失败无声</span></div>
     <div class="ri-r"><b>位置</b>：全文件，云同步相关约 40 处<br>
     <b>影响</b>：写云端失败时界面照显示成功。D1 当年涨满额度就是被这些空 catch 盖住的——D1 已修，但这个放大器还在。<br>
@@ -974,7 +971,7 @@
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 5 条会真出错，B 级 3 条会让数字骗人。<b>D1、D2 已于 2026-10-29 修复</b>，其余 D4–D9 待办。<br>
+  5. <b>第五层</b>：A 级 4 条会真出错，B 级 3 条会让数字骗人。<b>D1、D2 已于 2026-10-29 修复</b>，其余 D5–D9 待办。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
