@@ -189,7 +189,7 @@
 <div class="header">
   <div>
     <h1>BMS v1 系统地图</h1>
-    <div class="meta">MGD Business Management System · <b>10 主模块 + 5 隐藏子表单</b> · 已运营</div>
+    <div class="meta">MGD Business Management System · <b>10 主模块 + 5 隐藏子表单</b> · 1 个下游消费方 · 已运营</div>
   </div>
   <div class="meter">
     <div class="row"><span>云文档 master</span><span>310 KB / 1 MiB · 30.2%</span></div>
@@ -205,13 +205,13 @@
 
 <!-- ================= 第一层 ================= -->
 <div class="section-title">第一层 · 系统总览</div>
-<div class="section-note">一个文件承担全部功能。10 个模块的 DOM 同时存在于同一个页面，<span class="loc">sm()</span> 只切换显示，不销毁重建。</div>
+<div class="section-note">一个文件承担全部功能。10 个模块的 DOM 同时存在于同一个页面，<span class="loc">sm()</span> 只切换显示，不销毁重建。另有 1 个策略文件（2027 业务策略 · 精简版）只读本系统的项目数据 —— 它手工维护、数据来源尚未接通。</div>
 
 <div class="ov-canvas">
   <div class="ov-hub">
     <div class="n">index.html · BMS 主程序</div>
     <div class="f">13,152 行 · 1,057,081 字节</div>
-    <div class="r">登录 MGD2026 · 中英双语 · 侧边栏 10 项 · 589 个顶层函数 · 0 个重复定义</div>
+    <div class="r">登录 MGD2026 · 中英双语 · 侧边栏 10 项 · 589 个顶层函数 · 0 个重复定义 · 下游：2027 业务策略（只读）</div>
     <div><span class="status-badge s-ok">已运营</span> <span class="status-badge s-info">云端同步中</span></div>
   </div>
 
@@ -310,6 +310,15 @@
       <div class="s-name">mgd-bms-mobile.html</div>
       <div class="s-file">447 行 · 独立应用</div>
       <div class="s-count">手机版 · <span style="color:var(--warn)">不共享数据</span></div>
+    </div>
+  </div>
+
+  <div class="ov-label">下游消费方 · 1 个 · 只读本系统项目数据，不回写</div>
+  <div class="ov-row3">
+    <div class="ov-sys ext">
+      <div class="s-name">2027 业务策略 · 精简版</div>
+      <div class="s-file">2027-strategy-v2-demo.html · 1,302 行 · 不在本 repo</div>
+      <div class="s-count">目标 <b>1,600 B</b> · 4 口袋 + Result · 只算口袋 1<br>手工维护 · 数据来源待接</div>
     </div>
   </div>
 
@@ -988,12 +997,20 @@
 
 <div class="foot">
   <b>怎么用这份地图</b><br>
-  1. <b>第一层</b>：一眼看见 10 个模块和它们的实际记录数，以及 4 条云端路径。<br>
+  1. <b>第一层</b>：一眼看见 10 个模块和它们的实际记录数、3 个外围文件、1 个下游消费方（2027 业务策略），以及 4 条云端路径。<br>
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。第一张卡「云端同步 / 快照」没有侧边栏入口，但加任何模块前都该先看它。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
   5. <b>第五层</b>：<b>A 级已清零</b>（2026-10-29），B 级 3 条会让数字骗人，D7–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
+</div>
+
+<div class="foot" style="border-left:3px solid var(--warn); margin-top:14px;">
+  <b>待定 · 4 项（2026-10-29 记录，以后再做，本版不动）</b><br>
+  1. <b>第三层 · 数据流向</b>：还没有「BMS v1 → 2027 业务策略」这条出边。目前只画了系统内部四条流向。<br>
+  2. <b>第四层 · 分层依赖</b>：策略文件不在 L0–L8 依赖表里。<br>
+  3. <b>第二层 · 系统卡片</b>：要不要给 Business Strategy 单开一张卡（做法同第 14 张「云端同步 / 快照」）。<br>
+  4. <b>口径对齐</b>：策略页口袋 1 的 SEED 合计 <b>1,669.7 B</b>，与 BMS v1 两套口径都对不上 —— 按「PFU 未结 + 已到 PQ/Negotiation/Result」是 <b>688.7 B</b>（差 981 B）；按「投标 stage = Result」是 <b>1,195.7 B</b>（差 474 B）。<b>用哪套规则未定，暂不算缺陷。</b>
 </div>
 
 </div>
