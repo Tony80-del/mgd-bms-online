@@ -952,7 +952,7 @@
 
 <!-- ================= 第四层 ================= -->
 <div class="section-title">第四层 · 分层依赖 + 加模块该放哪</div>
-<div class="section-note">全部已建。这一层不是排期表，是「以后加东西该挂在哪一层、要改哪几处」。</div>
+<div class="section-note">L0–L8 全部已建，L9 是系统外的下游消费方（手工维护，不算已建）。这一层不是排期表，是「以后加东西该挂在哪一层、要改哪几处」。</div>
 
 <table class="rt">
   <thead>
@@ -1013,6 +1013,12 @@
       <td><span class="status-badge s-ok">已建</span></td><td>独立</td>
       <td class="sm">章节类改数据不改代码；文件类要独立部署</td>
     </tr>
+    <tr>
+      <td class="step">L9</td><td>下游</td>
+      <td><b>2027 业务策略 · 精简版</b>（<span class="loc">2027-strategy-v2-demo.html</span> · 系统外 · 不在本 repo）</td>
+      <td><span class="status-badge s-wait">手工维护</span></td><td>L3 · L5</td>
+      <td class="sm">新增一个下游消费方：① 定翻译规则 ② 决定翻译放哪端 ③ 断链进「待人工确认」清单。文件在 repo 外，<b>无 git 版本控制</b></td>
+    </tr>
   </tbody>
 </table>
 
@@ -1064,18 +1070,17 @@
   1. <b>第一层</b>：一眼看见 10 个模块和它们的实际记录数、3 个外围文件、1 个下游消费方（2027 业务策略），以及 4 条云端路径。<br>
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。第一张卡「云端同步 / 快照」没有侧边栏入口，但加任何模块前都该先看它。<br>
   3. <b>第三层</b>：五条流向分开看。写、读、审批、资料、下游输出各走各的，别混。<br>
-  4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
+  4. <b>第四层</b>：L0–L9 十层。想知道新东西该放哪层，先看这一层的「依赖」列。L9 是系统外的下游，不进 BMS 的依赖链。<br>
   5. <b>第五层</b>：<b>A 级已清零</b>（2026-10-29），B 级 3 条会让数字骗人，D7–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
 <div class="foot" style="border-left:3px solid var(--warn); margin-top:14px;">
-  <b>待定 · 2 项（2026-10-29 记录，以后再做，本版不动）</b><br>
+  <b>待定 · 1 项（2026-10-29 记录，以后再做，本版不动）</b><br>
   <span style="color:var(--ok)">方向已定：<b>BMS v1 是数据发出方（唯一源），2027 业务策略是接收方 —— 单向，策略不回写 BMS。</b>项目信息一律以 BMS v1 为准。</span><br>
   <span style="color:var(--ok)">翻译已定：<b>BMS v1 用自己的名字和代码输出，不为策略页改名。</b>翻译逻辑写在<b>接收侧</b>（策略页），BMS 零改动；规则变更要留版本。</span><br>
-  1. <b>第四层 · 分层依赖</b>：策略文件不在 L0–L8 依赖表里。<br>
-  2. <b>口径对齐</b>：策略页口袋 1 的 SEED 合计 <b>1,669.7 B</b>，与 BMS v1 两套口径都对不上 —— 按「PFU 未结 + 已到 PQ/Negotiation/Result」是 <b>688.7 B</b>（差 981 B）；按「投标 stage = Result」是 <b>1,195.7 B</b>（差 474 B）。<b>用哪套规则未定，暂不算缺陷。</b><br>
-  <span style="color:var(--hint)">已完成：① 第二层已开第 15 张卡 <span class="loc">#c-strategy</span>「2027 业务策略 · 精简版」；② 第三层已画【出】下游输出这条边（BMS v1 → 策略，只挑 Potential / Confident）。</span>
+  1. <b>口径对齐</b>：策略页口袋 1 的 SEED 合计 <b>1,669.7 B</b>，与 BMS v1 两套口径都对不上 —— 按「PFU 未结 + 已到 PQ/Negotiation/Result」是 <b>688.7 B</b>（差 981 B）；按「投标 stage = Result」是 <b>1,195.7 B</b>（差 474 B）。<b>用哪套规则未定，暂不算缺陷。</b><br>
+  <span style="color:var(--hint)">已完成：① 第二层开第 15 张卡 <span class="loc">#c-strategy</span>；② 第三层画出【出】下游输出边（BMS v1 → 策略，只挑 Potential / Confident）；③ 第四层加 L9「下游」行（依赖 L3 · L5，手工维护）。</span>
 </div>
 
 </div>
