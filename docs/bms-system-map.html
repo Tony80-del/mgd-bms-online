@@ -338,6 +338,52 @@
 <div class="section-title">第二层 · 系统卡片（点标题展开）</div>
 <div class="section-note">每张卡片 9 个字段：位置 / 角色 / 状态 / 入口 / 数据键 / 功能清单 / 数据流向 / 依赖 / 加模块挂点。最后一项是给你以后扩展用的。</div>
 
+<!-- 0 云端同步（通道层，不属于任何业务模块） -->
+<div class="sys-card built" id="c-sync">
+  <div class="sys-head" onclick="toggleCard('c-sync')">
+    <div class="left">
+      <span class="sys-tag">底层</span>
+      <span class="sys-name">云端同步 / 快照</span>
+      <span class="sys-sub">没有侧边栏入口 · 所有模块都靠它</span>
+    </div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">115 份 · ≈36 MB</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value">节流 <span class="loc">:7315–7335</span> · 修剪 <span class="loc">:7355 pruneCloudSnapshots()</span> · 调用点 <span class="loc">:7650</span>（紧跟 <span class="loc">listenToCloud()</span>）<br>
+      云徽标闪 <span class="loc">:7538</span> · 全局提示容器 <span class="loc">:13150 #gToast</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">全系统<b>唯一的写云端通道</b>。它不属于任何业务模块，但每个模块保存时都要走它。理解这一层，才知道为什么加模块不用改同步代码。</div></div>
+    <div class="field"><div class="field-label">状态</div>
+      <div class="field-value"><span class="status-badge s-ok">已建</span> · <b>2026-10-29 加固</b>：节流 + 每日自动修剪 + 手工快照保护。此前快照无上限增长到 3,325 份 / 0.98 GiB（占免费层 98%）。</div></div>
+    <div class="field"><div class="field-label">入口</div>
+      <div class="field-value">无侧边栏入口。自动运行：登录 → <span class="loc">listenToCloud()</span> → 首次保存触发一次快照。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">bms_data/master</span>（全量覆盖，310 KB / 1 MiB）· <span class="key">master/snapshots</span>（只写，界面只显示最新 50 份）<br>
+      本机标记：<span class="loc">&lt;projectId&gt;_last_snap_at</span> · <span class="loc">&lt;projectId&gt;_snap_pruned_on</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>10 分钟节流</b>：同一台设备 10 分钟内只写 1 份快照，连那次 <span class="loc">master.get()</span> 也一起省掉</div>
+        <div><b>每日自动修剪</b>：每设备每天跑一次，规则 = 最新 50 份 + 最近 90 天每天最后 1 份</div>
+        <div><b>手工快照保护</b>：名字不符合 <span class="loc">YYYYMMDD_HHmmss</span> 的<b>永不删除</b>（如 <span class="loc">_pre-restore</span>、<span class="loc">_pre-v1-transfer</span>）</div>
+        <div><b>命名空间隔离</b>：标记键按 <span class="loc">firebaseConfig.projectId</span> 命名 —— v1 与 v2 同域名共用 localStorage，不分就会互相干扰</div>
+        <div><b>云端更新提示</b>：不弹框，只让云徽标闪 2 秒（它每次远端写入都触发，弹框会烦死人）</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value multi">
+        <div>入：<span class="loc">saveData()</span> 的整个 <span class="loc">data</span> 对象（全量，不做增量）</div>
+        <div>出：<span style="color:var(--tag3)">master</span> 覆盖写 · <span style="color:var(--tag3)">snapshots</span> 追加 · <span style="color:var(--tag3)">云徽标状态</span></div>
+      </div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">上游：L0 登录 + Firestore 连接。下游：<b>全部 10 个模块</b>的保存动作。断开则所有模块只能写本机。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">新增数据键<b>不用改这里</b> —— 全量覆盖会自动带上，快照也会自动包含。但加之前先算三个数：<br>
+      ① <b>1 MiB 硬上限</b>（现 310 KB / 30%），单条大文本会吃掉配额；<br>
+      ② <b>快照体积 = master 体积 × 份数</b>，master 涨 100 KB，云端就多约 11 MB；<br>
+      ③ <b>手工快照要自己清</b> —— 自动修剪故意不碰它们，攒多了照样占额度。</div></div>
+  </div>
+</div>
+
 <!-- 1 综合统计 -->
 <div class="sys-card read" id="c-summary">
   <div class="sys-head" onclick="toggleCard('c-summary')">
@@ -695,13 +741,15 @@
         <div><b>领取</b>：选人 → 输 PIN → 浏览章节 → 加购物车 → 结账 → 批量下载</div>
         <div><b>记录</b>：领取历史 · 历史详情 · 清空历史（需 PIN）</div>
         <div><b>管理</b>：加/删成员 · 设 PIN · 重置 PIN</div>
+        <div><b>提示条</b>：DC 内走 <span class="loc">#dcToast</span>（在 <span class="loc">#dcApp</span> 里，观感不变）；DC 外走 <span class="loc">#gToast</span>（body 层右下角）。<span class="loc">showToast(a,b)</span> 自己判断用哪个，字符串和对象两种签名都接</div>
       </div></div>
     <div class="field"><div class="field-label">数据流向</div>
       <div class="field-value">入：<span class="loc">docSECTIONS</span>（只读同一份章节数据）。出：<span class="loc">doc_dc.pickHistory</span>（领取记录，当前 4 条）。</div></div>
     <div class="field"><div class="field-label">依赖</div>
       <div class="field-value">读文档库章节。写独立云端文档。跟主数据完全隔离。</div></div>
     <div class="field"><div class="field-label">加模块挂点</div>
-      <div class="field-value">加成员 → 界面点。改领取流程 → <span class="loc">doCheckout()</span> / <span class="loc">confirmDownload()</span>。</div></div>
+      <div class="field-value">加成员 → 界面点。改领取流程 → <span class="loc">doCheckout()</span> / <span class="loc">confirmDownload()</span>。<br>
+      <b>加提示条 → 直接调 <span class="loc">showToast(标题, 正文)</span>，别自己新建容器。</b>容器只有两个，判断逻辑在函数里；另起一个就会掉进「父元素 display:none 里，永远看不见」的老坑。</div></div>
   </div>
 </div>
 
@@ -902,33 +950,7 @@
 <div class="section-title">第五层 · 已知缺陷（按严重度）</div>
 
 <div class="risk-box">
-  <div class="risk-title">A 级 · 会出错 <span style="color:var(--ok); font-weight:400;">（D1、D2 已修，其余待办）</span></div>
-  <div class="risk-item" style="border-color:rgba(110,231,168,.35); background:linear-gradient(180deg, rgba(110,231,168,.05), var(--card) 55%);">
-    <div class="ri-h"><span class="ri-n" style="color:var(--ok); background:var(--okb)">D1</span><span class="ri-t">快照无限增长 · 已接近免费额度上限</span><span class="status-badge s-ok">已修 2026-10-29</span></div>
-    <div class="ri-r"><b>位置</b>：<span class="loc">index.html:7314–7322</span>，每次保存前写一份完整快照<br>
-    <b>原来</b>：<span class="v">3,325 份</span>，2026-07-22 → 10-28，约 <span class="v">0.98 GiB</span>，占免费层 <span class="v">98%</span>。界面只显示最新 50 份，其余 3,275 份看不见也点不到。<br>
-    <b>已做</b>：<br>
-    ① 清掉 <b>3,211 份</b>，留 <b>114 份</b>（最新 50 + 每天最后 1 份，覆盖 66 天）→ <span style="color:var(--ok)">35 MB / 3.4%</span>。主数据未受影响，<span class="loc">fields</span> 哈希前后一致。<br>
-    ② 加 <b>10 分钟节流</b>（<span class="loc">:7315–7335</span>）：同一台设备 10 分钟内只写 1 份快照，连那次 <span class="loc">master.get()</span> 也省掉。<br>
-    ③ 新增 <span class="loc">pruneCloudSnapshots()</span>（<span class="loc">:7355</span>）：登录后每设备每天自动修剪一次，规则 = 最新 50 + 最近 90 天每天最后 1 份。<br>
-    ④ <b>手工快照保护</b>：名字不符合 <span class="loc">YYYYMMDD_HHmmss</span> 的永不删除（v2 里就有 <span class="loc">_pre-restore</span> 这类）。<br>
-    ⑤ 标记键按 Firestore 项目 id 命名 —— v1 与 v2 同域名共用 localStorage，不分命名空间会互相干扰。<br>
-    <b>结果</b>：云端占用稳定在 35 MB 左右，不会再涨。已 push（<span class="loc">a40c54b</span>），线上 sha 已核对一致。</div>
-  </div>
-  <div class="risk-item" style="border-color:rgba(110,231,168,.35); background:linear-gradient(180deg, rgba(110,231,168,.05), var(--card) 55%);">
-    <div class="ri-h"><span class="ri-n" style="color:var(--ok); background:var(--okb)">D2</span><span class="ri-t">showToast 重复定义 · DC 外面所有提示都不可见</span><span class="status-badge s-ok">已修 2026-10-29</span></div>
-    <div class="ri-r"><b>位置</b>：旧 <span class="loc">:7656</span>（script 块 #5）与 新 <span class="loc">:9808</span>（块 #9），<b>后者胜出</b><br>
-    <b>原来</b>：新定义写 <span class="loc">#dcToast</span>，而它在 <span class="loc">#dcApp</span>（<span class="loc">display:none</span>）里面。<br>
-    ⇒ <b>DC 外面 32 个提示全部不可见</b>，不只是两处。其中 8 处字符串调用还往隐藏框里写了 “undefined”。<br>
-    <b>原描述有误</b>：症状不是“显示 undefined”，是“<b>完全不出现</b>”。<br>
-    <b>已做</b>：<br>
-    ① 删掉旧 <span class="loc">showToast(msg)</span> —— 死代码，从未执行过一次（连带的 <span class="loc">#cloudToast</span> 一起废弃）。<br>
-    ② 保留下来的 <span class="loc">:9815</span> 改成<b>兼容双签名</b> <span class="loc">showToast(a, b)</span>，字符串和对象都接；<br>
-    ③ 按上下文选容器：DC 打开 → <span class="loc">#dcToast</span>（观感不变）；否则 → 新增的 <span class="loc">#gToast</span>（<span class="loc">:13150</span>，body 层右下角）。<br>
-    ④ 云端更新提示不再弹框，改成<b>云徽标闪 2 秒</b>（<span class="loc">:7538</span>），因为它在每次远端写入都会触发。<br>
-    <b>33 个调用点一个没改。</b>结果：DC 内 24 条正常，DC 外 32 条复活，重复定义从 1 降到 <b>0</b>。<br>
-    已 push（v1 <span class="loc">b93d886</span>、v2 <span class="loc">f877c7d</span>），线上 sha 已核对。</div>
-  </div>
+  <div class="risk-title">A 级 · 会出错 <span style="color:var(--muted); font-weight:400;">（D5、D6 待办）</span></div>
   <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">137 处空 catch · 失败无声</span></div>
     <div class="ri-r"><b>位置</b>：全文件，云同步相关约 40 处<br>
@@ -968,10 +990,10 @@
 <div class="foot">
   <b>怎么用这份地图</b><br>
   1. <b>第一层</b>：一眼看见 10 个模块和它们的实际记录数，以及 4 条云端路径。<br>
-  2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。<br>
+  2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。第一张卡「云端同步 / 快照」没有侧边栏入口，但加任何模块前都该先看它。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 4 条会真出错，B 级 3 条会让数字骗人。<b>D1、D2 已于 2026-10-29 修复</b>，其余 D5–D9 待办。<br>
+  5. <b>第五层</b>：A 级 2 条会真出错，B 级 3 条会让数字骗人，D5–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
