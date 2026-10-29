@@ -205,7 +205,7 @@
 
 <!-- ================= 第一层 ================= -->
 <div class="section-title">第一层 · 系统总览</div>
-<div class="section-note">一个文件承担全部功能。10 个模块的 DOM 同时存在于同一个页面，<span class="loc">sm()</span> 只切换显示，不销毁重建。另有 1 个策略文件（2027 业务策略 · 精简版）只读本系统的项目数据 —— 它手工维护、数据来源尚未接通。</div>
+<div class="section-note">一个文件承担全部功能。10 个模块的 DOM 同时存在于同一个页面，<span class="loc">sm()</span> 只切换显示，不销毁重建。另有 1 个策略文件（2027 业务策略 · 精简版）<b>从本系统单向接收项目数据</b> —— BMS v1 是发出方、唯一源，策略是接收方，策略不回写；目前仍靠手工维护。</div>
 
 <div class="ov-canvas">
   <div class="ov-hub">
@@ -313,12 +313,12 @@
     </div>
   </div>
 
-  <div class="ov-label">下游消费方 · 1 个 · 只读本系统项目数据，不回写</div>
+  <div class="ov-label">下游消费方 · 1 个 · BMS v1 发出 → 策略接收 · 单向，不回写</div>
   <div class="ov-row3">
     <div class="ov-sys ext">
       <div class="s-name">2027 业务策略 · 精简版</div>
       <div class="s-file">2027-strategy-v2-demo.html · 1,302 行 · 不在本 repo</div>
-      <div class="s-count">目标 <b>1,600 B</b> · 4 口袋 + Result · 只算口袋 1<br>手工维护 · 数据来源待接</div>
+      <div class="s-count">目标 <b>1,600 B</b> · 4 口袋 + Result · 只算口袋 1<br>接收方 · 手工维护 · 数据来源待接</div>
     </div>
   </div>
 
@@ -1007,6 +1007,7 @@
 
 <div class="foot" style="border-left:3px solid var(--warn); margin-top:14px;">
   <b>待定 · 4 项（2026-10-29 记录，以后再做，本版不动）</b><br>
+  <span style="color:var(--ok)">方向已定：<b>BMS v1 是数据发出方（唯一源），2027 业务策略是接收方 —— 单向，策略不回写 BMS。</b>项目信息一律以 BMS v1 为准。</span><br>
   1. <b>第三层 · 数据流向</b>：还没有「BMS v1 → 2027 业务策略」这条出边。目前只画了系统内部四条流向。<br>
   2. <b>第四层 · 分层依赖</b>：策略文件不在 L0–L8 依赖表里。<br>
   3. <b>第二层 · 系统卡片</b>：要不要给 Business Strategy 单开一张卡（做法同第 14 张「云端同步 / 快照」）。<br>
