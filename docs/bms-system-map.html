@@ -355,7 +355,11 @@
     <div class="field"><div class="field-label">角色</div>
       <div class="field-value">全系统<b>唯一的写云端通道</b>。它不属于任何业务模块，但每个模块保存时都要走它。理解这一层，才知道为什么加模块不用改同步代码。</div></div>
     <div class="field"><div class="field-label">状态</div>
-      <div class="field-value"><span class="status-badge s-ok">已建</span> · <b>2026-10-29 加固</b>：节流 + 每日自动修剪 + 手工快照保护。此前快照无上限增长到 3,325 份 / 0.98 GiB（占免费层 98%）。</div></div>
+      <div class="field-value"><span class="status-badge s-ok">已建</span> · <b>2026-10-29 加固</b>：节流 + 每日自动修剪 + 手工快照保护。此前快照无上限增长到 3,325 份 / 0.98 GiB（占免费层 98%）。<br>
+      <b>已知缺口（未修）</b>：<br>
+      ① <b>两条恢复路径都没有看门狗</b> —— 网络挂住时 promise 永不结算，<span class="loc">.then</span> / <span class="loc">.catch</span> 都不跑，连提示都不弹、reload 也不发生，界面静默僵住。修法：照抄主写入路径 <span class="loc">:7295–7301</span> 的 12 秒看门狗。<br>
+      ② <span class="loc">dcCloudPush</span> 开头 <span class="loc">if(!_dcCloudLoaded || !fdb) return;</span> 静默退出，连 warn 都不打 —— 改它要小心，加载完成前每次改动都走这条路，加提示会刷屏。<br>
+      <b>故意不修的</b>：全文件 <b>111</b> 处静默 catch（104 个完全空 + 7 个只 <span class="loc">return</span>），其中约 100 处是 localStorage / 渲染 / 打印的容错 —— 吞掉是对的，全改成提示只会制造噪音，人会养成「见红条就关」的习惯。真正会骗人的只有 2 处云写入（文件恢复、DC 推送），<b>2026-10-29 已补提示</b>（push <span class="loc">1b8e13d</span>）。</div></div>
     <div class="field"><div class="field-label">入口</div>
       <div class="field-value">无侧边栏入口。自动运行：登录 → <span class="loc">listenToCloud()</span> → 首次保存触发一次快照。</div></div>
     <div class="field"><div class="field-label">数据键</div>
@@ -952,21 +956,7 @@
 <div class="section-title">第五层 · 已知缺陷（按严重度）</div>
 
 <div class="risk-box">
-  <div class="risk-title">A 级 · 会出错 <span style="color:var(--muted); font-weight:400;">（D5、D6 待办）</span></div>
-  <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">云端写入失败无声 · 两处已补，恢复链仍缺看门狗</span><span class="status-badge s-ok">部分已修 2026-10-29</span></div>
-    <div class="ri-r"><b>位置</b>：<span class="loc">:6048 / :6052</span> 文件恢复 · <span class="loc">:9062</span> DC 云推送<br>
-    <b>原描述有误</b>（2026-10-29 实测更正）：写「137 处空 catch / 云同步相关约 40 处」，偏高。<br>
-    实测：<span class="loc">catch</span> 关键字 179 个，静默吞掉 <b>111</b> 个（104 个完全空 + 7 个只 <span class="loc">return</span>），<span class="loc">.catch()</span> 处理体 16 个。<b>但直接包着云调用的只有 3 个</b>，其中真正会骗人的就这 2 处。<br>
-    <b>也不对</b>：主写入路径（<span class="loc">saveData → master</span>）自 <b>2026-10-07</b> 起就有 12 秒看门狗 + 失败红条（<span class="loc">:7295–7353</span>），<b>不是无声的</b>。那句「写云端失败时界面照显示成功」只对下面这两处成立。<br>
-    <b>已做 2026-10-29</b>（push <span class="loc">1b8e13d</span>）：<br>
-    ① 文件恢复失败 → 先弹框说清「本机已恢复、云端没写上、刷新会被云端旧数据覆盖」再 reload（原来失败也照样 reload，界面跟成功一模一样）<br>
-    ② DC 云推送失败 → toast「Documents Collection 未同步到云端」（原来只 <span class="loc">console.warn</span>）<br>
-    <b>还剩</b>：<br>
-    ① <b>恢复链没有看门狗</b> —— 网络挂住时 promise 永不结算，<span class="loc">.then</span> / <span class="loc">.catch</span> 都不跑，连提示都不弹、reload 也不发生，界面僵住。要照抄 <span class="loc">:7295</span> 那套。<br>
-    ② <span class="loc">dcCloudPush</span> 开头 <span class="loc">if(!_dcCloudLoaded || !fdb) return;</span> 静默退出，连 warn 都不打。<br>
-    <b>不用改</b>：其余约 100 处空 catch 是 localStorage / 渲染 / 打印的容错，吞掉是对的 —— 全改成提示只会制造噪音，人会养成「见红条就关」的习惯。</div>
-  </div>
+  <div class="risk-title">A 级 · 会出错 <span style="color:var(--muted); font-weight:400;">（D6 待办）</span></div>
   <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D6</span><span class="ri-t">searchInput id 重复</span></div>
     <div class="ri-r"><b>位置</b>：<span class="loc">:2872</span>（文档库）与 <span class="loc">:8695</span>（Documents Collection）<br>
@@ -1003,7 +993,7 @@
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。第一张卡「云端同步 / 快照」没有侧边栏入口，但加任何模块前都该先看它。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 2 条会真出错，B 级 3 条会让数字骗人，D5–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
+  5. <b>第五层</b>：A 级 1 条会真出错，B 级 3 条会让数字骗人，D6–D9 待办。<b>已经修好的问题不再在这里重复</b>，做法和注意事项已经写进第二层对应卡片。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
