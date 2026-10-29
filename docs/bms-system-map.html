@@ -368,6 +368,8 @@
         <div><b>手工快照保护</b>：名字不符合 <span class="loc">YYYYMMDD_HHmmss</span> 的<b>永不删除</b>（如 <span class="loc">_pre-restore</span>、<span class="loc">_pre-v1-transfer</span>）</div>
         <div><b>命名空间隔离</b>：标记键按 <span class="loc">firebaseConfig.projectId</span> 命名 —— v1 与 v2 同域名共用 localStorage，不分就会互相干扰</div>
         <div><b>云端更新提示</b>：不弹框，只让云徽标闪 2 秒（它每次远端写入都触发，弹框会烦死人）</div>
+        <div><b>两条恢复路径</b>：文件恢复（上传 <span class="loc">BMS_Full_Backup_*.json</span>，<span class="loc">:6019 restoreAll()</span>）· 云版本恢复（选快照，<span class="loc">:6104 restoreFromCloud()</span>）。<b>两条都会整份覆盖 master</b>，云版本恢复走的是同一条写链。<br>
+        失败提示：云版本恢复本来就有；文件恢复 <b>2026-10-29 才补上</b>。<b>两条都还没有看门狗</b> —— 网络挂住时会静默僵住。</div>
       </div></div>
     <div class="field"><div class="field-label">数据流向</div>
       <div class="field-value multi">
@@ -952,10 +954,18 @@
 <div class="risk-box">
   <div class="risk-title">A 级 · 会出错 <span style="color:var(--muted); font-weight:400;">（D5、D6 待办）</span></div>
   <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">137 处空 catch · 失败无声</span></div>
-    <div class="ri-r"><b>位置</b>：全文件，云同步相关约 40 处<br>
-    <b>影响</b>：写云端失败时界面照显示成功。D1 当年涨满额度就是被这些空 catch 盖住的——D1 已修，但这个放大器还在。<br>
-    <b>要做</b>：至少把云同步那 40 处改成有提示。</div>
+    <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">云端写入失败无声 · 两处已补，恢复链仍缺看门狗</span><span class="status-badge s-ok">部分已修 2026-10-29</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:6048 / :6052</span> 文件恢复 · <span class="loc">:9062</span> DC 云推送<br>
+    <b>原描述有误</b>（2026-10-29 实测更正）：写「137 处空 catch / 云同步相关约 40 处」，偏高。<br>
+    实测：<span class="loc">catch</span> 关键字 179 个，静默吞掉 <b>111</b> 个（104 个完全空 + 7 个只 <span class="loc">return</span>），<span class="loc">.catch()</span> 处理体 16 个。<b>但直接包着云调用的只有 3 个</b>，其中真正会骗人的就这 2 处。<br>
+    <b>也不对</b>：主写入路径（<span class="loc">saveData → master</span>）自 <b>2026-10-07</b> 起就有 12 秒看门狗 + 失败红条（<span class="loc">:7295–7353</span>），<b>不是无声的</b>。那句「写云端失败时界面照显示成功」只对下面这两处成立。<br>
+    <b>已做 2026-10-29</b>（push <span class="loc">1b8e13d</span>）：<br>
+    ① 文件恢复失败 → 先弹框说清「本机已恢复、云端没写上、刷新会被云端旧数据覆盖」再 reload（原来失败也照样 reload，界面跟成功一模一样）<br>
+    ② DC 云推送失败 → toast「Documents Collection 未同步到云端」（原来只 <span class="loc">console.warn</span>）<br>
+    <b>还剩</b>：<br>
+    ① <b>恢复链没有看门狗</b> —— 网络挂住时 promise 永不结算，<span class="loc">.then</span> / <span class="loc">.catch</span> 都不跑，连提示都不弹、reload 也不发生，界面僵住。要照抄 <span class="loc">:7295</span> 那套。<br>
+    ② <span class="loc">dcCloudPush</span> 开头 <span class="loc">if(!_dcCloudLoaded || !fdb) return;</span> 静默退出，连 warn 都不打。<br>
+    <b>不用改</b>：其余约 100 处空 catch 是 localStorage / 渲染 / 打印的容错，吞掉是对的 —— 全改成提示只会制造噪音，人会养成「见红条就关」的习惯。</div>
   </div>
   <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D6</span><span class="ri-t">searchInput id 重复</span></div>
