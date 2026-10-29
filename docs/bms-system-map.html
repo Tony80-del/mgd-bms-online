@@ -196,8 +196,8 @@
     <div class="progress-bar"><div class="progress-fill"></div></div>
   </div>
   <div style="text-align:right">
-    <div style="font-size:11px; color:var(--muted)">快照 <b style="color:var(--warn)">3,325</b> 份 · 约 0.98 GiB</div>
-    <div style="font-size:10px; color:var(--hint)">实测 2026-10-28 15:56</div>
+    <div style="font-size:11px; color:var(--muted)">快照 <b style="color:var(--ok)">114</b> 份 · 约 35 MB</div>
+    <div style="font-size:10px; color:var(--hint)">实测 2026-10-29 09:25</div>
   </div>
 </div>
 
@@ -210,7 +210,7 @@
 <div class="ov-canvas">
   <div class="ov-hub">
     <div class="n">index.html · BMS 主程序</div>
-    <div class="f">12,988 行 · 1,049,449 字节</div>
+    <div class="f">13,099 行 · 1,054,236 字节</div>
     <div class="r">登录 MGD2026 · 中英双语 · 侧边栏 10 项 · 589 个顶层函数</div>
     <div><span class="status-badge s-ok">已运营</span> <span class="status-badge s-info">云端同步中</span></div>
   </div>
@@ -321,7 +321,7 @@
     </div>
     <div class="cloud-chip">
       <div class="c-n">master/snapshots</div>
-      <div class="c-d">每次保存前自动快照<br><span style="color:var(--warn)">3,325 份 · ≈0.98 GiB</span></div>
+      <div class="c-d">10 分钟节流 + 每日自动修剪<br><span style="color:var(--ok)">114 份 · ≈35 MB</span></div>
     </div>
     <div class="cloud-chip">
       <div class="c-n">bms_data/doc_dc</div>
@@ -774,7 +774,7 @@
    │
    ├──▶ <span class="dst">本机 bms_data</span>                      <span class="note">整份 JSON · 只在这台电脑</span>
    │
-   └──▶ <span class="gate">[ 尺寸守卫 → 登录检查 → 12s 看门狗 → 读 master → 写快照 ]</span>
+   └──▶ <span class="gate">[ 尺寸守卫 → 登录检查 → 12s 看门狗 → 读 master → 写快照（10 分钟节流）]</span>
               │
               ▼
         <span class="dst">Firestore bms_data/master</span>            <span class="note">全量覆盖 · 1 MiB 硬上限</span>
@@ -899,13 +899,18 @@
 <div class="section-title">第五层 · 已知缺陷（按严重度）</div>
 
 <div class="risk-box">
-  <div class="risk-title">A 级 · 会出错</div>
-  <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D1</span><span class="ri-t">快照无限增长 · 已接近免费额度上限</span><span class="status-badge s-bad">紧急</span></div>
+  <div class="risk-title">A 级 · 会出错 <span style="color:var(--ok); font-weight:400;">（D1 已修，其余待办）</span></div>
+  <div class="risk-item" style="border-color:rgba(110,231,168,.35); background:linear-gradient(180deg, rgba(110,231,168,.05), var(--card) 55%);">
+    <div class="ri-h"><span class="ri-n" style="color:var(--ok); background:var(--okb)">D1</span><span class="ri-t">快照无限增长 · 已接近免费额度上限</span><span class="status-badge s-ok">已修 2026-10-29</span></div>
     <div class="ri-r"><b>位置</b>：<span class="loc">index.html:7314–7322</span>，每次保存前写一份完整快照<br>
-    <b>现状</b>：<span class="v">3,325 份</span>，从 2026-07-22 到 2026-10-28，约 <span class="v">0.98 GiB</span>。Firestore 免费层 1 GiB。<br>
-    <b>后果</b>：写满后每一次保存都会失败，且被 137 处空 catch 吞掉，界面照显示成功。<br>
-    <b>要做</b>：加快照清理（只留最近 N 份或按天留一份）。<b>等你定策略。</b></div>
+    <b>原来</b>：<span class="v">3,325 份</span>，2026-07-22 → 10-28，约 <span class="v">0.98 GiB</span>，占免费层 <span class="v">98%</span>。界面只显示最新 50 份，其余 3,275 份看不见也点不到。<br>
+    <b>已做</b>：<br>
+    ① 清掉 <b>3,211 份</b>，留 <b>114 份</b>（最新 50 + 每天最后 1 份，覆盖 66 天）→ <span style="color:var(--ok)">35 MB / 3.4%</span>。主数据未受影响，<span class="loc">fields</span> 哈希前后一致。<br>
+    ② 加 <b>10 分钟节流</b>（<span class="loc">:7315–7335</span>）：同一台设备 10 分钟内只写 1 份快照，连那次 <span class="loc">master.get()</span> 也省掉。<br>
+    ③ 新增 <span class="loc">pruneCloudSnapshots()</span>（<span class="loc">:7355</span>）：登录后每设备每天自动修剪一次，规则 = 最新 50 + 最近 90 天每天最后 1 份。<br>
+    ④ <b>手工快照保护</b>：名字不符合 <span class="loc">YYYYMMDD_HHmmss</span> 的永不删除（v2 里就有 <span class="loc">_pre-restore</span> 这类）。<br>
+    ⑤ 标记键按 Firestore 项目 id 命名 —— v1 与 v2 同域名共用 localStorage，不分命名空间会互相干扰。<br>
+    <b>结果</b>：云端占用稳定在 35 MB 左右，不会再涨。已 push（<span class="loc">a40c54b</span>），线上 sha 已核对一致。</div>
   </div>
   <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D2</span><span class="ri-t">showToast 重复定义 · 提示显示 undefined</span></div>
@@ -928,7 +933,7 @@
   <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">137 处空 catch · 失败无声</span></div>
     <div class="ri-r"><b>位置</b>：全文件，云同步相关约 40 处<br>
-    <b>影响</b>：写云端失败时界面照显示成功。D1 爆掉后会以这种方式表现出来。<br>
+    <b>影响</b>：写云端失败时界面照显示成功。D1 当年涨满额度就是被这些空 catch 盖住的——D1 已修，但这个放大器还在。<br>
     <b>要做</b>：至少把云同步那 40 处改成有提示。</div>
   </div>
   <div class="risk-item">
@@ -967,8 +972,8 @@
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 6 条会真出错，B 级 3 条会让数字骗人。D1 最急。<br>
-  6. 数据都是 2026-10-28 15:56 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
+  5. <b>第五层</b>：A 级 6 条会真出错，B 级 3 条会让数字骗人。<b>D1 已于 2026-10-29 修复</b>，其余 D2–D9 待办。<br>
+  6. 数据都是 2026-10-29 09:25 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
 </div>
