@@ -7530,11 +7530,20 @@ function listenToCloud(){
         }catch(e){ console.log('[DocStorage] cloud->local sync error:', e.message); }
         updateStats(); updateSummary(); updateUI(); if(mod!=='weeklyreport' && mod!=='plan2026' && mod!=='annualtarget') renderTable();
 
-        // Show brief notification. NOTE (2026-10-07): showToast() is redefined further down as a
-        // destructuring variant ({title, body, cls}) writing into #dcToast, so the old string call
-        // threw and the toast never appeared. Guarded now.
-        try{ showToast({title:'\u2601\ufe0f Cloud', body:'Cloud data updated!', cls:'ok'}); }
-        catch(e){ console.log('[Firebase] Cloud data updated (toast unavailable)'); }
+        /* 2026-10-29: no popup on a remote update. This fires on every write from another
+           client, so a toast gets annoying when two devices (or two tabs) are open. Flash the
+           cloud badge for 2 s instead — a signal, but nothing covers the screen. */
+        try{
+          var _hb = document.getElementById('cloudBadge');
+          if(_hb && !_hb._flashing){
+            _hb._flashing = true;
+            _hb.textContent = '\ud83d\udd04 \u5df2\u66f4\u65b0';
+            setTimeout(function(){
+              _hb._flashing = false;
+              updateSyncStatus(cloudStatus === 'synced' ? '\u2705' : (cloudStatus === 'loading' ? '\u23f3' : '\u26a0\ufe0f'));
+            }, 2000);
+          }
+        }catch(e){ console.log('[Firebase] Cloud data updated (badge flash unavailable)'); }
       }
     }, function(error){
       console.warn('[Firebase] Listener error:', error);
@@ -7652,21 +7661,10 @@ function testFirebase(){
   }, 2000); // Wait 2s for Firebase SDK to fully load
 })();
 
-// Toast notification
-function showToast(msg){
-  var existing = document.getElementById('cloudToast');
-  if(existing) existing.remove();
-  var div = document.createElement('div');
-  div.id = 'cloudToast';
-  div.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--card);border:1px solid var(--green,#22c55e);color:var(--text);padding:8px 16px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transition:opacity 0.3s;';
-  div.textContent = msg;
-  document.body.appendChild(div);
-  setTimeout(function(){ div.style.opacity = '1'; }, 50);
-  setTimeout(function(){
-    div.style.opacity = '0';
-    setTimeout(function(){ div.remove(); }, 300);
-  }, 2500);
-}
+/* showToast() used to be defined here with a string signature writing into #cloudToast.
+   2026-10-29: removed. A second definition further down ({title, body, cls}, writing into
+   #dcToast) always won, so this copy was dead code — it never ran once. The surviving
+   definition is now the single one, and it accepts both shapes. */
 
 // Cloud info popup
 function showCloudInfo(){
@@ -9805,14 +9803,51 @@ function renderStats(){
 //  TOAST & HELPERS
 // ═══════════════════════════════════════════════════════
 let toastTimer = null;
-function showToast({title, body, cls}){
-  const t = document.getElementById('dcToast');
-  t.className = cls || '';
-  t.querySelector('.t-title').textContent = title;
-  t.querySelector('.t-body').textContent = body;
-  requestAnimationFrame(()=> t.classList.add('show'));
+/* Single toast entry point (2026-10-29). Accepts both call shapes used in this file:
+     showToast('text')                      — the older style
+     showToast({title, body, cls})          — the style Documents Collection uses
+   Two containers, picked at call time:
+     inside #dcApp (Documents Collection open) -> #dcToast, styled by #dcApp rules
+     everywhere else                           -> #gToast, fixed bottom-right on the page
+   Before this, the #dcToast branch was the only one, and #dcToast sits inside the
+   dcApp element, which carries display:none — so every toast outside Documents
+   Collection was invisible: 32 calls, 15 of them also rendering the word "undefined". */
+function showToast(a, b){
+  const o = (a && typeof a === 'object') ? a : { title: (a == null ? '' : String(a)), body: (b == null ? '' : String(b)) };
+  const title = o.title || '';
+  const body  = o.body  || '';
+  const cls   = o.cls   || '';
+
+  const dc = document.getElementById('dcApp');
+  const inDC = dc && dc.style.display !== 'none';
+
+  if(inDC){
+    const t = document.getElementById('dcToast');
+    if(!t) return;
+    t.className = cls;
+    t.querySelector('.t-title').textContent = title;
+    t.querySelector('.t-body').textContent = body;
+    requestAnimationFrame(()=> t.classList.add('show'));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> t.classList.remove('show'), 2400);
+    return;
+  }
+
+  let g = document.getElementById('gToast');
+  if(!g){
+    g = document.createElement('div');
+    g.id = 'gToast';
+    g.innerHTML = '<div class="g-title"></div><div class="g-body"></div>';
+    document.body.appendChild(g);
+  }
+  g.className = cls;   // also clears a previous 'show' / colour class
+  g.querySelector('.g-title').textContent = title;
+  const gb = g.querySelector('.g-body');
+  gb.textContent = body;
+  gb.style.display = body ? '' : 'none';
+  requestAnimationFrame(()=> g.classList.add('show'));
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> t.classList.remove('show'), 2400);
+  toastTimer = setTimeout(()=> g.classList.remove('show'), 2600);
 }
 
 function escapeHtml(s){
@@ -13095,5 +13130,23 @@ function bkSyncAddBtn(){try{var b=document.getElementById('ba');if(!b)return;
   else boot();
 })();
 </script>
+
+<!-- GLOBAL TOAST (2026-10-29) — used by showToast() whenever Documents Collection is closed.
+     Documents Collection keeps using its own #dcToast inside #dcApp. -->
+<style>
+#gToast{position:fixed;right:20px;bottom:20px;z-index:9999;max-width:340px;padding:10px 16px;
+  background:var(--card,#0b1e3d);border:1px solid var(--border,#0f2d50);border-left:4px solid #34d399;
+  border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.38);pointer-events:none;
+  color:var(--text,#e6edf7);font-size:12.5px;line-height:1.5;
+  opacity:0;transform:translateY(10px);transition:opacity .25s ease,transform .25s ease;}
+#gToast.show{opacity:1;transform:translateY(0);}
+#gToast .g-title{font-weight:700;font-size:13px;}
+#gToast .g-body{font-size:11.5px;color:var(--muted,#3D5A80);margin-top:3px;}
+#gToast.remove{border-left-color:#f87171;} #gToast.remove .g-title{color:#f87171;}
+#gToast.clear{border-left-color:#fbbf24;} #gToast.clear .g-title{color:#fbbf24;}
+#gToast.warn{border-left-color:#f59e0b;} #gToast.warn .g-title{color:#fbbf24;}
+#gToast.ok{border-left-color:#34d399;}
+</style>
+<div id="gToast"><div class="g-title"></div><div class="g-body"></div></div>
 </body>
 </html>
