@@ -196,8 +196,8 @@
     <div class="progress-bar"><div class="progress-fill"></div></div>
   </div>
   <div style="text-align:right">
-    <div style="font-size:11px; color:var(--muted)">快照 <b style="color:var(--ok)">114</b> 份 · 约 35 MB</div>
-    <div style="font-size:10px; color:var(--hint)">实测 2026-10-29 09:25</div>
+    <div style="font-size:11px; color:var(--muted)">快照 <b style="color:var(--ok)">115</b> 份 · 约 36 MB</div>
+    <div style="font-size:10px; color:var(--hint)">实测 2026-10-29 10:20</div>
   </div>
 </div>
 
@@ -210,8 +210,8 @@
 <div class="ov-canvas">
   <div class="ov-hub">
     <div class="n">index.html · BMS 主程序</div>
-    <div class="f">13,099 行 · 1,054,236 字节</div>
-    <div class="r">登录 MGD2026 · 中英双语 · 侧边栏 10 项 · 589 个顶层函数</div>
+    <div class="f">13,152 行 · 1,057,081 字节</div>
+    <div class="r">登录 MGD2026 · 中英双语 · 侧边栏 10 项 · 589 个顶层函数 · 0 个重复定义</div>
     <div><span class="status-badge s-ok">已运营</span> <span class="status-badge s-info">云端同步中</span></div>
   </div>
 
@@ -321,7 +321,7 @@
     </div>
     <div class="cloud-chip">
       <div class="c-n">master/snapshots</div>
-      <div class="c-d">10 分钟节流 + 每日自动修剪<br><span style="color:var(--ok)">114 份 · ≈35 MB</span></div>
+      <div class="c-d">10 分钟节流 + 每日自动修剪<br><span style="color:var(--ok)">115 份 · ≈36 MB</span></div>
     </div>
     <div class="cloud-chip">
       <div class="c-n">bms_data/doc_dc</div>
@@ -899,7 +899,7 @@
 <div class="section-title">第五层 · 已知缺陷（按严重度）</div>
 
 <div class="risk-box">
-  <div class="risk-title">A 级 · 会出错 <span style="color:var(--ok); font-weight:400;">（D1 已修，其余待办）</span></div>
+  <div class="risk-title">A 级 · 会出错 <span style="color:var(--ok); font-weight:400;">（D1、D2 已修，其余待办）</span></div>
   <div class="risk-item" style="border-color:rgba(110,231,168,.35); background:linear-gradient(180deg, rgba(110,231,168,.05), var(--card) 55%);">
     <div class="ri-h"><span class="ri-n" style="color:var(--ok); background:var(--okb)">D1</span><span class="ri-t">快照无限增长 · 已接近免费额度上限</span><span class="status-badge s-ok">已修 2026-10-29</span></div>
     <div class="ri-r"><b>位置</b>：<span class="loc">index.html:7314–7322</span>，每次保存前写一份完整快照<br>
@@ -912,11 +912,19 @@
     ⑤ 标记键按 Firestore 项目 id 命名 —— v1 与 v2 同域名共用 localStorage，不分命名空间会互相干扰。<br>
     <b>结果</b>：云端占用稳定在 35 MB 左右，不会再涨。已 push（<span class="loc">a40c54b</span>），线上 sha 已核对一致。</div>
   </div>
-  <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D2</span><span class="ri-t">showToast 重复定义 · 提示显示 undefined</span></div>
-    <div class="ri-r"><b>位置</b>：<span class="loc">:7545</span> 与 <span class="loc">:9697</span>，后者胜出<br>
-    <b>影响</b>：<span class="loc">:3820 momSave()</span> 和 <span class="loc">:10249 rfiNote()</span> 按旧签名传字符串 → 显示 undefined<br>
-    <b>要做</b>：改那两处调用为对象签名，或删掉旧的。</div>
+  <div class="risk-item" style="border-color:rgba(110,231,168,.35); background:linear-gradient(180deg, rgba(110,231,168,.05), var(--card) 55%);">
+    <div class="ri-h"><span class="ri-n" style="color:var(--ok); background:var(--okb)">D2</span><span class="ri-t">showToast 重复定义 · DC 外面所有提示都不可见</span><span class="status-badge s-ok">已修 2026-10-29</span></div>
+    <div class="ri-r"><b>位置</b>：旧 <span class="loc">:7656</span>（script 块 #5）与 新 <span class="loc">:9808</span>（块 #9），<b>后者胜出</b><br>
+    <b>原来</b>：新定义写 <span class="loc">#dcToast</span>，而它在 <span class="loc">#dcApp</span>（<span class="loc">display:none</span>）里面。<br>
+    ⇒ <b>DC 外面 32 个提示全部不可见</b>，不只是两处。其中 8 处字符串调用还往隐藏框里写了 “undefined”。<br>
+    <b>原描述有误</b>：症状不是“显示 undefined”，是“<b>完全不出现</b>”。<br>
+    <b>已做</b>：<br>
+    ① 删掉旧 <span class="loc">showToast(msg)</span> —— 死代码，从未执行过一次（连带的 <span class="loc">#cloudToast</span> 一起废弃）。<br>
+    ② 保留下来的 <span class="loc">:9815</span> 改成<b>兼容双签名</b> <span class="loc">showToast(a, b)</span>，字符串和对象都接；<br>
+    ③ 按上下文选容器：DC 打开 → <span class="loc">#dcToast</span>（观感不变）；否则 → 新增的 <span class="loc">#gToast</span>（<span class="loc">:13150</span>，body 层右下角）。<br>
+    ④ 云端更新提示不再弹框，改成<b>云徽标闪 2 秒</b>（<span class="loc">:7538</span>），因为它在每次远端写入都会触发。<br>
+    <b>33 个调用点一个没改。</b>结果：DC 内 24 条正常，DC 外 32 条复活，重复定义从 1 降到 <b>0</b>。<br>
+    已 push（v1 <span class="loc">b93d886</span>、v2 <span class="loc">f877c7d</span>），线上 sha 已核对。</div>
   </div>
   <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D3</span><span class="ri-t">互动数硬编码 +125</span></div>
@@ -972,8 +980,8 @@
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 6 条会真出错，B 级 3 条会让数字骗人。<b>D1 已于 2026-10-29 修复</b>，其余 D2–D9 待办。<br>
-  6. 数据都是 2026-10-29 09:25 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
+  5. <b>第五层</b>：A 级 6 条会真出错，B 级 3 条会让数字骗人。<b>D1、D2 已于 2026-10-29 修复</b>，其余 D3–D9 待办。<br>
+  6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
 </div>
