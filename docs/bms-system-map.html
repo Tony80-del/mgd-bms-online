@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BMS v1 系统地图 · MGD Business Management System</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#12151a; --card:#171b21; --line:rgba(255,255,255,.13);
+    --text:#e6e9ed; --muted:#9aa2ad; --hint:#6e7681;
+    --acc:#4fd1c5; --accb:#0f3f3c;
+    --ok:#6ee7a8; --okb:#0f3d28;
+    --warn:#f5c86a; --warnb:#46330d;
+    --bad:#f08080; --badb:#46191c;
+    --info:#5B9BF5; --infob:#1a3a6e;
+    --tag1:#85B7EB; --tag2:#AFA9EC; --tag3:#5DCAA5; --tag4:#F0997B; --tag5:#F0C07B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:13px; line-height:1.6;
+  }
+  .header{
+    position:sticky; top:0; z-index:100;
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .header h1{font-size:17px; font-weight:600; letter-spacing:-.2px;}
+  .header .meta{font-size:11px; color:var(--muted); margin-top:2px;}
+  .header .meta b{color:var(--text);}
+  .meter{flex:1; max-width:320px;}
+  .meter .row{display:flex; justify-content:space-between; font-size:10px; color:var(--hint); margin-bottom:4px;}
+  .progress-bar{height:6px; background:var(--panel); border-radius:3px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--ok),var(--info)); border-radius:3px; width:30.2%; transition:width .4s;}
+  .wrap{max-width:980px; margin:0 auto; padding:28px 24px 80px;}
+  .section-title{
+    font-size:11px; font-weight:600; letter-spacing:1.5px; color:var(--hint);
+    text-transform:uppercase; margin:38px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line);
+  }
+  .section-title:first-of-type{margin-top:0;}
+  .section-note{font-size:11.5px; color:var(--hint); margin:-6px 0 14px; line-height:1.7;}
+
+  /* ===== 第一层总览 ===== */
+  .ov-canvas{padding:20px 16px; background:var(--panel); border-radius:12px; border:1px solid var(--line);}
+  .ov-hub{
+    max-width:520px; margin:0 auto; border:2px solid var(--acc); border-radius:12px;
+    padding:16px 20px; background:var(--accb); text-align:center;
+  }
+  .ov-hub .n{font-size:15px; font-weight:600; color:var(--acc); margin-bottom:2px;}
+  .ov-hub .f{font-size:11px; color:var(--muted); font-family:"SF Mono",monospace; margin-bottom:6px;}
+  .ov-hub .r{font-size:12px; color:var(--muted); margin-bottom:8px;}
+  .ov-arrow{text-align:center; font-size:18px; color:var(--hint); line-height:1; margin:10px 0;}
+  .ov-label{font-size:10px; color:var(--hint); letter-spacing:1px; text-align:center; margin:14px 0 8px;}
+  .ov-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .ov-sys{border:1px solid var(--line); border-radius:10px; padding:12px 10px; background:var(--card); text-align:center; display:flex; flex-direction:column; gap:3px;}
+  .ov-sys.built{border-color:var(--ok);}
+  .ov-sys.read{border-color:var(--tag3);}
+  .ov-sys.warn{border-color:var(--warn); border-style:dashed;}
+  .ov-sys.ext{border-color:var(--info); border-style:dashed;}
+  .ov-sys.span2{grid-column:span 2;}
+  .ov-sys .s-name{font-size:13px; font-weight:600;}
+  .ov-sys.built .s-name{color:var(--ok);}
+  .ov-sys.read .s-name{color:var(--tag3);}
+  .ov-sys.warn .s-name{color:var(--warn);}
+  .ov-sys.ext .s-name{color:var(--info);}
+  .ov-sys .s-file{font-size:10px; color:var(--hint); font-family:"SF Mono",monospace;}
+  .ov-sys .s-count{font-size:10.5px; color:var(--muted);}
+  .ov-sys .s-count b{color:var(--text); font-variant-numeric:tabular-nums;}
+  .ov-tabs{display:flex; gap:4px; margin-top:7px; justify-content:center; flex-wrap:wrap;}
+  .ov-tab{font-size:9.5px; padding:2px 6px; border-radius:5px; border:1px solid var(--line); background:var(--panel); color:var(--muted); line-height:1.5;}
+  .ov-tab.hid{border-color:var(--warn); color:var(--warn);}
+  .ov-row3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .ov-row4{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .cloud-chip{
+    border:1px solid var(--line); border-radius:9px; padding:10px 12px; background:var(--card);
+  }
+  .cloud-chip .c-n{font-size:11.5px; font-weight:600; color:var(--tag3); font-family:"SF Mono",monospace;}
+  .cloud-chip .c-d{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.5;}
+
+  /* ===== 第二层卡片 ===== */
+  .sys-card{border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden; background:var(--panel);}
+  .sys-card.built{border-left:3px solid var(--ok);}
+  .sys-card.read{border-left:3px solid var(--tag3);}
+  .sys-card.warn{border-left:3px solid var(--warn);}
+  .sys-card.ext{border-left:3px solid var(--info);}
+  .sys-card.hid{border-left:3px solid var(--tag5);}
+  .sys-head{padding:14px 18px; cursor:pointer; user-select:none; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .sys-head:hover{background:rgba(255,255,255,.03);}
+  .sys-head .left{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .sys-tag{font-size:10px; font-weight:700; letter-spacing:1px; padding:2px 8px; border-radius:4px; background:var(--card); border:1px solid var(--line);}
+  .built .sys-tag{color:var(--ok); border-color:var(--ok);}
+  .read .sys-tag{color:var(--tag3); border-color:var(--tag3);}
+  .warn .sys-tag{color:var(--warn); border-color:var(--warn);}
+  .ext .sys-tag{color:var(--info); border-color:var(--info);}
+  .hid .sys-tag{color:var(--tag5); border-color:var(--tag5);}
+  .sys-name{font-size:15px; font-weight:500;}
+  .sys-sub{font-size:11px; color:var(--muted);}
+  .sys-head .right{display:flex; align-items:center; gap:8px;}
+  .status-badge{font-size:10px; font-weight:500; padding:2px 8px; border-radius:10px; white-space:nowrap;}
+  .s-ok{background:rgba(110,231,168,.15); color:var(--ok);}
+  .s-wait{background:rgba(245,200,106,.15); color:var(--warn);}
+  .s-info{background:rgba(91,155,245,.15); color:var(--info);}
+  .s-bad{background:rgba(240,128,128,.15); color:var(--bad);}
+  .s-mute{background:rgba(255,255,255,.06); color:var(--muted);}
+  .toggle{font-size:12px; color:var(--hint); transition:transform .2s;}
+  .sys-card.open .toggle{transform:rotate(90deg);}
+  .sys-body{display:none; padding:0 18px 16px;}
+  .sys-card.open .sys-body{display:block;}
+
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field-label{font-size:10px; font-weight:600; letter-spacing:.5px; color:var(--hint); text-transform:uppercase; margin-bottom:5px;}
+  .field-value{font-size:12.5px; color:var(--text); line-height:1.75;}
+  .loc{font-family:"SF Mono",monospace; font-size:11.5px; color:var(--tag1);}
+  .key{font-family:"SF Mono",monospace; font-size:11.5px; color:var(--tag2);}
+  .multi > div{margin-bottom:3px;}
+  .multi > div:last-child{margin-bottom:0;}
+
+  .tab-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px;}
+  .tab-item{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:9px 11px;}
+  .tab-item .ti-l{font-size:9.5px; font-weight:600; color:var(--hint); letter-spacing:.5px;}
+  .tab-item .ti-n{font-size:12.5px; font-weight:500; margin:2px 0;}
+  .tab-item .ti-p{font-size:10.5px; color:var(--muted); font-family:"SF Mono",monospace;}
+  .tab-item.hid{border-color:rgba(240,192,123,.4);}
+  .tab-item.hid .ti-l{color:var(--tag5);}
+
+  .func-list{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 13px; margin-top:6px;}
+  .func-list div{font-size:12px; color:var(--muted); line-height:1.9;}
+  .func-list div b{color:var(--text); font-weight:500;}
+
+  .risk-box{background:var(--badb); border:1px solid rgba(240,128,128,.25); border-radius:10px; padding:13px 15px; margin-top:14px;}
+  .risk-title{font-size:11px; font-weight:600; color:var(--bad); letter-spacing:.5px; margin-bottom:8px;}
+  .risk-item{background:var(--card); border:1px solid var(--line); border-radius:7px; padding:10px 12px; margin-bottom:7px;}
+  .risk-item:last-child{margin-bottom:0;}
+  .risk-item .ri-h{display:flex; align-items:center; gap:8px; margin-bottom:4px;}
+  .risk-item .ri-n{font-size:10px; font-weight:700; color:var(--bad); background:var(--badb); border-radius:4px; padding:1px 6px;}
+  .risk-item .ri-t{font-size:12.5px; font-weight:500;}
+  .risk-item .ri-r{font-size:11.5px; color:var(--muted); line-height:1.7;}
+  .risk-item .ri-r b{color:var(--text); font-weight:500;}
+  .risk-item .ri-r .v{color:var(--warn);}
+
+  /* ===== 第三层流向 ===== */
+  .flow-box{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px;}
+  .flow-block{margin-bottom:20px;}
+  .flow-block:last-child{margin-bottom:0;}
+  .flow-h{font-size:10.5px; font-weight:600; letter-spacing:.8px; color:var(--hint); margin-bottom:8px;}
+  .flow-line{font-family:"SF Mono",monospace; font-size:11.5px; color:var(--muted); line-height:2; white-space:pre; overflow-x:auto;}
+  .flow-line .src{color:var(--tag1);}
+  .flow-line .dst{color:var(--tag3);}
+  .flow-line .act{color:var(--warn);}
+  .flow-line .gate{color:var(--tag4);}
+  .flow-line .note{color:var(--hint);}
+
+  /* ===== 第四层表格 ===== */
+  table.rt{width:100%; border-collapse:collapse; font-size:12px;}
+  table.rt th{text-align:left; padding:9px 11px; border-bottom:1px solid var(--line); color:var(--hint); font-weight:600; font-size:10.5px; letter-spacing:.5px; text-transform:uppercase;}
+  table.rt td{padding:10px 11px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.rt .step{font-family:"SF Mono",monospace; color:var(--acc); font-weight:600; white-space:nowrap;}
+  table.rt .sm{font-size:11px; color:var(--muted);}
+  table.rt tr.hl{background:rgba(91,155,245,.06);}
+  table.rt tr.hl .step{color:var(--info);}
+
+  .foot{margin-top:36px; padding:18px 20px; background:var(--panel); border-radius:12px; font-size:12px; color:var(--muted); line-height:1.9;}
+  .foot b{color:var(--text); font-weight:500;}
+
+  .legend{position:fixed; bottom:16px; right:16px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; font-size:11px; z-index:50;}
+  .legend-title{font-size:9px; font-weight:600; color:var(--hint); margin-bottom:6px; letter-spacing:.5px;}
+  .legend-row{display:flex; align-items:center; gap:6px; margin-bottom:3px; color:var(--muted);}
+  .legend-dot{width:8px; height:8px; border-radius:50%;}
+
+  @media(max-width:760px){
+    .ov-grid{grid-template-columns:repeat(2,1fr);}
+    .ov-sys.span2{grid-column:span 2;}
+    .ov-row3,.ov-row4{grid-template-columns:1fr 1fr;}
+    .tab-grid{grid-template-columns:1fr;}
+    .legend{display:none;}
+    .header{flex-wrap:wrap;}
+    .meter{order:3; width:100%; max-width:100%;}
+  }
+  @media(max-width:460px){
+    .ov-grid,.ov-row3,.ov-row4{grid-template-columns:1fr;}
+    .ov-sys.span2{grid-column:span 1;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>BMS v1 系统地图</h1>
+    <div class="meta">MGD Business Management System · <b>10 主模块 + 5 隐藏子表单</b> · 已运营</div>
+  </div>
+  <div class="meter">
+    <div class="row"><span>云文档 master</span><span>310 KB / 1 MiB · 30.2%</span></div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:11px; color:var(--muted)">快照 <b style="color:var(--warn)">3,325</b> 份 · 约 0.98 GiB</div>
+    <div style="font-size:10px; color:var(--hint)">实测 2026-10-28 15:56</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ================= 第一层 ================= -->
+<div class="section-title">第一层 · 系统总览</div>
+<div class="section-note">一个文件承担全部功能。10 个模块的 DOM 同时存在于同一个页面，<span class="loc">sm()</span> 只切换显示，不销毁重建。</div>
+
+<div class="ov-canvas">
+  <div class="ov-hub">
+    <div class="n">index.html · BMS 主程序</div>
+    <div class="f">12,988 行 · 1,049,449 字节</div>
+    <div class="r">登录 MGD2026 · 中英双语 · 侧边栏 10 项 · 589 个顶层函数</div>
+    <div><span class="status-badge s-ok">已运营</span> <span class="status-badge s-info">云端同步中</span></div>
+  </div>
+
+  <div class="ov-arrow">▼</div>
+  <div class="ov-label">10 个模块 · 括号内是云端实际记录数</div>
+
+  <div class="ov-grid">
+    <div class="ov-sys read">
+      <div class="s-name">综合统计</div>
+      <div class="s-file">sm('summary')</div>
+      <div class="s-count">只读汇总</div>
+    </div>
+
+    <div class="ov-sys built span2">
+      <div class="s-name">投标项目追踪</div>
+      <div class="s-file">sm('bids')</div>
+      <div class="s-count">投标 <b>51</b> · 跟进 <b>31</b> · 验证 <b>3</b> · 审批 <b>2</b></div>
+      <div class="ov-tabs">
+        <span class="ov-tab">投标列表</span>
+        <span class="ov-tab">Project verification</span>
+        <span class="ov-tab">Approvals</span>
+        <span class="ov-tab">Project Follow-up</span>
+        <span class="ov-tab hid">Project MOM</span>
+        <span class="ov-tab hid">RFI</span>
+      </div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">客户管理</div>
+      <div class="s-file">sm('customers')</div>
+      <div class="s-count"><b>397</b> 条</div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">客户互动</div>
+      <div class="s-file">sm('projects')</div>
+      <div class="s-count"><b>60</b> 条 · 日历优先</div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">商会信息</div>
+      <div class="s-file">sm('chambers')</div>
+      <div class="s-count"><b>25</b> 条</div>
+    </div>
+
+    <div class="ov-sys warn">
+      <div class="s-name">Annual Target</div>
+      <div class="s-file">sm('annualtarget')</div>
+      <div class="s-count">营收真实 · 6 项指标是 demo</div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">计划2026</div>
+      <div class="s-file">sm('plan2026')</div>
+      <div class="s-count"><b>47</b> 行 · 4 个父分类</div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">Weekly Report</div>
+      <div class="s-file">sm('weeklyreport')</div>
+      <div class="s-count">3 人 · Report + Minutes</div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">Documentation Storage</div>
+      <div class="s-file">sm('docstorage')</div>
+      <div class="s-count"><b>9</b> 章节</div>
+    </div>
+
+    <div class="ov-sys built">
+      <div class="s-name">Documents Collection</div>
+      <div class="s-file">sm('docscollect')</div>
+      <div class="s-count">全屏 · <b>3</b> 成员 · 独立云端</div>
+    </div>
+
+    <div class="ov-sys read">
+      <div class="s-name">隐藏子表单</div>
+      <div class="s-file">无侧边栏入口</div>
+      <div class="s-count">CAN · CRA · PIF</div>
+    </div>
+  </div>
+
+  <div class="ov-label">外围文件 · 3 个</div>
+  <div class="ov-row3">
+    <div class="ov-sys ext">
+      <div class="s-name">pfu-verify.html</div>
+      <div class="s-file">853 行 · 被 iframe 嵌入</div>
+      <div class="s-count">Stage 1 项目验证</div>
+    </div>
+    <div class="ov-sys ext">
+      <div class="s-name">approve.html</div>
+      <div class="s-file">228 行 · 外部链接打开</div>
+      <div class="s-count">审批页 · 纯 REST 不加载 SDK</div>
+    </div>
+    <div class="ov-sys ext">
+      <div class="s-name">mgd-bms-mobile.html</div>
+      <div class="s-file">447 行 · 独立应用</div>
+      <div class="s-count">手机版 · <span style="color:var(--warn)">不共享数据</span></div>
+    </div>
+  </div>
+
+  <div class="ov-label">云端 · Firestore 项目 mgd-bms · 4 条路径</div>
+  <div class="ov-row4">
+    <div class="cloud-chip">
+      <div class="c-n">bms_data/master</div>
+      <div class="c-d">全部主数据 · 全量覆盖<br>310 KB / 1 MiB</div>
+    </div>
+    <div class="cloud-chip">
+      <div class="c-n">master/snapshots</div>
+      <div class="c-d">每次保存前自动快照<br><span style="color:var(--warn)">3,325 份 · ≈0.98 GiB</span></div>
+    </div>
+    <div class="cloud-chip">
+      <div class="c-n">bms_data/doc_dc</div>
+      <div class="c-d">Documents Collection<br>3 成员 · 4 条领取记录</div>
+    </div>
+    <div class="cloud-chip">
+      <div class="c-n">approvals/{token}</div>
+      <div class="c-d">审批单 · 冻结快照<br>2 条 · 30 天过期</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 第二层 ================= -->
+<div class="section-title">第二层 · 系统卡片（点标题展开）</div>
+<div class="section-note">每张卡片 9 个字段：位置 / 角色 / 状态 / 入口 / 数据键 / 功能清单 / 数据流向 / 依赖 / 加模块挂点。最后一项是给你以后扩展用的。</div>
+
+<!-- 1 综合统计 -->
+<div class="sys-card read" id="c-summary">
+  <div class="sys-head" onclick="toggleCard('c-summary')">
+    <div class="left">
+      <span class="sys-tag">只读</span>
+      <span class="sys-name">综合统计</span>
+      <span class="sys-sub">全系统数据出口 · 不写任何数据</span>
+    </div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-bad">2 处硬编码</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:1019</span> 容器 <span class="loc">#sum</span> · <span class="loc">:1152</span> <span class="loc">#win123Container</span><br>
+      逻辑 <span class="loc">:3412 updateSummary()</span> · 图表 <span class="loc">:4400–5100</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">全系统的数据出口。四张主卡（营收仪表盘 / 客户饼图 / Event List / 投标统计）+ 6 张阶段卡 + 4 张客户卡 + 3 张商会卡。只读，从不写数据。</div></div>
+    <div class="field"><div class="field-label">状态</div>
+      <div class="field-value"><span class="status-badge s-ok">已建</span> · 2 处硬编码影响数字真实性（见第五层 D3、D4）</div></div>
+    <div class="field"><div class="field-label">入口</div>
+      <div class="field-value">侧边栏「综合统计」→ <span class="key">sm('summary')</span></div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value">只读：<span class="key">bids</span> · <span class="key">customers</span> · <span class="key">chambers</span> · <span class="key">projects</span> · <span class="key">projectTracking</span>（通过 <span class="loc">pfuDoneMap()</span>）</div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>营收目标卡</b>：RPM 仪表盘 · 量程 0→1400B · 指针 = PFU Won 金额</div>
+        <div><b>客户信息分析</b>：三片饼图 · 2026 创建数 / 本月新增 / 互动数</div>
+        <div><b>Event List</b>：本月商会出席 · 已出席 / 即将出席两段</div>
+        <div><b>投标统计</b>：项目信息 / A-B 分类 / 预估总额 / 6 张阶段卡</div>
+        <div><b>客户统计</b>：2025 / 2026 / 本周新增 / 本月新增</div>
+        <div><b>商会统计</b>：总计 / 本月已出席 / 本月即将</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value multi">
+        <div>入：bids · customers · chambers · projects · projectTracking</div>
+        <div>出：<span style="color:var(--muted)">无（纯只读，不产生任何数据）</span></div>
+      </div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">上游：客户管理 · 投标 · 客户互动 · 商会（全部 4 个数据模块）。下游：无。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加一张统计卡要改 4 处：① HTML 卡片 ② <span class="loc">updateSummary()</span> 计算 ③ 一个 <span class="loc">render*Chart()</span> ④ 中英词条 <span class="loc">i18n</span>（<span class="loc">:3061</span>）</div></div>
+  </div>
+</div>
+
+<!-- 2 投标 -->
+<div class="sys-card built" id="c-bids">
+  <div class="sys-head" onclick="toggleCard('c-bids')">
+    <div class="left">
+      <span class="sys-tag">核心</span>
+      <span class="sys-name">投标项目追踪</span>
+      <span class="sys-sub">6 个子页签 · 全系统最大的模块</span>
+    </div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">51 条</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:913</span> <span class="loc">#bidsSubTabsRow</span> · 表格渲染 <span class="loc">:5197 renderTable()</span> / <span class="loc">:5291 renderRow()</span><br>
+      子页签切换 <span class="loc">:10553 bidsApplyView()</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">全系统的中心表。所有项目从这里开始，向下游的跟进、验证、审批、报表全部挂在它上面。6 个子页签共用一个 <span class="key">mod='bids'</span>。</div></div>
+    <div class="field"><div class="field-label">入口</div>
+      <div class="field-value">侧边栏「投标项目追踪」→ <span class="key">sm('bids')</span> · 子页签 <span class="loc">bidsSwitchView('table'|'verify'|'approvals'|'tracking'|'mom'|'rfi')</span></div></div>
+    <div class="field"><div class="field-label">6 个子页签</div>
+      <div class="tab-grid">
+        <div class="tab-item"><div class="ti-l">页签 1</div><div class="ti-n">投标列表</div><div class="ti-p">.tc · 主表格</div></div>
+        <div class="tab-item"><div class="ti-l">页签 2</div><div class="ti-n">Project verification</div><div class="ti-p">iframe → pfu-verify.html</div></div>
+        <div class="tab-item"><div class="ti-l">页签 3</div><div class="ti-n">Approvals</div><div class="ti-p">读云端 approvals 集合</div></div>
+        <div class="tab-item"><div class="ti-l">页签 4</div><div class="ti-n">Project Follow-up</div><div class="ti-p">bidsTrackingContainer · 核心</div></div>
+        <div class="tab-item hid"><div class="ti-l">页签 5</div><div class="ti-n">Project MOM</div><div class="ti-p">projectMOM · 5 份</div></div>
+        <div class="tab-item hid"><div class="ti-l">页签 6</div><div class="ti-n">RFI</div><div class="ti-p">projectRFI · 0 条</div></div>
+      </div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">bids</span> · <span class="key">verify</span> · <span class="key">projectTracking</span> · <span class="key">projectMOM</span> · <span class="key">projectRFI</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>投标</b>：增删改查 · A/B 分类 · 预估金额汇总 · 阶段推进 · Excel/CSV 导出导入 · 打印 · 暂停/取消勾选</div>
+        <div><b>筛选</b>：全部 / 投标中 / 跟踪 / 潜在 / 已取消 / Won 六个桶</div>
+        <div><b>行内编辑</b>：可编辑单元格 · 冻结首列 · 列宽拖拽 · 商会出现日期点击即改</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value multi">
+        <div>入：用户录入 / Excel 导入</div>
+        <div>出：<span style="color:var(--tag3)">projectTracking</span>（靠 <span class="loc">filledFromBid</span> 软链接）· <span style="color:var(--tag3)">综合统计</span> · <span style="color:var(--tag3)">Annual Target</span></div>
+      </div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">上游：客户管理（<span class="key">customerName</span> 是自由文本，不是外键）。下游：跟进 · 验证 · 审批 · 报表。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加第 7 个子页签要改 4 处：① 页签按钮 <span class="loc">:913</span> ② 容器 div ③ <span class="loc">bidsApplyView()</span> 的 <span class="loc">show*</span> 变量与显示逻辑 ④ <span class="loc">sm()</span> 开头的隐藏清单（<span class="loc">:5428</span>）</div></div>
+  </div>
+</div>
+
+<!-- 3 PFU -->
+<div class="sys-card built" id="c-pfu">
+  <div class="sys-head" onclick="toggleCard('c-pfu')">
+    <div class="left">
+      <span class="sys-tag">核心</span>
+      <span class="sys-name">Project Follow-up（PFU）</span>
+      <span class="sys-sub">项目执行链 · 结果唯一出口</span>
+    </div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">31 条</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:993</span> <span class="loc">#bidsTrackingContainer</span> · 明细渲染 <span class="loc">:10976 pfuRenderDetail()</span><br>
+      6 阶段定义 <span class="loc">:10590 PFU_STAGES</span> · 记录结构 <span class="loc">:10627 pfuSeed()</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value"><b>全系统唯一的结果出口。</b>项目的 Won / Lost / Cancelled 只在这里填，投标表那边的阶段字段不决定输赢。</div></div>
+    <div class="field"><div class="field-label">6 个阶段</div>
+      <div class="field-value"><span class="loc">1 · Project Info collection → 2 · PQ → 3 · Bidding → 4 · Reviewing → 5 · Negotiation → 6 · Result</span></div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">projectTracking[]</span> —— 全系统字段最多的对象，一条记录最多带 7 个子结构：<br>
+      <span class="loc">tasks[] · log[] · contacts[] · notes[] · result{} · analysis{} · cancel{}</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>阶段推进</b>：6 阶段 · 每阶段带任务清单 · 完成率自动算 progress</div>
+        <div><b>结果填写</b>：Won / Lost / Cancelled · 结果日期 · 原因</div>
+        <div><b>从投标带过来</b>：<span class="loc">pfuFillFromBid()</span> 模糊匹配项目名（100/80/60 分）</div>
+        <div><b>双向同步</b>：<span class="loc">pfuSyncStageToBid()</span> 把 PFU 阶段写回投标表</div>
+        <div><b>三个隐藏表单</b>：PIF · Close Analysis · Cancellation Report</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value multi">
+        <div>入：投标（<span class="loc">filledFromBid</span> 软链接）· 手工录入</div>
+        <div>出：<span style="color:var(--tag3)">bids[].stage</span>（反向写）· <span style="color:var(--tag3)">综合统计营收卡</span> · <span style="color:var(--tag3)">Annual Target 季度营收</span> · <span style="color:var(--tag3)">季度登记表</span> · <span style="color:var(--tag3)">投标列表 Won 桶</span></div>
+      </div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">上游：投标（软链接）。下游：审批 · 所有报表。断链风险：项目改名 → 链接断 → 结果算不进去。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加一个子表单：① 弹窗容器 ② <span class="loc">xxxOpen()</span> / <span class="loc">xxxCollect()</span> / <span class="loc">xxxSave()</span> 三个函数 ③ 在 <span class="loc">projectTracking[]</span> 记录上加一个新键 ④ 在 <span class="loc">pfuRenderDetail()</span> 里加入口按钮</div></div>
+  </div>
+</div>
+
+<!-- 4 客户管理 -->
+<div class="sys-card built" id="c-customers">
+  <div class="sys-head" onclick="toggleCard('c-customers')">
+    <div class="left"><span class="sys-tag">主数据</span><span class="sys-name">客户管理</span><span class="sys-sub">397 条 · 全系统最大的表</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">397 条</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:937</span> <span class="loc">#cs</span> · 筛选栏 <span class="loc">:961 #chf</span> 附近</div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">主数据表。数据量占云端文档的 <b>40%</b>（127 KB / 310 KB），是体积最大的集合。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">customers[]</span> · 字段：<span class="loc">id companyName companyBusiness contactPerson position phone email country priority createdDate</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>客户</b>：增删改查 · 国家/年份/日期筛选 · 公司名搜索 · 空白模板导出</div>
+        <div><b>统计</b>：2025 / 2026 / 本周新增 / 本月新增</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：手工录入 / Excel 导入。出：投标（<span class="key">customerName</span> 自由文本）· 客户互动 · 综合统计 · Annual Target 新客户数</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">无上游。下游：投标 · 客户互动 · 综合统计 · Annual Target。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">字段类扩展改 3 处：① 表单 <span class="loc">openAddModal()</span> ② 表头与 <span class="loc">renderRow()</span> ③ 导入导出 CSV 模板。数据键不用改，新字段自动进云端。</div></div>
+  </div>
+</div>
+
+<!-- 5 客户互动 -->
+<div class="sys-card built" id="c-projects">
+  <div class="sys-head" onclick="toggleCard('c-projects')">
+    <div class="left"><span class="sys-tag">互动</span><span class="sys-name">客户互动</span><span class="sys-sub">日历主视图 · 60 条</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">60 条</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:2772</span> <span class="loc">#custCalContainer</span> · 日历逻辑 <span class="loc">:12509–12872</span><br>
+      视图切换 <span class="loc">:12874 custSwitchView()</span> / <span class="loc">:12885 custApplyView()</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">客户沟通记录。2026-09-22 改成<b>日历优先</b>——进模块先看到月历，不是表格。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">projects[]</span> · 关键字段 <span class="loc">customerName interactionDate interactionType content personInCharge nextStep status notes interactionCount</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>互动</b>：日历主视图 · 按天弹窗 · 预约 · 农历 + 节假日显示</div>
+        <div><b>Records</b>：每个客户只留最新一条已发生记录；未来日期的计划只在日历里</div>
+        <div><b>互动次数</b>：<span class="loc">interactionCount</span> 累加，显示在客户行</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：手工录入。出：综合统计互动数（<span style="color:var(--warn)">带 +125 硬编码</span>）。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">上游：客户管理（<span class="key">customerName</span> 文本匹配）。下游：综合统计。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">改字段：同客户管理 3 处。改日历行为：<span class="loc">cal*</span> 那 40 个函数。</div></div>
+  </div>
+</div>
+
+<!-- 6 商会 -->
+<div class="sys-card built" id="c-chambers">
+  <div class="sys-head" onclick="toggleCard('c-chambers')">
+    <div class="left"><span class="sys-tag">独立</span><span class="sys-name">商会信息</span><span class="sys-sub">25 条 · 不依赖任何模块</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">25 条</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:961</span> <span class="loc">#chf</span> 筛选栏 · 表格复用 <span class="loc">renderTable()</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">独立通讯录。跟投标、客户完全没有数据往来，只给综合统计和 Annual Target 提供「活动出席数」。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">chambers[]</span> · 关键字段 <span class="loc">chamberName country city address phone email website contactPerson position businessScope topic attendanceDate attendanceLocation</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>商会</b>：增删改查 · 出席日期/地点 · 主题 · 负责人</div>
+        <div><b>自动勾选</b>：已过日期 = 已出席，未到 = 即将出席</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：手工录入。出：综合统计 Event List · Annual Target 活动数（<span class="loc">syncQ1Achieved</span>）。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">无依赖。最独立的业务模块。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">同客户管理 3 处。</div></div>
+  </div>
+</div>
+
+<!-- 7 Annual Target -->
+<div class="sys-card warn" id="c-annual">
+  <div class="sys-head" onclick="toggleCard('c-annual')">
+    <div class="left"><span class="sys-tag">报表</span><span class="sys-name">Annual Target</span><span class="sys-sub">营收真实 · 6 项指标是示例数据</span></div>
+    <div class="right"><span class="status-badge s-wait">部分真实</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:1405</span> <span class="loc">#annualTargetContainer</span> · 计算 <span class="loc">:2110–2560</span> · 渲染 <span class="loc">:1700 renderAnnual()</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">销售目标看板。营收数字是真的，六项 KPI 是假的。<b>这页现在不能当真实报表看。</b></div></div>
+    <div class="field"><div class="field-label">状态</div>
+      <div class="field-value"><span class="status-badge s-ok">营收真实</span> <span class="status-badge s-wait">6 项指标是 demo</span><br>
+      <span style="color:var(--muted)">真实：Revenue Achieved · 投标数（<span class="loc">ACH.revenue</span> / <span class="loc">ACH.bidding</span>）<br>
+      假的：Contracts Won · Win Rate · Gross Margin · Average Deal · Pipeline · New Leads · 4 个 owner（Alex/Bella/Chris/Dana）· 行业拆分</span></div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value">只读 <span class="key">bids</span> · <span class="key">projectTracking</span> · <span class="key">customers</span> · <span class="key">chambers</span><br>
+      内部常量 <span class="loc">ACH</span>（:1616）· <span class="loc">DB</span>（:1630，代码注释自己写 demo only）· <span class="loc">ANCHOR</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>双层级营收</b>：MGD 1400B / 销售部 250B</div>
+        <div><b>季度核心块</b>：年度目标 ÷ 4 · 滚动结转</div>
+        <div><b>图表</b>：环形图 · 柱状图 · 季度热力表</div>
+        <div><b>打印</b>：整页 PDF</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：PFU 的 Won 结果（<span class="loc">syncRevenueAchieved</span>）· 投标数（<span class="loc">syncBiddingAchieved</span>）· 新客户（<span class="loc">syncQ1Achieved</span>）。出：无。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">上游：PFU · 投标 · 客户 · 商会。下游：无。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">要接真实数据：写一个 <span class="loc">syncXxxAchieved()</span>，覆盖 <span class="loc">ACH[yr].xxx</span>，然后在 <span class="loc">renderAll()</span> 里调用。改目标值要改代码（<span class="loc">:4489 / :4938</span> 两处）。</div></div>
+  </div>
+</div>
+
+<!-- 8 计划2026 -->
+<div class="sys-card built" id="c-plan">
+  <div class="sys-head" onclick="toggleCard('c-plan')">
+    <div class="left"><span class="sys-tag">独立</span><span class="sys-name">计划2026 / PLAN 2026</span><span class="sys-sub">47 行 · 结构在数据里</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">47 行</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:1167</span> <span class="loc">#plan2026Section</span> · 渲染 <span class="loc">:6664 renderPlanTracking()</span> · 保存 <span class="loc">:6876</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">系统追踪清单。4 个父分类：A SYSTEM TENDER · B BUILD DATABASE · C TRAINING MATERIALS · D BUSINESS MANAGEMENT SYSTEM。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">planTracking[]</span> · 字段 <span class="loc">no content pct annualPlan cumulative pic resources note isParent</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>计划行</b>：加子行 · 删行 · 加分类 · 百分比与状态自动联动</div>
+        <div><b>保存/重置</b>：<span class="loc">savePlanTracking()</span> · 重置标记 <span class="loc">bms_plan_reset_done_v2</span></div>
+        <div><b>拼写检查</b>：<span class="loc">checkPlanSpelling()</span></div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：手工录入。出：无。<b>结构本身在数据里</b>——加分类不用改代码。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">无依赖。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加分类/行 → 界面点，不改代码。</div></div>
+  </div>
+</div>
+
+<!-- 9 周报 -->
+<div class="sys-card built" id="c-wr">
+  <div class="sys-head" onclick="toggleCard('c-wr')">
+    <div class="left"><span class="sys-tag">报表</span><span class="sys-name">Weekly Report</span><span class="sys-sub">3 人 · 周报 + 会议纪要</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-bad">1 个已知缺陷</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:2567</span> <span class="loc">#weeklyReportContainer</span> · 逻辑 <span class="loc">:3900–4400</span> · MOM 渲染 <span class="loc">:3596–3900</span></div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">业务部周报。三个人：Tony Cheong / Mr. Quoc / Ms. Huong。两个子页签：Report（任务表）+ Meeting Minutes（会议纪要）。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">weeklyReports</span> = <span class="loc">{users:{tony:{周号:{...}}, quoc:{}, huong:{}}}</span><br>
+      <span class="key">meetingMinutes</span> = <span class="loc">{seq, records:[], migVersion:3}</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>周报</b>：周切换 · 三人切换 · 任务增删 · 百分比→状态自动联动 · 打印 PDF · 导出汇总 PDF</div>
+        <div><b>会议纪要</b>：议程分组 · 行动项分组 · 优先级/状态配色 · 打印</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：手工录入。出：无（独立）。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">无依赖。体积占云端文档 <b>17%</b>（52 KB）。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加人：改 <span class="loc">wrUserNames</span> / <span class="loc">wrUserColors</span>（:3539 附近）+ 按钮。加子页签：<span class="loc">wrSwitchSub()</span>。</div></div>
+  </div>
+</div>
+
+<!-- 10 文档库 -->
+<div class="sys-card built" id="c-docstore">
+  <div class="sys-head" onclick="toggleCard('c-docstore')">
+    <div class="left"><span class="sys-tag">资料</span><span class="sys-name">Documentation Storage</span><span class="sys-sub">9 章节 · 结构在数据里</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">9 章节</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:2849</span> <span class="loc">#docstorageContainer</span> · 逻辑 <span class="loc">:7740–8937</span>（<span class="loc">doc*</span> 40 个函数）</div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">公司资质与项目资料库。三级结构：章节 → 子节 → 条目。条目挂外部链接（Google Drive / OneDrive）。</div></div>
+    <div class="field"><div class="field-label">9 大章节</div>
+      <div class="field-value"><span class="loc">1. CERTIFICATE · 2. ISO · 3. STAFF · 4. FINANCE · 5. ORGANIZATION CHART · 6. PROJECT INFO · 7. FORMS · 8. PROFILE · 9. DESIGN</span></div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value"><span class="key">docSECTIONS[]</span>（同时存 <span class="loc">bms_doc_data</span> 和云端）· <span class="key">docDeletedSections[]</span>（回收站，当前 0 条）<br>
+      条目字段：<span class="loc">id _id desc dept location collected start remark</span></div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>文档库</b>：9 章节 · 三级结构 · 收集状态打勾 · 位置/部门登记</div>
+        <div><b>仪表盘</b>：进度环 · 饼图 · 追踪表</div>
+        <div><b>章节管理</b>：加/删/改章节与子节 · 回收站</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：手工录入。出：<span style="color:var(--tag3)">doc_dc.docData</span>（Documents Collection 读同一份数据）。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">无业务依赖。有<b>双写</b>：同时写 <span class="loc">bms_doc_data</span> 和 <span class="loc">data.docSECTIONS</span>，靠 <span class="loc">bms_doc_migrated</span> 防重。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加章节 → 界面点，不改代码。<b>结构在数据里。</b></div></div>
+  </div>
+</div>
+
+<!-- 11 Documents Collection -->
+<div class="sys-card built" id="c-dc">
+  <div class="sys-head" onclick="toggleCard('c-dc')">
+    <div class="left"><span class="sys-tag">资料</span><span class="sys-name">Documents Collection</span><span class="sys-sub">全屏独立应用 · 独立云端文档</span></div>
+    <div class="right"><span class="status-badge s-ok">已建</span><span class="status-badge s-info">3 成员</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value"><span class="loc">index.html:8500</span> <span class="loc">#dcApp</span> · 逻辑 <span class="loc">:8937–9760</span>（约 55 个函数）</div></div>
+    <div class="field"><div class="field-label">角色</div>
+      <div class="field-value">购物车式领取文件。进模块后<b>隐藏侧边栏、全屏</b>，是主系统里唯一一个"应用中的小应用"。有独立的成员名单和 PIN。</div></div>
+    <div class="field"><div class="field-label">数据键</div>
+      <div class="field-value">云端独立文档 <span class="key">bms_data/doc_dc</span>：<span class="loc">{members, state:{cart, pickHistory}, docData, updatedAt, updatedBy}</span><br>
+      本机：<span class="loc">shopping_mode_v2_members</span>（成员和 PIN）</div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>领取</b>：选人 → 输 PIN → 浏览章节 → 加购物车 → 结账 → 批量下载</div>
+        <div><b>记录</b>：领取历史 · 历史详情 · 清空历史（需 PIN）</div>
+        <div><b>管理</b>：加/删成员 · 设 PIN · 重置 PIN</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：<span class="loc">docSECTIONS</span>（只读同一份章节数据）。出：<span class="loc">doc_dc.pickHistory</span>（领取记录，当前 4 条）。</div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">读文档库章节。写独立云端文档。跟主数据完全隔离。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加成员 → 界面点。改领取流程 → <span class="loc">doCheckout()</span> / <span class="loc">confirmDownload()</span>。</div></div>
+  </div>
+</div>
+
+<!-- 12 隐藏表单 -->
+<div class="sys-card hid" id="c-hidden">
+  <div class="sys-head" onclick="toggleCard('c-hidden')">
+    <div class="left"><span class="sys-tag">隐藏</span><span class="sys-name">3 个无侧边栏入口的子表单</span><span class="sys-sub">挂在 PFU 里 · 只有输的项目才有内容</span></div>
+    <div class="right"><span class="status-badge s-warn">容易漏</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置</div>
+      <div class="field-value">PIF <span class="loc">:11409–11462</span> · Close Analysis <span class="loc">:11997–12150</span> · Cancellation Report <span class="loc">:12152–12228</span></div></div>
+    <div class="field"><div class="field-label">三个表单</div>
+      <div class="tab-grid">
+        <div class="tab-item"><div class="ti-l">PIF</div><div class="ti-n">Project Information Form</div><div class="ti-p">#pifModal · 写 PFU 记录</div></div>
+        <div class="tab-item hid"><div class="ti-l">CAN</div><div class="ti-n">Close Analysis Report</div><div class="ti-p">#canModal · 写 .analysis</div></div>
+        <div class="tab-item hid"><div class="ti-l">CRA</div><div class="ti-n">Cancellation Report</div><div class="ti-p">#craModal · 写 .cancel</div></div>
+      </div></div>
+    <div class="field"><div class="field-label">功能清单</div>
+      <div class="func-list">
+        <div><b>CAN 丢标分析</b>：谁赢了 · 对手类型 · 对手价格 · 我方报价 · 三条教训 · 还有没有二次机会 · 多久回访</div>
+        <div><b>CRA 取消分析</b>：取消原因 · 是否真死了 · 已发生成本 · 是否索赔 · 有无后续机会 · 文件是否齐</div>
+        <div><b>PIF</b>：项目信息表 · 建筑类型勾选 · 打印</div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value">入：从当前打开的 PFU 记录自动带出。出：写回 <span class="key">projectTracking[].analysis</span> / <span class="key">.cancel</span>。<br>
+      <span style="color:var(--warn)">注意：这两个表单的数据不参与任何统计。填了不会影响营收、不算进任何报表。</span></div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">完全依赖 <span class="loc">pfuCur()</span>——必须先打开一个 PFU 项目才能填。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">三件套：<span class="loc">xxxOpen()</span> + <span class="loc">xxxCollect()</span> + <span class="loc">xxxSave()</span>，然后加弹窗容器和在 PFU 明细里加入口。</div></div>
+  </div>
+</div>
+
+<!-- 13 外围 -->
+<div class="sys-card ext" id="c-ext">
+  <div class="sys-head" onclick="toggleCard('c-ext')">
+    <div class="left"><span class="sys-tag">外围</span><span class="sys-name">3 个外围文件</span><span class="sys-sub">2 个内嵌 · 1 个完全独立</span></div>
+    <div class="right"><span class="status-badge s-info">独立部署</span><span class="toggle">▶</span></div>
+  </div>
+  <div class="sys-body">
+    <div class="field"><div class="field-label">位置与角色</div>
+      <div class="tab-grid">
+        <div class="tab-item"><div class="ti-l">内嵌 · 853 行</div><div class="ti-n">pfu-verify.html</div><div class="ti-p">iframe · Stage 1 验证</div></div>
+        <div class="tab-item"><div class="ti-l">外链 · 228 行</div><div class="ti-n">approve.html</div><div class="ti-p">REST · 审批页</div></div>
+        <div class="tab-item"><div class="ti-l">独立 · 447 行</div><div class="ti-n">mgd-bms-mobile.html</div><div class="ti-p">手机版 · 不共享数据</div></div>
+      </div></div>
+    <div class="field"><div class="field-label">数据流向</div>
+      <div class="field-value multi">
+        <div><b>pfu-verify</b>：iframe 无 Firebase SDK → 通过 <span class="loc">BMS_APPROVAL.create()</span> 让父页写 <span class="key">approvals/{token}</span></div>
+        <div><b>approve</b>：读 <span class="key">approvals/{token}</span> → 写决策 → 父页 <span class="loc">watchApproval</span> 实时收到</div>
+        <div><b>mobile</b>：<span style="color:var(--warn)">完全不连主系统</span>。sw.js 也只缓存它一个文件</div>
+      </div></div>
+    <div class="field"><div class="field-label">依赖</div>
+      <div class="field-value">前两个共用 <span class="loc">mr001.js</span>（345 行）+ <span class="loc">mr001.css</span>（146 行）。mobile 不依赖任何共享层。</div></div>
+    <div class="field"><div class="field-label">加模块挂点</div>
+      <div class="field-value">加一个内嵌页：① 新 html 文件 ② iframe 容器 + <span class="loc">data-src</span>（带版本号防缓存）③ <span class="loc">bidsApplyView()</span> 里加载</div></div>
+  </div>
+</div>
+
+<!-- ================= 第三层 ================= -->
+<div class="section-title">第三层 · 数据流向</div>
+<div class="section-note">四条独立的路，不是一条。写、读、审批、资料各自分开。</div>
+
+<div class="flow-box">
+
+  <div class="flow-block">
+    <div class="flow-h">【写】保存路径 · 每次改动都走这条</div>
+    <div class="flow-line"><span class="src">用户操作</span>（10 个模块任一处）
+   │
+   ▼  saveData()
+<span class="dst">内存 data 对象</span>（15 个键 · 唯一真相源）
+   │
+   ├──▶ <span class="dst">本机 bms_data</span>                      <span class="note">整份 JSON · 只在这台电脑</span>
+   │
+   └──▶ <span class="gate">[ 尺寸守卫 → 登录检查 → 12s 看门狗 → 读 master → 写快照 ]</span>
+              │
+              ▼
+        <span class="dst">Firestore bms_data/master</span>            <span class="note">全量覆盖 · 1 MiB 硬上限</span>
+</div>
+  </div>
+
+  <div class="flow-block">
+    <div class="flow-h">【读】两条路 · 刷新和登录分开</div>
+    <div class="flow-line"><span class="src">页面启动</span>  ──▶  loadData()   ◀── <span class="dst">本机 bms_data</span>      <span class="note">本机优先，秒开</span>
+<span class="src">登录之后</span>  ──▶  syncFromCloud() ◀── <span class="dst">master</span>            <span class="note">verify 做 merge-preserve</span>
+<span class="src">进 DC 模块</span> ──▶  dcCloudLoad()  ◀── <span class="dst">doc_dc</span>             <span class="note">实时监听 onSnapshot</span>
+</div>
+  </div>
+
+  <div class="flow-block">
+    <div class="flow-h">【审批】唯一绕过 saveData() 的链 · 写库绝不自动</div>
+    <div class="flow-line"><span class="src">pfu-verify.html</span>（iframe · 无 SDK）
+   │  BMS_APPROVAL.create()
+   ▼
+<span class="dst">approvals/{token}</span>                       <span class="note">冻结快照 · 30 天过期</span>
+   │  生成链接
+   ▼
+<span class="src">approve.html?token=…</span>                  <span class="note">审批人打开 · 纯 REST</span>
+   │  写决策
+   ▼
+<span class="act">watchApproval</span> onSnapshot  ──▶  <span class="act">apvFetch</span>（只读）
+   │
+   ▼
+<span class="gate">BMS 弹横幅 · 人工点 [Write to BMS]</span>  ──▶  <span class="dst">master</span>
+<span class="note">代码注释明确写：reconciliation 只填内存队列，绝不自动写云</span>
+</div>
+  </div>
+
+  <div class="flow-block">
+    <div class="flow-h">【独立】资料系统 · 与主数据隔离</div>
+    <div class="flow-line"><span class="src">Documentation Storage</span>  ◀──▶  <span class="dst">bms_doc_data</span>（本机）＋ <span class="dst">data.docSECTIONS</span>（云端）  <span class="note">双写</span>
+<span class="src">Documents Collection</span>    ◀──▶  <span class="dst">doc_dc</span>（云端独立文档）                    <span class="note">成员 / 购物车 / 领取历史</span>
+<span class="src">手机版</span>                    ✕    <span class="note">完全不连，独立孤岛</span>
+</div>
+  </div>
+
+</div>
+
+<!-- ================= 第四层 ================= -->
+<div class="section-title">第四层 · 分层依赖 + 加模块该放哪</div>
+<div class="section-note">全部已建。这一层不是排期表，是「以后加东西该挂在哪一层、要改哪几处」。</div>
+
+<table class="rt">
+  <thead>
+    <tr><th style="width:7%">层</th><th style="width:15%">层名</th><th style="width:26%">含什么</th><th style="width:9%">状态</th><th style="width:16%">依赖</th><th style="width:27%">加同类模块要改</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="step">L0</td><td>地基</td>
+      <td>登录 · 本机存储 · Firestore 连接</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>无</td>
+      <td class="sm">不改</td>
+    </tr>
+    <tr>
+      <td class="step">L1</td><td>通道</td>
+      <td>saveData · loadData · syncFromCloud · 备份 / 云版本 / 恢复</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L0</td>
+      <td class="sm">不改。新数据键自动进云端、自动进快照</td>
+    </tr>
+    <tr>
+      <td class="step">L2</td><td>主数据</td>
+      <td>customers（397）</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L1</td>
+      <td class="sm">侧边栏 + sm() 三处 + 表单 + renderRow</td>
+    </tr>
+    <tr class="hl">
+      <td class="step">L3</td><td>项目主表</td>
+      <td>bids（51）· 6 个子页签</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L2</td>
+      <td class="sm">同 L2 + 每个子页签一套容器和切换逻辑</td>
+    </tr>
+    <tr>
+      <td class="step">L4</td><td>旁支</td>
+      <td>projects（60）· chambers（25）</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L2</td>
+      <td class="sm">同 L2</td>
+    </tr>
+    <tr class="hl">
+      <td class="step">L5</td><td>执行链</td>
+      <td>projectTracking（31）→ projectMOM（5）→ projectRFI（0）→ verify（3）</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L3</td>
+      <td class="sm">同 L2 + iframe 嵌入 + 软链接字段</td>
+    </tr>
+    <tr>
+      <td class="step">L6</td><td>审批</td>
+      <td>approvals（2）</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L5</td>
+      <td class="sm">要碰 Firestore REST + token + 外部页</td>
+    </tr>
+    <tr>
+      <td class="step">L7</td><td>报表</td>
+      <td>weeklyReports · meetingMinutes · planTracking（47）· Annual Target</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>L3 · L4</td>
+      <td class="sm">同 L2，只读汇总</td>
+    </tr>
+    <tr>
+      <td class="step">L8</td><td>资料与外围</td>
+      <td>docSECTIONS（9）· doc_dc · pfu-verify · approve · mobile</td>
+      <td><span class="status-badge s-ok">已建</span></td><td>独立</td>
+      <td class="sm">章节类改数据不改代码；文件类要独立部署</td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="margin-top:18px; padding:14px 16px; background:var(--panel); border:1px solid var(--line); border-radius:10px;">
+  <div style="font-size:11px; font-weight:600; color:var(--hint); letter-spacing:.5px; margin-bottom:8px;">加一个新模块 · 5 个挂点（缺一个就出问题）</div>
+  <div style="font-size:12px; color:var(--muted); line-height:1.95;">
+    <b style="color:var(--text)">①</b> 侧边栏加一行 <span class="loc">&lt;div class="ni" onclick="sm('新键')"&gt;</span> —— <span class="loc">index.html:857–865</span><br>
+    <b style="color:var(--text)">②</b> <span class="loc">sm()</span> 开头的「隐藏全部容器」清单加一行 —— <span class="loc">:5428–5468</span>　<span style="color:var(--bad)">漏这行 → 两个模块同时显示</span><br>
+    <b style="color:var(--text)">③</b> <span class="loc">sm()</span> 里加 <span class="loc">else if(m==='新键'){ 显示容器; 调 render }</span> —— <span class="loc">:5473 起</span><br>
+    <b style="color:var(--text)">④</b> <span class="loc">data</span> 加一个键 —— <span style="color:var(--ok)">同步层完全不用改</span>，自动进本机 / 云端 / 快照<br>
+    <b style="color:var(--text)">⑤</b> 写一个 <span class="loc">render新模块()</span>
+  </div>
+</div>
+
+<!-- ================= 第五层 ================= -->
+<div class="section-title">第五层 · 已知缺陷（按严重度）</div>
+
+<div class="risk-box">
+  <div class="risk-title">A 级 · 会出错</div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n">D1</span><span class="ri-t">快照无限增长 · 已接近免费额度上限</span><span class="status-badge s-bad">紧急</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">index.html:7314–7322</span>，每次保存前写一份完整快照<br>
+    <b>现状</b>：<span class="v">3,325 份</span>，从 2026-07-22 到 2026-10-28，约 <span class="v">0.98 GiB</span>。Firestore 免费层 1 GiB。<br>
+    <b>后果</b>：写满后每一次保存都会失败，且被 137 处空 catch 吞掉，界面照显示成功。<br>
+    <b>要做</b>：加快照清理（只留最近 N 份或按天留一份）。<b>等你定策略。</b></div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n">D2</span><span class="ri-t">showToast 重复定义 · 提示显示 undefined</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:7545</span> 与 <span class="loc">:9697</span>，后者胜出<br>
+    <b>影响</b>：<span class="loc">:3820 momSave()</span> 和 <span class="loc">:10249 rfiNote()</span> 按旧签名传字符串 → 显示 undefined<br>
+    <b>要做</b>：改那两处调用为对象签名，或删掉旧的。</div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n">D3</span><span class="ri-t">互动数硬编码 +125</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:3483</span> <span class="loc">var cInteractTotal = 125 + projInteractCount;</span><br>
+    <b>影响</b>：综合统计和客户饼图的「客户互动」永远多 125，不是从数据算的。<br>
+    <b>要做</b>：确认这个 125 是不是历史基数。是有意的就标注，不是就删。</div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n">D4</span><span class="ri-t">中标金额可能被算两次</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:2376 resolveProj()</span> 说不看投标的中标标记 vs <span class="loc">:4925 pfuWonRevenue()</span> 去重时看它<br>
+    <b>影响</b>：同一项目可能进营收一次，也可能两次。<br>
+    <b>要做</b>：统一口径。</div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n">D5</span><span class="ri-t">137 处空 catch · 失败无声</span></div>
+    <div class="ri-r"><b>位置</b>：全文件，云同步相关约 40 处<br>
+    <b>影响</b>：写云端失败时界面照显示成功。D1 爆掉后会以这种方式表现出来。<br>
+    <b>要做</b>：至少把云同步那 40 处改成有提示。</div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n">D6</span><span class="ri-t">searchInput id 重复</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:2872</span>（文档库）与 <span class="loc">:8695</span>（Documents Collection）<br>
+    <b>影响</b>：<span class="loc">getElementById('searchInput')</span> 永远只拿到文档库那个。现在没炸是因为用了 <span class="loc">this.value</span>。<br>
+    <b>要做</b>：给其中一个改名。</div>
+  </div>
+</div>
+
+<div class="risk-box" style="background:var(--warnb); border-color:rgba(245,200,106,.25); margin-top:12px;">
+  <div class="risk-title" style="color:var(--warn)">B 级 · 数字会误导人</div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n" style="color:var(--warn); background:var(--warnb)">D7</span><span class="ri-t">Annual Target 六项指标是 demo 数据</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:1630 DB</span>，代码注释自己写 <span class="loc">QUARTERLY SAMPLE DATA (demo only)</span><br>
+    <b>假的</b>：Contracts Won · Win Rate · Gross Margin · Average Deal · Pipeline · New Leads · 4 个 owner（Alex/Bella/Chris/Dana）· 行业拆分<br>
+    <b>真的</b>：Revenue Achieved · 投标数<br>
+    <b>结论</b>：这页现在不能当真实报表看。</div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n" style="color:var(--warn); background:var(--warnb)">D8</span><span class="ri-t">营收目标硬编码在两处</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:4489</span>（<span class="loc">TARGET=1400, BUSINESS=250</span>）与 <span class="loc">:4938–4939</span><br>
+    <b>影响</b>：改年度目标要改代码，两处都要改，漏一处两边数字就不一致。</div>
+  </div>
+  <div class="risk-item">
+    <div class="ri-h"><span class="ri-n" style="color:var(--warn); background:var(--warnb)">D9</span><span class="ri-t">两张表靠项目名软链接 · 改名即断</span></div>
+    <div class="ri-r"><b>位置</b>：<span class="loc">:10757 filledFromBid</span> / <span class="loc">:10722 pfuMatchBid()</span> 模糊匹配<br>
+    <b>影响</b>：投标改名 → 跟进表找不到 → 结果算不进营收。<br>
+    <b>现状</b>：投标 51 条，跟进只有 31 条，验证只有 3 条。差额里有多少是断链，还没算。</div>
+  </div>
+</div>
+
+<div class="foot">
+  <b>怎么用这份地图</b><br>
+  1. <b>第一层</b>：一眼看见 10 个模块和它们的实际记录数，以及 4 条云端路径。<br>
+  2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。<br>
+  3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
+  4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
+  5. <b>第五层</b>：A 级 6 条会真出错，B 级 3 条会让数字骗人。D1 最急。<br>
+  6. 数据都是 2026-10-28 15:56 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
+</div>
+
+</div>
+
+<div class="legend">
+  <div class="legend-title">图例</div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--ok)"></span> 已建 / 正常</div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--tag3)"></span> 只读模块</div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--warn)"></span> 部分真实 / 待定</div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--tag5)"></span> 隐藏子表单</div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--info)"></span> 外围文件</div>
+  <div class="legend-row"><span class="legend-dot" style="background:var(--bad)"></span> 缺陷</div>
+</div>
+
+<script>
+function toggleCard(id){
+  var el=document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+document.getElementById('c-bids').classList.add('open');
+document.getElementById('c-pfu').classList.add('open');
+</script>
+
+</body>
+</html>

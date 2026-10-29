@@ -7311,16 +7311,31 @@ window.saveData = function(){
   /* `return` matters here (2026-10-07): the whole point of this change is that saveData() hands the
      cloud result back to the caller, so the verification iframe can stop claiming success blindly.
      Without it the function returned undefined and the caller had nothing to wait on. */
-  return fdb.collection('bms_data').doc('master').get().then(function(docSnap){
+  /* Throttle (2026-10-29): one snapshot per 10 minutes per device.
+     Before this, every saveData() wrote a full snapshot. 3,325 snapshots grew in 66 days
+     and filled 98% of the 1 GiB free tier. Skipping the read too saves one Firestore read. */
+  /* Namespace the marker by Firestore project: v1 and v2 live on the same
+     github.io origin, so they share one localStorage and would clobber each other. */
+  var _snapNs = 'bms';
+  try{ if(typeof firebaseConfig !== 'undefined' && firebaseConfig.projectId) _snapNs = firebaseConfig.projectId; }catch(e){}
+  var _snapGapMs = 10 * 60 * 1000;
+  var _snapDue = true;
+  try{
+    var _lastSnap = parseInt(localStorage.getItem(_snapNs + '_last_snap_at') || '0', 10) || 0;
+    _snapDue = (Date.now() - _lastSnap) >= _snapGapMs;
+  }catch(e){ _snapDue = true; }
+
+  return (_snapDue ? fdb.collection('bms_data').doc('master').get().then(function(docSnap){
     if(docSnap.exists){
       // Build readable timestamp: YYYYMMDD_HHmmss, e.g. 20260721_143000
       var d = new Date();
       var pad=function(n){return n<10?'0'+n:''+n;};
       var ts = d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds());
       // Save current cloud data as snapshot (docs auto-sort by ts lexicographically)
-      return fdb.collection('bms_data').doc('master').collection('snapshots').doc(ts).set(docSnap.data());
+      return fdb.collection('bms_data').doc('master').collection('snapshots').doc(ts).set(docSnap.data())
+        .then(function(){ try{ localStorage.setItem(_snapNs + '_last_snap_at', String(Date.now())); }catch(e){} });
     }
-  }).catch(function(e){
+  }) : Promise.resolve()).catch(function(e){
     // ===== Auto-snapshot is best-effort: NEVER let it block the master push =====
     // If the snapshot write fails, we must still write the real data to master.
     console.warn('[Firebase] Auto-snapshot skipped (non-fatal):', e && e.message);
@@ -7337,6 +7352,100 @@ window.saveData = function(){
       return settle({ok:false, why:(e && e.message) || 'unknown'});
     });
 };
+
+// ===== SNAPSHOT PRUNE (2026-10-29) =====
+/* Keeps the snapshot subcollection from growing without limit.
+   Rule (Tony's choice "B"): keep the newest 50, plus the last snapshot of each
+   of the last 90 days. Everything else is deleted. Runs once per device per day.
+   Listing uses the REST API with a field mask so only doc ids come back, not
+   310 KB of data per snapshot. */
+var SNAP_KEEP_RECENT = 50;
+var SNAP_KEEP_DAYS = 90;
+
+function pruneCloudSnapshots(){
+  var proj = '', key = '';
+  try{ proj = firebaseConfig.projectId; key = firebaseConfig.apiKey; }catch(e){ return; }
+  if(!proj || !key) return;
+
+  // Namespaced by project id: v1 and v2 share one github.io origin and one localStorage.
+  var prunedKey = proj + '_snap_pruned_on';
+  var todayKey;
+  try{
+    todayKey = new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(prunedKey) === todayKey) return;
+  }catch(e){ return; }
+
+  var base = 'https://firestore.googleapis.com/v1/projects/' + proj +
+             '/databases/(default)/documents/bms_data/master/snapshots';
+  var ids = [], tok = null, guard = 0;
+
+  function fetchPage(){
+    if(guard++ > 40) return Promise.resolve();       // hard stop: never loop forever
+    var url = base + '?key=' + key + '&pageSize=300&mask.fieldPaths=updatedAt';
+    if(tok) url += '&pageToken=' + encodeURIComponent(tok);
+    return fetch(url).then(function(r){ return r.json(); }).then(function(j){
+      if(!j || !j.documents) return;
+      j.documents.forEach(function(d){ ids.push(d.name.split('/').pop()); });
+      tok = j.nextPageToken || null;
+      if(tok) return fetchPage();
+    });
+  }
+
+  fetchPage().then(function(){
+    if(!ids.length) return;
+    /* Safety: anything not shaped YYYYMMDD_HHmmss is a hand-made snapshot
+       (e.g. 20261027_142332_pre-restore). Never delete those, and never let
+       them occupy a slot in the "newest 50" budget. */
+    var _ok = /^\d{8}_\d{6}$/;
+    var manual = ids.filter(function(i){ return !_ok.test(i); });
+    ids = ids.filter(function(i){ return _ok.test(i); });
+    if(!ids.length) return;
+    ids.sort();                                       // ids are YYYYMMDD_HHmmss
+
+    var keep = {};
+    ids.slice(-SNAP_KEEP_RECENT).forEach(function(i){ keep[i] = 1; });
+
+    var byDay = {}, days = [];
+    ids.forEach(function(i){
+      var day = i.slice(0,8);
+      if(!byDay[day]){ byDay[day] = []; days.push(day); }
+      byDay[day].push(i);
+    });
+    days.sort();
+    days.slice(-SNAP_KEEP_DAYS).forEach(function(day){
+      keep[byDay[day][byDay[day].length - 1]] = 1;
+    });
+
+    var del = ids.filter(function(i){ return !keep[i]; });
+    if(!del.length){
+      try{ localStorage.setItem(prunedKey, todayKey); }catch(e){}
+      return;
+    }
+    if(del.length > 400) del = del.slice(0, 400);     // be gentle on the free tier
+
+    console.log('[Snapshot prune] listing ' + ids.length + ', manual (kept) ' + manual.length + ', deleting ' + del.length);
+
+    var idx = 0, failed = 0;
+    function worker(){
+      if(idx >= del.length) return Promise.resolve();
+      var sid = del[idx++];
+      return fetch(base + '/' + sid + '?key=' + key, { method:'DELETE' })
+        .then(function(r){ if(!r.ok && r.status !== 404) failed++; })
+        .catch(function(){ failed++; })
+        .then(worker);
+    }
+    var runners = [];
+    for(var w = 0; w < 6; w++) runners.push(worker());
+    return Promise.all(runners).then(function(){
+      console.log('[Snapshot prune] done, failed ' + failed);
+      if(!failed){
+        try{ localStorage.setItem(prunedKey, todayKey); }catch(e){}
+      }
+    });
+  }).catch(function(e){
+    console.warn('[Snapshot prune] skipped (non-fatal):', e && e.message);
+  });
+}
 
 // ===== REAL-TIME CLOUD LISTENER =====
 var _cloudUnsubscribe = null;
@@ -7537,6 +7646,8 @@ function testFirebase(){
       listenToCloud();
       // Also do a test
       if(typeof testFirebase === 'function') testFirebase();
+      // Keep the snapshot subcollection bounded (once per device per day)
+      if(typeof pruneCloudSnapshots === 'function') pruneCloudSnapshots();
     }
   }, 2000); // Wait 2s for Firebase SDK to fully load
 })();
