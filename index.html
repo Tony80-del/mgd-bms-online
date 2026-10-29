@@ -8817,7 +8817,7 @@ function docSaveItem(keepOpen){if(keepOpen===undefined)keepOpen=true;
   <div class="main">
     <div class="search-wrap">
       <span class="s-icon">🔍</span>
-      <input id="searchInput" type="text" placeholder="Search by document name, location, source, sub-section..." oninput="dcSetQuery(this.value)">
+      <input id="dcSearchInput" type="text" placeholder="Search by document name, location, source, sub-section..." oninput="dcSetQuery(this.value)">
       <button class="s-clear" id="searchClear" onclick="dcClearQuery()">✕</button>
     </div>
     <div class="panel">
@@ -9444,7 +9444,11 @@ function setQuery(v){
   renderList();
 }
 function clearQuery(){
-  document.getElementById('searchInput').value = '';
+  /* 2026-10-29 — this used to look up the shared 'searchInput' id, which always resolved to
+     the Documentation Storage box (it comes first in the DOM). The DC ✕ therefore cleared the
+     wrong input: DC's own text stayed, and the doc-library box went blank while its table kept
+     the old filter. DC's field is now dcSearchInput; the doc-library one keeps searchInput. */
+  document.getElementById('dcSearchInput').value = '';
   setQuery('');
 }
 function matchesQuery(d){
