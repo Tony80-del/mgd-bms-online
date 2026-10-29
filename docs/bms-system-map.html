@@ -355,7 +355,7 @@
     <div class="field"><div class="field-label">角色</div>
       <div class="field-value">全系统的数据出口。四张主卡（营收仪表盘 / 客户饼图 / Event List / 投标统计）+ 6 张阶段卡 + 4 张客户卡 + 3 张商会卡。只读，从不写数据。</div></div>
     <div class="field"><div class="field-label">状态</div>
-      <div class="field-value"><span class="status-badge s-ok">已建</span> · 2 处硬编码影响数字真实性（见第五层 D3、D4）</div></div>
+      <div class="field-value"><span class="status-badge s-ok">已建</span> · 1 处硬编码影响数字真实性（见第五层 D4）</div></div>
     <div class="field"><div class="field-label">入口</div>
       <div class="field-value">侧边栏「综合统计」→ <span class="key">sm('summary')</span></div></div>
     <div class="field"><div class="field-label">数据键</div>
@@ -927,12 +927,6 @@
     已 push（v1 <span class="loc">b93d886</span>、v2 <span class="loc">f877c7d</span>），线上 sha 已核对。</div>
   </div>
   <div class="risk-item">
-    <div class="ri-h"><span class="ri-n">D3</span><span class="ri-t">互动数硬编码 +125</span></div>
-    <div class="ri-r"><b>位置</b>：<span class="loc">:3483</span> <span class="loc">var cInteractTotal = 125 + projInteractCount;</span><br>
-    <b>影响</b>：综合统计和客户饼图的「客户互动」永远多 125，不是从数据算的。<br>
-    <b>要做</b>：确认这个 125 是不是历史基数。是有意的就标注，不是就删。</div>
-  </div>
-  <div class="risk-item">
     <div class="ri-h"><span class="ri-n">D4</span><span class="ri-t">中标金额可能被算两次</span></div>
     <div class="ri-r"><b>位置</b>：<span class="loc">:2376 resolveProj()</span> 说不看投标的中标标记 vs <span class="loc">:4925 pfuWonRevenue()</span> 去重时看它<br>
     <b>影响</b>：同一项目可能进营收一次，也可能两次。<br>
@@ -980,7 +974,7 @@
   2. <b>第二层</b>：点任意卡片标题展开。每张卡最后一项「加模块挂点」是给你以后扩展用的——照着改就不会漏。<br>
   3. <b>第三层</b>：四条流向分开看。写、读、审批、资料各走各的，别混。<br>
   4. <b>第四层</b>：L0–L8 九层。想知道新东西该放哪层，先看这一层的「依赖」列。<br>
-  5. <b>第五层</b>：A 级 6 条会真出错，B 级 3 条会让数字骗人。<b>D1、D2 已于 2026-10-29 修复</b>，其余 D3–D9 待办。<br>
+  5. <b>第五层</b>：A 级 5 条会真出错，B 级 3 条会让数字骗人。<b>D1、D2 已于 2026-10-29 修复</b>，其余 D4–D9 待办。<br>
   6. 数据都是 2026-10-29 10:20 从 Firestore REST 实测，不是估的。源文件扫描报告见 <span class="loc">docs/BMS-v1-source-audit.md</span>。
 </div>
 
