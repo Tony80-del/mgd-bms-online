@@ -364,7 +364,7 @@
       <td class="step">L0</td><td>地基</td>
       <td class="sm">登录 · 本机存储 · Firestore 连接</td>
       <td><span class="loc">无卡</span></td>
-      <td class="sm">视图 D 标「已建」，视图 B 没有对应卡片</td>
+      <td class="sm">有意不设卡：登录 / 本机存储 / Firestore 连接属运行时地基，不是可展开的业务模块</td>
     </tr>
     <tr>
       <td class="step">L1</td><td>通道</td>
@@ -400,19 +400,19 @@
       <td class="step">L6</td><td>审批</td>
       <td class="sm">approvals（2）</td>
       <td><span class="loc">无卡</span></td>
-      <td class="sm">视图 D 标「已建」，视图 B 没有对应卡片</td>
+      <td class="sm">有意不设卡：审批实现在外围文件 approve.html · pfu-verify.html，已记在 <span class="loc">#c-ext</span> 卡</td>
     </tr>
     <tr>
       <td class="step">L7</td><td>报表</td>
       <td class="sm">weeklyReports · meetingMinutes · planTracking（47）· Annual Target</td>
       <td><span class="loc">#c-annual</span> · <span class="loc">#c-plan</span> · <span class="loc">#c-wr</span> · <span class="loc">#c-summary</span></td>
-      <td class="sm">只读汇总，依赖 L3 · L4</td>
+      <td class="sm">只读汇总，依赖 L3 · L4；<span class="loc">#c-summary</span> 挂本层展示 · 标「跨层」，不单设层</td>
     </tr>
     <tr>
       <td class="step">L8</td><td>资料与外围</td>
       <td class="sm">docSECTIONS（9）· doc_dc · pfu-verify · approve · mobile</td>
       <td><span class="loc">#c-docstore</span> · <span class="loc">#c-dc</span> · <span class="loc">#c-ext</span></td>
-      <td class="sm">章节类改数据不改代码；文件类要独立部署</td>
+      <td class="sm">章节类改数据不改代码；文件类要独立部署。<span class="loc">#c-ext</span> 3 个外围文件同属一类，不拆卡</td>
     </tr>
     <tr>
       <td class="step">L9</td><td>下游</td>
@@ -424,25 +424,27 @@
 </table>
 <div class="section-note" style="margin-top:10px;">
   左三列抄自视图 D；第四列按数据键与卡片内容对应得出，属<b>归类推断</b>，不是页面原有内容。视图 A 「10 个模块」与视图 B 「15 张卡」<b>不是同一维度</b>：L0 / L6 有层无卡，L9 是系统外的下游消费方。<br>
-  <b>待定 3 项（2026-11-05 记录，Tony 未拍板，本表不写死）</b>：① <span class="loc">#c-summary</span> 跨 L2 / L3 / L4 汇总，暂放 L7，要不要单标「跨层」；② L0 / L6 无卡，是补两张卡还是保留「无卡」；③ <span class="loc">#c-ext</span> 一张卡含 L6 审批文件与独立手机版，要不要拆。
+  <b>口径说明 3 条（2026-11-05 定，卡数不变）</b>：① <span class="loc">#c-summary</span> 挂 L7 展示，按本表口径跨 L2 / L3 / L4 汇总，单标「跨层」，<b>不单设层</b>、<span class="loc">data-layer</span> 保持 L7；② L0 / L6 <b>有意不设卡</b>（理由见各行备注），不补卡；③ <span class="loc">#c-ext</span> 3 个外围文件同属一类，<b>不拆卡</b>。三项都只改标注，不改卡数、不改层归属。<br>
+  <b>差异记录（2026-11-05，不写死）</b>：① 的卡内第 5 字段另列 <span class="loc">projectTracking</span>（视图 D 归 L5），与本表原写的 L2 / L3 / L4 不一致；此处只记录，<b>层号不改动</b>。
 </div>
 
 <!-- ================= 视图 B ================= -->
 <div class="section-title">视图 B · 系统卡片（点标题展开）</div>
 <div class="section-note">每张卡片 9 个字段：位置 / 角色 / 状态 / 入口 / 数据键 / 功能清单 / 数据流向 / 依赖 / 加模块挂点。最后一项是给你以后扩展用的。<b>第一张是通道层</b>（云端同步，不属于任何业务模块），<b>最后一张是系统外的下游接收方</b>（2027 业务策略）。<br>
-  <b>排布（2026-11-05）</b>：15 张卡全部带 <span class="loc">L? · #卡id</span> 层标记与 <span class="loc">data-layer</span> 属性，按 <b>L0–L9</b> 分组显示（L0 / L6 有层无卡，只出现层标题）。视觉顺序靠 CSS <span class="loc">order</span>，<b>DOM 字节顺序仍是原模块顺序</b> —— 本会话没有 shell，搬动大段 HTML 不安全；层归属以 <span class="loc">data-layer</span> 与视图 A 归类表为准。归类表 3 项待定（<span class="loc">#c-summary</span> 跨层、L0 / L6 无卡、<span class="loc">#c-ext</span> 拆分）<b>仍没拍板，此处不写死</b>。</div>
+  <b>排布（2026-11-05）</b>：15 张卡全部带 <span class="loc">L? · #卡id</span> 层标记与 <span class="loc">data-layer</span> 属性，按 <b>L0–L9</b> 分组显示（L0 / L6 有层无卡，只出现层标题）。视觉顺序靠 CSS <span class="loc">order</span>，<b>DOM 字节顺序仍是原模块顺序</b> —— 本会话没有 shell，搬动大段 HTML 不安全；层归属以 <span class="loc">data-layer</span> 与视图 A 归类表为准。归类表 3 项已按「<b>不增卡数</b>」收口（2026-11-05）：<span class="loc">#c-summary</span> 单标「跨层」、L0 / L6 保留无卡、<span class="loc">#c-ext</span> 不拆；口径与理由见视图 A 归类表下方。<br>
+  <b style="color:var(--acc)">模块说明索引 / Module Specs</b>：<a href="module-spec-c-sync.md" target="_blank" rel="noopener" style="color:var(--acc); text-decoration:underline; text-underline-offset:2px;">module-spec-c-sync.md</a> —— #c-sync 的独立模块说明，给 AI / 开发者看改动边界；以后每写一份模块说明，在这里加一行。</div>
 
 <!-- 视图 B 容器 · 层为主轴。层标题集中在容器开头，靠 CSS order 分散到各层卡片之前；卡片 DOM 字节顺序保持原样，理由见视图 B 说明。 -->
 <div class="layer-stack">
-<div class="layer-head" style="order:1"><span class="lh-n">L0</span><span class="lh-t">地基</span><span class="lh-c">有层无卡 · 归类表待定 ②</span></div>
+<div class="layer-head" style="order:1"><span class="lh-n">L0</span><span class="lh-t">地基</span><span class="lh-c">有意不设卡 · 运行时地基</span></div>
 <div class="layer-head" style="order:10"><span class="lh-n">L1</span><span class="lh-t">通道</span><span class="lh-c">1 张卡</span></div>
 <div class="layer-head" style="order:20"><span class="lh-n">L2</span><span class="lh-t">主数据</span><span class="lh-c">1 张卡</span></div>
 <div class="layer-head" style="order:30"><span class="lh-n">L3</span><span class="lh-t">项目主表</span><span class="lh-c">1 张卡</span></div>
 <div class="layer-head" style="order:40"><span class="lh-n">L4</span><span class="lh-t">旁支</span><span class="lh-c">2 张卡</span></div>
 <div class="layer-head" style="order:50"><span class="lh-n">L5</span><span class="lh-t">执行链</span><span class="lh-c">2 张卡</span></div>
-<div class="layer-head" style="order:60"><span class="lh-n">L6</span><span class="lh-t">审批</span><span class="lh-c">有层无卡 · 归类表待定 ②</span></div>
-<div class="layer-head" style="order:70"><span class="lh-n">L7</span><span class="lh-t">报表</span><span class="lh-c">4 张卡 · #c-summary 跨层待定 ①</span></div>
-<div class="layer-head" style="order:80"><span class="lh-n">L8</span><span class="lh-t">资料与外围</span><span class="lh-c">3 张卡 · #c-ext 拆卡待定 ③</span></div>
+<div class="layer-head" style="order:60"><span class="lh-n">L6</span><span class="lh-t">审批</span><span class="lh-c">有意不设卡 · 实现在 #c-ext</span></div>
+<div class="layer-head" style="order:70"><span class="lh-n">L7</span><span class="lh-t">报表</span><span class="lh-c">4 张卡 · #c-summary 标「跨层」</span></div>
+<div class="layer-head" style="order:80"><span class="lh-n">L8</span><span class="lh-t">资料与外围</span><span class="lh-c">3 张卡 · #c-ext 不拆</span></div>
 <div class="layer-head" style="order:90"><span class="lh-n">L9</span><span class="lh-t">下游</span><span class="lh-c">1 张卡 · 系统外</span></div>
 
 <!-- 0 云端同步（通道层，不属于任何业务模块） -->
